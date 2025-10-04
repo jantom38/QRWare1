@@ -2,6 +2,7 @@ package com.qrware.repository.user;
 
 import com.qrware.domain.user.User;
 import com.qrware.repository.BaseRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -175,18 +176,21 @@ public interface UserRepository extends BaseRepository<User> {
     /**
      * Reset failed login attempts for user
      */
+    @Modifying
     @Query("UPDATE User u SET u.failedLoginAttempts = 0 WHERE u.id = :userId")
     void resetFailedLoginAttempts(@Param("userId") Long userId);
 
     /**
      * Update last login time
      */
+    @Modifying
     @Query("UPDATE User u SET u.lastLogin = :loginTime WHERE u.id = :userId")
     void updateLastLogin(@Param("userId") Long userId, @Param("loginTime") LocalDateTime loginTime);
 
     /**
      * Unlock user account
      */
+    @Modifying
     @Query("UPDATE User u SET u.lockedUntil = NULL, u.failedLoginAttempts = 0 WHERE u.id = :userId")
     void unlockUser(@Param("userId") Long userId);
 

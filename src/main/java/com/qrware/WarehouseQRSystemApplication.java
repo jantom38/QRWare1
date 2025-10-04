@@ -16,7 +16,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
  * - Asynchronous processing
  */
 @SpringBootApplication
-@EnableJpaAuditing
 @EnableAsync
 @EnableMethodSecurity(prePostEnabled = true)
 public class WarehouseQRSystemApplication {

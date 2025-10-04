@@ -3,6 +3,7 @@ package com.qrware.repository.qr;
 import com.qrware.domain.qr.QRCodeData;
 import com.qrware.domain.qr.QRCodeType;
 import com.qrware.repository.BaseRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -356,18 +357,21 @@ public interface QRCodeDataRepository extends BaseRepository<QRCodeData> {
     /**
      * Update scan statistics
      */
+    @Modifying
     @Query("UPDATE QRCodeData q SET q.scanCount = q.scanCount + 1, q.lastScanned = CURRENT_TIMESTAMP WHERE q.id = :qrCodeId")
     void updateScanStatistics(@Param("qrCodeId") Long qrCodeId);
 
     /**
      * Deactivate expired QR codes
      */
+    @Modifying
     @Query("UPDATE QRCodeData q SET q.active = false WHERE q.expiresAt IS NOT NULL AND q.expiresAt < CURRENT_TIMESTAMP")
     int deactivateExpiredQRCodes();
 
     /**
      * Reset scan count for QR code
      */
+    @Modifying
     @Query("UPDATE QRCodeData q SET q.scanCount = 0, q.lastScanned = NULL WHERE q.id = :qrCodeId")
     void resetScanCount(@Param("qrCodeId") Long qrCodeId);
 
@@ -380,7 +384,10 @@ public interface QRCodeDataRepository extends BaseRepository<QRCodeData> {
     /**
      * Get scan velocity (scans per hour) for QR code
      */
-    @Query("SELECT q.scanCount * 1.0 / (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - q.createdAt)) / 3600) " +
-           "FROM QRCodeData q WHERE q.id = :qrCodeId AND q.createdAt IS NOT NULL")
+    @Query(
+            value = "SELECT q.scan_count * 1.0 / (DATEDIFF('SECOND', q.created_at, CURRENT_TIMESTAMP) / 3600.0) " +
+                    "FROM qr_code_data q WHERE q.id = :qrCodeId AND q.created_at IS NOT NULL",
+            nativeQuery = true
+    )
     Double getScanVelocity(@Param("qrCodeId") Long qrCodeId);
 }

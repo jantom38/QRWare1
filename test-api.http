@@ -1,0 +1,340 @@
+# QRWare API Test File
+# This file can be used with VS Code REST Client extension or IntelliJ HTTP Client
+# Copy and paste these requests into your preferred HTTP client
+
+### Variables
+@baseUrl = http://localhost:8080
+@contentType = application/json
+
+### ============================================
+### 1. HEALTH & STATUS CHECKS (Public)
+### ============================================
+
+### Basic Health Check
+GET {{baseUrl}}/api/health
+
+### Detailed Status
+GET {{baseUrl}}/api/status
+
+### Database Health
+GET {{baseUrl}}/api/health/database
+
+### Ping
+GET {{baseUrl}}/api/ping
+
+### Version Info
+GET {{baseUrl}}/api/version
+
+### Environment Info
+GET {{baseUrl}}/api/environment
+
+### Readiness Check
+GET {{baseUrl}}/api/ready
+
+### Liveness Check
+GET {{baseUrl}}/api/live
+
+### ============================================
+### 2. TEST ENDPOINTS (Public)
+### ============================================
+
+### Public Test Endpoint
+GET {{baseUrl}}/api/test/public
+
+### CORS Test
+GET {{baseUrl}}/api/test/cors
+
+### System Info
+GET {{baseUrl}}/api/test/system-info
+
+### ============================================
+### 3. AUTHENTICATION (Public)
+### ============================================
+
+### Register New User
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "testuser",
+  "email": "test@example.com",
+  "password": "TestPass123!",
+  "firstName": "Test",
+  "lastName": "User",
+  "phone": "+48123456789"
+}
+
+###
+
+### Login
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "usernameOrEmail": "testuser",
+  "password": "TestPass123!"
+}
+
+###
+
+### Register Admin User (for testing admin endpoints)
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "admin",
+  "email": "admin@example.com",
+  "password": "AdminPass123!",
+  "firstName": "Admin",
+  "lastName": "User"
+}
+
+###
+
+### Login as Admin
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "usernameOrEmail": "admin",
+  "password": "AdminPass123!"
+}
+
+###
+
+### Check Username Availability
+GET {{baseUrl}}/api/auth/check-username?username=newuser
+
+###
+
+### Check Email Availability
+GET {{baseUrl}}/api/auth/check-email?email=new@example.com
+
+###
+
+### Request Password Reset
+POST {{baseUrl}}/api/auth/forgot-password
+Content-Type: {{contentType}}
+
+{
+  "email": "test@example.com"
+}
+
+### ============================================
+### 4. PROTECTED ENDPOINTS (Require Token)
+### ============================================
+### Note: Replace YOUR_JWT_TOKEN with actual token from login response
+
+@token = YOUR_JWT_TOKEN
+
+### Get Current User Info
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{token}}
+
+###
+
+### Validate Token
+GET {{baseUrl}}/api/auth/validate
+Authorization: Bearer {{token}}
+
+###
+
+### Protected Test Endpoint
+GET {{baseUrl}}/api/test/protected
+Authorization: Bearer {{token}}
+
+###
+
+### Token Info
+GET {{baseUrl}}/api/test/token-info
+Authorization: Bearer {{token}}
+
+###
+
+### Permission Test
+GET {{baseUrl}}/api/test/permissions
+Authorization: Bearer {{token}}
+
+###
+
+### Warehouse Test Endpoint
+GET {{baseUrl}}/api/test/warehouse
+Authorization: Bearer {{token}}
+
+###
+
+### Manager Test Endpoint
+GET {{baseUrl}}/api/test/manager
+Authorization: Bearer {{token}}
+
+###
+
+### Admin Test Endpoint
+GET {{baseUrl}}/api/test/admin
+Authorization: Bearer {{token}}
+
+###
+
+### Echo Test (POST)
+POST {{baseUrl}}/api/test/echo
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "message": "Hello QRWare!",
+  "timestamp": "2024-01-01T10:00:00",
+  "testData": {
+    "key1": "value1",
+    "key2": 123,
+    "key3": true
+  }
+}
+
+###
+
+### Change Password
+POST {{baseUrl}}/api/auth/change-password
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "currentPassword": "TestPass123!",
+  "newPassword": "NewTestPass123!"
+}
+
+###
+
+### Refresh Token
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: {{contentType}}
+
+{
+  "refreshToken": "YOUR_REFRESH_TOKEN"
+}
+
+###
+
+### Logout
+POST {{baseUrl}}/api/auth/logout
+Authorization: Bearer {{token}}
+
+### ============================================
+### 5. ERROR TESTING
+### ============================================
+
+### Test Error Handling
+GET {{baseUrl}}/api/test/error
+
+###
+
+### Test Unauthorized Access
+GET {{baseUrl}}/api/test/unauthorized
+Authorization: Bearer {{token}}
+
+###
+
+### Test Invalid Token
+GET {{baseUrl}}/api/test/protected
+Authorization: Bearer invalid_token_here
+
+###
+
+### Test Missing Token
+GET {{baseUrl}}/api/test/protected
+
+### ============================================
+### 6. ACTUATOR ENDPOINTS (Some require admin)
+### ============================================
+
+### Health Actuator
+GET {{baseUrl}}/actuator/health
+
+###
+
+### Info Actuator
+GET {{baseUrl}}/actuator/info
+
+###
+
+### Metrics Actuator (Admin only)
+GET {{baseUrl}}/actuator/metrics
+Authorization: Bearer {{token}}
+
+### ============================================
+### 7. QUICK TEST SEQUENCE
+### ============================================
+
+### 1. Check if system is running
+GET {{baseUrl}}/api/health
+
+### 2. Test public endpoint
+GET {{baseUrl}}/api/test/public
+
+### 3. Register user
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "quicktest",
+  "email": "quicktest@example.com",
+  "password": "QuickTest123!",
+  "firstName": "Quick",
+  "lastName": "Test"
+}
+
+### 4. Login and get token
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "usernameOrEmail": "quicktest",
+  "password": "QuickTest123!"
+}
+
+### 5. Test protected endpoint (use token from step 4)
+GET {{baseUrl}}/api/test/protected
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### ============================================
+### EXAMPLE RESPONSES
+### ============================================
+
+###
+# Expected response for /api/health:
+# {
+#   "status": "UP",
+#   "message": "QRWare system is running",
+#   "timestamp": "2024-01-01T10:00:00",
+#   "application": "qrware-warehouse-system",
+#   "version": "1.0.0"
+# }
+
+###
+# Expected response for /api/auth/login:
+# {
+#   "success": true,
+#   "message": "Login successful",
+#   "data": {
+#     "accessToken": "eyJhbGciOiJIUzUxMiJ9...",
+#     "refreshToken": "eyJhbGciOiJIUzUxMiJ9...",
+#     "tokenType": "Bearer",
+#     "expiresIn": 86400,
+#     "userId": 1,
+#     "username": "testuser",
+#     "email": "test@example.com",
+#     "fullName": "Test User",
+#     "roles": ["USER"]
+#   }
+# }
+
+###
+# Expected response for /api/test/protected:
+# {
+#   "message": "Protected endpoint working!",
+#   "timestamp": "2024-01-01T10:00:00",
+#   "user": "testuser",
+#   "userId": 1,
+#   "roles": ["USER"],
+#   "permissions": [],
+#   "status": "success"
+# }

@@ -406,7 +406,16 @@ public interface InventoryItemRepository extends BaseRepository<InventoryItem> {
     /**
      * Find items by FEFO (First Expired, First Out)
      */
-    @Query("SELECT i FROM InventoryItem i WHERE i.product.id = :productId AND i.status = 'AVAILABLE' AND i.quarantine = false AND i.hold = false AND i.availableQuantity > 0 " +
-           "ORDER BY COALESCE(i.expiryDate, DATE '9999-12-31') ASC, i.receivedDate ASC")
+    @Query("""
+    SELECT i FROM InventoryItem i
+    WHERE i.product.id = :productId
+      AND i.status = 'AVAILABLE'
+      AND i.quarantine = false
+      AND i.hold = false
+      AND i.availableQuantity > 0
+    ORDER BY COALESCE(i.expiryDate, CAST('9999-12-31' AS date)) ASC,
+             i.receivedDate ASC
+""")
     List<InventoryItem> findItemsByFEFO(@Param("productId") Long productId);
+
 }

@@ -317,7 +317,7 @@ public interface MovementHistoryRepository extends BaseRepository<MovementHistor
     /**
      * Find recent movements for dashboard
      */
-    @Query("SELECT m FROM MovementHistory m ORDER BY m.movementDate DESC LIMIT 50")
+    @Query("SELECT m FROM MovementHistory m ORDER BY m.movementDate DESC")
     List<MovementHistory> findRecentMovements();
 
     /**
@@ -329,8 +329,8 @@ public interface MovementHistoryRepository extends BaseRepository<MovementHistor
     /**
      * Find last movement for inventory item
      */
-    @Query("SELECT m FROM MovementHistory m WHERE m.inventoryItem.id = :itemId ORDER BY m.movementDate DESC LIMIT 1")
-    MovementHistory findLastMovementByInventoryItem(@Param("itemId") Long itemId);
+    @Query("SELECT m FROM MovementHistory m WHERE m.inventoryItem.id = :itemId ORDER BY m.movementDate DESC")
+    List<MovementHistory> findLastMovementByInventoryItem(@Param("itemId") Long itemId);
 
     /**
      * Find movements with temperature/humidity data

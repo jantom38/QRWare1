@@ -147,14 +147,17 @@ public class InventoryItem extends BaseEntity {
     // Business methods
     @PrePersist
     @PreUpdate
+    private void onPersistOrUpdate() {
+        calculateAvailableQuantity();
+        calculateTotalCost();
+    }
+
     private void calculateAvailableQuantity() {
         if (quantity != null && reservedQuantity != null) {
             this.availableQuantity = quantity - reservedQuantity;
         }
     }
 
-    @PrePersist
-    @PreUpdate
     private void calculateTotalCost() {
         if (quantity != null && unitCost != null) {
             this.totalCost = unitCost.multiply(new BigDecimal(quantity));
