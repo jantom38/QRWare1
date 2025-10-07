@@ -157,7 +157,7 @@ public class AuthenticationService {
             user.setLastName(registerRequest.getLastName());
             user.setPhone(registerRequest.getPhone());
             user.setActive(true);
-            user.setEmailVerified(false); // Require email verification
+            user.setEmailVerified(true); // Auto-verify for dev
 
             // Assign default role
             Role defaultRole = roleRepository.findByName("USER")
