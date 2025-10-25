@@ -72,7 +72,7 @@ public class AuthenticationService {
             User user = userRepository.findByUsernameOrEmail(loginRequest.getUsernameOrEmail())
                 .orElseThrow(() -> new BadCredentialsException("Invalid username/email or password"));
 
-            // Check if user account is active
+            // Check if user account is setActive
             if (!user.getActive()) {
                 userDetailsService.handleFailedLogin(loginRequest.getUsernameOrEmail());
                 throw new DisabledException("User account is disabled");

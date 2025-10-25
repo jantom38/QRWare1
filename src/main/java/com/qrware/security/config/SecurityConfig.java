@@ -98,10 +98,10 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/auth/refresh", "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/health", "/api/status").permitAll()
-            
-            // H2 Console (development only)
+                .requestMatchers(HttpMethod.GET, "/api/test/public").permitAll()
+                // H2 Console (development only)
             .requestMatchers("/h2-console/**").permitAll()
-            
+
             // Actuator endpoints
             .requestMatchers("/actuator/health", "/actuator/info").permitAll()
             .requestMatchers("/actuator/**").hasRole("ADMIN")
@@ -172,8 +172,7 @@ public class SecurityConfig {
     private void configureSecurityHeaders(org.springframework.security.config.annotation.web.configurers.HeadersConfigurer<HttpSecurity> headers) {
         headers
             // Frame options
-            .frameOptions(frameOptions -> frameOptions.deny())
-            
+                .frameOptions(frameOptions -> frameOptions.sameOrigin())
             // Content type options
             .contentTypeOptions(contentTypeOptions -> contentTypeOptions.and())
             
