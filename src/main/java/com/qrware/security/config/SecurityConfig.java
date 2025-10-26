@@ -118,7 +118,7 @@ public class SecurityConfig {
             // User management - only admins can manage users
             .requestMatchers(HttpMethod.GET, "/api/users/me").authenticated()
             .requestMatchers(HttpMethod.PUT, "/api/users/me").authenticated()
-            .requestMatchers("/api/users/**").hasRole("ADMIN")
+                .requestMatchers("/api/users/**").hasAuthority("ADMIN_FULL")
             .requestMatchers("/api/roles/**").hasRole("ADMIN")
             .requestMatchers("/api/permissions/**").hasRole("ADMIN")
             
@@ -233,6 +233,7 @@ public class SecurityConfig {
     /**
      * CORS Configuration
      */
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
