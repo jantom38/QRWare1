@@ -623,9 +623,7 @@ public class UserManagementController {
         }
     }
 
-    /**
-     * Aktualizuje istniejące uprawnienie.
-     */
+
     @PutMapping("/permissions/{id}")
     public ResponseEntity<?> updatePermission(@PathVariable Long id, @Valid @RequestBody PermissionRequest request) {
         try {

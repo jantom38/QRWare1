@@ -119,8 +119,8 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.GET, "/api/users/me").authenticated()
             .requestMatchers(HttpMethod.PUT, "/api/users/me").authenticated()
                 .requestMatchers("/api/users/**").hasAuthority("ADMIN_FULL")
-            .requestMatchers("/api/roles/**").hasRole("ADMIN")
-            .requestMatchers("/api/permissions/**").hasRole("ADMIN")
+            .requestMatchers("/api/roles/**").hasAuthority("ADMIN_FULL")
+            .requestMatchers("/api/permissions/**").hasAuthority("ADMIN_FULL")
             
             // Product management
             .requestMatchers(HttpMethod.GET, "/api/products/**").hasAnyRole("USER", "WAREHOUSE_MANAGER", "ADMIN")
