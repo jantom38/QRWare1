@@ -1,0 +1,148 @@
+// Ścieżka: app/src/main/java/com/qrware/app/ui/viewmodel/ManageRolesViewModel.kt
+package com.qrware.app.ui.viewmodel
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import com.qrware.app.data.model.PermissionResponse
+import com.qrware.app.data.model.RoleRequest
+import com.qrware.app.data.model.RoleResponse
+// BŁĄD: Ta klasa nie istnieje w Twoim projekcie
+// import com.qrware.app.data.remote.Resource
+import com.qrware.app.data.repository.UserManagementRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+data class ManageRolesUiState(
+    val isLoading: Boolean = false,
+    val error: String? = null,
+    val roles: List<RoleResponse> = emptyList(),
+    val allPermissions: List<PermissionResponse> = emptyList(), // Potrzebne do okna edycji
+    val showDialog: DialogState = DialogState.None
+)
+
+sealed class DialogState {
+    object None : DialogState()
+    object Create : DialogState()
+    data class Edit(val role: RoleResponse) : DialogState()
+    data class Delete(val role: RoleResponse) : DialogState()
+}
+
+class ManageRolesViewModel(private val repository: UserManagementRepository) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(ManageRolesUiState())
+    val uiState = _uiState.asStateFlow()
+
+    init {
+        loadData()
+    }
+
+    fun loadData() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+
+            // Pobieramy obie listy
+            val rolesResult = repository.getAllRoles()
+            val permsResult = repository.getAllPermissions()
+
+            // POPRAWKA: Sprawdzamy wyniki za pomocą .fold lub .onSuccess/.onFailure
+            var finalRoles: List<RoleResponse> = emptyList()
+            var finalPerms: List<PermissionResponse> = emptyList()
+            var errorMessage: String? = null
+
+            rolesResult.onSuccess {
+                finalRoles = it
+            }.onFailure {
+                errorMessage = it.message ?: "Błąd pobierania ról"
+            }
+
+            permsResult.onSuccess {
+                finalPerms = it
+            }.onFailure {
+                // Jeśli był już błąd ról, doklejamy ten błąd
+                val permsError = it.message ?: "Błąd pobierania uprawnień"
+                errorMessage = if (errorMessage != null) "$errorMessage; $permsError" else permsError
+            }
+
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    roles = finalRoles,
+                    allPermissions = finalPerms,
+                    error = errorMessage
+                )
+            }
+        }
+    }
+
+    fun requestCreateRole() {
+        _uiState.update { it.copy(showDialog = DialogState.Create, error = null) }
+    }
+
+    fun requestEditRole(role: RoleResponse) {
+        _uiState.update { it.copy(showDialog = DialogState.Edit(role), error = null) }
+    }
+
+    fun requestDeleteRole(role: RoleResponse) {
+        _uiState.update { it.copy(showDialog = DialogState.Delete(role), error = null) }
+    }
+
+    fun dismissDialog() {
+        _uiState.update { it.copy(showDialog = DialogState.None) }
+    }
+
+    fun saveRole(request: RoleRequest, roleId: Long? = null) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) } // Resetuj błąd
+
+            val result = if (roleId == null) {
+                repository.createRole(request)
+            } else {
+                repository.updateRole(roleId, request)
+            }
+
+            // POPRAWKA: Używamy .onSuccess i .onFailure
+            result.onSuccess {
+                _uiState.update { it.copy(showDialog = DialogState.None, isLoading = false) } // Wyłącz ładowanie
+                loadData() // Odśwież listę
+            }.onFailure { exception ->
+                _uiState.update {
+                    it.copy(isLoading = false, error = exception.message ?: "Błąd zapisu")
+                }
+            }
+        }
+    }
+
+    fun deleteRole(role: RoleResponse) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+
+            // POPRAWKA: Używamy .onSuccess i .onFailure
+            repository.deleteRole(role.id)
+                .onSuccess {
+                    _uiState.update { it.copy(showDialog = DialogState.None, isLoading = false) } // Wyłącz ładowanie
+                    loadData() // Odśwież listę
+                }
+                .onFailure { exception ->
+                    _uiState.update {
+                        it.copy(isLoading = false, error = exception.message ?: "Błąd usuwania")
+                    }
+                }
+        }
+    }
+}
+
+// Fabryka (bez zmian)
+class ManageRolesViewModelFactory(
+    private val repository: UserManagementRepository
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(ManageRolesViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return ManageRolesViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
