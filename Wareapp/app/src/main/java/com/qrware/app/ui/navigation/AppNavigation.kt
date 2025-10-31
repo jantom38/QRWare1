@@ -97,7 +97,7 @@ fun AppNavigation(appContainer: AppContainer) {
                 ManageProductsScreen(navController = navController)
             }
             composable("inventory") {
-                InventoryScreen(navController = navController)
+                InventoryScreen(navController = navController, appContainer = appContainer)
             }
             composable("scan_qr") {
                 ScanQrScreen(navController = navController)

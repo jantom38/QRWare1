@@ -141,11 +141,13 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.DELETE, "/api/zones/**", "/api/locations/**").hasRole("ADMIN")
             
             // Inventory management
-            .requestMatchers(HttpMethod.GET, "/api/inventory/**").hasAnyRole("USER", "WAREHOUSE_WORKER", "WAREHOUSE_MANAGER", "ADMIN")
-            .requestMatchers(HttpMethod.POST, "/api/inventory/receive").hasAnyRole("WAREHOUSE_WORKER", "WAREHOUSE_MANAGER", "ADMIN")
-            .requestMatchers(HttpMethod.PUT, "/api/inventory/move").hasAnyRole("WAREHOUSE_WORKER", "WAREHOUSE_MANAGER", "ADMIN")
-            .requestMatchers(HttpMethod.PUT, "/api/inventory/adjust").hasAnyRole("WAREHOUSE_MANAGER", "ADMIN")
-            .requestMatchers(HttpMethod.DELETE, "/api/inventory/**").hasRole("ADMIN")
+          //  .requestMatchers(HttpMethod.GET, "/api/inventory/**").hasAnyRole("USER", "WAREHOUSE_WORKER", "WAREHOUSE_MANAGER", "ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/inventory/**").hasAuthority("ADMIN_FULL")
+
+           //     .requestMatchers(HttpMethod.POST, "/api/inventory/receive").hasAnyRole("WAREHOUSE_WORKER", "WAREHOUSE_MANAGER", "ADMIN")
+           // .requestMatchers(HttpMethod.PUT, "/api/inventory/move").hasAnyRole("WAREHOUSE_WORKER", "WAREHOUSE_MANAGER", "ADMIN")
+            //.requestMatchers(HttpMethod.PUT, "/api/inventory/adjust").hasAnyRole("WAREHOUSE_MANAGER", "ADMIN")
+            //.requestMatchers(HttpMethod.DELETE, "/api/inventory/**").hasRole("ADMIN")
             
             // QR Code operations
             .requestMatchers(HttpMethod.GET, "/api/qr/**").hasAnyRole("USER", "WAREHOUSE_WORKER", "WAREHOUSE_MANAGER", "ADMIN")

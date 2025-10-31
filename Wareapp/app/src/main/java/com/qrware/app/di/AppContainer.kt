@@ -9,6 +9,7 @@ import com.qrware.app.data.remote.ApiService
 import com.qrware.app.data.repository.UserManagementRepository
 import com.qrware.app.ui.viewmodel.AddUserViewModelFactory
 import com.qrware.app.ui.viewmodel.EditUserViewModelFactory
+import com.qrware.app.ui.viewmodel.InventoryViewModelFactory
 import com.qrware.app.ui.viewmodel.ListUsersViewModelFactory
 import com.qrware.app.ui.viewmodel.ManagePermissionsViewModelFactory
 import com.qrware.app.ui.viewmodel.ManageRolesViewModelFactory
@@ -31,9 +32,17 @@ class AppContainer(context: Context) {
     val healthRepository: HealthRepository by lazy { HealthRepository(healthService) }
 
 
-    // --- DODAJ NOWE REPOZYTORIUM ---
+    // --- REPOSITORIES ---
     val userManagementRepository by lazy {
         UserManagementRepository(apiService)
+    }
+    
+    val inventoryRepository by lazy {
+        InventoryRepository(apiService)
+    }
+    
+    val productRepository by lazy {
+        ProductRepository(apiService)
     }
     // Fabryka dla ListUsersViewModel
     val listUsersViewModelFactory: ViewModelProvider.Factory by lazy {
@@ -48,6 +57,10 @@ class AppContainer(context: Context) {
 
     val managePermissionsViewModelFactory: ViewModelProvider.Factory by lazy {
         ManagePermissionsViewModelFactory(userManagementRepository)
+    }
+
+    val inventoryViewModelFactory: ViewModelProvider.Factory by lazy {
+        InventoryViewModelFactory(inventoryRepository)
     }
 
     // NOWA METODA: Fabryka dla EditUserViewModel

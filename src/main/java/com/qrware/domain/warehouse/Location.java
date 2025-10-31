@@ -5,6 +5,7 @@ import com.qrware.domain.inventory.InventoryItem;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.DecimalMin;
 
@@ -128,6 +129,7 @@ public class Location extends BaseEntity {
     private BigDecimal zCoordinate;
 
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<InventoryItem> inventoryItems = new ArrayList<>();
 
     // Constructors

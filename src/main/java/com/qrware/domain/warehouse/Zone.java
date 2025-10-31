@@ -4,6 +4,7 @@ import com.qrware.domain.common.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Min;
 
 import java.util.ArrayList;
@@ -87,6 +88,7 @@ public class Zone extends BaseEntity {
     private String color;
 
     @OneToMany(mappedBy = "zone", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Location> locations = new ArrayList<>();
 
     // Constructors

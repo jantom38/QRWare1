@@ -52,7 +52,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
                         }
                         Spacer(modifier = Modifier.height(8.dp)) // Dodatkowy odstęp
                         Button(
-                            onClick = { navController.navigate("manage_products") },
+                            onClick = { navController.navigate("inventory") },
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text("Zarządzaj Produktami")

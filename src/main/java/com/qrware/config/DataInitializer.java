@@ -19,6 +19,21 @@ import com.qrware.repository.user.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Collections;
 
+import com.qrware.domain.product.Product;
+import com.qrware.domain.product.Category;
+import com.qrware.domain.inventory.InventoryItem;
+import com.qrware.domain.warehouse.Location;
+import com.qrware.domain.warehouse.Zone;
+import com.qrware.domain.warehouse.ZoneType;
+import com.qrware.domain.inventory.InventoryStatus;
+import com.qrware.repository.product.ProductRepository;
+import com.qrware.repository.product.CategoryRepository;
+import com.qrware.repository.inventory.InventoryItemRepository;
+import com.qrware.repository.warehouse.LocationRepository;
+import com.qrware.repository.warehouse.ZoneRepository;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 
 /**
  * Data initializer that creates default roles and permissions on application startup
@@ -40,6 +55,21 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Autowired
+    private InventoryItemRepository inventoryItemRepository;
+
+    @Autowired
+    private LocationRepository locationRepository;
+
+    @Autowired
+    private ZoneRepository zoneRepository;
+
     @Override
     @Transactional
     public void run(String... args) throws Exception {
@@ -47,7 +77,8 @@ public class DataInitializer implements CommandLineRunner {
 
         createPermissions();
         createRoles();
-        createUsers(); // Linia wywołująca metodę, która powodowała błąd
+        createUsers();
+        createSampleData();
 
         logger.info("Default data initialization completed");
     }
@@ -242,5 +273,93 @@ public class DataInitializer implements CommandLineRunner {
     private Role getRole(String name) {
         return roleRepository.findByName(name)
                 .orElseThrow(() -> new RuntimeException("Role not found: " + name));
+    }
+
+    private void createSampleData() {
+        logger.info("Creating sample products and inventory...");
+
+        // Tworzenie przykładowych kategorii
+        Category electronics = createCategoryIfNotExists("ELEC", "Elektronika", "Urządzenia elektroniczne");
+        Category furniture = createCategoryIfNotExists("FURN", "Meble", "Meble biurowe i domowe");
+
+        // Tworzenie stref i lokalizacji
+        Zone storageZone = createZoneIfNotExists("A", "Strefa A", "Główna strefa magazynowa", ZoneType.STORAGE);
+        Location loc1 = createLocationIfNotExists("A-01-01", "Regał A-01, Poziom 01", storageZone);
+        Location loc2 = createLocationIfNotExists("A-01-02", "Regał A-01, Poziom 02", storageZone);
+
+        // Tworzenie przykładowych produktów i inventory
+        Product laptop = createProductIfNotExists("LAP001", "Laptop Dell XPS 13", "Ultrabook 13.3 cali", 
+            new BigDecimal("4999.99"), "SZTUKA", electronics, new BigDecimal("1.2"));
+        createInventoryIfNotExists(laptop, loc1, 15, InventoryStatus.AVAILABLE, "LAP001-001");
+
+        Product chair = createProductIfNotExists("CHR001", "Krzesło biurowe", "Ergonomiczne krzesło", 
+            new BigDecimal("899.99"), "SZTUKA", furniture, new BigDecimal("15.5"));
+        createInventoryIfNotExists(chair, loc2, 8, InventoryStatus.AVAILABLE, "CHR001-001");
+
+        logger.info("Sample data created successfully");
+    }
+
+    private Category createCategoryIfNotExists(String code, String name, String description) {
+        return categoryRepository.findByCode(code).orElseGet(() -> {
+            Category category = new Category();
+            category.setCode(code);
+            category.setName(name);
+            category.setDescription(description);
+            category.setActive(true);
+            return categoryRepository.save(category);
+        });
+    }
+
+    private Zone createZoneIfNotExists(String code, String name, String description, ZoneType type) {
+        return zoneRepository.findByCode(code).orElseGet(() -> {
+            Zone zone = new Zone();
+            zone.setCode(code);
+            zone.setName(name);
+            zone.setDescription(description);
+            zone.setType(type);
+            return zoneRepository.save(zone);
+        });
+    }
+
+    private Location createLocationIfNotExists(String code, String name, Zone zone) {
+        return locationRepository.findByCode(code).orElseGet(() -> {
+            Location location = new Location();
+            location.setCode(code);
+            location.setName(name);
+            location.setDescription("Automatycznie utworzona lokalizacja");
+            location.setZone(zone);
+            return locationRepository.save(location);
+        });
+    }
+
+    private Product createProductIfNotExists(String sku, String name, String description, 
+                                          BigDecimal price, String unit, Category category, BigDecimal weight) {
+        return productRepository.findBySku(sku).orElseGet(() -> {
+            Product product = new Product();
+            product.setSku(sku);
+            product.setName(name);
+            product.setDescription(description);
+            product.setPrice(price);
+            product.setUnitOfMeasure(unit);
+            product.setCategory(category);
+            product.setWeight(weight);
+            product.setActive(true);
+            product.setMinimumStock(5);
+            return productRepository.save(product);
+        });
+    }
+
+    private InventoryItem createInventoryIfNotExists(Product product, Location location, 
+                                                   int quantity, InventoryStatus status, String qrCode) {
+        InventoryItem item = new InventoryItem();
+        item.setProduct(product);
+        item.setLocation(location);
+        item.setQuantity(quantity);
+        item.setReservedQuantity(0);
+        item.setAvailableQuantity(quantity);
+        item.setStatus(status);
+        item.setQrCode(qrCode);
+        item.setReceivedDate(LocalDate.now());
+        return inventoryItemRepository.save(item);
     }
 }
