@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.qrware.app.data.dto.InventoryItemDTO // <-- ZMIANA IMPORTU
+import com.qrware.app.data.dto.InventoryItemDTO
 import com.qrware.app.data.model.InventoryStatus
 import com.qrware.app.di.AppContainer
 import com.qrware.app.ui.viewmodel.InventoryViewModel
@@ -57,6 +57,16 @@ fun InventoryScreen(
                     }
                 }
             )
+        },
+        // --- NOWY PRZYCISK ---
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    navController.navigate("add_product")
+                }
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Dodaj nowy produkt")
+            }
         }
     ) { paddingValues ->
         Column(
@@ -65,6 +75,8 @@ fun InventoryScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
+            // ... (Reszta pliku bez zmian) ...
+
             // Filtry statusu
             StatusFilterRow(
                 onStatusSelected = { status ->
@@ -118,12 +130,11 @@ fun InventoryScreen(
             } else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.weight(1f) // Dodaj wagę, aby paginacja była na dole
+                    modifier = Modifier.weight(1f)
                 ) {
-                    // uiState.inventoryItems to teraz List<InventoryItemDTO>
                     items(uiState.inventoryItems) { item ->
                         InventoryItemCard(
-                            item = item, // Przekazujemy DTO
+                            item = item,
                             onReceiveStock = { quantity, reason ->
                                 viewModel.receiveStock(item.id, quantity, reason)
                             },
@@ -142,7 +153,7 @@ fun InventoryScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 16.dp), // Zmiana z padding(16.dp)
+                            .padding(top = 16.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -168,6 +179,7 @@ fun InventoryScreen(
     }
 }
 
+// ... (reszta plików StatusFilterRow, InventoryItemCard, QuantityDialog bez zmian) ...
 @Composable
 fun StatusFilterRow(onStatusSelected: (InventoryStatus?) -> Unit) {
     LazyRow(
@@ -177,14 +189,14 @@ fun StatusFilterRow(onStatusSelected: (InventoryStatus?) -> Unit) {
             FilterChip(
                 onClick = { onStatusSelected(null) },
                 label = { Text("Wszystkie") },
-                selected = false // Możesz dodać logikę do śledzenia wybranego
+                selected = false
             )
         }
         items(InventoryStatus.values()) { status ->
             FilterChip(
                 onClick = { onStatusSelected(status) },
                 label = { Text(status.name) },
-                selected = false // Możesz dodać logikę do śledzenia wybranego
+                selected = false
             )
         }
     }
@@ -192,7 +204,7 @@ fun StatusFilterRow(onStatusSelected: (InventoryStatus?) -> Unit) {
 
 @Composable
 fun InventoryItemCard(
-    item: InventoryItemDTO, // <-- ZMIANA NA DTO
+    item: InventoryItemDTO,
     onReceiveStock: (BigDecimal, String?) -> Unit,
     onIssueStock: (BigDecimal, String?) -> Unit,
     onDeleteItem: () -> Unit
@@ -213,16 +225,16 @@ fun InventoryItemCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = item.product.name, // Dostęp do ProductDTO
+                        text = item.product.name,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "SKU: ${item.product.sku}", // Dostęp do ProductDTO
+                        text = "SKU: ${item.product.sku}",
                         style = MaterialTheme.typography.bodySmall
                     )
                     Text(
-                        text = "Lokalizacja: ${item.location.name}", // Dostęp do LocationDTO
+                        text = "Lokalizacja: ${item.location.name}",
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -349,7 +361,7 @@ fun QuantityDialog(
                         val qty = BigDecimal(quantity)
                         onConfirm(qty, reason.takeIf { it.isNotBlank() })
                     } catch (e: NumberFormatException) {
-                        // Handle error (np. pokaż błąd walidacji)
+                        // Handle error
                     }
                 },
                 enabled = quantity.isNotBlank() && quantity.toBigDecimalOrNull() != null

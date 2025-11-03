@@ -12,6 +12,5 @@ data class ProductDTO(
     val description: String?,
     val price: BigDecimal?,
     val category: CategoryDTO? // Zagnieżdżone DTO
-    // Zakładam, że na liście nie potrzebujesz wagi, wymiarów itp.
-    // Jeśli tak, dodaj je tutaj.
+
 )

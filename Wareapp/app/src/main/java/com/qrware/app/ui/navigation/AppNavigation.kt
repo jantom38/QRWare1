@@ -1,7 +1,11 @@
 package com.qrware.app.ui.navigation
 
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
@@ -34,6 +38,7 @@ fun AppNavigation(appContainer: AppContainer) {
     }
     if (startDestination != null) {
         NavHost(navController = navController, startDestination = startDestination!!) {
+            // ... (Trasy login, register, home, health bez zmian) ...
             composable("login") {
                 val loginViewModel: LoginViewModel = viewModel(
                     factory = LoginViewModelFactory(appContainer.authRepository, appContainer.tokenManager)
@@ -59,25 +64,16 @@ fun AppNavigation(appContainer: AppContainer) {
                 HealthCheckScreen(navController = navController, viewModel = healthViewModel)
             }
 
-            // --- SEKCJA ZARZĄDZANIA UŻYTKOWNIKAMI ---
-
-            // 1. Główny ekran "hub" z kafelkami
+            // ... (Sekcja Zarządzania Użytkownikami bez zmian) ...
             composable("manage_users") {
                 ManageUsersScreen(navController = navController)
             }
-
-            // 2. Ekran listy użytkowników (docelowy)
             composable("manage_users_list") {
-                // Tworzymy ViewModel używając Factory i AppContainer
                 val listUsersViewModel: ListUsersViewModel = viewModel(
                     factory = ListUsersViewModelFactory(appContainer.userManagementRepository)
                 )
                 ListUsersScreen(navController = navController, viewModel = listUsersViewModel)
             }
-
-            // 3. Ekran dodawania użytkownika (docelowy)
-
-            // 4. Ekran zarządzania rolami (docelowy)
             composable(AdminRoutes.MANAGE_ROLES) {
                 ManageRolesScreen(
                     navController = navController,
@@ -90,35 +86,15 @@ fun AppNavigation(appContainer: AppContainer) {
                     viewModel = viewModel(factory = appContainer.managePermissionsViewModelFactory)
                 )
             }
-
-            // --- POZOSTAŁE TRASY (BEZ DUPLIKATÓW) ---
-
-            composable("manage_products") {
-                ManageProductsScreen(navController = navController)
-            }
-            composable("inventory") {
-                InventoryScreen(navController = navController, appContainer = appContainer)
-            }
-            composable("scan_qr") {
-                ScanQrScreen(navController = navController)
-            }
-
             composable(
                 route = "admin_edit_user/{userId}",
                 arguments = listOf(navArgument("userId") { type = NavType.LongType })
             ) { backStackEntry ->
-
-                // Pobierz ID użytkownika z argumentów nawigacji
                 val userId = backStackEntry.arguments?.getLong("userId")
-
                 if (userId == null) {
-                    // Obsługa błędu - nawiguj z powrotem, jeśli nie ma ID
                     Text("Błąd: Brak ID użytkownika")
-                    LaunchedEffect(Unit) {
-                        navController.popBackStack()
-                    }
+                    LaunchedEffect(Unit) { navController.popBackStack() }
                 } else {
-                    // Utwórz ViewModel używając dedykowanej fabryki
                     val editUserViewModel: EditUserViewModel = viewModel(
                         factory = appContainer.createEditUserViewModelFactory(userId)
                     )
@@ -129,7 +105,6 @@ fun AppNavigation(appContainer: AppContainer) {
                 }
             }
             composable("admin_add_user") {
-                // Utwórz ViewModel używając dedykowanej fabryki
                 val addUserViewModel: AddUserViewModel = viewModel(
                     factory = appContainer.addUserViewModelFactory
                 )
@@ -138,8 +113,34 @@ fun AppNavigation(appContainer: AppContainer) {
                     viewModel = addUserViewModel
                 )
             }
+
+            // --- SEKCJA PRODUKTÓW I MAGAZYNU ---
+
+            composable("manage_products") {
+                // TODO: Zastąp tymczasowy tekst prawdziwym ekranem
+                Text("Ekran Zarządzania Produktami", modifier = Modifier.padding(32.dp).fillMaxSize())
+            }
+
+            composable("inventory") {
+                InventoryScreen(navController = navController, appContainer = appContainer)
+            }
+
+            // --- NOWA TRASA DLA DODAWANIA PRODUKTU ---
+            composable("add_product") {
+                // Upewnij się, że masz `addProductViewModelFactory` w AppContainer
+                // (Instrukcje, jak to dodać, znajdziesz poniżej)
+                val addProductViewModel: AddProductViewModel = viewModel(
+                    factory = appContainer.addProductViewModelFactory
+                )
+                AddProductScreen(
+                    navController = navController,
+                    viewModel = addProductViewModel
+                )
+            }
+
+            composable("scan_qr") {
+                ScanQrScreen(navController = navController)
             }
         }
     }
-
-
+}

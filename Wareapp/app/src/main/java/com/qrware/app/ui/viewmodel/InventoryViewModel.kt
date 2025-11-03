@@ -25,12 +25,11 @@ class InventoryViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                // ZMIANA: response to teraz PaginatedResponse<InventoryItemDTO>
                 val response = inventoryRepository.getAllInventoryItems(page, size)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    inventoryItems = response.content, // <-- ZMIANA (bez .data)
-                    totalPages = response.totalPages, // <-- ZMIANA (bez .data)
+                    inventoryItems = response.content, 
+                    totalPages = response.totalPages,
                     currentPage = page
                 )
             } catch (e: Exception) {

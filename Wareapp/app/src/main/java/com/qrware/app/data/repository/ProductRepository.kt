@@ -1,7 +1,11 @@
 package com.qrware.app.data.repository
 
-import com.qrware.app.data.model.*
+import com.qrware.app.data.dto.ProductDTO
+import com.qrware.app.data.model.CreateProductRequest
+import com.qrware.app.data.model.PaginatedResponse
+import com.qrware.app.data.model.UpdateProductRequest
 import com.qrware.app.data.remote.ApiService
+import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -9,36 +13,20 @@ import javax.inject.Singleton
 class ProductRepository @Inject constructor(
     private val apiService: ApiService
 ) {
+    // Pobieranie wszystkich (zgodnie z poprawionym ApiService)
     suspend fun getAllProducts(
         page: Int = 0,
         size: Int = 20,
         sort: String = "id,asc"
-    ) = apiService.getAllProducts(page, size, sort)
+    ): PaginatedResponse<ProductDTO> {
+        return apiService.getAllProducts(page, size, sort)
+    }
 
-    suspend fun getProductById(productId: Long) = 
-        apiService.getProductById(productId)
+    // Tworzenie nowego produktu
+    suspend fun createProduct(request: CreateProductRequest): ProductDTO {
+        return apiService.createProduct(request)
+    }
 
-    suspend fun getProductBySku(sku: String) = 
-        apiService.getProductBySku(sku)
-
-    suspend fun getProductsByCategory(categoryId: Long) = 
-        apiService.getProductsByCategory(categoryId)
-
-    suspend fun searchProducts(query: String) = 
-        apiService.searchProducts(query)
-
-    suspend fun getActiveProducts() = 
-        apiService.getActiveProducts()
-
-    suspend fun createProduct(request: CreateProductRequest) = 
-        apiService.createProduct(request)
-
-    suspend fun updateProduct(productId: Long, request: UpdateProductRequest) = 
-        apiService.updateProduct(productId, request)
-
-    suspend fun deleteProduct(productId: Long) = 
-        apiService.deleteProduct(productId)
-
-    suspend fun toggleProductActive(productId: Long) = 
-        apiService.toggleProductActive(productId)
+    // Możesz tu dodać resztę funkcji (getProductById, updateProduct itd.)
+    // w miarę potrzeby, używając tego samego wzorca.
 }

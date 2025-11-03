@@ -124,7 +124,7 @@ public class SecurityConfig {
             
             // Product management
             .requestMatchers(HttpMethod.GET, "/api/products/**").hasAnyRole("USER", "WAREHOUSE_MANAGER", "ADMIN")
-            .requestMatchers(HttpMethod.POST, "/api/products/**").hasAnyRole("WAREHOUSE_MANAGER", "ADMIN")
+            .requestMatchers(HttpMethod.POST, "/api/products/**").hasAuthority("ADMIN_FULL")
             .requestMatchers(HttpMethod.PUT, "/api/products/**").hasAnyRole("WAREHOUSE_MANAGER", "ADMIN")
             .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
             

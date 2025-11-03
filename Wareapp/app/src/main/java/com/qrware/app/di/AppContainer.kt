@@ -7,6 +7,7 @@ import com.qrware.app.data.repository.*
 import com.qrware.app.security.TokenManager
 import com.qrware.app.data.remote.ApiService
 import com.qrware.app.data.repository.UserManagementRepository
+import com.qrware.app.ui.viewmodel.AddProductViewModelFactory
 import com.qrware.app.ui.viewmodel.AddUserViewModelFactory
 import com.qrware.app.ui.viewmodel.EditUserViewModelFactory
 import com.qrware.app.ui.viewmodel.InventoryViewModelFactory
@@ -44,6 +45,9 @@ class AppContainer(context: Context) {
     val productRepository by lazy {
         ProductRepository(apiService)
     }
+    val addProductViewModelFactory by lazy {
+        AddProductViewModelFactory(productRepository)
+    }
     // Fabryka dla ListUsersViewModel
     val listUsersViewModelFactory: ViewModelProvider.Factory by lazy {
         ListUsersViewModelFactory(userManagementRepository)
@@ -68,4 +72,5 @@ class AppContainer(context: Context) {
     fun createEditUserViewModelFactory(userId: Long): ViewModelProvider.Factory {
         return EditUserViewModelFactory(userManagementRepository, userId)
     }
+
 }

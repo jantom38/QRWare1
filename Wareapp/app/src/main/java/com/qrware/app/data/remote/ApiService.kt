@@ -69,81 +69,89 @@ interface ApiService {
     suspend fun deletePermission(@Path("id") permissionId: Long): ApiResponse<Unit>
 
 
-    // --- ENDPOINTY INVENTORY (ZAKTUALIZOWANE - USUNIĘTO ApiResponse<...>) ---
+    // --- ENDPOINTY INVENTORY (Poprawione) ---
 
     @GET("api/inventory")
     suspend fun getAllInventoryItems(
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20,
         @Query("sort") sort: String = "id,asc"
-    ): PaginatedResponse<InventoryItemDTO> // <-- ZMIANA
+    ): PaginatedResponse<InventoryItemDTO>
 
     @GET("api/inventory/{id}")
-    suspend fun getInventoryItemById(@Path("id") itemId: Long): InventoryItemDTO // <-- ZMIANA
+    suspend fun getInventoryItemById(@Path("id") itemId: Long): InventoryItemDTO
 
     @GET("api/inventory/product/{productId}")
-    suspend fun getInventoryByProduct(@Path("productId") productId: Long): List<InventoryItemDTO> // <-- ZMIANA
+    suspend fun getInventoryByProduct(@Path("productId") productId: Long): List<InventoryItemDTO>
 
     @GET("api/inventory/location/{locationId}")
-    suspend fun getInventoryByLocation(@Path("locationId") locationId: Long): List<InventoryItemDTO> // <-- ZMIANA
+    suspend fun getInventoryByLocation(@Path("locationId") locationId: Long): List<InventoryItemDTO>
 
     @GET("api/inventory/status/{status}")
-    suspend fun getInventoryByStatus(@Path("status") status: InventoryStatus): List<InventoryItemDTO> // <-- ZMIANA
+    suspend fun getInventoryByStatus(@Path("status") status: InventoryStatus): List<InventoryItemDTO>
 
     @POST("api/inventory")
-    suspend fun createInventoryItem(@Body request: CreateInventoryRequest): InventoryItemDTO // <-- ZMIANA
+    suspend fun createInventoryItem(@Body request: CreateInventoryRequest): InventoryItemDTO
 
     @PUT("api/inventory/{id}")
     suspend fun updateInventoryItem(
         @Path("id") itemId: Long,
         @Body request: UpdateInventoryRequest
-    ): InventoryItemDTO // <-- ZMIANA
+    ): InventoryItemDTO
 
     @DELETE("api/inventory/{id}")
-    suspend fun deleteInventoryItem(@Path("id") itemId: Long): Response<Unit> // <-- ZMIANA na Response<Unit> dla HTTP 204
+    suspend fun deleteInventoryItem(@Path("id") itemId: Long): Response<Unit>
 
     @POST("api/inventory/{id}/receive")
     suspend fun receiveStock(
         @Path("id") itemId: Long,
         @Body request: QuantityUpdateRequest
-    ): InventoryItemDTO // <-- ZMIANA
+    ): InventoryItemDTO
 
     @POST("api/inventory/{id}/issue")
     suspend fun issueStock(
         @Path("id") itemId: Long,
         @Body request: QuantityUpdateRequest
-    ): InventoryItemDTO // <-- ZMIANA
+    ): InventoryItemDTO
 
-    // --- ENDPOINTY PRODUCTS ---
-    // (Prawdopodobnie też powinny być zmienione, ale na razie zostawiam)
+    // --- ENDPOINTY PRODUCTS (ZAKTUALIZOWANE DO DTO) ---
+
     @GET("api/products")
     suspend fun getAllProducts(
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20,
         @Query("sort") sort: String = "id,asc"
-    ): ApiResponse<PaginatedResponse<Product>>
-    // ... (reszta bez zmian) ...
+    ): PaginatedResponse<ProductDTO> // <-- ZMIANA
+
     @GET("api/products/{id}")
-    suspend fun getProductById(@Path("id") productId: Long): ApiResponse<Product>
+    suspend fun getProductById(@Path("id") productId: Long): ProductDTO // <-- ZMIANA
+
     @GET("api/products/sku/{sku}")
-    suspend fun getProductBySku(@Path("sku") sku: String): ApiResponse<Product>
+    suspend fun getProductBySku(@Path("sku") sku: String): ProductDTO // <-- ZMIANA
+
     @GET("api/products/category/{categoryId}")
-    suspend fun getProductsByCategory(@Path("categoryId") categoryId: Long): ApiResponse<List<Product>>
+    suspend fun getProductsByCategory(@Path("categoryId") categoryId: Long): List<ProductDTO> // <-- ZMIANA
+
     @GET("api/products/search")
-    suspend fun searchProducts(@Query("query") query: String): ApiResponse<List<Product>>
+    suspend fun searchProducts(@Query("query") query: String): List<ProductDTO> // <-- ZMIANA
+
     @GET("api/products/active")
-    suspend fun getActiveProducts(): ApiResponse<List<Product>>
+    suspend fun getActiveProducts(): List<ProductDTO> // <-- ZMIANA
+
     @POST("api/products")
-    suspend fun createProduct(@Body request: CreateProductRequest): ApiResponse<Product>
+    suspend fun createProduct(@Body request: CreateProductRequest): ProductDTO // <-- ZMIANA
+
     @PUT("api/products/{id}")
     suspend fun updateProduct(
         @Path("id") productId: Long,
         @Body request: UpdateProductRequest
-    ): ApiResponse<Product>
+    ): ProductDTO // <-- ZMIANA
+
     @DELETE("api/products/{id}")
-    suspend fun deleteProduct(@Path("id") productId: Long): ApiResponse<Unit>
+    suspend fun deleteProduct(@Path("id") productId: Long): Response<Unit> // <-- ZMIANA
+
     @PATCH("api/products/{id}/toggle-active")
-    suspend fun toggleProductActive(@Path("id") productId: Long): ApiResponse<Product>
+    suspend fun toggleProductActive(@Path("id") productId: Long): ProductDTO // <-- ZMIANA
 }
 
 // ... (TestService i HealthService bez zmian) ...
