@@ -63,9 +63,8 @@ class AppContainer(context: Context) {
         ManagePermissionsViewModelFactory(userManagementRepository)
     }
 
-    val inventoryViewModelFactory: ViewModelProvider.Factory by lazy {
-        InventoryViewModelFactory(inventoryRepository)
-    }
+    val inventoryViewModelFactory: InventoryViewModelFactory
+        get() = InventoryViewModelFactory(productRepository) // Przekazujemy productRepository
 
     // NOWA METODA: Fabryka dla EditUserViewModel
     // Potrzebuje userId, więc jest to funkcja, a nie 'val'

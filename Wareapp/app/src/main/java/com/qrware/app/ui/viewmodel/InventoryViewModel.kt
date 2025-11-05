@@ -2,33 +2,41 @@ package com.qrware.app.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.qrware.app.data.model.*
-import com.qrware.app.data.dto.InventoryItemDTO
-import com.qrware.app.data.repository.InventoryRepository
+import com.qrware.app.data.dto.ProductDTO
+import com.qrware.app.data.repository.ProductRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class InventoryViewModel(
-    private val inventoryRepository: InventoryRepository
+    private val productRepository: ProductRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(InventoryUiState())
-    val uiState: StateFlow<InventoryUiState> = _uiState.asStateFlow()
+    // ZMIANA: Domyślnie filtrujemy po 'Aktywne' (true)
+    private val _uiState = MutableStateFlow(ProductListUiState(activeFilter = true))
+    val uiState: StateFlow<ProductListUiState> = _uiState.asStateFlow()
 
     init {
-        loadInventoryItems()
+        // Ładujemy produkty z domyślnym filtrem
+        loadProducts(active = _uiState.value.activeFilter)
     }
 
-    fun loadInventoryItems(page: Int = 0, size: Int = 20) {
+    // ZMIANA: Funkcja ładująca produkty przyjmuje i przekazuje filtr
+    fun loadProducts(
+        page: Int = 0,
+        size: Int = 20,
+        active: Boolean? = _uiState.value.activeFilter // Pobierz bieżący filtr
+    ) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            // ZMIANA: Zapisz stan filtra przy ładowaniu
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null, activeFilter = active)
             try {
-                val response = inventoryRepository.getAllInventoryItems(page, size)
+                // ZMIANA: Przekazujemy filtr 'active' do repozytorium
+                val response = productRepository.getAllProducts(page, size, "id,asc", active)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    inventoryItems = response.content, 
+                    products = response.content,
                     totalPages = response.totalPages,
                     currentPage = page
                 )
@@ -41,111 +49,34 @@ class InventoryViewModel(
         }
     }
 
-    fun searchByProduct(productId: Long) {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            try {
-                // ZMIANA: response to teraz List<InventoryItemDTO>
-                val response = inventoryRepository.getInventoryByProduct(productId)
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    inventoryItems = response // <-- ZMIANA (bez .data)
-                )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = e.message ?: "Błąd podczas wyszukiwania"
-                )
-            }
+    // --- NOWA FUNKCJA DO FILTROWANIA ---
+    /**
+     * Wywoływana po kliknięciu kafelka filtra.
+     * Ładuje pierwszą stronę przefiltrowanych danych.
+     * 'null' oznacza "Wszystkie"
+     */
+    fun filterByActiveStatus(active: Boolean?) {
+        // Załaduj od nowa tylko jeśli filtr się zmienił
+        if (active != _uiState.value.activeFilter) {
+            loadProducts(page = 0, active = active)
         }
     }
 
-    fun searchByLocation(locationId: Long) {
+    fun deleteProduct(productId: Long) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                // ZMIANA: response to teraz List<InventoryItemDTO>
-                val response = inventoryRepository.getInventoryByLocation(locationId)
+                productRepository.deleteProduct(productId)
+                // ZMIANA: Odśwież listę z bieżącym filtrem
+                loadProducts(
+                    page = _uiState.value.currentPage,
+                    active = _uiState.value.activeFilter
+                )
                 _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    inventoryItems = response // <-- ZMIANA (bez .data)
+                    successMessage = "Produkt usunięty pomyślnie"
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = e.message ?: "Błąd podczas wyszukiwania"
-                )
-            }
-        }
-    }
-
-    fun filterByStatus(status: InventoryStatus) {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            try {
-                // ZMIANA: response to teraz List<InventoryItemDTO>
-                val response = inventoryRepository.getInventoryByStatus(status)
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    inventoryItems = response // <-- ZMIANA (bez .data)
-                )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = e.message ?: "Błąd podczas filtrowania"
-                )
-            }
-        }
-    }
-
-    // Funkcje receive, issue, delete nie wymagają zmian w logice,
-    // ponieważ po prostu wywołują loadInventoryItems(), która jest już poprawiona.
-
-    fun receiveStock(itemId: Long, quantity: java.math.BigDecimal, reason: String?) {
-        viewModelScope.launch {
-            try {
-                val request = QuantityUpdateRequest(quantity, reason)
-                inventoryRepository.receiveStock(itemId, request) // Ta funkcja już nie rzuca błędu
-                loadInventoryItems() // Odśwież listę
-                _uiState.value = _uiState.value.copy(
-                    successMessage = "Przyjęto towar pomyślnie"
-                )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    error = e.message ?: "Błąd podczas przyjmowania towaru"
-                )
-            }
-        }
-    }
-
-    fun issueStock(itemId: Long, quantity: java.math.BigDecimal, reason: String?) {
-        viewModelScope.launch {
-            try {
-                val request = QuantityUpdateRequest(quantity, reason)
-                inventoryRepository.issueStock(itemId, request)
-                loadInventoryItems() // Odśwież listę
-                _uiState.value = _uiState.value.copy(
-                    successMessage = "Wydano towar pomyślnie"
-                )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    error = e.message ?: "Błąd podczas wydawania towaru"
-                )
-            }
-        }
-    }
-
-    fun deleteInventoryItem(itemId: Long) {
-        viewModelScope.launch {
-            try {
-                inventoryRepository.deleteInventoryItem(itemId)
-                loadInventoryItems() // Odśwież listę
-                _uiState.value = _uiState.value.copy(
-                    successMessage = "Pozycja usunięta pomyślnie"
-                )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    error = e.message ?: "Błąd podczas usuwania"
+                    error = e.message ?: "Błąd podczas usuwania produktu"
                 )
             }
         }
@@ -160,24 +91,31 @@ class InventoryViewModel(
 
     fun nextPage() {
         if (_uiState.value.currentPage < _uiState.value.totalPages - 1) {
-            loadInventoryItems(_uiState.value.currentPage + 1)
+            // ZMIANA: Przekaż filtr
+            loadProducts(
+                page = _uiState.value.currentPage + 1,
+                active = _uiState.value.activeFilter
+            )
         }
     }
 
     fun previousPage() {
         if (_uiState.value.currentPage > 0) {
-            loadInventoryItems(_uiState.value.currentPage - 1)
+            // ZMIANA: Przekaż filtr
+            loadProducts(
+                page = _uiState.value.currentPage - 1,
+                active = _uiState.value.activeFilter
+            )
         }
     }
 }
 
-// Ten plik (InventoryUiState) pozostaje bez zmian,
-// ponieważ już używa InventoryItemDTO
-data class InventoryUiState(
+data class ProductListUiState(
     val isLoading: Boolean = false,
-    val inventoryItems: List<InventoryItemDTO> = emptyList(),
+    val products: List<ProductDTO> = emptyList(),
     val error: String? = null,
     val successMessage: String? = null,
     val currentPage: Int = 0,
-    val totalPages: Int = 0
+    val totalPages: Int = 0,
+    val activeFilter: Boolean? = true // <-- DODANE POLE STANU (domyślnie true)
 )

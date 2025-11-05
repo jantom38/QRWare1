@@ -120,8 +120,9 @@ interface ApiService {
     suspend fun getAllProducts(
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20,
-        @Query("sort") sort: String = "id,asc"
-    ): PaginatedResponse<ProductDTO> // <-- ZMIANA
+        @Query("sort") sort: String = "id,asc",
+        @Query("active") active: Boolean? = null
+    ): PaginatedResponse<ProductDTO>
 
     @GET("api/products/{id}")
     suspend fun getProductById(@Path("id") productId: Long): ProductDTO // <-- ZMIANA

@@ -2,16 +2,19 @@ package com.qrware.app.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.qrware.app.data.repository.InventoryRepository
+// ZMIANA: Importujemy ProductRepository
+import com.qrware.app.data.repository.ProductRepository
 
 class InventoryViewModelFactory(
-    private val inventoryRepository: InventoryRepository
+    // ZMIANA: Wymagamy ProductRepository
+    private val productRepository: ProductRepository
 ) : ViewModelProvider.Factory {
-    
+
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(InventoryViewModel::class.java)) {
-            return InventoryViewModel(inventoryRepository) as T
+            // ZMIANA: Przekazujemy productRepository
+            return InventoryViewModel(productRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

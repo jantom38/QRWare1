@@ -5,6 +5,14 @@ import com.qrware.domain.product.Category;
 import com.qrware.repository.product.ProductRepository;
 import com.qrware.repository.product.CategoryRepository;
 import com.qrware.exception.ResourceNotFoundException;
+
+
+// --- NOWE IMPORTY ---
+import com.qrware.controller.ProductController.ProductDTO; // Import wewnętrznej klasy DTO
+import com.qrware.controller.ProductController.CategoryDTO; // Import wewnętrznej klasy DTO
+import java.util.stream.Collectors;
+// --- KONIEC NOWYCH IMPORTÓW ---
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,18 +40,33 @@ public class ProductController {
     // Pobierz wszystkie produkty z paginacją
     @GetMapping
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
-    public ResponseEntity<Page<Product>> getAllProducts(Pageable pageable) {
-        Page<Product> products = productRepository.findAll(pageable);
-        return ResponseEntity.ok(products);
-    }
+    public ResponseEntity<Page<ProductDTO>> getAllProducts(
+            Pageable pageable,
+            @RequestParam(required = false) Boolean active // <-- NOWY PARAMETR
+    ) {
+        Page<Product> productsPage;
 
+        // --- ZMODYFIKOWANA LOGIKA ---
+        if (active == null) {
+            // Jeśli ?active= nie jest podane, pobierz wszystko
+            productsPage = productRepository.findAll(pageable);
+        } else {
+            // Jeśli ?active=true lub ?active=false jest podane, filtruj
+            productsPage = productRepository.findByActive(active, pageable);
+        }
+        // --- KONIEC ZMIAN ---
+
+        Page<ProductDTO> productsDTOPage = productsPage.map(this::convertToDTO);
+        return ResponseEntity.ok(productsDTOPage);
+    }
     // Pobierz produkt po ID
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
-    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
+    public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
         Optional<Product> product = productRepository.findById(id);
         if (product.isPresent()) {
-            return ResponseEntity.ok(product.get());
+            // ZMIANA: Konwertuj na DTO przed zwrotem
+            return ResponseEntity.ok(convertToDTO(product.get()));
         }
         throw new ResourceNotFoundException("Product", "id", id);
     }
@@ -51,10 +74,11 @@ public class ProductController {
     // Pobierz produkt po SKU
     @GetMapping("/sku/{sku}")
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
-    public ResponseEntity<Product> getProductBySku(@PathVariable String sku) {
+    public ResponseEntity<ProductDTO> getProductBySku(@PathVariable String sku) {
         Optional<Product> product = productRepository.findBySku(sku);
         if (product.isPresent()) {
-            return ResponseEntity.ok(product.get());
+            // ZMIANA: Konwertuj na DTO przed zwrotem
+            return ResponseEntity.ok(convertToDTO(product.get()));
         }
         throw new ResourceNotFoundException("Product", "sku", sku);
     }
@@ -62,32 +86,43 @@ public class ProductController {
     // Pobierz produkty po kategorii
     @GetMapping("/category/{categoryId}")
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
-    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable Long categoryId) {
+    public ResponseEntity<List<ProductDTO>> getProductsByCategory(@PathVariable Long categoryId) {
         List<Product> products = productRepository.findByCategoryId(categoryId);
-        return ResponseEntity.ok(products);
+        // ZMIANA: Mapuj listę na DTO
+        List<ProductDTO> productDTOs = products.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(productDTOs);
     }
 
     // Wyszukaj produkty po nazwie
     @GetMapping("/search")
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
-    public ResponseEntity<List<Product>> searchProducts(@RequestParam String query) {
+    public ResponseEntity<List<ProductDTO>> searchProducts(@RequestParam String query) {
         List<Product> products = productRepository.findByNameContainingIgnoreCase(query);
-        return ResponseEntity.ok(products);
+        // ZMIANA: Mapuj listę na DTO
+        List<ProductDTO> productDTOs = products.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(productDTOs);
     }
 
     // Pobierz aktywne produkty
     @GetMapping("/active")
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
-    public ResponseEntity<List<Product>> getActiveProducts() {
+    public ResponseEntity<List<ProductDTO>> getActiveProducts() {
         List<Product> products = productRepository.findByActiveTrue();
-        return ResponseEntity.ok(products);
+        // ZMIANA: Mapuj listę na DTO
+        List<ProductDTO> productDTOs = products.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(productDTOs);
     }
 
     // Dodaj nowy produkt
     @PostMapping
     @PreAuthorize("hasAuthority('PRODUCT_WRITE')")
-    public ResponseEntity<Product> createProduct(@Valid @RequestBody CreateProductRequest request) {
-        // Sprawdź czy SKU już istnieje
+    public ResponseEntity<ProductDTO> createProduct(@Valid @RequestBody CreateProductRequest request) {
         if (productRepository.existsBySku(request.getSku())) {
             return ResponseEntity.badRequest().build();
         }
@@ -104,30 +139,28 @@ public class ProductController {
         product.setDimensionsHeight(request.getHeight());
         product.setActive(request.getActive() != null ? request.getActive() : true);
 
-        // Ustaw kategorię jeśli podana
         if (request.getCategoryId() != null) {
             Optional<Category> category = categoryRepository.findById(request.getCategoryId());
-            if (category.isPresent()) {
-                product.setCategory(category.get());
-            }
+            category.ifPresent(product::setCategory); // Bezpieczniejsze ustawienie
         }
 
         Product savedProduct = productRepository.save(product);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
+        // ZMIANA: Zwróć DTO
+        return ResponseEntity.status(HttpStatus.CREATED).body(convertToDTO(savedProduct));
     }
 
     // Aktualizuj produkt
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('PRODUCT_WRITE')")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, 
-                                               @Valid @RequestBody UpdateProductRequest request) {
+    public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long id,
+                                                    @Valid @RequestBody UpdateProductRequest request) {
         Optional<Product> existingProduct = productRepository.findById(id);
         if (!existingProduct.isPresent()) {
             throw new ResourceNotFoundException("Product", "id", id);
         }
 
         Product product = existingProduct.get();
-        
+
         if (request.getName() != null) product.setName(request.getName());
         if (request.getDescription() != null) product.setDescription(request.getDescription());
         if (request.getPrice() != null) product.setPrice(request.getPrice());
@@ -138,16 +171,14 @@ public class ProductController {
         if (request.getHeight() != null) product.setDimensionsHeight(request.getHeight());
         if (request.getActive() != null) product.setActive(request.getActive());
 
-        // Aktualizuj kategorię jeśli podana
         if (request.getCategoryId() != null) {
             Optional<Category> category = categoryRepository.findById(request.getCategoryId());
-            if (category.isPresent()) {
-                product.setCategory(category.get());
-            }
+            category.ifPresent(product::setCategory);
         }
 
         Product updatedProduct = productRepository.save(product);
-        return ResponseEntity.ok(updatedProduct);
+        // ZMIANA: Zwróć DTO
+        return ResponseEntity.ok(convertToDTO(updatedProduct));
     }
 
     // Usuń produkt (soft delete)
@@ -162,14 +193,14 @@ public class ProductController {
         Product product = existingProduct.get();
         product.setActive(false); // Soft delete
         productRepository.save(product);
-        
+
         return ResponseEntity.noContent().build();
     }
 
     // Aktywuj/dezaktywuj produkt
     @PatchMapping("/{id}/toggle-active")
     @PreAuthorize("hasAuthority('PRODUCT_WRITE')")
-    public ResponseEntity<Product> toggleProductActive(@PathVariable Long id) {
+    public ResponseEntity<ProductDTO> toggleProductActive(@PathVariable Long id) {
         Optional<Product> existingProduct = productRepository.findById(id);
         if (!existingProduct.isPresent()) {
             throw new ResourceNotFoundException("Product", "id", id);
@@ -178,13 +209,77 @@ public class ProductController {
         Product product = existingProduct.get();
         product.setActive(!product.getActive());
         Product updatedProduct = productRepository.save(product);
-        
-        return ResponseEntity.ok(updatedProduct);
+
+        // ZMIANA: Zwróć DTO
+        return ResponseEntity.ok(convertToDTO(updatedProduct));
     }
 
-    // TODO: Dodać endpoint /low-stock gdy zostanie zaimplementowana metoda w repository
+    // --- METODA POMOCNICZA DO KONWERSJI NA DTO ---
 
-    // DTOs
+    /**
+     * Konwertuje encję Product na ProductDTO.
+     */
+    private ProductDTO convertToDTO(Product product) {
+        if (product == null) {
+            return null;
+        }
+
+        CategoryDTO categoryDTO = null;
+        if (product.getCategory() != null) {
+            // Zakładamy, że kategoria jest już pobrana (EAGER) lub
+            // jesteśmy w sesji (np. przez @Transactional na metodzie serwisu)
+            // Aby uniknąć LazyInitializationException, pobieramy dane tutaj:
+            try {
+                categoryDTO = new CategoryDTO(
+                        product.getCategory().getId(),
+                        product.getCategory().getName()
+                );
+            } catch (Exception e) {
+                // Log e - Prawdopodobnie LazyInitializationException
+                categoryDTO = null; // Bezpieczny powrót
+            }
+        }
+
+        return new ProductDTO(
+                product.getId(),
+                product.getSku(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                categoryDTO
+        );
+    }
+
+
+    // --- DTOs ---
+    // (Te klasy powinny znajdować się w osobnym pakiecie, np. com.qrware.dto,
+    // ale umieszczam je tutaj dla kompletności pliku)
+
+    /**
+     * DTO dla Kategorii, pasujące do ProductDTO.kt
+     */
+    public record CategoryDTO(
+            Long id,
+            String name
+    ) {
+    }
+
+    /**
+     * DTO dla Produktu, pasujące do ProductDTO.kt
+     */
+    public record ProductDTO(
+            Long id,
+            String sku,
+            String name,
+            String description,
+            BigDecimal price,
+            CategoryDTO category
+    ) {
+    }
+
+
+    // --- REQUEST DTOs (pozostają bez zmian) ---
+
     public static class CreateProductRequest {
         private String sku;
         private String name;

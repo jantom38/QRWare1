@@ -17,9 +17,11 @@ class ProductRepository @Inject constructor(
     suspend fun getAllProducts(
         page: Int = 0,
         size: Int = 20,
-        sort: String = "id,asc"
+        sort: String = "id,asc",
+        active: Boolean? = null // <-- DODANA ZMIENNA
     ): PaginatedResponse<ProductDTO> {
-        return apiService.getAllProducts(page, size, sort)
+        // ZMIANA: Przekazujemy 'active' do apiService
+        return apiService.getAllProducts(page, size, sort, active)
     }
 
     // Tworzenie nowego produktu
@@ -27,6 +29,37 @@ class ProductRepository @Inject constructor(
         return apiService.createProduct(request)
     }
 
-    // Możesz tu dodać resztę funkcji (getProductById, updateProduct itd.)
-    // w miarę potrzeby, używając tego samego wzorca.
+    // --- UZUPEŁNIONE METODY (bez zmian) ---
+
+    suspend fun getProductById(productId: Long): ProductDTO {
+        return apiService.getProductById(productId)
+    }
+
+    suspend fun getProductBySku(sku: String): ProductDTO {
+        return apiService.getProductBySku(sku)
+    }
+
+    suspend fun getProductsByCategory(categoryId: Long): List<ProductDTO> {
+        return apiService.getProductsByCategory(categoryId)
+    }
+
+    suspend fun searchProducts(query: String): List<ProductDTO> {
+        return apiService.searchProducts(query)
+    }
+
+    suspend fun getActiveProducts(): List<ProductDTO> {
+        return apiService.getActiveProducts()
+    }
+
+    suspend fun updateProduct(productId: Long, request: UpdateProductRequest): ProductDTO {
+        return apiService.updateProduct(productId, request)
+    }
+
+    suspend fun deleteProduct(productId: Long): Response<Unit> {
+        return apiService.deleteProduct(productId)
+    }
+
+    suspend fun toggleProductActive(productId: Long): ProductDTO {
+        return apiService.toggleProductActive(productId)
+    }
 }

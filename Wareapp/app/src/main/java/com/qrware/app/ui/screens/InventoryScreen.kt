@@ -2,12 +2,11 @@ package com.qrware.app.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.LazyRow // <-- NOWY IMPORT
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
@@ -18,11 +17,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.qrware.app.data.dto.InventoryItemDTO
-import com.qrware.app.data.model.InventoryStatus
+import com.qrware.app.data.dto.ProductDTO
 import com.qrware.app.di.AppContainer
 import com.qrware.app.ui.viewmodel.InventoryViewModel
-import java.math.BigDecimal
+// import java.math.BigDecimal // Już niepotrzebny
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,20 +43,20 @@ fun InventoryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Stan Magazynowy") },
+                title = { Text("Lista Produktów") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Wróć")
                     }
                 },
                 actions = {
-                    IconButton(onClick = { viewModel.loadInventoryItems() }) {
+                    // ZMIANA: Odświeżanie ładuje dane z bieżącym filtrem
+                    IconButton(onClick = { viewModel.loadProducts() }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Odśwież")
                     }
                 }
             )
         },
-        // --- NOWY PRZYCISK ---
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -73,27 +71,24 @@ fun InventoryScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp)
+                .padding(horizontal = 16.dp) // Zmiana, aby padding był tylko po bokach
         ) {
-            // ... (Reszta pliku bez zmian) ...
-
-            // Filtry statusu
+            // --- NOWY KOMPONENT: FILTRY ---
             StatusFilterRow(
-                onStatusSelected = { status ->
-                    if (status != null) {
-                        viewModel.filterByStatus(status)
-                    } else {
-                        viewModel.loadInventoryItems()
-                    }
-                }
+                selectedFilter = uiState.activeFilter,
+                onFilterSelected = { activeStatus ->
+                    viewModel.filterByActiveStatus(activeStatus)
+                },
+                modifier = Modifier.padding(vertical = 8.dp)
             )
-
-            Spacer(modifier = Modifier.height(16.dp))
+            // --- KONIEC NOWEGO KOMPONENTU ---
 
             // Komunikaty błędów/sukcesu
             uiState.error?.let { error ->
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
                 ) {
                     Text(
@@ -102,12 +97,13 @@ fun InventoryScreen(
                         color = MaterialTheme.colorScheme.onErrorContainer
                     )
                 }
-                Spacer(modifier = Modifier.height(8.dp))
             }
 
             uiState.successMessage?.let { message ->
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                 ) {
                     Text(
@@ -116,8 +112,9 @@ fun InventoryScreen(
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
-                Spacer(modifier = Modifier.height(8.dp))
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Lista pozycji
             if (uiState.isLoading) {
@@ -132,17 +129,11 @@ fun InventoryScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.weight(1f)
                 ) {
-                    items(uiState.inventoryItems) { item ->
-                        InventoryItemCard(
-                            item = item,
-                            onReceiveStock = { quantity, reason ->
-                                viewModel.receiveStock(item.id, quantity, reason)
-                            },
-                            onIssueStock = { quantity, reason ->
-                                viewModel.issueStock(item.id, quantity, reason)
-                            },
+                    items(uiState.products) { product ->
+                        ProductCard(
+                            product = product,
                             onDeleteItem = {
-                                viewModel.deleteInventoryItem(item.id)
+                                viewModel.deleteProduct(product.id)
                             }
                         )
                     }
@@ -153,7 +144,7 @@ fun InventoryScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 16.dp),
+                            .padding(top = 16.dp, bottom = 16.dp), // Dodany dolny padding
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -179,39 +170,51 @@ fun InventoryScreen(
     }
 }
 
-// ... (reszta plików StatusFilterRow, InventoryItemCard, QuantityDialog bez zmian) ...
+// --- NOWY COMPOSABLE DLA FILTRÓW ---
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StatusFilterRow(onStatusSelected: (InventoryStatus?) -> Unit) {
+fun StatusFilterRow(
+    selectedFilter: Boolean?,
+    onFilterSelected: (Boolean?) -> Unit,
+    modifier: Modifier = Modifier
+) {
     LazyRow(
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        // Zgodnie z Twoją prośbą: dwa kafelki.
+        // Dodałem też trzeci "Wszystkie", bo jest bardziej użyteczny.
+
         item {
             FilterChip(
-                onClick = { onStatusSelected(null) },
-                label = { Text("Wszystkie") },
-                selected = false
+                selected = selectedFilter == true, // Aktywne
+                onClick = { onFilterSelected(true) },
+                label = { Text("Aktywne") }
             )
         }
-        items(InventoryStatus.values()) { status ->
+        item {
             FilterChip(
-                onClick = { onStatusSelected(status) },
-                label = { Text(status.name) },
-                selected = false
+                selected = selectedFilter == false, // Nieaktywne
+                onClick = { onFilterSelected(false) },
+                label = { Text("Nieaktywne") }
+            )
+        }
+        item {
+            FilterChip(
+                selected = selectedFilter == null, // Wszystkie
+                onClick = { onFilterSelected(null) },
+                label = { Text("Wszystkie") }
             )
         }
     }
 }
 
+
 @Composable
-fun InventoryItemCard(
-    item: InventoryItemDTO,
-    onReceiveStock: (BigDecimal, String?) -> Unit,
-    onIssueStock: (BigDecimal, String?) -> Unit,
+fun ProductCard(
+    product: ProductDTO,
     onDeleteItem: () -> Unit
 ) {
-    var showQuantityDialog by remember { mutableStateOf(false) }
-    var isReceiving by remember { mutableStateOf(true) }
-
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -221,158 +224,54 @@ fun InventoryItemCard(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = item.product.name,
+                        text = product.name,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "SKU: ${item.product.sku}",
+                        text = "SKU: ${product.sku}",
                         style = MaterialTheme.typography.bodySmall
                     )
-                    Text(
-                        text = "Lokalizacja: ${item.location.name}",
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                    product.description?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodySmall,
+                            maxLines = 2
+                        )
+                    }
                 }
 
                 Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = "Ilość: ${item.quantity}",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "Dostępne: ${item.availableQuantity}",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    Badge {
-                        Text(item.status.name)
+                    product.price?.let {
+                        Text(
+                            text = "$it PLN",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    product.category?.let {
+                        Badge {
+                            Text(it.name)
+                        }
                     }
                 }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            if (item.serialNumber != null) {
-                Text(
-                    text = "S/N: ${item.serialNumber}",
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-
-            if (item.batchNumber != null) {
-                Text(
-                    text = "Partia: ${item.batchNumber}",
-                    style = MaterialTheme.typography.bodySmall
-                )
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Button(
-                    onClick = {
-                        isReceiving = true
-                        showQuantityDialog = true
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = null)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Przyjmij")
-                }
-
-                Button(
-                    onClick = {
-                        isReceiving = false
-                        showQuantityDialog = true
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(Icons.Default.Remove, contentDescription = null)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Wydaj")
-                }
-
                 IconButton(onClick = onDeleteItem) {
-                    Icon(Icons.Default.Delete, contentDescription = "Usuń")
+                    Icon(Icons.Default.Delete, contentDescription = "Usuń Produkt")
                 }
             }
         }
     }
-
-    if (showQuantityDialog) {
-        QuantityDialog(
-            isReceiving = isReceiving,
-            onConfirm = { quantity, reason ->
-                if (isReceiving) {
-                    onReceiveStock(quantity, reason)
-                } else {
-                    onIssueStock(quantity, reason)
-                }
-                showQuantityDialog = false
-            },
-            onDismiss = { showQuantityDialog = false }
-        )
-    }
-}
-
-@Composable
-fun QuantityDialog(
-    isReceiving: Boolean,
-    onConfirm: (BigDecimal, String?) -> Unit,
-    onDismiss: () -> Unit
-) {
-    var quantity by remember { mutableStateOf("") }
-    var reason by remember { mutableStateOf("") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(if (isReceiving) "Przyjmij towar" else "Wydaj towar")
-        },
-        text = {
-            Column {
-                OutlinedTextField(
-                    value = quantity,
-                    onValueChange = { quantity = it },
-                    label = { Text("Ilość") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = reason,
-                    onValueChange = { reason = it },
-                    label = { Text("Powód (opcjonalnie)") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    try {
-                        val qty = BigDecimal(quantity)
-                        onConfirm(qty, reason.takeIf { it.isNotBlank() })
-                    } catch (e: NumberFormatException) {
-                        // Handle error
-                    }
-                },
-                enabled = quantity.isNotBlank() && quantity.toBigDecimalOrNull() != null
-            ) {
-                Text("Potwierdź")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Anuluj")
-            }
-        }
-    )
 }

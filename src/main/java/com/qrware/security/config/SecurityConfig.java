@@ -123,10 +123,7 @@ public class SecurityConfig {
             .requestMatchers("/api/permissions/**").hasAuthority("ADMIN_FULL")
             
             // Product management
-            .requestMatchers(HttpMethod.GET, "/api/products/**").hasAnyRole("USER", "WAREHOUSE_MANAGER", "ADMIN")
-            .requestMatchers(HttpMethod.POST, "/api/products/**").hasAuthority("ADMIN_FULL")
-            .requestMatchers(HttpMethod.PUT, "/api/products/**").hasAnyRole("WAREHOUSE_MANAGER", "ADMIN")
-            .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
+                .requestMatchers("/api/products/**").authenticated()
             
             // Category management
             .requestMatchers(HttpMethod.GET, "/api/categories/**").hasAnyRole("USER", "WAREHOUSE_MANAGER", "ADMIN")
