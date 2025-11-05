@@ -126,10 +126,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/products/**").authenticated()
             
             // Category management
-            .requestMatchers(HttpMethod.GET, "/api/categories/**").hasAnyRole("USER", "WAREHOUSE_MANAGER", "ADMIN")
-            .requestMatchers(HttpMethod.POST, "/api/categories/**").hasAnyRole("WAREHOUSE_MANAGER", "ADMIN")
-            .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasAnyRole("WAREHOUSE_MANAGER", "ADMIN")
-            .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasRole("ADMIN")
+
+            .requestMatchers(HttpMethod.DELETE, "/api/categories/**").authenticated()
             
             // Warehouse management
             .requestMatchers(HttpMethod.GET, "/api/zones/**", "/api/locations/**").hasAnyRole("USER", "WAREHOUSE_WORKER", "WAREHOUSE_MANAGER", "ADMIN")

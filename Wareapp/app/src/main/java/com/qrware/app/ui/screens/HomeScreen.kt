@@ -55,7 +55,14 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
                             onClick = { navController.navigate("inventory") },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Zarządzaj Produktami")
+                            Text("Zarządzanie produktami")
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(
+                            onClick = { navController.navigate("manage_categories") },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Zarządzaj Kategoriami")
                         }
                     }
 

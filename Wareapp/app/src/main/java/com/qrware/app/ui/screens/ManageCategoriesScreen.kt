@@ -1,0 +1,389 @@
+package com.qrware.app.ui.screens
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.qrware.app.data.dto.CategoryDTO
+import com.qrware.app.data.model.CreateCategoryRequest
+import com.qrware.app.data.model.UpdateCategoryRequest
+import com.qrware.app.di.AppContainer
+import com.qrware.app.ui.viewmodel.CategoryViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ManageCategoriesScreen(
+    navController: NavController,
+    appContainer: AppContainer
+) {
+    val viewModel: CategoryViewModel = viewModel(
+        factory = appContainer.categoryViewModelFactory
+    )
+    val uiState by viewModel.uiState.collectAsState()
+    var showAddDialog by remember { mutableStateOf(false) }
+    var showEditDialog by remember { mutableStateOf(false) }
+    var selectedCategory by remember { mutableStateOf<CategoryDTO?>(null) }
+    var searchQuery by remember { mutableStateOf("") }
+
+    LaunchedEffect(uiState.error, uiState.successMessage) {
+        if (uiState.error != null || uiState.successMessage != null) {
+            kotlinx.coroutines.delay(3000)
+            viewModel.clearMessages()
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Zarządzanie Kategoriami") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Wróć")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { showAddDialog = true }) {
+                        Icon(Icons.Default.Add, contentDescription = "Dodaj kategorię")
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
+        ) {
+            // Pasek wyszukiwania
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { 
+                    searchQuery = it
+                    if (it.isBlank()) {
+                        viewModel.loadCategories()
+                    } else {
+                        viewModel.searchCategories(it)
+                    }
+                },
+                label = { Text("Szukaj kategorii") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Filtry
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = { viewModel.loadCategories() },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Wszystkie")
+                }
+                Button(
+                    onClick = { viewModel.loadActiveCategories() },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Aktywne")
+                }
+                Button(
+                    onClick = { viewModel.loadRootCategories() },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Główne")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Komunikaty błędów/sukcesu
+            uiState.error?.let { error ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+                ) {
+                    Text(
+                        text = error,
+                        modifier = Modifier.padding(16.dp),
+                        color = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            uiState.successMessage?.let { message ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                ) {
+                    Text(
+                        text = message,
+                        modifier = Modifier.padding(16.dp),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            // Lista kategorii
+            if (uiState.isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(uiState.categories) { category ->
+                        CategoryCard(
+                            category = category,
+                            onEdit = {
+                                selectedCategory = category
+                                showEditDialog = true
+                            },
+                            onDelete = {
+                                viewModel.deleteCategory(category.id)
+                            },
+                            onToggleActive = {
+                                viewModel.toggleCategoryActive(category.id)
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    // Dialog dodawania kategorii
+    if (showAddDialog) {
+        AddCategoryDialog(
+            onDismiss = { showAddDialog = false },
+            onConfirm = { request ->
+                viewModel.createCategory(request)
+                showAddDialog = false
+            }
+        )
+    }
+
+    // Dialog edycji kategorii
+    if (showEditDialog && selectedCategory != null) {
+        EditCategoryDialog(
+            category = selectedCategory!!,
+            onDismiss = { 
+                showEditDialog = false
+                selectedCategory = null
+            },
+            onConfirm = { request ->
+                viewModel.updateCategory(selectedCategory!!.id, request)
+                showEditDialog = false
+                selectedCategory = null
+            }
+        )
+    }
+}
+
+@Composable
+fun CategoryCard(
+    category: CategoryDTO,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    onToggleActive: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = category.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Kod: ${category.code}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    category.description?.let { description ->
+                        Text(
+                            text = description,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+                
+                Row {
+                    Badge(
+                        containerColor = if (category.active) 
+                            MaterialTheme.colorScheme.primary 
+                        else 
+                            MaterialTheme.colorScheme.error
+                    ) {
+                        Text(if (category.active) "Aktywna" else "Nieaktywna")
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                IconButton(onClick = onEdit) {
+                    Icon(Icons.Default.Edit, contentDescription = "Edytuj")
+                }
+
+                IconButton(onClick = onToggleActive) {
+                    Icon(
+                        if (category.active) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                        contentDescription = if (category.active) "Dezaktywuj" else "Aktywuj"
+                    )
+                }
+
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Default.Delete, contentDescription = "Usuń")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AddCategoryDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (CreateCategoryRequest) -> Unit
+) {
+    var code by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Dodaj kategorię") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = code,
+                    onValueChange = { code = it },
+                    label = { Text("Kod kategorii") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Nazwa kategorii") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Opis (opcjonalnie)") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onConfirm(
+                        CreateCategoryRequest(
+                            code = code,
+                            name = name,
+                            description = description.takeIf { it.isNotBlank() }
+                        )
+                    )
+                },
+                enabled = code.isNotBlank() && name.isNotBlank()
+            ) {
+                Text("Dodaj")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Anuluj")
+            }
+        }
+    )
+}
+
+@Composable
+fun EditCategoryDialog(
+    category: CategoryDTO,
+    onDismiss: () -> Unit,
+    onConfirm: (UpdateCategoryRequest) -> Unit
+) {
+    var name by remember { mutableStateOf(category.name) }
+    var description by remember { mutableStateOf(category.description ?: "") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edytuj kategorię") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Nazwa kategorii") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Opis") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onConfirm(
+                        UpdateCategoryRequest(
+                            name = name.takeIf { it != category.name },
+                            description = description.takeIf { it != category.description }
+                        )
+                    )
+                },
+                enabled = name.isNotBlank()
+            ) {
+                Text("Zapisz")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Anuluj")
+            }
+        }
+    )
+}

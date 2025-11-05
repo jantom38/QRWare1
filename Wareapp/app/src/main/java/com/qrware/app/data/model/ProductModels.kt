@@ -64,3 +64,22 @@ data class UpdateProductRequest(
     val categoryId: Long? = null,
     val active: Boolean? = null
 )
+
+// Category requests
+data class CreateCategoryRequest(
+    val code: String,
+    val name: String,
+    val description: String? = null,
+    val parentId: Long? = null,
+    val active: Boolean = true,
+    val sortOrder: Int? = null
+)
+
+data class UpdateCategoryRequest(
+    val name: String? = null,
+    val description: String? = null,
+    val parentId: Long? = null,
+    val active: Boolean? = null,
+    val sortOrder: Int? = null,
+    val removeParent: Boolean = false
+)

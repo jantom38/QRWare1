@@ -9,6 +9,7 @@ import com.qrware.app.data.remote.ApiService
 import com.qrware.app.data.repository.UserManagementRepository
 import com.qrware.app.ui.viewmodel.AddProductViewModelFactory
 import com.qrware.app.ui.viewmodel.AddUserViewModelFactory
+import com.qrware.app.ui.viewmodel.CategoryViewModelFactory
 import com.qrware.app.ui.viewmodel.EditUserViewModelFactory
 import com.qrware.app.ui.viewmodel.InventoryViewModelFactory
 import com.qrware.app.ui.viewmodel.ListUsersViewModelFactory
@@ -45,6 +46,10 @@ class AppContainer(context: Context) {
     val productRepository by lazy {
         ProductRepository(apiService)
     }
+    
+    val categoryRepository by lazy {
+        CategoryRepository(apiService)
+    }
     val addProductViewModelFactory by lazy {
         AddProductViewModelFactory(productRepository)
     }
@@ -63,8 +68,13 @@ class AppContainer(context: Context) {
         ManagePermissionsViewModelFactory(userManagementRepository)
     }
 
-    val inventoryViewModelFactory: InventoryViewModelFactory
-        get() = InventoryViewModelFactory(productRepository) // Przekazujemy productRepository
+    val inventoryViewModelFactory: ViewModelProvider.Factory by lazy {
+        InventoryViewModelFactory(productRepository)
+    }
+
+    val categoryViewModelFactory: ViewModelProvider.Factory by lazy {
+        CategoryViewModelFactory(categoryRepository)
+    }
 
     // NOWA METODA: Fabryka dla EditUserViewModel
     // Potrzebuje userId, więc jest to funkcja, a nie 'val'

@@ -352,4 +352,9 @@ public interface CategoryRepository extends BaseRepository<Category> {
      */
     @Query("SELECT DISTINCT c.icon FROM Category c WHERE c.icon IS NOT NULL ORDER BY c.icon")
     List<String> findAllIcons();
+
+    /**
+     * Find categories by parent is null (root categories)
+     */
+    List<Category> findByParentIsNull();
 }

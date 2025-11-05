@@ -153,6 +153,44 @@ interface ApiService {
 
     @PATCH("api/products/{id}/toggle-active")
     suspend fun toggleProductActive(@Path("id") productId: Long): ProductDTO // <-- ZMIANA
+
+    // --- ENDPOINTY CATEGORIES ---
+
+    @GET("api/categories")
+    suspend fun getAllCategories(): ApiResponse<List<CategoryDTO>>
+
+    @GET("api/categories/active")
+    suspend fun getActiveCategories(): ApiResponse<List<CategoryDTO>>
+
+    @GET("api/categories/{id}")
+    suspend fun getCategoryById(@Path("id") categoryId: Long): ApiResponse<CategoryDTO>
+
+    @GET("api/categories/code/{code}")
+    suspend fun getCategoryByCode(@Path("code") code: String): ApiResponse<CategoryDTO>
+
+    @GET("api/categories/search")
+    suspend fun searchCategories(@Query("query") query: String): ApiResponse<List<CategoryDTO>>
+
+    @GET("api/categories/root")
+    suspend fun getRootCategories(): ApiResponse<List<CategoryDTO>>
+
+    @GET("api/categories/{id}/children")
+    suspend fun getChildCategories(@Path("id") categoryId: Long): ApiResponse<List<CategoryDTO>>
+
+    @POST("api/categories")
+    suspend fun createCategory(@Body request: CreateCategoryRequest): ApiResponse<CategoryDTO>
+
+    @PUT("api/categories/{id}")
+    suspend fun updateCategory(
+        @Path("id") categoryId: Long,
+        @Body request: UpdateCategoryRequest
+    ): ApiResponse<CategoryDTO>
+
+    @DELETE("api/categories/{id}")
+    suspend fun deleteCategory(@Path("id") categoryId: Long): ApiResponse<Unit>
+
+    @PATCH("api/categories/{id}/toggle-active")
+    suspend fun toggleCategoryActive(@Path("id") categoryId: Long): ApiResponse<CategoryDTO>
 }
 
 // ... (TestService i HealthService bez zmian) ...
