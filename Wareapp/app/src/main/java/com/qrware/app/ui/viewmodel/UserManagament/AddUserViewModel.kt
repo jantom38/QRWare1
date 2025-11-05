@@ -1,5 +1,6 @@
-package com.qrware.app.ui.viewmodel
+package com.qrware.app.ui.viewmodel.UserManagament
 
+import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -58,7 +59,7 @@ class AddUserViewModel(
             _uiState.update { it.copy(error = "Hasło musi mieć co najmniej 8 znaków.") }
             return
         }
-        if (form.email.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(form.email).matches()) {
+        if (form.email.isBlank() || !Patterns.EMAIL_ADDRESS.matcher(form.email).matches()) {
             _uiState.update { it.copy(error = "Wprowadź poprawny adres email.") }
             return
         }

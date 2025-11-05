@@ -19,8 +19,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.qrware.app.ui.viewmodel.AddUserUiState
-import com.qrware.app.ui.viewmodel.AddUserViewModel
+import com.qrware.app.ui.viewmodel.UserManagament.AddUserUiState
+import com.qrware.app.ui.viewmodel.UserManagament.AddUserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

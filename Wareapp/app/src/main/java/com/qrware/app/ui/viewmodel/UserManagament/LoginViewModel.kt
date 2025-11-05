@@ -1,7 +1,8 @@
-package com.qrware.app.ui.viewmodel
+package com.qrware.app.ui.viewmodel.UserManagament
 
 import android.util.Log
 import androidx.lifecycle.*
+import com.qrware.app.data.model.LoginRequest
 import com.qrware.app.data.repository.AuthRepository
 import com.qrware.app.security.TokenManager
 import kotlinx.coroutines.flow.*
@@ -23,7 +24,7 @@ class LoginViewModel(
     fun login(username: String, pass: String) {
         viewModelScope.launch {
             _uiState.value = LoginUiState(isLoading = true)
-            val result = authRepository.login(com.qrware.app.data.model.LoginRequest(username, pass))
+            val result = authRepository.login(LoginRequest(username, pass))
             result.onSuccess { authResponse ->
                 Log.d("LoginViewModel", "Logowanie udane. Otrzymany token: ${authResponse.token}")
                 tokenManager.saveToken(authResponse.token)

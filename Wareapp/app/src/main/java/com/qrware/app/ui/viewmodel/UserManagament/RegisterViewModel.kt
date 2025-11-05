@@ -1,4 +1,4 @@
-package com.qrware.app.ui.viewmodel
+package com.qrware.app.ui.viewmodel.UserManagament
 
 import androidx.lifecycle.*
 import com.qrware.app.data.model.RegisterRequest

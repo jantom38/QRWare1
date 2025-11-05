@@ -25,7 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.qrware.app.data.model.AdminUserResponse
-import com.qrware.app.ui.viewmodel.ListUsersViewModel
+import com.qrware.app.ui.viewmodel.UserManagament.ListUsersViewModel
 import kotlinx.coroutines.flow.filter
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -13,7 +13,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.qrware.app.ui.viewmodel.RegisterViewModel
+import com.qrware.app.ui.viewmodel.UserManagament.RegisterViewModel
 
 @Composable
 fun RegisterScreen(navController: NavController, viewModel: RegisterViewModel) {

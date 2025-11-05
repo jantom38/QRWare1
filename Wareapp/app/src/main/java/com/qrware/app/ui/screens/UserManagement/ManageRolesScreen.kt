@@ -27,8 +27,8 @@ import androidx.navigation.NavController
 import com.qrware.app.data.model.PermissionResponse
 import com.qrware.app.data.model.RoleRequest
 import com.qrware.app.data.model.RoleResponse
-import com.qrware.app.ui.viewmodel.DialogState
-import com.qrware.app.ui.viewmodel.ManageRolesViewModel
+import com.qrware.app.ui.viewmodel.UserManagament.DialogState
+import com.qrware.app.ui.viewmodel.UserManagament.ManageRolesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

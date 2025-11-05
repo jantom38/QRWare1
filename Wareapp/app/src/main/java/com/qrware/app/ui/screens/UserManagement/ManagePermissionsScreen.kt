@@ -25,8 +25,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.qrware.app.data.model.PermissionRequest
 import com.qrware.app.data.model.PermissionResponse
-import com.qrware.app.ui.viewmodel.ManagePermissionsViewModel
-import com.qrware.app.ui.viewmodel.PermissionDialogState
+import com.qrware.app.ui.viewmodel.UserManagament.ManagePermissionsViewModel
+import com.qrware.app.ui.viewmodel.UserManagament.PermissionDialogState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

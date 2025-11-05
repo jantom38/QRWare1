@@ -42,30 +42,26 @@ public class ProductController {
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
     public ResponseEntity<Page<ProductDTO>> getAllProducts(
             Pageable pageable,
-            @RequestParam(required = false) Boolean active // <-- NOWY PARAMETR
+            @RequestParam(required = false) Boolean active
     ) {
         Page<Product> productsPage;
 
-        // --- ZMODYFIKOWANA LOGIKA ---
         if (active == null) {
-            // Jeśli ?active= nie jest podane, pobierz wszystko
             productsPage = productRepository.findAll(pageable);
         } else {
-            // Jeśli ?active=true lub ?active=false jest podane, filtruj
             productsPage = productRepository.findByActive(active, pageable);
         }
-        // --- KONIEC ZMIAN ---
 
         Page<ProductDTO> productsDTOPage = productsPage.map(this::convertToDTO);
         return ResponseEntity.ok(productsDTOPage);
     }
+
     // Pobierz produkt po ID
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
         Optional<Product> product = productRepository.findById(id);
         if (product.isPresent()) {
-            // ZMIANA: Konwertuj na DTO przed zwrotem
             return ResponseEntity.ok(convertToDTO(product.get()));
         }
         throw new ResourceNotFoundException("Product", "id", id);
@@ -77,7 +73,6 @@ public class ProductController {
     public ResponseEntity<ProductDTO> getProductBySku(@PathVariable String sku) {
         Optional<Product> product = productRepository.findBySku(sku);
         if (product.isPresent()) {
-            // ZMIANA: Konwertuj na DTO przed zwrotem
             return ResponseEntity.ok(convertToDTO(product.get()));
         }
         throw new ResourceNotFoundException("Product", "sku", sku);
@@ -88,7 +83,6 @@ public class ProductController {
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
     public ResponseEntity<List<ProductDTO>> getProductsByCategory(@PathVariable Long categoryId) {
         List<Product> products = productRepository.findByCategoryId(categoryId);
-        // ZMIANA: Mapuj listę na DTO
         List<ProductDTO> productDTOs = products.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -100,7 +94,6 @@ public class ProductController {
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
     public ResponseEntity<List<ProductDTO>> searchProducts(@RequestParam String query) {
         List<Product> products = productRepository.findByNameContainingIgnoreCase(query);
-        // ZMIANA: Mapuj listę na DTO
         List<ProductDTO> productDTOs = products.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -112,7 +105,6 @@ public class ProductController {
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
     public ResponseEntity<List<ProductDTO>> getActiveProducts() {
         List<Product> products = productRepository.findByActiveTrue();
-        // ZMIANA: Mapuj listę na DTO
         List<ProductDTO> productDTOs = products.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -141,11 +133,10 @@ public class ProductController {
 
         if (request.getCategoryId() != null) {
             Optional<Category> category = categoryRepository.findById(request.getCategoryId());
-            category.ifPresent(product::setCategory); // Bezpieczniejsze ustawienie
+            category.ifPresent(product::setCategory);
         }
 
         Product savedProduct = productRepository.save(product);
-        // ZMIANA: Zwróć DTO
         return ResponseEntity.status(HttpStatus.CREATED).body(convertToDTO(savedProduct));
     }
 
@@ -177,7 +168,6 @@ public class ProductController {
         }
 
         Product updatedProduct = productRepository.save(product);
-        // ZMIANA: Zwróć DTO
         return ResponseEntity.ok(convertToDTO(updatedProduct));
     }
 
@@ -210,7 +200,6 @@ public class ProductController {
         product.setActive(!product.getActive());
         Product updatedProduct = productRepository.save(product);
 
-        // ZMIANA: Zwróć DTO
         return ResponseEntity.ok(convertToDTO(updatedProduct));
     }
 
@@ -226,34 +215,30 @@ public class ProductController {
 
         CategoryDTO categoryDTO = null;
         if (product.getCategory() != null) {
-            // Zakładamy, że kategoria jest już pobrana (EAGER) lub
-            // jesteśmy w sesji (np. przez @Transactional na metodzie serwisu)
-            // Aby uniknąć LazyInitializationException, pobieramy dane tutaj:
             try {
                 categoryDTO = new CategoryDTO(
                         product.getCategory().getId(),
                         product.getCategory().getName()
                 );
             } catch (Exception e) {
-                // Log e - Prawdopodobnie LazyInitializationException
-                categoryDTO = null; // Bezpieczny powrót
+                categoryDTO = null;
             }
         }
 
+        // --- ZMIANA W TEJ SEKCJI ---
         return new ProductDTO(
                 product.getId(),
                 product.getSku(),
                 product.getName(),
                 product.getDescription(),
                 product.getPrice(),
-                categoryDTO
+                categoryDTO,
+                product.getActive() // <-- DODANA BRAKUJĄCA LINIA
         );
     }
 
 
     // --- DTOs ---
-    // (Te klasy powinny znajdować się w osobnym pakiecie, np. com.qrware.dto,
-    // ale umieszczam je tutaj dla kompletności pliku)
 
     /**
      * DTO dla Kategorii, pasujące do ProductDTO.kt
@@ -267,13 +252,15 @@ public class ProductController {
     /**
      * DTO dla Produktu, pasujące do ProductDTO.kt
      */
+    // --- ZMIANA W TEJ SEKCJI ---
     public record ProductDTO(
             Long id,
             String sku,
             String name,
             String description,
             BigDecimal price,
-            CategoryDTO category
+            CategoryDTO category,
+            Boolean active // <-- DODANA BRAKUJĄCA LINIA
     ) {
     }
 

@@ -92,13 +92,13 @@ public class DataInitializer implements CommandLineRunner {
 
         // Product permissions
         createPermissionIfNotExists("PRODUCT_READ", "Read product information", "PRODUCT", "READ");
-        createPermissionIfNotExists("PRODUCT_CREATE", "Create new products", "PRODUCT", "CREATE");
+        createPermissionIfNotExists("PRODUCT_WRITE", "Create new products", "PRODUCT", "CREATE");
         createPermissionIfNotExists("PRODUCT_UPDATE", "Update product information", "PRODUCT", "UPDATE");
         createPermissionIfNotExists("PRODUCT_DELETE", "Delete products", "PRODUCT", "DELETE");
 
         // Inventory permissions
         createPermissionIfNotExists("INVENTORY_READ", "Read inventory information", "INVENTORY", "READ");
-        createPermissionIfNotExists("INVENTORY_CREATE", "Create inventory items", "INVENTORY", "CREATE");
+        createPermissionIfNotExists("INVENTORY_WRITE", "Create inventory items", "INVENTORY", "CREATE");
         createPermissionIfNotExists("INVENTORY_UPDATE", "Update inventory", "INVENTORY", "UPDATE");
         createPermissionIfNotExists("INVENTORY_DELETE", "Delete inventory items", "INVENTORY", "DELETE");
 
@@ -134,7 +134,7 @@ public class DataInitializer implements CommandLineRunner {
             workerPermissions.add(getPermission("USER_UPDATE"));
             workerPermissions.add(getPermission("PRODUCT_READ"));
             workerPermissions.add(getPermission("INVENTORY_READ"));
-            workerPermissions.add(getPermission("INVENTORY_CREATE"));
+            workerPermissions.add(getPermission("INVENTORY_WRITE"));
             workerPermissions.add(getPermission("INVENTORY_UPDATE"));
             workerPermissions.add(getPermission("QR_SCAN"));
             workerRole.setPermissions(workerPermissions);
@@ -149,10 +149,10 @@ public class DataInitializer implements CommandLineRunner {
             managerPermissions.add(getPermission("USER_READ"));
             managerPermissions.add(getPermission("USER_UPDATE"));
             managerPermissions.add(getPermission("PRODUCT_READ"));
-            managerPermissions.add(getPermission("PRODUCT_CREATE"));
+            managerPermissions.add(getPermission("PRODUCT_WRITE"));
             managerPermissions.add(getPermission("PRODUCT_UPDATE"));
             managerPermissions.add(getPermission("INVENTORY_READ"));
-            managerPermissions.add(getPermission("INVENTORY_CREATE"));
+            managerPermissions.add(getPermission("INVENTORY_WRITE"));
             managerPermissions.add(getPermission("INVENTORY_UPDATE"));
             managerPermissions.add(getPermission("INVENTORY_DELETE"));
             managerPermissions.add(getPermission("QR_SCAN"));
@@ -170,11 +170,11 @@ public class DataInitializer implements CommandLineRunner {
             adminPermissions.add(getPermission("USER_READ"));
             adminPermissions.add(getPermission("USER_UPDATE"));
             adminPermissions.add(getPermission("PRODUCT_READ"));
-            adminPermissions.add(getPermission("PRODUCT_CREATE"));
+            adminPermissions.add(getPermission("PRODUCT_WRITE"));
             adminPermissions.add(getPermission("PRODUCT_UPDATE"));
             adminPermissions.add(getPermission("PRODUCT_DELETE"));
             adminPermissions.add(getPermission("INVENTORY_READ"));
-            adminPermissions.add(getPermission("INVENTORY_CREATE"));
+            adminPermissions.add(getPermission("INVENTORY_WRITE"));
             adminPermissions.add(getPermission("INVENTORY_UPDATE"));
             adminPermissions.add(getPermission("INVENTORY_DELETE"));
             adminPermissions.add(getPermission("QR_SCAN"));

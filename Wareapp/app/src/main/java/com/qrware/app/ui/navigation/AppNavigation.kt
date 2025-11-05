@@ -20,6 +20,14 @@ import com.qrware.app.ui.screens.UserManagement.ManagePermissionsScreen
 import com.qrware.app.ui.screens.UserManagement.ManageRolesScreen
 import com.qrware.app.ui.screens.UserManagement.ManageUsersScreen
 import com.qrware.app.ui.viewmodel.*
+import com.qrware.app.ui.viewmodel.UserManagament.AddUserViewModel
+import com.qrware.app.ui.viewmodel.UserManagament.EditUserViewModel
+import com.qrware.app.ui.viewmodel.UserManagament.ListUsersViewModel
+import com.qrware.app.ui.viewmodel.UserManagament.ListUsersViewModelFactory
+import com.qrware.app.ui.viewmodel.UserManagament.LoginViewModel
+import com.qrware.app.ui.viewmodel.UserManagament.LoginViewModelFactory
+import com.qrware.app.ui.viewmodel.UserManagament.RegisterViewModel
+import com.qrware.app.ui.viewmodel.UserManagament.RegisterViewModelFactory
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -41,7 +49,10 @@ fun AppNavigation(appContainer: AppContainer) {
             // ... (Trasy login, register, home, health bez zmian) ...
             composable("login") {
                 val loginViewModel: LoginViewModel = viewModel(
-                    factory = LoginViewModelFactory(appContainer.authRepository, appContainer.tokenManager)
+                    factory = LoginViewModelFactory(
+                        appContainer.authRepository,
+                        appContainer.tokenManager
+                    )
                 )
                 LoginScreen(navController = navController, viewModel = loginViewModel)
             }
@@ -116,13 +127,12 @@ fun AppNavigation(appContainer: AppContainer) {
 
             // --- SEKCJA PRODUKTÓW I MAGAZYNU ---
 
-            composable("manage_products") {
-                // TODO: Zastąp tymczasowy tekst prawdziwym ekranem
-                Text("Ekran Zarządzania Produktami", modifier = Modifier.padding(32.dp).fillMaxSize())
+            composable("inventory") {
+                ManageInventoryScreen(navController = navController, appContainer = appContainer)
             }
 
-            composable("inventory") {
-                InventoryScreen(navController = navController, appContainer = appContainer)
+            composable("manage_products") {
+                ManageProductsScreen(navController = navController, appContainer = appContainer)
             }
 
             // --- NOWA TRASA DLA DODAWANIA PRODUKTU ---
@@ -137,7 +147,23 @@ fun AppNavigation(appContainer: AppContainer) {
                     viewModel = addProductViewModel
                 )
             }
-
+            // ... wewnątrz NavHost(...)
+            composable(
+                route = "edit_product/{productId}",
+                arguments = listOf(navArgument("productId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val productId = backStackEntry.arguments?.getLong("productId")
+                if (productId != null) {
+                    EditProductScreen(
+                        navController = navController,
+                        appContainer = appContainer,
+                        productId = productId
+                    )
+                } else {
+                    // Obsłuż błąd - np. wróć
+                    navController.popBackStack()
+                }
+            }
             composable("scan_qr") {
                 ScanQrScreen(navController = navController)
             }
@@ -148,3 +174,4 @@ fun AppNavigation(appContainer: AppContainer) {
         }
     }
 }
+

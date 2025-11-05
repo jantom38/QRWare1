@@ -1,5 +1,5 @@
 // Ścieżka: app/src/main/java/com/qrware/app/ui/viewmodel/ManageRolesViewModel.kt
-package com.qrware.app.ui.viewmodel
+package com.qrware.app.ui.viewmodel.UserManagament
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

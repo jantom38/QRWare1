@@ -8,13 +8,16 @@ import com.qrware.app.security.TokenManager
 import com.qrware.app.data.remote.ApiService
 import com.qrware.app.data.repository.UserManagementRepository
 import com.qrware.app.ui.viewmodel.AddProductViewModelFactory
-import com.qrware.app.ui.viewmodel.AddUserViewModelFactory
+import com.qrware.app.ui.viewmodel.UserManagament.AddUserViewModelFactory
 import com.qrware.app.ui.viewmodel.CategoryViewModelFactory
-import com.qrware.app.ui.viewmodel.EditUserViewModelFactory
-import com.qrware.app.ui.viewmodel.InventoryViewModelFactory
-import com.qrware.app.ui.viewmodel.ListUsersViewModelFactory
-import com.qrware.app.ui.viewmodel.ManagePermissionsViewModelFactory
-import com.qrware.app.ui.viewmodel.ManageRolesViewModelFactory
+import com.qrware.app.ui.viewmodel.EditProductViewModelFactory
+import com.qrware.app.ui.viewmodel.ManageInventoryViewModelFactory
+
+import com.qrware.app.ui.viewmodel.UserManagament.EditUserViewModelFactory
+import com.qrware.app.ui.viewmodel.ManageProductsViewModelFactory
+import com.qrware.app.ui.viewmodel.UserManagament.ListUsersViewModelFactory
+import com.qrware.app.ui.viewmodel.UserManagament.ManagePermissionsViewModelFactory
+import com.qrware.app.ui.viewmodel.UserManagament.ManageRolesViewModelFactory
 import retrofit2.Retrofit
 
 // Prosty kontener do wstrzykiwania zależności (Dependency Injection)
@@ -68,12 +71,18 @@ class AppContainer(context: Context) {
         ManagePermissionsViewModelFactory(userManagementRepository)
     }
 
-    val inventoryViewModelFactory: ViewModelProvider.Factory by lazy {
-        InventoryViewModelFactory(productRepository)
+    val ProductsViewModelFactory: ViewModelProvider.Factory by lazy {
+        ManageProductsViewModelFactory(productRepository)
+    }
+    val InventoryViewModelFactory: ViewModelProvider.Factory by lazy {
+        ManageInventoryViewModelFactory(inventoryRepository)
     }
 
     val categoryViewModelFactory: ViewModelProvider.Factory by lazy {
         CategoryViewModelFactory(categoryRepository)
+    }
+    fun createEditProductViewModelFactory(productId: Long): ViewModelProvider.Factory {
+        return EditProductViewModelFactory(productRepository, productId)
     }
 
     // NOWA METODA: Fabryka dla EditUserViewModel

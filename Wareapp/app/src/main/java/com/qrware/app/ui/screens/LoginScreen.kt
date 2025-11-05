@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.qrware.app.ui.viewmodel.LoginViewModel
+import com.qrware.app.ui.viewmodel.UserManagament.LoginViewModel
 
 @Composable
 fun LoginScreen(navController: NavController, viewModel: LoginViewModel) {

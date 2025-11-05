@@ -15,7 +15,6 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
     // Stan użytkownika jest jedynym stanem pobieranym z HomeViewModel
     val userState by viewModel.userState.collectAsState()
 
-    // Usunięto stany publicData i protectedData, ponieważ nie ma ich już w ViewModel
 
     LaunchedEffect(Unit) {
         viewModel.fetchData()
@@ -52,7 +51,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
                         }
                         Spacer(modifier = Modifier.height(8.dp)) // Dodatkowy odstęp
                         Button(
-                            onClick = { navController.navigate("inventory") },
+                            onClick = { navController.navigate("manage_products") },
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text("Zarządzanie produktami")
@@ -64,10 +63,17 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
                         ) {
                             Text("Zarządzaj Kategoriami")
                         }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(
+                            onClick = { navController.navigate("inventory") },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Zarządzanie stanami magazynowymi")
+                        }
                     }
 
                     // Przycisk widoczny dla wszystkich zalogowanych użytkowników
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
                     Button(
                         onClick = { navController.navigate("health") },
                         modifier = Modifier.fillMaxWidth() // Ujednolicenie wyglądu
