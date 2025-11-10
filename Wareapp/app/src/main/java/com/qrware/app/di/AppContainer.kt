@@ -12,6 +12,7 @@ import com.qrware.app.ui.viewmodel.UserManagament.AddUserViewModelFactory
 import com.qrware.app.ui.viewmodel.CategoryViewModelFactory
 import com.qrware.app.ui.viewmodel.EditProductViewModelFactory
 import com.qrware.app.ui.viewmodel.ManageInventoryViewModelFactory
+import com.qrware.app.ui.viewmodel.QRCodeViewModelFactory
 
 import com.qrware.app.ui.viewmodel.UserManagament.EditUserViewModelFactory
 import com.qrware.app.ui.viewmodel.ManageProductsViewModelFactory
@@ -53,6 +54,10 @@ class AppContainer(context: Context) {
     val categoryRepository by lazy {
         CategoryRepository(apiService)
     }
+    
+    val qrCodeRepository by lazy {
+        QRCodeRepository(apiService)
+    }
     val addProductViewModelFactory by lazy {
         AddProductViewModelFactory(productRepository)
     }
@@ -80,6 +85,10 @@ class AppContainer(context: Context) {
 
     val categoryViewModelFactory: ViewModelProvider.Factory by lazy {
         CategoryViewModelFactory(categoryRepository)
+    }
+
+    val qrCodeViewModelFactory: ViewModelProvider.Factory by lazy {
+        QRCodeViewModelFactory(qrCodeRepository)
     }
     fun createEditProductViewModelFactory(productId: Long): ViewModelProvider.Factory {
         return EditProductViewModelFactory(productRepository, productId)
