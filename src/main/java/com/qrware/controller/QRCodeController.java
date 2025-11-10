@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -61,7 +62,7 @@ public class QRCodeController {
             // Zwiększ licznik skanowań
             QRCodeData qrCodeData = qrCode.get();
             qrCodeData.setScanCount(qrCodeData.getScanCount() + 1);
-            qrCodeData.setLastScanned(LocalDateTime.now());
+            LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS);
             qrCodeRepository.save(qrCodeData);
             
             return ResponseEntity.ok(dtoMapper.toDTO(qrCodeData));
