@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -14,6 +15,14 @@ import androidx.navigation.NavController
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScanQrScreen(navController: NavController) {
+    // Przekieruj do nowego QRScanScreen
+    LaunchedEffect(Unit) {
+        navController.navigate("qr_scan") {
+            popUpTo("scan_qr") { inclusive = true }
+        }
+    }
+    
+    // Placeholder podczas przekierowania
     Scaffold(
         topBar = {
             TopAppBar(
@@ -32,7 +41,7 @@ fun ScanQrScreen(navController: NavController) {
                 .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
-            Text("Ekran skanera QR")
+            CircularProgressIndicator()
         }
     }
 }

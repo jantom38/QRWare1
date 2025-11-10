@@ -65,6 +65,20 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Button(
+                            onClick = { navController.navigate("qr_scan") },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Skanuj Kod QR")
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(
+                            onClick = { navController.navigate("manage_qr") },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Zarządzaj Kodami QR")
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(
                             onClick = { navController.navigate("inventory") },
                             modifier = Modifier.fillMaxWidth()
                         ) {

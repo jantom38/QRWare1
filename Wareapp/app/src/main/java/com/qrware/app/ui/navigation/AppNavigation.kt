@@ -171,6 +171,14 @@ fun AppNavigation(appContainer: AppContainer) {
             composable("manage_categories") {
                 ManageCategoriesScreen(navController = navController, appContainer = appContainer)
             }
+
+            composable("qr_scan") {
+                QRScanScreen(navController = navController, appContainer = appContainer)
+            }
+
+            composable("manage_qr") {
+                ManageQRCodesScreen(navController = navController, appContainer = appContainer)
+            }
         }
     }
 }

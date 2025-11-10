@@ -1,5 +1,6 @@
 package com.qrware.controller;
 
+import com.qrware.domain.inventory.InventoryItem;
 import com.qrware.domain.product.Product;
 import com.qrware.domain.product.Category;
 import com.qrware.repository.product.ProductRepository;
@@ -118,7 +119,7 @@ public class ProductController {
         if (productRepository.existsBySku(request.getSku())) {
             return ResponseEntity.badRequest().build();
         }
-
+        //InventoryItem state = new InventoryItem();
         Product product = new Product();
         product.setSku(request.getSku());
         product.setName(request.getName());
@@ -130,7 +131,7 @@ public class ProductController {
         product.setDimensionsWidth(request.getWidth());
         product.setDimensionsHeight(request.getHeight());
         product.setActive(request.getActive() != null ? request.getActive() : true);
-
+        //state.setProduct(request.get);
         if (request.getCategoryId() != null) {
             Optional<Category> category = categoryRepository.findById(request.getCategoryId());
             category.ifPresent(product::setCategory);

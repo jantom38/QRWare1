@@ -26,45 +26,59 @@ interface ApiService {
         @Query("size") size: Int = 20,
         @Query("sort") sort: String = "id,asc"
     ): ApiResponse<PaginatedResponse<AdminUserResponse>>
+
     @GET("api/users/{id}")
     suspend fun getUserById(@Path("id") userId: Long): ApiResponse<AdminUserResponse>
+
     @PUT("api/users/{id}")
     suspend fun updateUser(
         @Path("id") userId: Long,
         @Body request: UpdateUserRequest
     ): ApiResponse<AdminUserResponse>
+
     @POST("api/users")
     suspend fun createUser(
         @Body request: AdminCreateUserRequest
     ): ApiResponse<AdminUserResponse>
+
     @DELETE("api/users/{id}")
     suspend fun deleteUser(
         @Path("id") userId: Long
     ): ApiResponse<Unit>
+
     @GET("api/roles")
     suspend fun getAllRoles(): ApiResponse<List<RoleResponse>>
+
     @POST("api/roles")
     suspend fun createRole(@Body request: RoleRequest): ApiResponse<RoleResponse>
+
     @GET("api/roles/{id}")
     suspend fun getRoleById(@Path("id") roleId: Long): ApiResponse<RoleResponse>
+
     @PUT("api/roles/{id}")
     suspend fun updateRole(
         @Path("id") roleId: Long,
         @Body request: RoleRequest
     ): ApiResponse<RoleResponse>
+
     @DELETE("api/roles/{id}")
     suspend fun deleteRole(@Path("id") roleId: Long): ApiResponse<Unit>
+
     @GET("api/permissions")
     suspend fun getAllPermissions(): ApiResponse<List<PermissionResponse>>
+
     @POST("api/permissions")
     suspend fun createPermission(@Body request: PermissionRequest): ApiResponse<PermissionResponse>
+
     @GET("api/permissions/{id}")
     suspend fun getPermissionById(@Path("id") permissionId: Long): ApiResponse<PermissionResponse>
+
     @PUT("api/permissions/{id}")
     suspend fun updatePermission(
         @Path("id") permissionId: Long,
         @Body request: PermissionRequest
     ): ApiResponse<PermissionResponse>
+
     @DELETE("api/permissions/{id}")
     suspend fun deletePermission(@Path("id") permissionId: Long): ApiResponse<Unit>
 
@@ -125,34 +139,35 @@ interface ApiService {
     ): PaginatedResponse<ProductDTO>
 
     @GET("api/products/{id}")
-    suspend fun getProductById(@Path("id") productId: Long): ProductDTO // <-- ZMIANA
+    suspend fun getProductById(@Path("id") productId: Long): ProductDTO
 
     @GET("api/products/sku/{sku}")
-    suspend fun getProductBySku(@Path("sku") sku: String): ProductDTO // <-- ZMIANA
+    suspend fun getProductBySku(@Path("sku") sku: String): ProductDTO
+
 
     @GET("api/products/category/{categoryId}")
-    suspend fun getProductsByCategory(@Path("categoryId") categoryId: Long): List<ProductDTO> // <-- ZMIANA
+    suspend fun getProductsByCategory(@Path("categoryId") categoryId: Long): List<ProductDTO>
 
     @GET("api/products/search")
-    suspend fun searchProducts(@Query("query") query: String): List<ProductDTO> // <-- ZMIANA
+    suspend fun searchProducts(@Query("query") query: String): List<ProductDTO>
 
     @GET("api/products/active")
-    suspend fun getActiveProducts(): List<ProductDTO> // <-- ZMIANA
+    suspend fun getActiveProducts(): List<ProductDTO>
 
     @POST("api/products")
-    suspend fun createProduct(@Body request: CreateProductRequest): ProductDTO // <-- ZMIANA
+    suspend fun createProduct(@Body request: CreateProductRequest): ProductDTO
 
     @PUT("api/products/{id}")
     suspend fun updateProduct(
         @Path("id") productId: Long,
         @Body request: UpdateProductRequest
-    ): ProductDTO // <-- ZMIANA
+    ): ProductDTO
 
     @DELETE("api/products/{id}")
-    suspend fun deleteProduct(@Path("id") productId: Long): Response<Unit> // <-- ZMIANA
+    suspend fun deleteProduct(@Path("id") productId: Long): Response<Unit>
 
     @PATCH("api/products/{id}/toggle-active")
-    suspend fun toggleProductActive(@Path("id") productId: Long): ProductDTO // <-- ZMIANA
+    suspend fun toggleProductActive(@Path("id") productId: Long): ProductDTO
 
     // --- ENDPOINTY CATEGORIES ---
 
@@ -191,8 +206,53 @@ interface ApiService {
 
     @PATCH("api/categories/{id}/toggle-active")
     suspend fun toggleCategoryActive(@Path("id") categoryId: Long): ApiResponse<CategoryDTO>
-}
 
+//--- OBSŁUGA QR KODÓW (POPRAWIONE) ---
+
+    @GET("api/qr-codes")
+    suspend fun getAllQRCodes(
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 20,
+        @Query("sort") sort: String = "id,desc"
+    ): PaginatedResponse<QRCodeData> // <-- POPRAWKA
+
+    @GET("api/qr-codes/{id}")
+    suspend fun getQRCodeById(@Path("id") qrCodeId: Long): QRCodeData // <-- POPRAWKA
+
+    @GET("api/qr-codes/code/{code}")
+    suspend fun scanQRCode(@Path("code") code: String): QRCodeData // <-- POPRAWKA
+
+    @GET("api/qr-codes/entity/{entityType}/{entityId}")
+    suspend fun getQRCodeByEntity(
+        @Path("entityType") entityType: String,
+        @Path("entityId") entityId: Long
+    ): QRCodeData // <-- POPRAWKA
+
+    @GET("api/qr-codes/active")
+    suspend fun getActiveQRCodes(): List<QRCodeData> // <-- POPRAWKA
+
+    @GET("api/qr-codes/type/{type}")
+    suspend fun getQRCodesByType(@Path("type") type: QRCodeType): List<QRCodeData> // <-- POPRAWKA
+
+    @POST("api/qr-codes/generate")
+    suspend fun generateQRCode(@Body request: GenerateQRRequest): QRCodeData // <-- POPRAWKA
+
+    @PUT("api/qr-codes/{id}")
+    suspend fun updateQRCode(
+        @Path("id") qrCodeId: Long,
+        @Body request: UpdateQRRequest
+    ): QRCodeData // <-- POPRAWKA
+
+    @DELETE("api/qr-codes/{id}")
+    suspend fun deleteQRCode(@Path("id") qrCodeId: Long): Response<Unit> // <-- POPRAWKA
+
+    @PATCH("api/qr-codes/{id}/toggle-active")
+    suspend fun toggleQRCodeActive(@Path("id") qrCodeId: Long): QRCodeData // <-- POPRAWKA
+
+    @GET("api/qr-codes/stats")
+    suspend fun getQRStats(): QRStatsResponse // <-- POPRAWKA
+
+}
 // ... (TestService i HealthService bez zmian) ...
 interface TestService {
     @GET("/api/test/public")

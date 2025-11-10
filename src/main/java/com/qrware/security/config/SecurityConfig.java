@@ -144,10 +144,8 @@ public class SecurityConfig {
             //.requestMatchers(HttpMethod.PUT, "/api/inventory/adjust").hasAnyRole("WAREHOUSE_MANAGER", "ADMIN")
             //.requestMatchers(HttpMethod.DELETE, "/api/inventory/**").hasRole("ADMIN")
             
-            // QR Code operations
-            .requestMatchers(HttpMethod.GET, "/api/qr/**").hasAnyRole("USER", "WAREHOUSE_WORKER", "WAREHOUSE_MANAGER", "ADMIN")
-            .requestMatchers(HttpMethod.POST, "/api/qr/scan").hasAnyRole("WAREHOUSE_WORKER", "WAREHOUSE_MANAGER", "ADMIN")
-            .requestMatchers(HttpMethod.POST, "/api/qr/generate").hasAnyRole("WAREHOUSE_MANAGER", "ADMIN")
+
+                .requestMatchers("/api/qr/**").authenticated()
             
             // Movement history and audit
             .requestMatchers(HttpMethod.GET, "/api/movements/**").hasAnyRole("USER", "WAREHOUSE_MANAGER", "ADMIN")

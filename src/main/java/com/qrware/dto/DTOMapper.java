@@ -5,6 +5,7 @@ import com.qrware.domain.product.Product;
 import com.qrware.domain.product.Category;
 import com.qrware.domain.warehouse.Location;
 import com.qrware.domain.warehouse.Zone;
+import com.qrware.domain.qr.QRCodeData;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -101,6 +102,31 @@ public class DTOMapper {
         dto.setDescription(zone.getDescription());
         dto.setType(zone.getType());
         dto.setColor(zone.getColor());
+        
+        return dto;
+    }
+
+    public QRCodeDTO toDTO(QRCodeData qrCode) {
+        if (qrCode == null) return null;
+        
+        QRCodeDTO dto = new QRCodeDTO();
+        dto.setId(qrCode.getId());
+        dto.setCode(qrCode.getCode());
+        dto.setType(qrCode.getType());
+        dto.setEntityType(qrCode.getEntityType());
+        dto.setEntityId(qrCode.getEntityId());
+        dto.setData(qrCode.getData());
+        dto.setMetadata(qrCode.getMetadata());
+        dto.setActive(qrCode.getActive());
+        dto.setExpiresAt(qrCode.getExpiresAt());
+        dto.setLastScanned(qrCode.getLastScanned());
+        dto.setScanCount(qrCode.getScanCount());
+        dto.setFormat(qrCode.getFormat());
+        dto.setSize(qrCode.getSize());
+        dto.setErrorCorrectionLevel(qrCode.getErrorCorrectionLevel());
+        dto.setGeneratedBy(qrCode.getGeneratedBy());
+        dto.setGenerationReason(qrCode.getGenerationReason());
+        dto.setImagePath(qrCode.getImagePath());
         
         return dto;
     }
