@@ -3,10 +3,13 @@ package com.qrware.repository.warehouse;
 import com.qrware.domain.warehouse.Location;
 import com.qrware.domain.warehouse.LocationType;
 import com.qrware.repository.BaseRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -75,6 +78,7 @@ public interface LocationRepository extends BaseRepository<Location> {
     @Query("SELECT l FROM Location l WHERE l.zone.id = :zoneId")
     List<Location> findByZoneId(@Param("zoneId") Long zoneId);
 
+    Page<Location> findByActive(Boolean active, Pageable pageable);
     /**
      * Find active locations by zone ID
      */

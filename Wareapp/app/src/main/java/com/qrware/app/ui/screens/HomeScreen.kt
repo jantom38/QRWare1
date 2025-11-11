@@ -84,6 +84,14 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
                         ) {
                             Text("Zarządzanie stanami magazynowymi")
                         }
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Button(
+                            onClick = { navController.navigate("manage_locations") },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Zarządzanie lokalizacjami")
+                        }
                     }
 
                     // Przycisk widoczny dla wszystkich zalogowanych użytkowników

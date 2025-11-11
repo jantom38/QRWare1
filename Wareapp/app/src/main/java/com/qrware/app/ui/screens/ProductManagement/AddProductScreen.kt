@@ -1,4 +1,4 @@
-package com.qrware.app.ui.screens
+package com.qrware.app.ui.screens.ProductManagement
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState

@@ -20,6 +20,10 @@ import com.qrware.app.ui.viewmodel.UserManagament.ListUsersViewModelFactory
 import com.qrware.app.ui.viewmodel.UserManagament.ManagePermissionsViewModelFactory
 import com.qrware.app.ui.viewmodel.UserManagament.ManageRolesViewModelFactory
 import retrofit2.Retrofit
+import com.qrware.app.data.repository.LocationRepository
+import com.qrware.app.ui.viewmodel.AddLocationViewModelFactory
+import com.qrware.app.ui.viewmodel.EditLocationViewModelFactory
+import com.qrware.app.ui.viewmodel.ManageLocationsViewModelFactory
 
 // Prosty kontener do wstrzykiwania zależności (Dependency Injection)
 class AppContainer(context: Context) {
@@ -36,6 +40,10 @@ class AppContainer(context: Context) {
     val authRepository: AuthRepository by lazy { AuthRepository(authService) }
     val testRepository: TestRepository by lazy { TestRepository(testService) }
     val healthRepository: HealthRepository by lazy { HealthRepository(healthService) }
+    // Locations
+    val locationRepository by lazy {
+        LocationRepository(apiService)
+    }
 
 
     // --- REPOSITORIES ---
@@ -92,6 +100,20 @@ class AppContainer(context: Context) {
     }
     fun createEditProductViewModelFactory(productId: Long): ViewModelProvider.Factory {
         return EditProductViewModelFactory(productRepository, productId)
+    }
+
+    val manageLocationsViewModelFactory: ViewModelProvider.Factory by lazy {
+        ManageLocationsViewModelFactory(locationRepository)
+    }
+
+    val addLocationViewModelFactory: ViewModelProvider.Factory by lazy {
+        // Przekazujemy repozytorium stref (ZoneRepository) jeśli je masz
+        // Na razie używamy tylko locationRepository do pobierania stref
+        AddLocationViewModelFactory(locationRepository)
+    }
+
+    fun createEditLocationViewModelFactory(locationId: Long): ViewModelProvider.Factory {
+        return EditLocationViewModelFactory(locationRepository, locationId)
     }
 
     // NOWA METODA: Fabryka dla EditUserViewModel

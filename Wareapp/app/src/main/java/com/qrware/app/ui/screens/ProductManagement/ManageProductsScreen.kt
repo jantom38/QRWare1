@@ -1,4 +1,4 @@
-package com.qrware.app.ui.screens
+package com.qrware.app.ui.screens.ProductManagement
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,6 +21,8 @@ import androidx.navigation.NavController
 import com.qrware.app.data.dto.ProductDTO
 import com.qrware.app.di.AppContainer
 import com.qrware.app.ui.viewmodel.ManageProductsViewModel
+import kotlinx.coroutines.delay
+
 // import java.math.BigDecimal // Już niepotrzebny
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,7 +41,7 @@ fun ManageProductsScreen(
 
     LaunchedEffect(uiState.error, uiState.successMessage) {
         if (uiState.error != null || uiState.successMessage != null) {
-            kotlinx.coroutines.delay(3000)
+            delay(3000)
             viewModel.clearMessages()
         }
     }

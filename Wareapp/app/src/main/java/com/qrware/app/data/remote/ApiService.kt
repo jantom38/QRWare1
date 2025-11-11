@@ -252,6 +252,41 @@ interface ApiService {
     @GET("api/qr-codes/stats")
     suspend fun getQRStats(): QRStatsResponse // <-- POPRAWKA
 
+
+//Location obsługa
+
+    @GET("api/locations")
+    suspend fun getAllLocations(
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 20,
+        @Query("sort") sort: String = "id,asc",
+        @Query("active") active: Boolean? = null
+    ): PaginatedResponse<LocationDTO> // Wymaga istnienia PaginatedResponse
+
+    @GET("api/locations/{id}")
+    suspend fun getLocationById(@Path("id") locationId: Long): LocationDTO
+
+    @POST("api/locations")
+    suspend fun createLocation(@Body request: CreateLocationRequest): LocationDTO
+
+    @PUT("api/locations/{id}")
+    suspend fun updateLocation(
+        @Path("id") locationId: Long,
+        @Body request: UpdateLocationRequest
+    ): LocationDTO
+
+    @DELETE("api/locations/{id}")
+    suspend fun deleteLocation(@Path("id") locationId: Long): Response<Unit>
+
+    @PATCH("api/locations/{id}/toggle-active")
+    suspend fun toggleLocationActive(@Path("id") locationId: Long): LocationDTO
+
+    @GET("api/zones")
+    suspend fun getZones(
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 1000, // Pobierzmy dużo na raz
+        @Query("active") active: Boolean? = true // Chcemy tylko aktywne
+    ): PaginatedResponse<ZoneDTO>
 }
 // ... (TestService i HealthService bez zmian) ...
 interface TestService {

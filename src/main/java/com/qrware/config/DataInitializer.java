@@ -177,6 +177,13 @@ public class DataInitializer implements CommandLineRunner {
             adminPermissions.add(getPermission("INVENTORY_WRITE"));
             adminPermissions.add(getPermission("INVENTORY_UPDATE"));
             adminPermissions.add(getPermission("INVENTORY_DELETE"));
+            adminPermissions.add(getPermission("LOCATION_READ"));
+            adminPermissions.add(getPermission("LOCATION_WRITE"));
+            adminPermissions.add(getPermission("ZONE_READ"));
+            adminPermissions.add(getPermission("ZONE_WRITE"));
+
+
+            adminPermissions.add(getPermission("INVENTORY_DELETE"));
             adminPermissions.add(getPermission("QR_SCAN"));
             adminPermissions.add(getPermission("QR_GENERATE"));
             adminRole.setPermissions(adminPermissions);

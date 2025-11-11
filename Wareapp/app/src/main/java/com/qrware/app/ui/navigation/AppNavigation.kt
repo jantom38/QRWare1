@@ -1,17 +1,19 @@
 package com.qrware.app.ui.navigation
 
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.qrware.app.di.AppContainer
 import com.qrware.app.ui.screens.*
+import com.qrware.app.ui.screens.LocationManagement.AddLocationScreen
+import com.qrware.app.ui.screens.LocationManagement.EditLocationScreen
+import com.qrware.app.ui.screens.LocationManagement.ManageLocationsScreen
+import com.qrware.app.ui.screens.ProductManagement.AddProductScreen
+import com.qrware.app.ui.screens.ProductManagement.EditProductScreen
+import com.qrware.app.ui.screens.ProductManagement.ManageProductsScreen
 import com.qrware.app.ui.screens.UserManagement.AddUserScreen
 import com.qrware.app.ui.screens.UserManagement.AdminRoutes
 import com.qrware.app.ui.screens.UserManagement.EditUserScreen
@@ -178,6 +180,37 @@ fun AppNavigation(appContainer: AppContainer) {
 
             composable("manage_qr") {
                 ManageQRCodesScreen(navController = navController, appContainer = appContainer)
+            }
+            // Lokalizacje
+            composable("manage_locations") {
+                ManageLocationsScreen(
+                    navController = navController,
+                    appContainer = appContainer
+                )
+            }
+
+            composable("add_location") {
+                AddLocationScreen(
+                    navController = navController,
+                    appContainer = appContainer
+                )
+            }
+
+            composable(
+                route = "edit_location/{locationId}",
+                arguments = listOf(navArgument("locationId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val locationId = backStackEntry.arguments?.getLong("locationId")
+                if (locationId != null) {
+                    EditLocationScreen(
+                        navController = navController,
+                        appContainer = appContainer,
+                        locationId = locationId
+                    )
+                } else {
+                    // Obsłuż błąd
+                    navController.popBackStack()
+                }
             }
         }
     }
