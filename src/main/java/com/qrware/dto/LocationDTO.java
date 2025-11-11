@@ -18,6 +18,7 @@ public class LocationDTO {
     private BigDecimal xCoordinate;
     private BigDecimal yCoordinate;
     private BigDecimal zCoordinate;
+    private Boolean active;
 
     // Constructors
     public LocationDTO() {}
@@ -34,6 +35,9 @@ public class LocationDTO {
     
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+    public Boolean getActive() { return active; }
+    public void setActive(Boolean active) { this.active = active; }
     
     public ZoneDTO getZone() { return zone; }
     public void setZone(ZoneDTO zone) { this.zone = zone; }

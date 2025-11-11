@@ -7,11 +7,7 @@ import java.math.BigDecimal
  * DTO dla Strefy. Zakładamy prostą strukturę.
  * Upewnij się, że ten plik lub definicja istnieje.
  */
-data class ZoneDTO(
-    val id: Long,
-    val code: String,
-    val name: String
-)
+
 
 /**
  * PEŁNA WERSJA DTO Lokalizacji,

@@ -86,6 +86,7 @@ public class DTOMapper {
         dto.setRack(location.getRack());
         dto.setShelf(location.getShelf());
         dto.setBarcode(location.getBarcode());
+        dto.setActive(location.getActive());
         
         dto.setZone(toDTO(location.getZone()));
         
@@ -93,17 +94,44 @@ public class DTOMapper {
     }
 
     public ZoneDTO toDTO(Zone zone) {
-        if (zone == null) return null;
-        
-        ZoneDTO dto = new ZoneDTO();
-        dto.setId(zone.getId());
-        dto.setCode(zone.getCode());
-        dto.setName(zone.getName());
-        dto.setDescription(zone.getDescription());
-        dto.setType(zone.getType());
-        dto.setColor(zone.getColor());
-        
-        return dto;
+        if (zone == null) {
+            return null;
+        }
+
+        return new ZoneDTO(
+                zone.getId(),
+                zone.getName(),
+                zone.getCode(),
+                zone.getDescription(),
+                zone.getType(),
+                zone.getActive(),
+                zone.getTemperatureControlled(),
+                zone.getTemperatureMin(),
+                zone.getTemperatureMax(),
+                zone.getHumidityControlled(),
+                zone.getHumidityMin(),
+                zone.getHumidityMax(),
+                zone.getSecurityLevel(),
+                zone.getHazardousMaterials(),
+                zone.getFragileItems(),
+                zone.getPickingPriority(),
+                zone.getManager(),
+                zone.getContactInfo(),
+                zone.getColor(),
+
+                // Upewnij się, że te metody zwracają LocalDateTime
+                zone.getCreatedAt(),
+                zone.getUpdatedAt(),
+
+                zone.getCreatedBy(),
+                zone.getUpdatedBy(),
+
+                // Upewnij się, że te metody zwracają int, long, long, double
+                zone.getLocationCount(),      //
+                zone.getActiveLocationCount(),  //
+                zone.getOccupiedLocationCount(),//
+                zone.getOccupancyRate()       //
+        );
     }
 
     public QRCodeDTO toDTO(QRCodeData qrCode) {

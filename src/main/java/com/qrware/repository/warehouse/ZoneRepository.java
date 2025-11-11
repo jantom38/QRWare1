@@ -6,6 +6,8 @@ import com.qrware.repository.BaseRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Page; // Upewnij się, że ten import jest
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -58,6 +60,7 @@ public interface ZoneRepository extends BaseRepository<Zone> {
     @Query("SELECT CASE WHEN COUNT(z) > 0 THEN true ELSE false END FROM Zone z WHERE z.code = :code AND z.id != :zoneId")
     boolean existsByCodeAndIdNot(@Param("code") String code, @Param("zoneId") Long zoneId);
 
+    Page<Zone> findByActive(Boolean active, Pageable pageable);
     /**
      * Find all active zones
      */

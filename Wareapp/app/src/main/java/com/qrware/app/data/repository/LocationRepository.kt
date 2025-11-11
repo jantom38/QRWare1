@@ -8,18 +8,19 @@ import com.qrware.app.data.model.PaginatedResponse
 import com.qrware.app.data.remote.ApiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.Dispatcher
 import retrofit2.HttpException
 
 class LocationRepository(private val apiService: ApiService) {
 
-    // TODO: Będziesz potrzebować endpointu do pobierania stref (Zones)
-    // Poniżej znajduje się placeholder - musisz dodać `getAllZones` do ApiService
-    suspend fun getActiveZones(): List<ZoneDTO> {
+    suspend fun getActiveZones(
+        page: Int,
+        size: Int
+    ): PaginatedResponse<ZoneDTO> {
         return withContext(Dispatchers.IO) {
-            // return apiService.getAllZones().data // Przykładowo
-            // Na razie zwracamy pustą listę, aby kod się kompilował
-            emptyList<ZoneDTO>()
-        }
+                 apiService.getZones(page = page, size= size)
+             }
+
     }
 
     suspend fun getLocations(

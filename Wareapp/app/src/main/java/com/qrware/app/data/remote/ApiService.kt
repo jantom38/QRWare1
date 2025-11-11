@@ -288,6 +288,7 @@ interface ApiService {
         @Query("active") active: Boolean? = true // Chcemy tylko aktywne
     ): PaginatedResponse<ZoneDTO>
 }
+
 // ... (TestService i HealthService bez zmian) ...
 interface TestService {
     @GET("/api/test/public")

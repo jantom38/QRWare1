@@ -4,8 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.qrware.app.data.dto.CreateLocationRequest
-import com.qrware.app.data.dto.ZoneDTO
+
 import com.qrware.app.data.model.LocationType
+import com.qrware.app.data.dto.ZoneDTO
+import com.qrware.app.data.dto.ZoneType
+
 import com.qrware.app.data.repository.LocationRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,6 +23,7 @@ data class LocationFormUiState(
     val success: Boolean = false,
 
     // Lista do dropdownów
+    //dodać funkcje do zones
     val zones: List<ZoneDTO> = emptyList(),
     val locationTypes: List<LocationType> = LocationType.values().toList(),
 
@@ -70,8 +74,17 @@ open class LocationFormViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                val zones = repository.getActiveZones()
-                _uiState.update { it.copy(isLoading = false, zones = zones) }
+                // POPRAWKA 1: Przekaż FAKTYCZNE wartości Int, a nie typ Int.Companion
+                // Używamy dużej liczby 'size' (zgodnie z ApiService), aby pobrać wszystkie aktywne strefy
+                val paginatedResponse = repository.getActiveZones(page = 0, size = 1000)
+
+                // POPRAWKA 2: Wyciągnij listę 'content' z odpowiedzi
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        zones = paginatedResponse.content // Zaktualizuj stan listą stref
+                    )
+                }
             } catch (e: Exception) {
                 _uiState.update { it.copy(isLoading = false, error = "Błąd ładowania stref: ${e.message}") }
             }

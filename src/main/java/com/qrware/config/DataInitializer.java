@@ -101,6 +101,11 @@ public class DataInitializer implements CommandLineRunner {
         createPermissionIfNotExists("INVENTORY_WRITE", "Create inventory items", "INVENTORY", "CREATE");
         createPermissionIfNotExists("INVENTORY_UPDATE", "Update inventory", "INVENTORY", "UPDATE");
         createPermissionIfNotExists("INVENTORY_DELETE", "Delete inventory items", "INVENTORY", "DELETE");
+        createPermissionIfNotExists("LOCATION_READ", "Read Locations", "LOCATION","READ");
+        createPermissionIfNotExists("LOCATION_WRITE", "Write Locations", "LOCATION","WRITE");
+        createPermissionIfNotExists("ZONE_READ", "Write Locations", "ZONE","READ");
+        createPermissionIfNotExists("ZONE_WRITE", "Write Locations", "ZONE","WRITE");
+
 
         // QR Code permissions
         createPermissionIfNotExists("QR_SCAN", "Scan QR codes", "QR", "SCAN");
