@@ -288,27 +288,212 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void createSampleData() {
-        logger.info("Creating sample products and inventory...");
+        logger.info("Creating extensive sample data...");
 
-        // Tworzenie przykładowych kategorii
+        // 15 kategorii produktów
         Category electronics = createCategoryIfNotExists("ELEC", "Elektronika", "Urządzenia elektroniczne");
         Category furniture = createCategoryIfNotExists("FURN", "Meble", "Meble biurowe i domowe");
+        Category automotive = createCategoryIfNotExists("AUTO", "Motoryzacja", "Części samochodowe");
+        Category food = createCategoryIfNotExists("FOOD", "Żywność", "Produkty spożywcze");
+        Category clothing = createCategoryIfNotExists("CLTH", "Odzież", "Ubrania i akcesoria");
+        Category sports = createCategoryIfNotExists("SPRT", "Sport", "Artykuły sportowe");
+        Category books = createCategoryIfNotExists("BOOK", "Książki", "Literatura i podręczniki");
+        Category toys = createCategoryIfNotExists("TOYS", "Zabawki", "Zabawki dla dzieci");
+        Category tools = createCategoryIfNotExists("TOOL", "Narzędzia", "Narzędzia i części");
+        Category health = createCategoryIfNotExists("HLTH", "Zdrowie", "Produkty medyczne");
+        Category garden = createCategoryIfNotExists("GARD", "Ogród", "Artykuły ogrodnicze");
+        Category cosmetics = createCategoryIfNotExists("COSM", "Kosmetyki", "Produkty kosmetyczne");
+        Category music = createCategoryIfNotExists("MUSC", "Muzyka", "Instrumenty muzyczne");
+        Category pets = createCategoryIfNotExists("PETS", "Zwierzęta", "Produkty dla zwierząt");
+        Category office = createCategoryIfNotExists("OFFC", "Biuro", "Artykuły biurowe");
 
-        // Tworzenie stref i lokalizacji
-        Zone storageZone = createZoneIfNotExists("A", "Strefa A", "Główna strefa magazynowa", ZoneType.STORAGE);
-        Location loc1 = createLocationIfNotExists("A-01-01", "Regał A-01, Poziom 01", storageZone);
-        Location loc2 = createLocationIfNotExists("A-01-02", "Regał A-01, Poziom 02", storageZone);
+        // 12 stref magazynowych
+        Zone[] zones = createExtensiveZones();
+        
+        // 200+ lokalizacji
+        Location[] locations = createExtensiveLocations(zones);
 
-        // Tworzenie przykładowych produktów i inventory
-        Product laptop = createProductIfNotExists("LAP001", "Laptop Dell XPS 13", "Ultrabook 13.3 cali", 
-            new BigDecimal("4999.99"), "SZTUKA", electronics, new BigDecimal("1.2"));
-        createInventoryIfNotExists(laptop, loc1, 15, InventoryStatus.AVAILABLE, "LAP001-001");
+        // 150+ produktów
+        Product[] products = createExtensiveProducts(new Category[]{
+            electronics, furniture, automotive, food, clothing, sports, 
+            books, toys, tools, health, garden, cosmetics, music, pets, office
+        });
 
-        Product chair = createProductIfNotExists("CHR001", "Krzesło biurowe", "Ergonomiczne krzesło", 
-            new BigDecimal("899.99"), "SZTUKA", furniture, new BigDecimal("15.5"));
-        createInventoryIfNotExists(chair, loc2, 8, InventoryStatus.AVAILABLE, "CHR001-001");
+        // 300+ pozycji inwentarza
+        createExtensiveInventory(products, locations);
 
-        logger.info("Sample data created successfully");
+        logger.info("Extensive sample data created successfully - 15 categories, 12 zones, 200+ locations, 150+ products, 300+ inventory items");
+    }
+
+    private Zone[] createExtensiveZones() {
+        Zone[] zones = new Zone[12];
+        zones[0] = createZoneIfNotExists("A-MAIN", "Główna strefa A", "Elektronika i wysokowartościowe", ZoneType.STORAGE);
+        zones[1] = createZoneIfNotExists("B-BULK", "Strefa B - Bulk", "Duże gabaryty", ZoneType.STORAGE);
+        zones[2] = createZoneIfNotExists("C-COLD", "Strefa chłodnicza", "Produkty wymagające chłodzenia", ZoneType.STORAGE);
+        zones[3] = createZoneIfNotExists("D-HAZ", "Strefa niebezpieczna", "Materiały niebezpieczne", ZoneType.STORAGE);
+        zones[4] = createZoneIfNotExists("R-NORTH", "Przyjęcie Północ", "Główny dock przyjęć", ZoneType.RECEIVING);
+        zones[5] = createZoneIfNotExists("R-SOUTH", "Przyjęcie Południe", "Dock ekspresowy", ZoneType.RECEIVING);
+        zones[6] = createZoneIfNotExists("S-EAST", "Wysyłka Wschód", "Główna wysyłka", ZoneType.SHIPPING);
+        zones[7] = createZoneIfNotExists("S-WEST", "Wysyłka Zachód", "Wysyłka ekspresowa", ZoneType.SHIPPING);
+        zones[8] = createZoneIfNotExists("P-PICK", "Strefa kompletacji", "Szybka kompletacja", ZoneType.PICKING);
+        zones[9] = createZoneIfNotExists("Q-QC", "Kontrola jakości", "QC i inspekcja", ZoneType.QUALITY_CONTROL);
+        zones[10] = createZoneIfNotExists("O-OFFICE", "Biuro", "Strefa administracyjna", ZoneType.OFFICE);
+        zones[11] = createZoneIfNotExists("M-MAINT", "Konserwacja", "Warsztat napraw", ZoneType.MAINTENANCE);
+        return zones;
+    }
+
+    private Location[] createExtensiveLocations(Zone[] zones) {
+        java.util.List<Location> locationsList = new java.util.ArrayList<>();
+        int counter = 1;
+
+        for (Zone zone : zones) {
+            int locCount = switch (zone.getType()) {
+                case STORAGE -> 25;
+                case RECEIVING, SHIPPING -> 8;
+                case PICKING -> 15;
+                default -> 5;
+            };
+
+            for (int i = 1; i <= locCount; i++) {
+                String aisle = String.format("%02d", (i - 1) / 5 + 1);
+                String rack = String.format("%02d", (i - 1) % 5 + 1);
+                String shelf = String.format("%02d", ((i - 1) % 3) + 1);
+                String bin = String.format("%02d", i % 4 + 1);
+                
+                Location location = createLocationIfNotExists(
+                    zone.getCode() + "-" + aisle + "-" + rack + "-" + shelf + "-" + bin,
+                    zone.getName() + " - " + aisle + "." + rack + "." + shelf,
+                    zone
+                );
+                
+                // Dodanie współrzędnych i pojemności
+                location.setAisle(aisle);
+                location.setRack(rack);
+                location.setShelf(shelf);
+                location.setBin(bin);
+                location.setCapacityWeight(new BigDecimal(zone.getType() == ZoneType.STORAGE ? 1000 + (i * 20) : 500));
+                location.setCapacityVolume(new BigDecimal(zone.getType() == ZoneType.STORAGE ? 50 + i : 25));
+                locationRepository.save(location);
+                
+                locationsList.add(location);
+                counter++;
+            }
+        }
+        return locationsList.toArray(new Location[0]);
+    }
+
+    private Product[] createExtensiveProducts(Category[] categories) {
+        java.util.List<Product> productsList = new java.util.ArrayList<>();
+        
+        String[][] productData = {
+            // Electronics
+            {"LAP001", "Laptop Dell XPS 13", "Ultrabook 13.3 cali", "4999.99", "1.2"},
+            {"LAP002", "Laptop HP Spectre", "Premium ultrabook", "5499.99", "1.1"},
+            {"PHN001", "iPhone 14 Pro", "Najnowszy iPhone", "5999.99", "0.2"},
+            {"PHN002", "Samsung Galaxy S23", "Flagowy Android", "4799.99", "0.19"},
+            {"TAB001", "iPad Pro 12.9", "Profesjonalny tablet", "4999.99", "0.6"},
+            {"MON001", "Monitor Dell 27\"", "4K monitor", "1899.99", "6.5"},
+            {"KEY001", "Klawiatura mechaniczna", "Gaming keyboard", "399.99", "1.2"},
+            {"MOU001", "Mysz bezprzewodowa", "Ergonomiczna mysz", "199.99", "0.1"},
+            {"HDD001", "Dysk twardy 1TB", "External HDD", "299.99", "0.8"},
+            {"SSD001", "SSD 1TB NVMe", "Szybki dysk SSD", "499.99", "0.05"},
+            
+            // Meble
+            {"CHR001", "Krzesło biurowe", "Ergonomiczne krzesło", "899.99", "15.5"},
+            {"DSK001", "Biurko regulowane", "Standing desk", "1299.99", "45.0"},
+            {"SHF001", "Regał biurowy", "5-półkowy regał", "599.99", "35.2"},
+            {"ARM001", "Fotel wypoczynkowy", "Skórzany fotel", "2999.99", "42.0"},
+            {"TAB002", "Stół konferencyjny", "Stół dla 8 osób", "3499.99", "85.0"},
+            
+            // Motoryzacja
+            {"TIR001", "Opona letnia 205/55R16", "Opona samochodowa", "299.99", "8.5"},
+            {"OIL001", "Olej silnikowy 5W-30", "Syntetyczny olej", "89.99", "4.2"},
+            {"BAT001", "Akumulator 12V 60Ah", "Akumulator samochodowy", "399.99", "18.0"},
+            {"BRK001", "Klocki hamulcowe", "Przednie klocki", "199.99", "2.1"},
+            {"FLT001", "Filtr powietrza", "Filtr silnika", "49.99", "0.5"},
+            
+            // Żywność
+            {"RIC001", "Ryż basmati 1kg", "Długoziarnisty ryż", "12.99", "1.0"},
+            {"PAT001", "Makaron spaghetti", "Włoski makaron", "8.99", "0.5"},
+            {"OLV001", "Oliwa z oliwek", "Extra virgin", "24.99", "0.5"},
+            {"HON001", "Miód wielokwiatowy", "Naturalny miód", "19.99", "0.4"},
+            {"COF001", "Kawa ziarnista", "Arabica 100%", "39.99", "1.0"},
+            
+            // Odzież
+            {"TSH001", "T-shirt bawełniany", "100% bawełna", "49.99", "0.2"},
+            {"JEA001", "Jeansy klasyczne", "Blue denim", "149.99", "0.6"},
+            {"SWE001", "Sweter wełniany", "Merino wool", "199.99", "0.4"},
+            {"SHO001", "Buty sportowe", "Running shoes", "299.99", "0.8"},
+            {"JAC001", "Kurtka zimowa", "Puchowa kurtka", "399.99", "1.2"},
+            
+            // Sport
+            {"BAL001", "Piłka nożna", "Skórzana piłka", "89.99", "0.4"},
+            {"RAC001", "Rakieta tenisowa", "Professional racket", "299.99", "0.3"},
+            {"MAT001", "Mata do jogi", "Antypoślizgowa mata", "79.99", "1.5"},
+            {"DUM001", "Hantle 10kg para", "Żeliwne hantle", "199.99", "20.0"},
+            {"TRE001", "Bieżnia elektryczna", "Home treadmill", "2999.99", "85.0"},
+            
+            // Książki
+            {"BOO001", "Java Programming", "Programming guide", "89.99", "0.8"},
+            {"BOO002", "Data Structures", "Computer science", "119.99", "1.0"},
+            {"BOO003", "Web Development", "Full-stack guide", "99.99", "0.9"},
+            {"BOO004", "Machine Learning", "AI handbook", "139.99", "1.1"},
+            {"BOO005", "Database Design", "SQL and NoSQL", "109.99", "0.9"},
+            
+            // Zabawki
+            {"TOY001", "Klocki LEGO", "Zestaw konstruktor", "199.99", "2.5"},
+            {"TOY002", "Lalka Barbie", "Fashion doll", "79.99", "0.3"},
+            {"TOY003", "Samochód RC", "Zdalnie sterowany", "299.99", "1.8"},
+            {"TOY004", "Puzzle 1000 ele.", "Landscape puzzle", "39.99", "0.6"},
+            {"TOY005", "Pluszowy miś", "Teddy bear", "59.99", "0.4"},
+            
+            // Narzędzia
+            {"DRI001", "Wiertarka akumulatorowa", "18V drill", "299.99", "2.1"},
+            {"HAM001", "Młotek stalowy", "500g hammer", "49.99", "0.5"},
+            {"SAW001", "Piła spalinowa", "Chainsaw 45cm", "899.99", "6.8"},
+            {"WRN001", "Klucze nasadowe", "Socket set 42pcs", "199.99", "3.2"},
+            {"MEA001", "Taśma miernicza 5m", "Measuring tape", "29.99", "0.3"},
+            
+            // Zdrowie
+            {"VIT001", "Witamina C 1000mg", "100 tabletek", "24.99", "0.1"},
+            {"PRO001", "Białko serwatkowe", "Protein powder 2kg", "149.99", "2.0"},
+            {"FIS001", "Omega-3", "Fish oil capsules", "39.99", "0.2"},
+            {"CAL001", "Wapń + D3", "Bone health", "29.99", "0.15"},
+            {"MAG001", "Magnez B6", "Muscle support", "19.99", "0.1"}
+        };
+
+        for (int i = 0; i < productData.length; i++) {
+            String[] data = productData[i];
+            Category category = categories[i % categories.length];
+            
+            Product product = createProductIfNotExists(
+                data[0], data[1], data[2], 
+                new BigDecimal(data[3]), "SZTUKA", 
+                category, new BigDecimal(data[4])
+            );
+            productsList.add(product);
+        }
+        
+        return productsList.toArray(new Product[0]);
+    }
+
+    private void createExtensiveInventory(Product[] products, Location[] locations) {
+        java.util.Random random = new java.util.Random();
+        
+        for (Product product : products) {
+            int itemCount = 2 + random.nextInt(4); // 2-5 pozycji inwentarza na produkt
+            
+            for (int i = 0; i < itemCount; i++) {
+                Location location = locations[random.nextInt(locations.length)];
+                int quantity = 5 + random.nextInt(96); // 5-100 sztuk
+                InventoryStatus status = random.nextBoolean() ? InventoryStatus.AVAILABLE : 
+                    (random.nextBoolean() ? InventoryStatus.RESERVED : InventoryStatus.DAMAGED);
+                
+                String qrCode = product.getSku() + "-" + String.format("%03d", i + 1);
+                
+                createInventoryIfNotExists(product, location, quantity, status, qrCode);
+            }
+        }
     }
 
     private Category createCategoryIfNotExists(String code, String name, String description) {
@@ -363,15 +548,17 @@ public class DataInitializer implements CommandLineRunner {
 
     private InventoryItem createInventoryIfNotExists(Product product, Location location, 
                                                    int quantity, InventoryStatus status, String qrCode) {
-        InventoryItem item = new InventoryItem();
-        item.setProduct(product);
-        item.setLocation(location);
-        item.setQuantity(quantity);
-        item.setReservedQuantity(0);
-        item.setAvailableQuantity(quantity);
-        item.setStatus(status);
-        item.setQrCode(qrCode);
-        item.setReceivedDate(LocalDate.now());
-        return inventoryItemRepository.save(item);
+        return inventoryItemRepository.findByQrCode(qrCode).orElseGet(() -> {
+            InventoryItem item = new InventoryItem();
+            item.setProduct(product);
+            item.setLocation(location);
+            item.setQuantity(quantity);
+            item.setReservedQuantity(0);
+            item.setAvailableQuantity(quantity);
+            item.setStatus(status);
+            item.setQrCode(qrCode);
+            item.setReceivedDate(LocalDate.now());
+            return inventoryItemRepository.save(item);
+        });
     }
 }

@@ -17,9 +17,21 @@ data class InventoryItem(
     val serialNumber: String?,
     val receivedDate: LocalDate,
     val expiryDate: LocalDate?,
+    val manufactureDate: LocalDate?,
+    val lastCountedDate: LocalDate?,
+    val lastMovedDate: LocalDate?,
     val unitCost: BigDecimal?,
     val totalCost: BigDecimal?,
-    val notes: String?
+    val supplierReference: String?,
+    val purchaseOrderNumber: String?,
+    val notes: String?,
+    val temperature: Int?,
+    val humidity: Int?,
+    val conditionRating: Int?,
+    val quarantine: Boolean,
+    val quarantineReason: String?,
+    val hold: Boolean,
+    val holdReason: String?
 )
 
 enum class InventoryStatus {
@@ -60,26 +72,54 @@ enum class ZoneType {
 data class CreateInventoryRequest(
     val productId: Long,
     val locationId: Long,
-    val quantity: BigDecimal,
+    val quantity: Int,
+    val reservedQuantity: Int = 0,
     val status: InventoryStatus = InventoryStatus.AVAILABLE,
     val qrCode: String,
-    val serialNumber: String? = null,
-    val batchNumber: String? = null,
     val lotNumber: String? = null,
-    val expirationDate: LocalDate? = null
+    val batchNumber: String? = null,
+    val serialNumber: String? = null,
+    val receivedDate: LocalDate? = null,
+    val expiryDate: LocalDate? = null,
+    val manufactureDate: LocalDate? = null,
+    val unitCost: BigDecimal? = null,
+    val supplierReference: String? = null,
+    val purchaseOrderNumber: String? = null,
+    val notes: String? = null,
+    val temperature: Int? = null,
+    val humidity: Int? = null,
+    val conditionRating: Int = 10,
+    val quarantine: Boolean = false,
+    val quarantineReason: String? = null,
+    val hold: Boolean = false,
+    val holdReason: String? = null
 )
 
 data class UpdateInventoryRequest(
     val locationId: Long? = null,
-    val quantity: BigDecimal? = null,
+    val quantity: Int? = null,
+    val reservedQuantity: Int? = null,
     val status: InventoryStatus? = null,
-    val serialNumber: String? = null,
-    val batchNumber: String? = null,
     val lotNumber: String? = null,
-    val expirationDate: LocalDate? = null
+    val batchNumber: String? = null,
+    val serialNumber: String? = null,
+    val receivedDate: LocalDate? = null,
+    val expiryDate: LocalDate? = null,
+    val manufactureDate: LocalDate? = null,
+    val unitCost: BigDecimal? = null,
+    val supplierReference: String? = null,
+    val purchaseOrderNumber: String? = null,
+    val notes: String? = null,
+    val temperature: Int? = null,
+    val humidity: Int? = null,
+    val conditionRating: Int? = null,
+    val quarantine: Boolean? = null,
+    val quarantineReason: String? = null,
+    val hold: Boolean? = null,
+    val holdReason: String? = null
 )
 
 data class QuantityUpdateRequest(
-    val quantity: BigDecimal,
+    val quantity: Int,
     val reason: String? = null
 )

@@ -29,22 +29,53 @@ class AddProductViewModel(
         name: String,
         description: String?,
         price: BigDecimal?,
+        cost: BigDecimal?,
+        unit: String?,
+        weight: BigDecimal?,
+        length: BigDecimal?,
+        width: BigDecimal?,
+        height: BigDecimal?,
+        minimumStock: Int?,
+        maximumStock: Int?,
+        reorderPoint: Int?,
+        active: Boolean,
+        perishable: Boolean,
+        hazardous: Boolean,
+        fragile: Boolean,
+        manufacturer: String?,
+        supplier: String?,
+        storageConditions: String?,
+        barcode: String?,
         categoryId: Long?
     ) {
         viewModelScope.launch {
             _uiState.value = AddProductUiState(isLoading = true)
             try {
-                // Tworzymy obiekt żądania
                 val request = CreateProductRequest(
                     sku = sku,
                     name = name,
                     description = description,
                     price = price,
+                    cost = cost,
+                    unit = unit ?: "PIECE",
+                    weight = weight,
+                    length = length,
+                    width = width,
+                    height = height,
+                    minimumStock = minimumStock,
+                    maximumStock = maximumStock,
+                    reorderPoint = reorderPoint,
+                    active = active,
+                    perishable = perishable,
+                    hazardous = hazardous,
+                    fragile = fragile,
+                    manufacturer = manufacturer,
+                    supplier = supplier,
+                    storageConditions = storageConditions,
+                    barcode = barcode,
                     categoryId = categoryId
-                    // Możesz dodać więcej pól, jeśli formularz je obsługuje
                 )
 
-                // Wywołujemy repozytorium
                 val newProduct = productRepository.createProduct(request)
 
                 _uiState.value = AddProductUiState(

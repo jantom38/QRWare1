@@ -27,6 +27,7 @@ import com.qrware.app.data.model.InventoryStatus
 import com.qrware.app.di.AppContainer
 import com.qrware.app.ui.viewmodel.ManageInventoryViewModel
 import java.math.BigDecimal
+import kotlin.Int
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -197,8 +198,8 @@ fun StatusFilterRow(onStatusSelected: (InventoryStatus?) -> Unit) {
 @Composable
 fun InventoryItemCard(
     item: InventoryItemDTO, // <-- ZMIANA NA DTO
-    onReceiveStock: (BigDecimal, String?) -> Unit,
-    onIssueStock: (BigDecimal, String?) -> Unit,
+    onReceiveStock: (Int, String?) -> Unit,
+    onIssueStock: (Int, String?) -> Unit,
     onDeleteItem: () -> Unit
 ) {
     var showQuantityDialog by remember { mutableStateOf(false) }
@@ -249,6 +250,7 @@ fun InventoryItemCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Dodatkowe informacje w kompaktowym formacie
             if (item.serialNumber != null) {
                 Text(
                     text = "S/N: ${item.serialNumber}",
@@ -261,6 +263,71 @@ fun InventoryItemCard(
                     text = "Partia: ${item.batchNumber}",
                     style = MaterialTheme.typography.bodySmall
                 )
+            }
+
+            if (item.lotNumber != null) {
+                Text(
+                    text = "Lot: ${item.lotNumber}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            if (item.expiryDate != null) {
+                Text(
+                    text = "🗓️ Wygasa: ${item.expiryDate}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (item.expiryDate < java.time.LocalDate.now().toString()) 
+                        MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline
+                )
+            }
+
+            if (item.quarantine == true) {
+                Text(
+                    text = "🚫 KWARANTANNA: ${item.quarantineReason ?: "Bez podania powodu"}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
+            if (item.hold == true) {
+                Text(
+                    text = "⏸️ BLOKADA: ${item.holdReason ?: "Bez podania powodu"}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
+
+            if (item.conditionRating != null && item.conditionRating < 8) {
+                Text(
+                    text = "⚠️ Stan: ${item.conditionRating}/10",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.tertiary
+                )
+            }
+
+            if (item.temperature != null || item.humidity != null) {
+                Text(
+                    text = "🌡️ ${item.temperature ?: "?"}°C 💧 ${item.humidity ?: "?"}%",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
+
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                if (item.unitCost != null) {
+                    Text(
+                        text = "💰 ${item.unitCost}/szt",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                }
+                if (item.totalCost != null) {
+                    Text(
+                        text = "Σ ${item.totalCost}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -318,7 +385,7 @@ fun InventoryItemCard(
 @Composable
 fun QuantityDialog(
     isReceiving: Boolean,
-    onConfirm: (BigDecimal, String?) -> Unit,
+    onConfirm: (Int, String?) -> Unit,
     onDismiss: () -> Unit
 ) {
     var quantity by remember { mutableStateOf("") }
@@ -350,13 +417,13 @@ fun QuantityDialog(
             Button(
                 onClick = {
                     try {
-                        val qty = BigDecimal(quantity)
+                        val qty = quantity.toInt()
                         onConfirm(qty, reason.takeIf { it.isNotBlank() })
                     } catch (e: NumberFormatException) {
                         // Handle error (np. pokaż błąd walidacji)
                     }
                 },
-                enabled = quantity.isNotBlank() && quantity.toBigDecimalOrNull() != null
+                enabled = quantity.isNotBlank() && quantity.toIntOrNull() != null
             ) {
                 Text("Potwierdź")
             }

@@ -238,6 +238,34 @@ fun CategoryCard(
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
+                    category.fullPath?.let { path ->
+                        Text(
+                            text = "Ścieżka: $path",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                    }
+                    if (category.requiresSpecialHandling == true) {
+                        Text(
+                            text = "⚠️ Wymaga specjalnego przechowywania",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+                    if (category.storageTemperatureMin != null || category.storageTemperatureMax != null) {
+                        Text(
+                            text = "🌡️ Temperatura: ${category.storageTemperatureMin ?: "?"}°C - ${category.storageTemperatureMax ?: "?"}°C",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                    }
+                    if (category.storageHumidityMin != null || category.storageHumidityMax != null) {
+                        Text(
+                            text = "💧 Wilgotność: ${category.storageHumidityMin ?: "?"}% - ${category.storageHumidityMax ?: "?"}%",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                    }
                 }
                 
                 Row {
@@ -284,32 +312,138 @@ fun AddCategoryDialog(
     var code by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
+    var icon by remember { mutableStateOf("") }
+    var color by remember { mutableStateOf("") }
+    var sortOrder by remember { mutableStateOf("") }
+    var requiresSpecialHandling by remember { mutableStateOf(false) }
+    var storageTemperatureMin by remember { mutableStateOf("") }
+    var storageTemperatureMax by remember { mutableStateOf("") }
+    var storageHumidityMin by remember { mutableStateOf("") }
+    var storageHumidityMax by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Dodaj kategorię") },
         text = {
-            Column {
-                OutlinedTextField(
-                    value = code,
-                    onValueChange = { code = it },
-                    label = { Text("Kod kategorii") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Nazwa kategorii") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    label = { Text("Opis (opcjonalnie)") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.height(400.dp)
+            ) {
+                item {
+                    OutlinedTextField(
+                        value = code,
+                        onValueChange = { code = it },
+                        label = { Text("Kod kategorii*") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                }
+                item {
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        label = { Text("Nazwa kategorii*") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                }
+                item {
+                    OutlinedTextField(
+                        value = description,
+                        onValueChange = { description = it },
+                        label = { Text("Opis") },
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 2
+                    )
+                }
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            value = icon,
+                            onValueChange = { icon = it },
+                            label = { Text("Ikona") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true
+                        )
+                        OutlinedTextField(
+                            value = color,
+                            onValueChange = { color = it },
+                            label = { Text("Kolor") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                            placeholder = { Text("#FF5722") }
+                        )
+                    }
+                }
+                item {
+                    OutlinedTextField(
+                        value = sortOrder,
+                        onValueChange = { sortOrder = it },
+                        label = { Text("Kolejność sortowania") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                }
+                item {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Checkbox(
+                            checked = requiresSpecialHandling,
+                            onCheckedChange = { requiresSpecialHandling = it }
+                        )
+                        Text("Wymaga specjalnego przechowywania", modifier = Modifier.padding(start = 8.dp))
+                    }
+                }
+                item {
+                    Text("Warunki przechowywania", style = MaterialTheme.typography.titleSmall)
+                }
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            value = storageTemperatureMin,
+                            onValueChange = { storageTemperatureMin = it },
+                            label = { Text("Temp. min (°C)") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true
+                        )
+                        OutlinedTextField(
+                            value = storageTemperatureMax,
+                            onValueChange = { storageTemperatureMax = it },
+                            label = { Text("Temp. max (°C)") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true
+                        )
+                    }
+                }
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            value = storageHumidityMin,
+                            onValueChange = { storageHumidityMin = it },
+                            label = { Text("Wilg. min (%)") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true
+                        )
+                        OutlinedTextField(
+                            value = storageHumidityMax,
+                            onValueChange = { storageHumidityMax = it },
+                            label = { Text("Wilg. max (%)") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true
+                        )
+                    }
+                }
             }
         },
         confirmButton = {
@@ -319,7 +453,15 @@ fun AddCategoryDialog(
                         CreateCategoryRequest(
                             code = code,
                             name = name,
-                            description = description.takeIf { it.isNotBlank() }
+                            description = description.takeIf { it.isNotBlank() },
+                            icon = icon.takeIf { it.isNotBlank() },
+                            color = color.takeIf { it.isNotBlank() },
+                            sortOrder = sortOrder.toIntOrNull(),
+                            requiresSpecialHandling = requiresSpecialHandling,
+                            storageTemperatureMin = storageTemperatureMin.toIntOrNull(),
+                            storageTemperatureMax = storageTemperatureMax.toIntOrNull(),
+                            storageHumidityMin = storageHumidityMin.toIntOrNull(),
+                            storageHumidityMax = storageHumidityMax.toIntOrNull()
                         )
                     )
                 },
@@ -344,25 +486,129 @@ fun EditCategoryDialog(
 ) {
     var name by remember { mutableStateOf(category.name) }
     var description by remember { mutableStateOf(category.description ?: "") }
+    var icon by remember { mutableStateOf(category.icon ?: "") }
+    var color by remember { mutableStateOf(category.color ?: "") }
+    var sortOrder by remember { mutableStateOf(category.sortOrder?.toString() ?: "") }
+    var requiresSpecialHandling by remember { mutableStateOf(category.requiresSpecialHandling ?: false) }
+    var storageTemperatureMin by remember { mutableStateOf(category.storageTemperatureMin?.toString() ?: "") }
+    var storageTemperatureMax by remember { mutableStateOf(category.storageTemperatureMax?.toString() ?: "") }
+    var storageHumidityMin by remember { mutableStateOf(category.storageHumidityMin?.toString() ?: "") }
+    var storageHumidityMax by remember { mutableStateOf(category.storageHumidityMax?.toString() ?: "") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Edytuj kategorię") },
         text = {
-            Column {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Nazwa kategorii") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    label = { Text("Opis") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.height(400.dp)
+            ) {
+                item {
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        label = { Text("Nazwa kategorii*") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                }
+                item {
+                    OutlinedTextField(
+                        value = description,
+                        onValueChange = { description = it },
+                        label = { Text("Opis") },
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 2
+                    )
+                }
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            value = icon,
+                            onValueChange = { icon = it },
+                            label = { Text("Ikona") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true
+                        )
+                        OutlinedTextField(
+                            value = color,
+                            onValueChange = { color = it },
+                            label = { Text("Kolor") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                            placeholder = { Text("#FF5722") }
+                        )
+                    }
+                }
+                item {
+                    OutlinedTextField(
+                        value = sortOrder,
+                        onValueChange = { sortOrder = it },
+                        label = { Text("Kolejność sortowania") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                }
+                item {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Checkbox(
+                            checked = requiresSpecialHandling,
+                            onCheckedChange = { requiresSpecialHandling = it }
+                        )
+                        Text("Wymaga specjalnego przechowywania", modifier = Modifier.padding(start = 8.dp))
+                    }
+                }
+                item {
+                    Text("Warunki przechowywania", style = MaterialTheme.typography.titleSmall)
+                }
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            value = storageTemperatureMin,
+                            onValueChange = { storageTemperatureMin = it },
+                            label = { Text("Temp. min (°C)") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true
+                        )
+                        OutlinedTextField(
+                            value = storageTemperatureMax,
+                            onValueChange = { storageTemperatureMax = it },
+                            label = { Text("Temp. max (°C)") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true
+                        )
+                    }
+                }
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            value = storageHumidityMin,
+                            onValueChange = { storageHumidityMin = it },
+                            label = { Text("Wilg. min (%)") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true
+                        )
+                        OutlinedTextField(
+                            value = storageHumidityMax,
+                            onValueChange = { storageHumidityMax = it },
+                            label = { Text("Wilg. max (%)") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true
+                        )
+                    }
+                }
             }
         },
         confirmButton = {
@@ -371,7 +617,15 @@ fun EditCategoryDialog(
                     onConfirm(
                         UpdateCategoryRequest(
                             name = name.takeIf { it != category.name },
-                            description = description.takeIf { it != category.description }
+                            description = description.takeIf { it != (category.description ?: "") },
+                            icon = icon.takeIf { it != (category.icon ?: "") },
+                            color = color.takeIf { it != (category.color ?: "") },
+                            sortOrder = sortOrder.toIntOrNull().takeIf { it != category.sortOrder },
+                            requiresSpecialHandling = requiresSpecialHandling.takeIf { it != (category.requiresSpecialHandling ?: false) },
+                            storageTemperatureMin = storageTemperatureMin.toIntOrNull().takeIf { it != category.storageTemperatureMin },
+                            storageTemperatureMax = storageTemperatureMax.toIntOrNull().takeIf { it != category.storageTemperatureMax },
+                            storageHumidityMin = storageHumidityMin.toIntOrNull().takeIf { it != category.storageHumidityMin },
+                            storageHumidityMax = storageHumidityMax.toIntOrNull().takeIf { it != category.storageHumidityMax }
                         )
                     )
                 },

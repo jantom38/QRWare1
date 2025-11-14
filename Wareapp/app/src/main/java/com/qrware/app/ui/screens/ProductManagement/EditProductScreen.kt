@@ -112,32 +112,149 @@ fun EditProductScreen(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                 )
 
-                // --- DODANY KOMPONENT SWITCH ---
+                OutlinedTextField(
+                    value = uiState.cost,
+                    onValueChange = viewModel::onCostChange,
+                    label = { Text("Koszt (np. 80.00)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                )
+
+                OutlinedTextField(
+                    value = uiState.weight,
+                    onValueChange = viewModel::onWeightChange,
+                    label = { Text("Waga (kg)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                )
+
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = uiState.length,
+                        onValueChange = viewModel::onLengthChange,
+                        label = { Text("Długość (cm)") },
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                    )
+                    OutlinedTextField(
+                        value = uiState.width,
+                        onValueChange = viewModel::onWidthChange,
+                        label = { Text("Szerokość (cm)") },
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                    )
+                    OutlinedTextField(
+                        value = uiState.height,
+                        onValueChange = viewModel::onHeightChange,
+                        label = { Text("Wysokość (cm)") },
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                    )
+                }
+
+                OutlinedTextField(
+                    value = uiState.unit,
+                    onValueChange = viewModel::onUnitChange,
+                    label = { Text("Jednostka miary") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = uiState.minimumStock,
+                        onValueChange = viewModel::onMinimumStockChange,
+                        label = { Text("Min. zapas") },
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
+                    OutlinedTextField(
+                        value = uiState.maximumStock,
+                        onValueChange = viewModel::onMaximumStockChange,
+                        label = { Text("Max. zapas") },
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
+                    OutlinedTextField(
+                        value = uiState.reorderPoint,
+                        onValueChange = viewModel::onReorderPointChange,
+                        label = { Text("Punkt zamówienia") },
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
+                }
+
+                OutlinedTextField(
+                    value = uiState.manufacturer,
+                    onValueChange = viewModel::onManufacturerChange,
+                    label = { Text("Producent") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = uiState.supplier,
+                    onValueChange = viewModel::onSupplierChange,
+                    label = { Text("Dostawca") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = uiState.storageConditions,
+                    onValueChange = viewModel::onStorageConditionsChange,
+                    label = { Text("Warunki przechowywania") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = uiState.barcode,
+                    onValueChange = viewModel::onBarcodeChange,
+                    label = { Text("Kod kreskowy") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // Właściwości produktu
+                Text("Właściwości produktu", style = MaterialTheme.typography.titleMedium)
+
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(
-                        text = "Produkt Aktywny",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Switch(
-                        checked = uiState.active,
-                        onCheckedChange = viewModel::onActiveChange
-                    )
+                    Text("Aktywny", style = MaterialTheme.typography.bodyLarge)
+                    Switch(checked = uiState.active, onCheckedChange = viewModel::onActiveChange)
                 }
-                // --- KONIEC KOMPONENTU SWITCH ---
 
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Psujący się", style = MaterialTheme.typography.bodyLarge)
+                    Switch(checked = uiState.perishable, onCheckedChange = viewModel::onPerishableChange)
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Niebezpieczny", style = MaterialTheme.typography.bodyLarge)
+                    Switch(checked = uiState.hazardous, onCheckedChange = viewModel::onHazardousChange)
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Kruchy", style = MaterialTheme.typography.bodyLarge)
+                    Switch(checked = uiState.fragile, onCheckedChange = viewModel::onFragileChange)
+                }
 
                 // TODO: Dodać pole wyboru kategorii (np. DropdownMenu)
-                // Na razie pokazujemy ID
                 Text(
                     text = "Kategoria ID: ${uiState.categoryId ?: "Brak"}",
                     style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(top = 8.dp) // Dodany padding dla odstępu
+                    modifier = Modifier.padding(top = 8.dp)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

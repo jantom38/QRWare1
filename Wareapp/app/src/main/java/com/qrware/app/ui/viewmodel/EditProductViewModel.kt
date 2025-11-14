@@ -24,8 +24,24 @@ data class EditProductUiState(
     val sku: String = "",
     val description: String = "",
     val price: String = "",
+    val cost: String = "",
+    val weight: String = "",
+    val length: String = "",
+    val width: String = "",
+    val height: String = "",
+    val unit: String = "PIECE",
+    val minimumStock: String = "",
+    val maximumStock: String = "",
+    val reorderPoint: String = "",
+    val manufacturer: String = "",
+    val supplier: String = "",
+    val storageConditions: String = "",
+    val barcode: String = "",
     val categoryId: Long? = null,
-    val active: Boolean = false // (Domyślna wartość jest OK)
+    val active: Boolean = false,
+    val perishable: Boolean = false,
+    val hazardous: Boolean = false,
+    val fragile: Boolean = false
 )
 
 class EditProductViewModel(
@@ -59,8 +75,24 @@ class EditProductViewModel(
                         sku = product.sku,
                         description = product.description ?: "",
                         price = product.price?.toPlainString() ?: "",
+                        cost = product.cost?.toPlainString() ?: "",
+                        weight = product.weight?.toPlainString() ?: "",
+                        length = product.dimensionsLength?.toPlainString() ?: "",
+                        width = product.dimensionsWidth?.toPlainString() ?: "",
+                        height = product.dimensionsHeight?.toPlainString() ?: "",
+                        unit = product.unitOfMeasure ?: "PIECE",
+                        minimumStock = product.minimumStock?.toString() ?: "",
+                        maximumStock = product.maximumStock?.toString() ?: "",
+                        reorderPoint = product.reorderPoint?.toString() ?: "",
+                        manufacturer = product.manufacturer ?: "",
+                        supplier = product.supplier ?: "",
+                        storageConditions = product.storageConditions ?: "",
+                        barcode = product.barcode ?: "",
                         categoryId = product.category?.id,
-                        active = product.active // Ustawienie wartości ze 100% pewnością
+                        active = product.active,
+                        perishable = product.perishable ?: false,
+                        hazardous = product.hazardous ?: false,
+                        fragile = product.fragile ?: false
                     )
                 }
             } catch (e: Exception) {
@@ -90,13 +122,57 @@ class EditProductViewModel(
     fun onPriceChange(newPrice: String) {
         _uiState.update { it.copy(price = newPrice) }
     }
-
-    // --- NOWA FUNKCJA OBSŁUGUJĄCA ZMIANĘ 'ACTIVE' ---
+    fun onCostChange(newCost: String) {
+        _uiState.update { it.copy(cost = newCost) }
+    }
+    fun onWeightChange(newWeight: String) {
+        _uiState.update { it.copy(weight = newWeight) }
+    }
+    fun onLengthChange(newLength: String) {
+        _uiState.update { it.copy(length = newLength) }
+    }
+    fun onWidthChange(newWidth: String) {
+        _uiState.update { it.copy(width = newWidth) }
+    }
+    fun onHeightChange(newHeight: String) {
+        _uiState.update { it.copy(height = newHeight) }
+    }
+    fun onUnitChange(newUnit: String) {
+        _uiState.update { it.copy(unit = newUnit) }
+    }
+    fun onMinimumStockChange(newMinStock: String) {
+        _uiState.update { it.copy(minimumStock = newMinStock) }
+    }
+    fun onMaximumStockChange(newMaxStock: String) {
+        _uiState.update { it.copy(maximumStock = newMaxStock) }
+    }
+    fun onReorderPointChange(newReorderPoint: String) {
+        _uiState.update { it.copy(reorderPoint = newReorderPoint) }
+    }
+    fun onManufacturerChange(newManufacturer: String) {
+        _uiState.update { it.copy(manufacturer = newManufacturer) }
+    }
+    fun onSupplierChange(newSupplier: String) {
+        _uiState.update { it.copy(supplier = newSupplier) }
+    }
+    fun onStorageConditionsChange(newStorageConditions: String) {
+        _uiState.update { it.copy(storageConditions = newStorageConditions) }
+    }
+    fun onBarcodeChange(newBarcode: String) {
+        _uiState.update { it.copy(barcode = newBarcode) }
+    }
     fun onActiveChange(newStatus: Boolean) {
-        // --- DODANY LOG DIAGNOSTYCZNY ---
         Log.d("EditProductVM", "Switch kliknięty. Nowy status w UI: $newStatus")
-        // --- KONIEC LOGU ---
         _uiState.update { it.copy(active = newStatus) }
+    }
+    fun onPerishableChange(newStatus: Boolean) {
+        _uiState.update { it.copy(perishable = newStatus) }
+    }
+    fun onHazardousChange(newStatus: Boolean) {
+        _uiState.update { it.copy(hazardous = newStatus) }
+    }
+    fun onFragileChange(newStatus: Boolean) {
+        _uiState.update { it.copy(fragile = newStatus) }
     }
 
     fun updateProduct() {
@@ -116,35 +192,52 @@ class EditProductViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
 
+            // Przygotowujemy wartości
             val priceDecimal = currentState.price.toBigDecimalOrNull()
-            val originalPrice = originalProduct.price
-            val originalDesc = originalProduct.description ?: ""
-            val currentDesc = currentState.description
+            val costDecimal = currentState.cost.toBigDecimalOrNull()
+            val weightDecimal = currentState.weight.toBigDecimalOrNull()
+            val lengthDecimal = currentState.length.toBigDecimalOrNull()
+            val widthDecimal = currentState.width.toBigDecimalOrNull()
+            val heightDecimal = currentState.height.toBigDecimalOrNull()
+            val minStockInt = currentState.minimumStock.toIntOrNull()
+            val maxStockInt = currentState.maximumStock.toIntOrNull()
+            val reorderPointInt = currentState.reorderPoint.toIntOrNull()
 
             // Budujemy żądanie tylko ze zmienionymi polami
             val request = UpdateProductRequest(
                 name = currentState.name.takeIf { it != originalProduct.name },
-                description = currentDesc.takeIf { it != originalDesc },
-                price = priceDecimal.takeIf {
-                    it == null && originalPrice != null ||
-                            it != null && originalPrice == null ||
-                            (it != null && originalPrice != null && it.compareTo(originalPrice) != 0)
-                },
+                description = currentState.description.takeIf { it != (originalProduct.description ?: "") },
+                price = priceDecimal.takeIf { it != originalProduct.price },
+                cost = costDecimal.takeIf { it != originalProduct.cost },
+                unit = currentState.unit.takeIf { it != (originalProduct.unitOfMeasure ?: "PIECE") },
+                weight = weightDecimal.takeIf { it != originalProduct.weight },
+                length = lengthDecimal.takeIf { it != originalProduct.dimensionsLength },
+                width = widthDecimal.takeIf { it != originalProduct.dimensionsWidth },
+                height = heightDecimal.takeIf { it != originalProduct.dimensionsHeight },
+                minimumStock = minStockInt.takeIf { it != originalProduct.minimumStock },
+                maximumStock = maxStockInt.takeIf { it != originalProduct.maximumStock },
+                reorderPoint = reorderPointInt.takeIf { it != originalProduct.reorderPoint },
+                manufacturer = currentState.manufacturer.takeIf { it != (originalProduct.manufacturer ?: "") },
+                supplier = currentState.supplier.takeIf { it != (originalProduct.supplier ?: "") },
+                storageConditions = currentState.storageConditions.takeIf { it != (originalProduct.storageConditions ?: "") },
+                barcode = currentState.barcode.takeIf { it != (originalProduct.barcode ?: "") },
                 categoryId = currentState.categoryId.takeIf { it != originalProduct.category?.id },
-                active = currentState.active.takeIf { it != originalProduct.active }, // <-- DODANA LINIA
-
-                // Pozostałe pola z UpdateProductRequest ustawione na null
-                unit = null,
-                weight = null,
-                length = null,
-                width = null,
-                height = null
+                active = currentState.active.takeIf { it != originalProduct.active },
+                perishable = currentState.perishable.takeIf { it != (originalProduct.perishable ?: false) },
+                hazardous = currentState.hazardous.takeIf { it != (originalProduct.hazardous ?: false) },
+                fragile = currentState.fragile.takeIf { it != (originalProduct.fragile ?: false) }
             )
 
             // Sprawdź, czy cokolwiek się zmieniło
-            if (request.name == null && request.description == null &&
-                request.price == null && request.categoryId == null &&
-                request.active == null) { // <-- DODANY WARUNEK
+            if (request.name == null && request.description == null && request.price == null && 
+                request.cost == null && request.unit == null && request.weight == null &&
+                request.length == null && request.width == null && request.height == null &&
+                request.minimumStock == null && request.maximumStock == null && 
+                request.reorderPoint == null && request.manufacturer == null && 
+                request.supplier == null && request.storageConditions == null && 
+                request.barcode == null && request.categoryId == null && 
+                request.active == null && request.perishable == null && 
+                request.hazardous == null && request.fragile == null) {
 
                 _uiState.update { it.copy(
                     isLoading = false,

@@ -1,7 +1,7 @@
 package com.qrware.app.data.dto
 
 /**
- * Model Kategorii, pasujący do DTO z serwera.
+ * Kompletny model Kategorii, pasujący do DTO z serwera.
  */
 data class CategoryDTO(
     val id: Long,
@@ -9,5 +9,15 @@ data class CategoryDTO(
     val code: String,
     val description: String? = null,
     val active: Boolean = true,
-    val sortOrder: Int? = null
+    val sortOrder: Int? = null,
+    val icon: String? = null,
+    val color: String? = null,
+    val requiresSpecialHandling: Boolean? = null,
+    val storageTemperatureMin: Int? = null,
+    val storageTemperatureMax: Int? = null,
+    val storageHumidityMin: Int? = null,
+    val storageHumidityMax: Int? = null,
+    val parent: CategoryDTO? = null,
+    val level: Int? = null,
+    val fullPath: String? = null
 )

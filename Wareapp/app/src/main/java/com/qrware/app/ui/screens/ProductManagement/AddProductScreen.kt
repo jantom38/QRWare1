@@ -30,7 +30,24 @@ fun AddProductScreen(
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
+    var cost by remember { mutableStateOf("") }
+    var weight by remember { mutableStateOf("") }
+    var length by remember { mutableStateOf("") }
+    var width by remember { mutableStateOf("") }
+    var height by remember { mutableStateOf("") }
+    var unit by remember { mutableStateOf("PIECE") }
+    var minimumStock by remember { mutableStateOf("") }
+    var maximumStock by remember { mutableStateOf("") }
+    var reorderPoint by remember { mutableStateOf("") }
+    var manufacturer by remember { mutableStateOf("") }
+    var supplier by remember { mutableStateOf("") }
+    var storageConditions by remember { mutableStateOf("") }
+    var barcode by remember { mutableStateOf("") }
     var categoryId by remember { mutableStateOf("") }
+    var active by remember { mutableStateOf(true) }
+    var perishable by remember { mutableStateOf(false) }
+    var hazardous by remember { mutableStateOf(false) }
+    var fragile by remember { mutableStateOf(false) }
 
     // Obsługa komunikatów (błąd lub sukces)
     LaunchedEffect(uiState.error, uiState.successMessage) {
@@ -108,6 +125,157 @@ fun AddProductScreen(
             )
 
             OutlinedTextField(
+                value = cost,
+                onValueChange = { cost = it },
+                label = { Text("Koszt (np. 80.00)") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Decimal,
+                    imeAction = ImeAction.Next
+                )
+            )
+
+            OutlinedTextField(
+                value = weight,
+                onValueChange = { weight = it },
+                label = { Text("Waga (kg)") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Decimal,
+                    imeAction = ImeAction.Next
+                )
+            )
+
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = length,
+                    onValueChange = { length = it },
+                    label = { Text("Długość (cm)") },
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Decimal,
+                        imeAction = ImeAction.Next
+                    )
+                )
+                OutlinedTextField(
+                    value = width,
+                    onValueChange = { width = it },
+                    label = { Text("Szerokość (cm)") },
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Decimal,
+                        imeAction = ImeAction.Next
+                    )
+                )
+                OutlinedTextField(
+                    value = height,
+                    onValueChange = { height = it },
+                    label = { Text("Wysokość (cm)") },
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Decimal,
+                        imeAction = ImeAction.Next
+                    )
+                )
+            }
+
+            OutlinedTextField(
+                value = unit,
+                onValueChange = { unit = it },
+                label = { Text("Jednostka miary") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+            )
+
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = minimumStock,
+                    onValueChange = { minimumStock = it },
+                    label = { Text("Min. zapas") },
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    )
+                )
+                OutlinedTextField(
+                    value = maximumStock,
+                    onValueChange = { maximumStock = it },
+                    label = { Text("Max. zapas") },
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    )
+                )
+                OutlinedTextField(
+                    value = reorderPoint,
+                    onValueChange = { reorderPoint = it },
+                    label = { Text("Punkt zamówienia") },
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    )
+                )
+            }
+
+            OutlinedTextField(
+                value = manufacturer,
+                onValueChange = { manufacturer = it },
+                label = { Text("Producent") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+            )
+
+            OutlinedTextField(
+                value = supplier,
+                onValueChange = { supplier = it },
+                label = { Text("Dostawca") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+            )
+
+            OutlinedTextField(
+                value = storageConditions,
+                onValueChange = { storageConditions = it },
+                label = { Text("Warunki przechowywania") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+            )
+
+            OutlinedTextField(
+                value = barcode,
+                onValueChange = { barcode = it },
+                label = { Text("Kod kreskowy") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+            )
+
+            // Checkboxy dla właściwości produktu
+            Text("Właściwości produktu", style = MaterialTheme.typography.titleMedium)
+            
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                Checkbox(checked = active, onCheckedChange = { active = it })
+                Text("Aktywny", modifier = Modifier.padding(start = 8.dp))
+            }
+            
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                Checkbox(checked = perishable, onCheckedChange = { perishable = it })
+                Text("Psujący się", modifier = Modifier.padding(start = 8.dp))
+            }
+            
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                Checkbox(checked = hazardous, onCheckedChange = { hazardous = it })
+                Text("Niebezpieczny", modifier = Modifier.padding(start = 8.dp))
+            }
+            
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                Checkbox(checked = fragile, onCheckedChange = { fragile = it })
+                Text("Kruchy", modifier = Modifier.padding(start = 8.dp))
+            }
+
+            OutlinedTextField(
                 value = categoryId,
                 onValueChange = { categoryId = it },
                 label = { Text("ID Kategorii (np. 1)") },
@@ -123,8 +291,40 @@ fun AddProductScreen(
             Button(
                 onClick = {
                     val priceDecimal = price.toBigDecimalOrNull()
+                    val costDecimal = cost.toBigDecimalOrNull()
+                    val weightDecimal = weight.toBigDecimalOrNull()
+                    val lengthDecimal = length.toBigDecimalOrNull()
+                    val widthDecimal = width.toBigDecimalOrNull()
+                    val heightDecimal = height.toBigDecimalOrNull()
+                    val minStockInt = minimumStock.toIntOrNull()
+                    val maxStockInt = maximumStock.toIntOrNull()
+                    val reorderPointInt = reorderPoint.toIntOrNull()
                     val catIdLong = categoryId.toLongOrNull()
-                    viewModel.createProduct(sku, name, description, priceDecimal, catIdLong)
+                    
+                    viewModel.createProduct(
+                        sku = sku,
+                        name = name,
+                        description = description.takeIf { it.isNotBlank() },
+                        price = priceDecimal,
+                        cost = costDecimal,
+                        unit = unit.takeIf { it.isNotBlank() },
+                        weight = weightDecimal,
+                        length = lengthDecimal,
+                        width = widthDecimal,
+                        height = heightDecimal,
+                        minimumStock = minStockInt,
+                        maximumStock = maxStockInt,
+                        reorderPoint = reorderPointInt,
+                        active = active,
+                        perishable = perishable,
+                        hazardous = hazardous,
+                        fragile = fragile,
+                        manufacturer = manufacturer.takeIf { it.isNotBlank() },
+                        supplier = supplier.takeIf { it.isNotBlank() },
+                        storageConditions = storageConditions.takeIf { it.isNotBlank() },
+                        barcode = barcode.takeIf { it.isNotBlank() },
+                        categoryId = catIdLong
+                    )
                 },
                 modifier = Modifier.fillMaxWidth(),
                 // Przycisk jest nieaktywny, jeśli trwa ładowanie lub brakuje wymaganych pól

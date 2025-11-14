@@ -70,6 +70,24 @@ public class DTOMapper {
         dto.setDescription(category.getDescription());
         dto.setActive(category.getActive());
         dto.setSortOrder(category.getSortOrder());
+        dto.setIcon(category.getIcon());
+        dto.setColor(category.getColor());
+        dto.setRequiresSpecialHandling(category.getRequiresSpecialHandling());
+        dto.setStorageTemperatureMin(category.getStorageTemperatureMin());
+        dto.setStorageTemperatureMax(category.getStorageTemperatureMax());
+        dto.setStorageHumidityMin(category.getStorageHumidityMin());
+        dto.setStorageHumidityMax(category.getStorageHumidityMax());
+        dto.setLevel(category.getLevel());
+        dto.setFullPath(category.getFullPath());
+        
+        // Parent bez rekurencji (tylko podstawowe dane)
+        if (category.getParent() != null) {
+            CategoryDTO parentDTO = new CategoryDTO();
+            parentDTO.setId(category.getParent().getId());
+            parentDTO.setName(category.getParent().getName());
+            parentDTO.setCode(category.getParent().getCode());
+            dto.setParent(parentDTO);
+        }
         
         return dto;
     }

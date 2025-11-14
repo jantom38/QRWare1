@@ -150,13 +150,28 @@ public class InventoryController {
         // TODO: Ustaw Product i Location na podstawie ID z requestu
         // item.setProduct(productRepository.findById(request.getProductId()).orElseThrow());
         // item.setLocation(locationRepository.findById(request.getLocationId()).orElseThrow());
-        item.setQuantity(request.getQuantity().intValue());
+        
+        item.setQuantity(request.getQuantity());
+        item.setReservedQuantity(request.getReservedQuantity() != null ? request.getReservedQuantity() : 0);
         item.setStatus(request.getStatus());
-        item.setSerialNumber(request.getSerialNumber());
-        item.setBatchNumber(request.getBatchNumber());
-        item.setLotNumber(request.getLotNumber());
-        item.setExpiryDate(request.getExpirationDate());
         item.setQrCode(request.getQrCode());
+        item.setLotNumber(request.getLotNumber());
+        item.setBatchNumber(request.getBatchNumber());
+        item.setSerialNumber(request.getSerialNumber());
+        item.setReceivedDate(request.getReceivedDate() != null ? request.getReceivedDate() : java.time.LocalDate.now());
+        item.setExpiryDate(request.getExpiryDate());
+        item.setManufactureDate(request.getManufactureDate());
+        item.setUnitCost(request.getUnitCost());
+        item.setSupplierReference(request.getSupplierReference());
+        item.setPurchaseOrderNumber(request.getPurchaseOrderNumber());
+        item.setNotes(request.getNotes());
+        item.setTemperature(request.getTemperature());
+        item.setHumidity(request.getHumidity());
+        item.setConditionRating(request.getConditionRating() != null ? request.getConditionRating() : 10);
+        item.setQuarantine(request.getQuarantine() != null ? request.getQuarantine() : false);
+        item.setQuarantineReason(request.getQuarantineReason());
+        item.setHold(request.getHold() != null ? request.getHold() : false);
+        item.setHoldReason(request.getHoldReason());
 
         InventoryItem savedItem = inventoryRepository.save(item);
         logger.info("Utworzono nową pozycję z ID: {}", savedItem.getId());
@@ -176,10 +191,26 @@ public class InventoryController {
                 .orElseThrow(() -> new ResourceNotFoundException("Inventory item", "id", id));
 
         // TODO: Dodać update dla Location
-        if (request.getQuantity() != null) item.setQuantity(request.getQuantity().intValue());
+        if (request.getQuantity() != null) item.setQuantity(request.getQuantity());
+        if (request.getReservedQuantity() != null) item.setReservedQuantity(request.getReservedQuantity());
         if (request.getStatus() != null) item.setStatus(request.getStatus());
+        if (request.getLotNumber() != null) item.setLotNumber(request.getLotNumber());
+        if (request.getBatchNumber() != null) item.setBatchNumber(request.getBatchNumber());
         if (request.getSerialNumber() != null) item.setSerialNumber(request.getSerialNumber());
-        // ... (reszta pól) ...
+        if (request.getReceivedDate() != null) item.setReceivedDate(request.getReceivedDate());
+        if (request.getExpiryDate() != null) item.setExpiryDate(request.getExpiryDate());
+        if (request.getManufactureDate() != null) item.setManufactureDate(request.getManufactureDate());
+        if (request.getUnitCost() != null) item.setUnitCost(request.getUnitCost());
+        if (request.getSupplierReference() != null) item.setSupplierReference(request.getSupplierReference());
+        if (request.getPurchaseOrderNumber() != null) item.setPurchaseOrderNumber(request.getPurchaseOrderNumber());
+        if (request.getNotes() != null) item.setNotes(request.getNotes());
+        if (request.getTemperature() != null) item.setTemperature(request.getTemperature());
+        if (request.getHumidity() != null) item.setHumidity(request.getHumidity());
+        if (request.getConditionRating() != null) item.setConditionRating(request.getConditionRating());
+        if (request.getQuarantine() != null) item.setQuarantine(request.getQuarantine());
+        if (request.getQuarantineReason() != null) item.setQuarantineReason(request.getQuarantineReason());
+        if (request.getHold() != null) item.setHold(request.getHold());
+        if (request.getHoldReason() != null) item.setHoldReason(request.getHoldReason());
 
         InventoryItem updatedItem = inventoryRepository.save(item);
 
@@ -210,7 +241,7 @@ public class InventoryController {
         InventoryItem item = inventoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Inventory item", "id", id));
 
-        Integer newQuantity = item.getQuantity() + request.getQuantity().intValue();
+        Integer newQuantity = item.getQuantity() + request.getQuantity();
         item.setQuantity(newQuantity);
 
         InventoryItem updatedItem = inventoryRepository.save(item);
@@ -230,7 +261,7 @@ public class InventoryController {
         InventoryItem item = inventoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Inventory item", "id", id));
 
-        Integer newQuantity = item.getQuantity() - request.getQuantity().intValue();
+        Integer newQuantity = item.getQuantity() - request.getQuantity();
 
         if (newQuantity < 0) {
             logger.warn("Próba wydania większej ilości towaru niż dostępna dla ID: {}", id);
@@ -248,69 +279,153 @@ public class InventoryController {
 
     // --- DTOs (pozostają bez zmian) ---
     public static class CreateInventoryRequest {
-        // ... (zawartość bez zmian)
         private Long productId;
         private Long locationId;
-        private BigDecimal quantity;
+        private Integer quantity;
+        private Integer reservedQuantity = 0;
         private InventoryStatus status = InventoryStatus.AVAILABLE;
         private String qrCode;
-        private String serialNumber;
-        private String batchNumber;
         private String lotNumber;
-        private java.time.LocalDate expirationDate;
+        private String batchNumber;
+        private String serialNumber;
+        private java.time.LocalDate receivedDate;
+        private java.time.LocalDate expiryDate;
+        private java.time.LocalDate manufactureDate;
+        private BigDecimal unitCost;
+        private String supplierReference;
+        private String purchaseOrderNumber;
+        private String notes;
+        private Integer temperature;
+        private Integer humidity;
+        private Integer conditionRating = 10;
+        private Boolean quarantine = false;
+        private String quarantineReason;
+        private Boolean hold = false;
+        private String holdReason;
+
         // Gettery i settery
         public Long getProductId() { return productId; }
         public void setProductId(Long productId) { this.productId = productId; }
         public Long getLocationId() { return locationId; }
         public void setLocationId(Long locationId) { this.locationId = locationId; }
-        public BigDecimal getQuantity() { return quantity; }
-        public void setQuantity(BigDecimal quantity) { this.quantity = quantity; }
+        public Integer getQuantity() { return quantity; }
+        public void setQuantity(Integer quantity) { this.quantity = quantity; }
+        public Integer getReservedQuantity() { return reservedQuantity; }
+        public void setReservedQuantity(Integer reservedQuantity) { this.reservedQuantity = reservedQuantity; }
         public InventoryStatus getStatus() { return status; }
         public void setStatus(InventoryStatus status) { this.status = status; }
         public String getQrCode() { return qrCode; }
         public void setQrCode(String qrCode) { this.qrCode = qrCode; }
-        public String getSerialNumber() { return serialNumber; }
-        public void setSerialNumber(String serialNumber) { this.serialNumber = serialNumber; }
-        public String getBatchNumber() { return batchNumber; }
-        public void setBatchNumber(String batchNumber) { this.batchNumber = batchNumber; }
         public String getLotNumber() { return lotNumber; }
         public void setLotNumber(String lotNumber) { this.lotNumber = lotNumber; }
-        public java.time.LocalDate getExpirationDate() { return expirationDate; }
-        public void setExpirationDate(java.time.LocalDate expirationDate) { this.expirationDate = expirationDate; }
+        public String getBatchNumber() { return batchNumber; }
+        public void setBatchNumber(String batchNumber) { this.batchNumber = batchNumber; }
+        public String getSerialNumber() { return serialNumber; }
+        public void setSerialNumber(String serialNumber) { this.serialNumber = serialNumber; }
+        public java.time.LocalDate getReceivedDate() { return receivedDate; }
+        public void setReceivedDate(java.time.LocalDate receivedDate) { this.receivedDate = receivedDate; }
+        public java.time.LocalDate getExpiryDate() { return expiryDate; }
+        public void setExpiryDate(java.time.LocalDate expiryDate) { this.expiryDate = expiryDate; }
+        public java.time.LocalDate getManufactureDate() { return manufactureDate; }
+        public void setManufactureDate(java.time.LocalDate manufactureDate) { this.manufactureDate = manufactureDate; }
+        public BigDecimal getUnitCost() { return unitCost; }
+        public void setUnitCost(BigDecimal unitCost) { this.unitCost = unitCost; }
+        public String getSupplierReference() { return supplierReference; }
+        public void setSupplierReference(String supplierReference) { this.supplierReference = supplierReference; }
+        public String getPurchaseOrderNumber() { return purchaseOrderNumber; }
+        public void setPurchaseOrderNumber(String purchaseOrderNumber) { this.purchaseOrderNumber = purchaseOrderNumber; }
+        public String getNotes() { return notes; }
+        public void setNotes(String notes) { this.notes = notes; }
+        public Integer getTemperature() { return temperature; }
+        public void setTemperature(Integer temperature) { this.temperature = temperature; }
+        public Integer getHumidity() { return humidity; }
+        public void setHumidity(Integer humidity) { this.humidity = humidity; }
+        public Integer getConditionRating() { return conditionRating; }
+        public void setConditionRating(Integer conditionRating) { this.conditionRating = conditionRating; }
+        public Boolean getQuarantine() { return quarantine; }
+        public void setQuarantine(Boolean quarantine) { this.quarantine = quarantine; }
+        public String getQuarantineReason() { return quarantineReason; }
+        public void setQuarantineReason(String quarantineReason) { this.quarantineReason = quarantineReason; }
+        public Boolean getHold() { return hold; }
+        public void setHold(Boolean hold) { this.hold = hold; }
+        public String getHoldReason() { return holdReason; }
+        public void setHoldReason(String holdReason) { this.holdReason = holdReason; }
     }
 
     public static class UpdateInventoryRequest {
-        // ... (zawartość bez zmian)
         private Long locationId;
-        private BigDecimal quantity;
+        private Integer quantity;
+        private Integer reservedQuantity;
         private InventoryStatus status;
-        private String serialNumber;
-        private String batchNumber;
         private String lotNumber;
-        private java.time.LocalDate expirationDate;
+        private String batchNumber;
+        private String serialNumber;
+        private java.time.LocalDate receivedDate;
+        private java.time.LocalDate expiryDate;
+        private java.time.LocalDate manufactureDate;
+        private BigDecimal unitCost;
+        private String supplierReference;
+        private String purchaseOrderNumber;
+        private String notes;
+        private Integer temperature;
+        private Integer humidity;
+        private Integer conditionRating;
+        private Boolean quarantine;
+        private String quarantineReason;
+        private Boolean hold;
+        private String holdReason;
+
         // Gettery i settery
         public Long getLocationId() { return locationId; }
         public void setLocationId(Long locationId) { this.locationId = locationId; }
-        public BigDecimal getQuantity() { return quantity; }
-        public void setQuantity(BigDecimal quantity) { this.quantity = quantity; }
+        public Integer getQuantity() { return quantity; }
+        public void setQuantity(Integer quantity) { this.quantity = quantity; }
+        public Integer getReservedQuantity() { return reservedQuantity; }
+        public void setReservedQuantity(Integer reservedQuantity) { this.reservedQuantity = reservedQuantity; }
         public InventoryStatus getStatus() { return status; }
         public void setStatus(InventoryStatus status) { this.status = status; }
-        public String getSerialNumber() { return serialNumber; }
-        public void setSerialNumber(String serialNumber) { this.serialNumber = serialNumber; }
-        public String getBatchNumber() { return batchNumber; }
-        public void setBatchNumber(String batchNumber) { this.batchNumber = batchNumber; }
         public String getLotNumber() { return lotNumber; }
         public void setLotNumber(String lotNumber) { this.lotNumber = lotNumber; }
-        public java.time.LocalDate getExpirationDate() { return expirationDate; }
-        public void setExpirationDate(java.time.LocalDate expirationDate) { this.expirationDate = expirationDate; }
+        public String getBatchNumber() { return batchNumber; }
+        public void setBatchNumber(String batchNumber) { this.batchNumber = batchNumber; }
+        public String getSerialNumber() { return serialNumber; }
+        public void setSerialNumber(String serialNumber) { this.serialNumber = serialNumber; }
+        public java.time.LocalDate getReceivedDate() { return receivedDate; }
+        public void setReceivedDate(java.time.LocalDate receivedDate) { this.receivedDate = receivedDate; }
+        public java.time.LocalDate getExpiryDate() { return expiryDate; }
+        public void setExpiryDate(java.time.LocalDate expiryDate) { this.expiryDate = expiryDate; }
+        public java.time.LocalDate getManufactureDate() { return manufactureDate; }
+        public void setManufactureDate(java.time.LocalDate manufactureDate) { this.manufactureDate = manufactureDate; }
+        public BigDecimal getUnitCost() { return unitCost; }
+        public void setUnitCost(BigDecimal unitCost) { this.unitCost = unitCost; }
+        public String getSupplierReference() { return supplierReference; }
+        public void setSupplierReference(String supplierReference) { this.supplierReference = supplierReference; }
+        public String getPurchaseOrderNumber() { return purchaseOrderNumber; }
+        public void setPurchaseOrderNumber(String purchaseOrderNumber) { this.purchaseOrderNumber = purchaseOrderNumber; }
+        public String getNotes() { return notes; }
+        public void setNotes(String notes) { this.notes = notes; }
+        public Integer getTemperature() { return temperature; }
+        public void setTemperature(Integer temperature) { this.temperature = temperature; }
+        public Integer getHumidity() { return humidity; }
+        public void setHumidity(Integer humidity) { this.humidity = humidity; }
+        public Integer getConditionRating() { return conditionRating; }
+        public void setConditionRating(Integer conditionRating) { this.conditionRating = conditionRating; }
+        public Boolean getQuarantine() { return quarantine; }
+        public void setQuarantine(Boolean quarantine) { this.quarantine = quarantine; }
+        public String getQuarantineReason() { return quarantineReason; }
+        public void setQuarantineReason(String quarantineReason) { this.quarantineReason = quarantineReason; }
+        public Boolean getHold() { return hold; }
+        public void setHold(Boolean hold) { this.hold = hold; }
+        public String getHoldReason() { return holdReason; }
+        public void setHoldReason(String holdReason) { this.holdReason = holdReason; }
     }
 
     public static class QuantityUpdateRequest {
-        // ... (zawartość bez zmian)
-        private BigDecimal quantity;
+        private Integer quantity;
         private String reason;
-        public BigDecimal getQuantity() { return quantity; }
-        public void setQuantity(BigDecimal quantity) { this.quantity = quantity; }
+        
+        public Integer getQuantity() { return quantity; }
+        public void setQuantity(Integer quantity) { this.quantity = quantity; }
         public String getReason() { return reason; }
         public void setReason(String reason) { this.reason = reason; }
     }

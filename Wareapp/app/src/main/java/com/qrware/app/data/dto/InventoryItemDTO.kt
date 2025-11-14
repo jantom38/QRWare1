@@ -5,7 +5,7 @@ import java.math.BigDecimal
 // Usunięto import java.time.LocalDate, ponieważ nie jest już potrzebny
 
 /**
- * Ta klasa DOKŁADNIE pasuje do JSON-a, który wysyła serwer.
+ * Kompletny model pozycji magazynowej, pasujący do DTO z serwera.
  */
 data class InventoryItemDTO(
     val id: Long,
@@ -19,12 +19,21 @@ data class InventoryItemDTO(
     val lotNumber: String?,
     val batchNumber: String?,
     val serialNumber: String?,
-
-    // ZMIANA: Odbieramy daty jako zwykły tekst, aby pasowały do JSON-a
     val receivedDate: String?,
     val expiryDate: String?,
-
+    val manufactureDate: String?,
+    val lastCountedDate: String?,
+    val lastMovedDate: String?,
     val unitCost: BigDecimal?,
     val totalCost: BigDecimal?,
-    val notes: String?
+    val supplierReference: String?,
+    val purchaseOrderNumber: String?,
+    val notes: String?,
+    val temperature: Int?,
+    val humidity: Int?,
+    val conditionRating: Int?,
+    val quarantine: Boolean?,
+    val quarantineReason: String?,
+    val hold: Boolean?,
+    val holdReason: String?
 )

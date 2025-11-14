@@ -18,9 +18,21 @@ public class InventoryItemDTO {
     private String serialNumber;
     private LocalDate receivedDate;
     private LocalDate expiryDate;
+    private LocalDate manufactureDate;
+    private java.time.LocalDateTime lastCountedDate;
+    private java.time.LocalDateTime lastMovedDate;
     private BigDecimal unitCost;
     private BigDecimal totalCost;
+    private String supplierReference;
+    private String purchaseOrderNumber;
     private String notes;
+    private Integer temperature;
+    private Integer humidity;
+    private Integer conditionRating;
+    private Boolean quarantine;
+    private String quarantineReason;
+    private Boolean hold;
+    private String holdReason;
 
     // Constructors
     public InventoryItemDTO() {}
@@ -65,12 +77,48 @@ public class InventoryItemDTO {
     public LocalDate getExpiryDate() { return expiryDate; }
     public void setExpiryDate(LocalDate expiryDate) { this.expiryDate = expiryDate; }
     
+    public LocalDate getManufactureDate() { return manufactureDate; }
+    public void setManufactureDate(LocalDate manufactureDate) { this.manufactureDate = manufactureDate; }
+    
+    public java.time.LocalDateTime getLastCountedDate() { return lastCountedDate; }
+    public void setLastCountedDate(java.time.LocalDateTime lastCountedDate) { this.lastCountedDate = lastCountedDate; }
+    
+    public java.time.LocalDateTime getLastMovedDate() { return lastMovedDate; }
+    public void setLastMovedDate(java.time.LocalDateTime lastMovedDate) { this.lastMovedDate = lastMovedDate; }
+    
     public BigDecimal getUnitCost() { return unitCost; }
     public void setUnitCost(BigDecimal unitCost) { this.unitCost = unitCost; }
     
     public BigDecimal getTotalCost() { return totalCost; }
     public void setTotalCost(BigDecimal totalCost) { this.totalCost = totalCost; }
     
+    public String getSupplierReference() { return supplierReference; }
+    public void setSupplierReference(String supplierReference) { this.supplierReference = supplierReference; }
+    
+    public String getPurchaseOrderNumber() { return purchaseOrderNumber; }
+    public void setPurchaseOrderNumber(String purchaseOrderNumber) { this.purchaseOrderNumber = purchaseOrderNumber; }
+    
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
+    
+    public Integer getTemperature() { return temperature; }
+    public void setTemperature(Integer temperature) { this.temperature = temperature; }
+    
+    public Integer getHumidity() { return humidity; }
+    public void setHumidity(Integer humidity) { this.humidity = humidity; }
+    
+    public Integer getConditionRating() { return conditionRating; }
+    public void setConditionRating(Integer conditionRating) { this.conditionRating = conditionRating; }
+    
+    public Boolean getQuarantine() { return quarantine; }
+    public void setQuarantine(Boolean quarantine) { this.quarantine = quarantine; }
+    
+    public String getQuarantineReason() { return quarantineReason; }
+    public void setQuarantineReason(String quarantineReason) { this.quarantineReason = quarantineReason; }
+    
+    public Boolean getHold() { return hold; }
+    public void setHold(Boolean hold) { this.hold = hold; }
+    
+    public String getHoldReason() { return holdReason; }
+    public void setHoldReason(String holdReason) { this.holdReason = holdReason; }
 }

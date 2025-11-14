@@ -102,7 +102,7 @@ class ManageInventoryViewModel(
     // Funkcje receive, issue, delete nie wymagają zmian w logice,
     // ponieważ po prostu wywołują loadInventoryItems(), która jest już poprawiona.
 
-    fun receiveStock(itemId: Long, quantity: java.math.BigDecimal, reason: String?) {
+    fun receiveStock(itemId: Long, quantity: Int, reason: String?) {
         viewModelScope.launch {
             try {
                 val request = QuantityUpdateRequest(quantity, reason)
@@ -119,7 +119,7 @@ class ManageInventoryViewModel(
         }
     }
 
-    fun issueStock(itemId: Long, quantity: java.math.BigDecimal, reason: String?) {
+    fun issueStock(itemId: Long, quantity: Int, reason: String?) {
         viewModelScope.launch {
             try {
                 val request = QuantityUpdateRequest(quantity, reason)

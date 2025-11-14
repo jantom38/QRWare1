@@ -24,9 +24,8 @@ data class Product(
     val hazardous: Boolean,
     val fragile: Boolean,
     val manufacturer: String?,
-    val brand: String?,
-    val model: String?,
-    val version: String?
+    val supplier: String?,
+    val storageConditions: String?
 )
 
 data class Category(
@@ -35,7 +34,17 @@ data class Category(
     val description: String?,
     val code: String,
     val active: Boolean,
-    val parentCategory: Category?
+    val parentCategory: Category?,
+    val sortOrder: Int?,
+    val icon: String?,
+    val color: String?,
+    val requiresSpecialHandling: Boolean?,
+    val storageTemperatureMin: Int?,
+    val storageTemperatureMax: Int?,
+    val storageHumidityMin: Int?,
+    val storageHumidityMax: Int?,
+    val level: Int?,
+    val fullPath: String?
 )
 
 data class CreateProductRequest(
@@ -43,26 +52,48 @@ data class CreateProductRequest(
     val name: String,
     val description: String? = null,
     val price: BigDecimal? = null,
+    val cost: BigDecimal? = null,
     val unit: String = "PIECE",
     val weight: BigDecimal? = null,
     val length: BigDecimal? = null,
     val width: BigDecimal? = null,
     val height: BigDecimal? = null,
-    val categoryId: Long? = null,
-    val active: Boolean = true
+    val minimumStock: Int? = null,
+    val maximumStock: Int? = null,
+    val reorderPoint: Int? = null,
+    val active: Boolean = true,
+    val perishable: Boolean = false,
+    val hazardous: Boolean = false,
+    val fragile: Boolean = false,
+    val manufacturer: String? = null,
+    val supplier: String? = null,
+    val storageConditions: String? = null,
+    val barcode: String? = null,
+    val categoryId: Long? = null
 )
 
 data class UpdateProductRequest(
     val name: String? = null,
     val description: String? = null,
     val price: BigDecimal? = null,
+    val cost: BigDecimal? = null,
     val unit: String? = null,
     val weight: BigDecimal? = null,
     val length: BigDecimal? = null,
     val width: BigDecimal? = null,
     val height: BigDecimal? = null,
-    val categoryId: Long? = null,
-    val active: Boolean? = null
+    val minimumStock: Int? = null,
+    val maximumStock: Int? = null,
+    val reorderPoint: Int? = null,
+    val active: Boolean? = null,
+    val perishable: Boolean? = null,
+    val hazardous: Boolean? = null,
+    val fragile: Boolean? = null,
+    val manufacturer: String? = null,
+    val supplier: String? = null,
+    val storageConditions: String? = null,
+    val barcode: String? = null,
+    val categoryId: Long? = null
 )
 
 // Category requests
@@ -72,7 +103,14 @@ data class CreateCategoryRequest(
     val description: String? = null,
     val parentId: Long? = null,
     val active: Boolean = true,
-    val sortOrder: Int? = null
+    val sortOrder: Int? = null,
+    val icon: String? = null,
+    val color: String? = null,
+    val requiresSpecialHandling: Boolean = false,
+    val storageTemperatureMin: Int? = null,
+    val storageTemperatureMax: Int? = null,
+    val storageHumidityMin: Int? = null,
+    val storageHumidityMax: Int? = null
 )
 
 data class UpdateCategoryRequest(
@@ -81,5 +119,12 @@ data class UpdateCategoryRequest(
     val parentId: Long? = null,
     val active: Boolean? = null,
     val sortOrder: Int? = null,
-    val removeParent: Boolean = false
+    val removeParent: Boolean = false,
+    val icon: String? = null,
+    val color: String? = null,
+    val requiresSpecialHandling: Boolean? = null,
+    val storageTemperatureMin: Int? = null,
+    val storageTemperatureMax: Int? = null,
+    val storageHumidityMin: Int? = null,
+    val storageHumidityMax: Int? = null
 )

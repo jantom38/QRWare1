@@ -138,6 +138,13 @@ public class CategoryController {
         category.setDescription(request.getDescription());
         category.setActive(request.getActive() != null ? request.getActive() : true);
         category.setSortOrder(request.getSortOrder() != null ? request.getSortOrder() : 0);
+        category.setIcon(request.getIcon());
+        category.setColor(request.getColor());
+        category.setRequiresSpecialHandling(request.getRequiresSpecialHandling() != null ? request.getRequiresSpecialHandling() : false);
+        category.setStorageTemperatureMin(request.getStorageTemperatureMin());
+        category.setStorageTemperatureMax(request.getStorageTemperatureMax());
+        category.setStorageHumidityMin(request.getStorageHumidityMin());
+        category.setStorageHumidityMax(request.getStorageHumidityMax());
 
         // Ustaw rodzica jeśli podany
         if (request.getParentId() != null) {
@@ -169,6 +176,13 @@ public class CategoryController {
         if (request.getDescription() != null) category.setDescription(request.getDescription());
         if (request.getActive() != null) category.setActive(request.getActive());
         if (request.getSortOrder() != null) category.setSortOrder(request.getSortOrder());
+        if (request.getIcon() != null) category.setIcon(request.getIcon());
+        if (request.getColor() != null) category.setColor(request.getColor());
+        if (request.getRequiresSpecialHandling() != null) category.setRequiresSpecialHandling(request.getRequiresSpecialHandling());
+        if (request.getStorageTemperatureMin() != null) category.setStorageTemperatureMin(request.getStorageTemperatureMin());
+        if (request.getStorageTemperatureMax() != null) category.setStorageTemperatureMax(request.getStorageTemperatureMax());
+        if (request.getStorageHumidityMin() != null) category.setStorageHumidityMin(request.getStorageHumidityMin());
+        if (request.getStorageHumidityMax() != null) category.setStorageHumidityMax(request.getStorageHumidityMax());
 
         // Aktualizuj rodzica jeśli podany
         if (request.getParentId() != null) {
@@ -229,6 +243,13 @@ public class CategoryController {
         private Long parentId;
         private Boolean active;
         private Integer sortOrder;
+        private String icon;
+        private String color;
+        private Boolean requiresSpecialHandling;
+        private Integer storageTemperatureMin;
+        private Integer storageTemperatureMax;
+        private Integer storageHumidityMin;
+        private Integer storageHumidityMax;
 
         // Gettery i settery
         public String getCode() { return code; }
@@ -243,6 +264,20 @@ public class CategoryController {
         public void setActive(Boolean active) { this.active = active; }
         public Integer getSortOrder() { return sortOrder; }
         public void setSortOrder(Integer sortOrder) { this.sortOrder = sortOrder; }
+        public String getIcon() { return icon; }
+        public void setIcon(String icon) { this.icon = icon; }
+        public String getColor() { return color; }
+        public void setColor(String color) { this.color = color; }
+        public Boolean getRequiresSpecialHandling() { return requiresSpecialHandling; }
+        public void setRequiresSpecialHandling(Boolean requiresSpecialHandling) { this.requiresSpecialHandling = requiresSpecialHandling; }
+        public Integer getStorageTemperatureMin() { return storageTemperatureMin; }
+        public void setStorageTemperatureMin(Integer storageTemperatureMin) { this.storageTemperatureMin = storageTemperatureMin; }
+        public Integer getStorageTemperatureMax() { return storageTemperatureMax; }
+        public void setStorageTemperatureMax(Integer storageTemperatureMax) { this.storageTemperatureMax = storageTemperatureMax; }
+        public Integer getStorageHumidityMin() { return storageHumidityMin; }
+        public void setStorageHumidityMin(Integer storageHumidityMin) { this.storageHumidityMin = storageHumidityMin; }
+        public Integer getStorageHumidityMax() { return storageHumidityMax; }
+        public void setStorageHumidityMax(Integer storageHumidityMax) { this.storageHumidityMax = storageHumidityMax; }
     }
 
     public static class UpdateCategoryRequest {
@@ -252,6 +287,13 @@ public class CategoryController {
         private Boolean active;
         private Integer sortOrder;
         private boolean removeParent;
+        private String icon;
+        private String color;
+        private Boolean requiresSpecialHandling;
+        private Integer storageTemperatureMin;
+        private Integer storageTemperatureMax;
+        private Integer storageHumidityMin;
+        private Integer storageHumidityMax;
 
         // Gettery i settery
         public String getName() { return name; }
@@ -266,5 +308,19 @@ public class CategoryController {
         public void setSortOrder(Integer sortOrder) { this.sortOrder = sortOrder; }
         public boolean isRemoveParent() { return removeParent; }
         public void setRemoveParent(boolean removeParent) { this.removeParent = removeParent; }
+        public String getIcon() { return icon; }
+        public void setIcon(String icon) { this.icon = icon; }
+        public String getColor() { return color; }
+        public void setColor(String color) { this.color = color; }
+        public Boolean getRequiresSpecialHandling() { return requiresSpecialHandling; }
+        public void setRequiresSpecialHandling(Boolean requiresSpecialHandling) { this.requiresSpecialHandling = requiresSpecialHandling; }
+        public Integer getStorageTemperatureMin() { return storageTemperatureMin; }
+        public void setStorageTemperatureMin(Integer storageTemperatureMin) { this.storageTemperatureMin = storageTemperatureMin; }
+        public Integer getStorageTemperatureMax() { return storageTemperatureMax; }
+        public void setStorageTemperatureMax(Integer storageTemperatureMax) { this.storageTemperatureMax = storageTemperatureMax; }
+        public Integer getStorageHumidityMin() { return storageHumidityMin; }
+        public void setStorageHumidityMin(Integer storageHumidityMin) { this.storageHumidityMin = storageHumidityMin; }
+        public Integer getStorageHumidityMax() { return storageHumidityMax; }
+        public void setStorageHumidityMax(Integer storageHumidityMax) { this.storageHumidityMax = storageHumidityMax; }
     }
 }

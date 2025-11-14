@@ -125,12 +125,23 @@ public class ProductController {
         product.setName(request.getName());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
-        product.setUnitOfMeasure(request.getUnit());
+        product.setCost(request.getCost());
+        product.setUnitOfMeasure(request.getUnit() != null ? request.getUnit() : "PIECE");
         product.setWeight(request.getWeight());
         product.setDimensionsLength(request.getLength());
         product.setDimensionsWidth(request.getWidth());
         product.setDimensionsHeight(request.getHeight());
+        product.setMinimumStock(request.getMinimumStock() != null ? request.getMinimumStock() : 0);
+        product.setMaximumStock(request.getMaximumStock());
+        product.setReorderPoint(request.getReorderPoint());
         product.setActive(request.getActive() != null ? request.getActive() : true);
+        product.setPerishable(request.getPerishable() != null ? request.getPerishable() : false);
+        product.setHazardous(request.getHazardous() != null ? request.getHazardous() : false);
+        product.setFragile(request.getFragile() != null ? request.getFragile() : false);
+        product.setManufacturer(request.getManufacturer());
+        product.setSupplier(request.getSupplier());
+        product.setStorageConditions(request.getStorageConditions());
+        product.setBarcode(request.getBarcode());
         //state.setProduct(request.get);
         if (request.getCategoryId() != null) {
             Optional<Category> category = categoryRepository.findById(request.getCategoryId());
@@ -156,12 +167,23 @@ public class ProductController {
         if (request.getName() != null) product.setName(request.getName());
         if (request.getDescription() != null) product.setDescription(request.getDescription());
         if (request.getPrice() != null) product.setPrice(request.getPrice());
+        if (request.getCost() != null) product.setCost(request.getCost());
         if (request.getUnit() != null) product.setUnitOfMeasure(request.getUnit());
         if (request.getWeight() != null) product.setWeight(request.getWeight());
         if (request.getLength() != null) product.setDimensionsLength(request.getLength());
         if (request.getWidth() != null) product.setDimensionsWidth(request.getWidth());
         if (request.getHeight() != null) product.setDimensionsHeight(request.getHeight());
+        if (request.getMinimumStock() != null) product.setMinimumStock(request.getMinimumStock());
+        if (request.getMaximumStock() != null) product.setMaximumStock(request.getMaximumStock());
+        if (request.getReorderPoint() != null) product.setReorderPoint(request.getReorderPoint());
         if (request.getActive() != null) product.setActive(request.getActive());
+        if (request.getPerishable() != null) product.setPerishable(request.getPerishable());
+        if (request.getHazardous() != null) product.setHazardous(request.getHazardous());
+        if (request.getFragile() != null) product.setFragile(request.getFragile());
+        if (request.getManufacturer() != null) product.setManufacturer(request.getManufacturer());
+        if (request.getSupplier() != null) product.setSupplier(request.getSupplier());
+        if (request.getStorageConditions() != null) product.setStorageConditions(request.getStorageConditions());
+        if (request.getBarcode() != null) product.setBarcode(request.getBarcode());
 
         if (request.getCategoryId() != null) {
             Optional<Category> category = categoryRepository.findById(request.getCategoryId());
@@ -226,15 +248,30 @@ public class ProductController {
             }
         }
 
-        // --- ZMIANA W TEJ SEKCJI ---
         return new ProductDTO(
                 product.getId(),
                 product.getSku(),
                 product.getName(),
                 product.getDescription(),
                 product.getPrice(),
-                categoryDTO,
-                product.getActive() // <-- DODANA BRAKUJĄCA LINIA
+                product.getCost(),
+                product.getWeight(),
+                product.getDimensionsLength(),
+                product.getDimensionsWidth(),
+                product.getDimensionsHeight(),
+                product.getUnitOfMeasure(),
+                product.getMinimumStock(),
+                product.getMaximumStock(),
+                product.getReorderPoint(),
+                product.getActive(),
+                product.getPerishable(),
+                product.getHazardous(),
+                product.getFragile(),
+                product.getManufacturer(),
+                product.getSupplier(),
+                product.getStorageConditions(),
+                product.getBarcode(),
+                categoryDTO
         );
     }
 
@@ -253,15 +290,30 @@ public class ProductController {
     /**
      * DTO dla Produktu, pasujące do ProductDTO.kt
      */
-    // --- ZMIANA W TEJ SEKCJI ---
     public record ProductDTO(
             Long id,
             String sku,
             String name,
             String description,
             BigDecimal price,
-            CategoryDTO category,
-            Boolean active // <-- DODANA BRAKUJĄCA LINIA
+            BigDecimal cost,
+            BigDecimal weight,
+            BigDecimal dimensionsLength,
+            BigDecimal dimensionsWidth,
+            BigDecimal dimensionsHeight,
+            String unitOfMeasure,
+            Integer minimumStock,
+            Integer maximumStock,
+            Integer reorderPoint,
+            Boolean active,
+            Boolean perishable,
+            Boolean hazardous,
+            Boolean fragile,
+            String manufacturer,
+            String supplier,
+            String storageConditions,
+            String barcode,
+            CategoryDTO category
     ) {
     }
 
@@ -273,13 +325,24 @@ public class ProductController {
         private String name;
         private String description;
         private BigDecimal price;
+        private BigDecimal cost;
         private String unit;
         private BigDecimal weight;
         private BigDecimal length;
         private BigDecimal width;
         private BigDecimal height;
-        private Long categoryId;
+        private Integer minimumStock;
+        private Integer maximumStock;
+        private Integer reorderPoint;
         private Boolean active;
+        private Boolean perishable;
+        private Boolean hazardous;
+        private Boolean fragile;
+        private String manufacturer;
+        private String supplier;
+        private String storageConditions;
+        private String barcode;
+        private Long categoryId;
 
         // Gettery i settery
         public String getSku() { return sku; }
@@ -290,6 +353,8 @@ public class ProductController {
         public void setDescription(String description) { this.description = description; }
         public BigDecimal getPrice() { return price; }
         public void setPrice(BigDecimal price) { this.price = price; }
+        public BigDecimal getCost() { return cost; }
+        public void setCost(BigDecimal cost) { this.cost = cost; }
         public String getUnit() { return unit; }
         public void setUnit(String unit) { this.unit = unit; }
         public BigDecimal getWeight() { return weight; }
@@ -300,23 +365,54 @@ public class ProductController {
         public void setWidth(BigDecimal width) { this.width = width; }
         public BigDecimal getHeight() { return height; }
         public void setHeight(BigDecimal height) { this.height = height; }
-        public Long getCategoryId() { return categoryId; }
-        public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }
+        public Integer getMinimumStock() { return minimumStock; }
+        public void setMinimumStock(Integer minimumStock) { this.minimumStock = minimumStock; }
+        public Integer getMaximumStock() { return maximumStock; }
+        public void setMaximumStock(Integer maximumStock) { this.maximumStock = maximumStock; }
+        public Integer getReorderPoint() { return reorderPoint; }
+        public void setReorderPoint(Integer reorderPoint) { this.reorderPoint = reorderPoint; }
         public Boolean getActive() { return active; }
         public void setActive(Boolean active) { this.active = active; }
+        public Boolean getPerishable() { return perishable; }
+        public void setPerishable(Boolean perishable) { this.perishable = perishable; }
+        public Boolean getHazardous() { return hazardous; }
+        public void setHazardous(Boolean hazardous) { this.hazardous = hazardous; }
+        public Boolean getFragile() { return fragile; }
+        public void setFragile(Boolean fragile) { this.fragile = fragile; }
+        public String getManufacturer() { return manufacturer; }
+        public void setManufacturer(String manufacturer) { this.manufacturer = manufacturer; }
+        public String getSupplier() { return supplier; }
+        public void setSupplier(String supplier) { this.supplier = supplier; }
+        public String getStorageConditions() { return storageConditions; }
+        public void setStorageConditions(String storageConditions) { this.storageConditions = storageConditions; }
+        public String getBarcode() { return barcode; }
+        public void setBarcode(String barcode) { this.barcode = barcode; }
+        public Long getCategoryId() { return categoryId; }
+        public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }
     }
 
     public static class UpdateProductRequest {
         private String name;
         private String description;
         private BigDecimal price;
+        private BigDecimal cost;
         private String unit;
         private BigDecimal weight;
         private BigDecimal length;
         private BigDecimal width;
         private BigDecimal height;
-        private Long categoryId;
+        private Integer minimumStock;
+        private Integer maximumStock;
+        private Integer reorderPoint;
         private Boolean active;
+        private Boolean perishable;
+        private Boolean hazardous;
+        private Boolean fragile;
+        private String manufacturer;
+        private String supplier;
+        private String storageConditions;
+        private String barcode;
+        private Long categoryId;
 
         // Gettery i settery
         public String getName() { return name; }
@@ -325,6 +421,8 @@ public class ProductController {
         public void setDescription(String description) { this.description = description; }
         public BigDecimal getPrice() { return price; }
         public void setPrice(BigDecimal price) { this.price = price; }
+        public BigDecimal getCost() { return cost; }
+        public void setCost(BigDecimal cost) { this.cost = cost; }
         public String getUnit() { return unit; }
         public void setUnit(String unit) { this.unit = unit; }
         public BigDecimal getWeight() { return weight; }
@@ -335,9 +433,29 @@ public class ProductController {
         public void setWidth(BigDecimal width) { this.width = width; }
         public BigDecimal getHeight() { return height; }
         public void setHeight(BigDecimal height) { this.height = height; }
-        public Long getCategoryId() { return categoryId; }
-        public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }
+        public Integer getMinimumStock() { return minimumStock; }
+        public void setMinimumStock(Integer minimumStock) { this.minimumStock = minimumStock; }
+        public Integer getMaximumStock() { return maximumStock; }
+        public void setMaximumStock(Integer maximumStock) { this.maximumStock = maximumStock; }
+        public Integer getReorderPoint() { return reorderPoint; }
+        public void setReorderPoint(Integer reorderPoint) { this.reorderPoint = reorderPoint; }
         public Boolean getActive() { return active; }
         public void setActive(Boolean active) { this.active = active; }
+        public Boolean getPerishable() { return perishable; }
+        public void setPerishable(Boolean perishable) { this.perishable = perishable; }
+        public Boolean getHazardous() { return hazardous; }
+        public void setHazardous(Boolean hazardous) { this.hazardous = hazardous; }
+        public Boolean getFragile() { return fragile; }
+        public void setFragile(Boolean fragile) { this.fragile = fragile; }
+        public String getManufacturer() { return manufacturer; }
+        public void setManufacturer(String manufacturer) { this.manufacturer = manufacturer; }
+        public String getSupplier() { return supplier; }
+        public void setSupplier(String supplier) { this.supplier = supplier; }
+        public String getStorageConditions() { return storageConditions; }
+        public void setStorageConditions(String storageConditions) { this.storageConditions = storageConditions; }
+        public String getBarcode() { return barcode; }
+        public void setBarcode(String barcode) { this.barcode = barcode; }
+        public Long getCategoryId() { return categoryId; }
+        public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }
     }
 }
