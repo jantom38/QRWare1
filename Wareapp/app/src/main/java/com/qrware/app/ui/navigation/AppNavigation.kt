@@ -181,6 +181,41 @@ fun AppNavigation(appContainer: AppContainer) {
             composable("manage_qr") {
                 ManageQRCodesScreen(navController = navController, appContainer = appContainer)
             }
+
+            // Ekran generowania QR kodu z parametrami
+            composable(
+                route = "generate_qr/{type}/{id}",
+                arguments = listOf(
+                    navArgument("type") { type = NavType.StringType },
+                    navArgument("id") { type = NavType.LongType }
+                )
+            ) { backStackEntry ->
+                val qrType = backStackEntry.arguments?.getString("type") ?: "PRODUCT"
+                val entityId = backStackEntry.arguments?.getLong("id") ?: 0L
+                ManageQRCodesScreen(
+                    navController = navController,
+                    appContainer = appContainer,
+                    initialType = qrType,
+                    initialEntityId = entityId
+                )
+            }
+
+            // Ekran dodawania pozycji do magazynu z predefiniowanym produktem
+            composable(
+                route = "add_inventory/{type}/{id}",
+                arguments = listOf(
+                    navArgument("type") { type = NavType.StringType },
+                    navArgument("id") { type = NavType.LongType }
+                )
+            ) { backStackEntry ->
+                val entityType = backStackEntry.arguments?.getString("type") ?: "PRODUCT"
+                val entityId = backStackEntry.arguments?.getLong("id") ?: 0L
+                AddInventoryScreen(
+                    navController = navController,
+                    appContainer = appContainer,
+                    presetProductId = if (entityType == "PRODUCT") entityId else null
+                )
+            }
             // Lokalizacje
             composable("manage_locations") {
                 ManageLocationsScreen(

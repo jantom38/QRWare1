@@ -29,14 +29,16 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun ManageQRCodesScreen(
     navController: NavController,
-    appContainer: AppContainer
+    appContainer: AppContainer,
+    initialType: String? = null,
+    initialEntityId: Long? = null
 ) {
     val viewModel: QRCodeViewModel = viewModel(
         factory = appContainer.qrCodeViewModelFactory
     )
     val uiState by viewModel.uiState.collectAsState()
     val stats by viewModel.stats.collectAsState()
-    var showAddDialog by remember { mutableStateOf(false) }
+    var showAddDialog by remember { mutableStateOf(initialType != null && initialEntityId != null) }
     var showEditDialog by remember { mutableStateOf(false) }
     var selectedQRCode by remember { mutableStateOf<QRCodeData?>(null) }
 
@@ -234,7 +236,9 @@ fun ManageQRCodesScreen(
             onConfirm = { request ->
                 viewModel.generateQRCode(request)
                 showAddDialog = false
-            }
+            },
+            initialType = initialType?.let { QRCodeType.valueOf(it) },
+            initialEntityId = initialEntityId
         )
     }
 
@@ -375,17 +379,42 @@ fun QRCodeCard(
 @Composable
 fun AddQRCodeDialog(
     onDismiss: () -> Unit,
-    onConfirm: (GenerateQRRequest) -> Unit
+    onConfirm: (GenerateQRRequest) -> Unit,
+    initialType: QRCodeType? = null,
+    initialEntityId: Long? = null
 ) {
-    var code by remember { mutableStateOf("") }
-    var data by remember { mutableStateOf("") }
-    var selectedType by remember { mutableStateOf(QRCodeType.CUSTOM) }
-    var entityType by remember { mutableStateOf("") }
-    var entityId by remember { mutableStateOf("") }
+    // Automatyczne generowanie kodu i danych na podstawie typu i ID
+    val autoCode = remember(initialType, initialEntityId) {
+        if (initialType != null && initialEntityId != null) {
+            "QR-${initialType}-${initialEntityId}-${System.currentTimeMillis()}"
+        } else ""
+    }
+    
+    val autoData = remember(initialType, initialEntityId) {
+        if (initialType != null && initialEntityId != null) {
+            when (initialType) {
+                QRCodeType.PRODUCT -> "PRODUCT:$initialEntityId"
+                QRCodeType.LOCATION -> "LOCATION:$initialEntityId"
+                QRCodeType.INVENTORY_ITEM -> "INVENTORY_ITEM:$initialEntityId"
+                else -> "$initialType:$initialEntityId"
+            }
+        } else ""
+    }
+
+    var code by remember { mutableStateOf(autoCode) }
+    var data by remember { mutableStateOf(autoData) }
+    var selectedType by remember { mutableStateOf(initialType ?: QRCodeType.CUSTOM) }
+    var entityType by remember { mutableStateOf(if (initialType != null) initialType.name else "") }
+    var entityId by remember { mutableStateOf(initialEntityId?.toString() ?: "") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Wygeneruj kod QR") },
+        title = { 
+            Text(if (initialType != null && initialEntityId != null) 
+                "Generuj QR dla ${getQRTypeDisplayName(selectedType)} #${initialEntityId}" 
+                else "Wygeneruj kod QR"
+            ) 
+        },
         text = {
             Column {
                 OutlinedTextField(
@@ -399,19 +428,23 @@ fun AddQRCodeDialog(
                 // Dropdown dla typu
                 var expanded by remember { mutableStateOf(false) }
                 ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = { expanded = !expanded }
+                    expanded = expanded && initialType == null,
+                    onExpandedChange = { if (initialType == null) expanded = !expanded }
                 ) {
                     OutlinedTextField(
                         value = getQRTypeDisplayName(selectedType),
                         onValueChange = {},
                         readOnly = true,
                         label = { Text("Typ") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                        modifier = Modifier.menuAnchor().fillMaxWidth()
+                        trailingIcon = { 
+                            if (initialType == null) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                            else null
+                        },
+                        modifier = Modifier.menuAnchor().fillMaxWidth(),
+                        enabled = initialType == null // Tylko edytowalne jeśli nie z presetu
                     )
                     ExposedDropdownMenu(
-                        expanded = expanded,
+                        expanded = expanded && initialType == null,
                         onDismissRequest = { expanded = false }
                     ) {
                         QRCodeType.values().forEach { type ->
@@ -438,14 +471,16 @@ fun AddQRCodeDialog(
                     value = entityType,
                     onValueChange = { entityType = it },
                     label = { Text("Typ encji (opcjonalnie)") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = initialType == null // Tylko edytowalne jeśli nie z presetu
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = entityId,
                     onValueChange = { entityId = it },
                     label = { Text("ID encji (opcjonalnie)") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = initialEntityId == null // Tylko edytowalne jeśli nie z presetu
                 )
             }
         },
@@ -459,13 +494,25 @@ fun AddQRCodeDialog(
                             data = data,
                             entityType = entityType.takeIf { it.isNotBlank() },
                             entityId = entityId.takeIf { it.isNotBlank() }?.toLongOrNull(),
-                            generationReason = "Utworzony ręcznie przez użytkownika"
+                            generationReason = when {
+                                initialType == QRCodeType.PRODUCT -> "Utworzony dla produktu #${initialEntityId}"
+                                initialType == QRCodeType.INVENTORY_ITEM -> "Utworzony dla pozycji magazynowej #${initialEntityId}"
+                                initialType == QRCodeType.LOCATION -> "Utworzony dla lokalizacji #${initialEntityId}"
+                               // initialType != null -> "Utworzony dla ${getQRTypeDisplayName(initialType)} #${initialEntityId}"
+                                else -> "Utworzony ręcznie przez użytkownika"
+                            }
                         )
                     )
                 },
                 enabled = code.isNotBlank() && data.isNotBlank()
             ) {
-                Text("Wygeneruj")
+                Text(when {
+                    initialType == QRCodeType.PRODUCT -> "Generuj QR dla produktu"
+                    initialType == QRCodeType.INVENTORY_ITEM -> "Generuj QR dla pozycji"
+                    initialType == QRCodeType.LOCATION -> "Generuj QR dla lokalizacji"
+                    initialType != null -> "Generuj QR dla ${getQRTypeDisplayName(initialType)}"
+                    else -> "Wygeneruj"
+                })
             }
         },
         dismissButton = {

@@ -12,6 +12,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -128,7 +129,7 @@ fun ManageInventoryScreen(
                     // uiState.inventoryItems to teraz List<InventoryItemDTO>
                     items(uiState.inventoryItems) { item ->
                         InventoryItemCard(
-                            item = item, // Przekazujemy DTO
+                            item = item,
                             onReceiveStock = { quantity, reason ->
                                 viewModel.receiveStock(item.id, quantity, reason)
                             },
@@ -137,6 +138,9 @@ fun ManageInventoryScreen(
                             },
                             onDeleteItem = {
                                 viewModel.deleteInventoryItem(item.id)
+                            },
+                            onGenerateQRItem = {
+                                navController.navigate("generate_qr/INVENTORY_ITEM/${item.id}")
                             }
                         )
                     }
@@ -197,10 +201,11 @@ fun StatusFilterRow(onStatusSelected: (InventoryStatus?) -> Unit) {
 
 @Composable
 fun InventoryItemCard(
-    item: InventoryItemDTO, // <-- ZMIANA NA DTO
+    item: InventoryItemDTO,
     onReceiveStock: (Int, String?) -> Unit,
     onIssueStock: (Int, String?) -> Unit,
-    onDeleteItem: () -> Unit
+    onDeleteItem: () -> Unit,
+    onGenerateQRItem: () -> Unit // Dodany parametr dla generowania QR
 ) {
     var showQuantityDialog by remember { mutableStateOf(false) }
     var isReceiving by remember { mutableStateOf(true) }
@@ -357,6 +362,10 @@ fun InventoryItemCard(
                     Icon(Icons.Default.Remove, contentDescription = null)
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("Wydaj")
+                }
+
+                IconButton(onClick = onGenerateQRItem) {
+                    Icon(Icons.Default.QrCode, contentDescription = "Generuj kod QR")
                 }
 
                 IconButton(onClick = onDeleteItem) {

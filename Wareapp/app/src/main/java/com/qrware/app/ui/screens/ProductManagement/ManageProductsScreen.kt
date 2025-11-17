@@ -9,6 +9,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit // Upewnij się, że ten import jest
+import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -140,10 +142,14 @@ fun ManageProductsScreen(
                             onDeleteItem = {
                                 viewModel.deleteProduct(product.id)
                             },
-                            // --- ZMIANA: Dodana obsługa edycji ---
                             onEditItem = {
-                                // Nawiguj do nowego ekranu edycji z ID produktu
                                 navController.navigate("edit_product/${product.id}")
+                            },
+                            onGenerateQRItem = {
+                                navController.navigate("generate_qr/PRODUCT/${product.id}")
+                            },
+                            onAddToInventory = {
+                                navController.navigate("add_inventory/PRODUCT/${product.id}")
                             }
                         )
                     }
@@ -221,7 +227,9 @@ fun StatusFilterRow(
 fun ProductCard(
     product: ProductDTO,
     onDeleteItem: () -> Unit,
-    onEditItem: () -> Unit // <-- ZMIANA: Dodany parametr
+    onEditItem: () -> Unit,
+    onGenerateQRItem: () -> Unit,
+    onAddToInventory: () -> Unit // Dodany parametr dla dodania do magazynu
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -276,7 +284,12 @@ fun ProductCard(
                 horizontalArrangement = Arrangement.End,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                // --- ZMIANA: Dodany przycisk Edycji ---
+                IconButton(onClick = onAddToInventory) {
+                    Icon(Icons.Default.Inventory, contentDescription = "Dodaj do magazynu")
+                }
+                IconButton(onClick = onGenerateQRItem) {
+                    Icon(Icons.Default.QrCode, contentDescription = "Generuj kod QR")
+                }
                 IconButton(onClick = onEditItem) {
                     Icon(Icons.Default.Edit, contentDescription = "Edytuj Produkt")
                 }

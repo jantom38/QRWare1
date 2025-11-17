@@ -7,6 +7,7 @@ import com.qrware.app.data.repository.*
 import com.qrware.app.security.TokenManager
 import com.qrware.app.data.remote.ApiService
 import com.qrware.app.data.repository.UserManagementRepository
+import com.qrware.app.ui.viewmodel.AddInventoryViewModelFactory
 import com.qrware.app.ui.viewmodel.AddProductViewModelFactory
 import com.qrware.app.ui.viewmodel.UserManagament.AddUserViewModelFactory
 import com.qrware.app.ui.viewmodel.CategoryViewModelFactory
@@ -68,6 +69,10 @@ class AppContainer(context: Context) {
     }
     val addProductViewModelFactory by lazy {
         AddProductViewModelFactory(productRepository)
+    }
+    
+    val addInventoryViewModelFactory by lazy {
+        AddInventoryViewModelFactory(inventoryRepository, productRepository, locationRepository)
     }
     // Fabryka dla ListUsersViewModel
     val listUsersViewModelFactory: ViewModelProvider.Factory by lazy {
