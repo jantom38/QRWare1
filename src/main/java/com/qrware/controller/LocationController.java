@@ -43,11 +43,7 @@ public class LocationController {
     @Autowired
     private DTOMapper mapper;
 
-    // --- USUNIĘTA PRYWATNA METODA convertToDTO() ---
-    // --- USUNIĘTE WEWNĘTRZNE REKORDY DTO ---
 
-
-    // --- PUNKTY KOŃCOWE (ENDPOINTS) ---
 
     /**
      * Pobierz wszystkie lokalizacje z paginacją, z opcjonalnym filtrem 'active'.

@@ -53,13 +53,11 @@ public class QRCodeController {
         throw new ResourceNotFoundException("QR Code", "id", id);
     }
 
-    // Pobierz kod QR po kodzie
     @GetMapping("/code/{code}")
     @PreAuthorize("hasAuthority('QR_SCAN')")
     public ResponseEntity<QRCodeDTO> getQRCodeByCode(@PathVariable String code) {
         Optional<QRCodeData> qrCode = qrCodeRepository.findByCode(code);
         if (qrCode.isPresent()) {
-            // Zwiększ licznik skanowań
             QRCodeData qrCodeData = qrCode.get();
             qrCodeData.setScanCount(qrCodeData.getScanCount() + 1);
             LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS);
