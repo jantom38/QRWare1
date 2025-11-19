@@ -250,7 +250,21 @@ public class InventoryController {
         InventoryItem reloadedItem = inventoryRepository.findById(updatedItem.getId()).orElse(updatedItem);
         return ResponseEntity.ok(dtoMapper.toDTO(reloadedItem));
     }
+    @GetMapping("/search")
+    @PreAuthorize("hasAuthority('INVENTORY_READ')")
+    public ResponseEntity<List<InventoryItemDTO>> searchInventory(@RequestParam("query") String query) {
+        logger.info("GET /api/inventory/search?query={}", query);
 
+        // Wywołanie metody, którą dodaliśmy w Kroku 1 do repozytorium
+        List<InventoryItem> items = inventoryRepository.searchInventory(query);
+
+        // Mapowanie na DTO
+        List<InventoryItemDTO> dtos = items.stream()
+                .map(dtoMapper::toDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(dtos);
+    }
     // Aktualizuj ilość - wydanie towaru
     @PostMapping("/{id}/issue")
     @PreAuthorize("hasAuthority('INVENTORY_WRITE')")

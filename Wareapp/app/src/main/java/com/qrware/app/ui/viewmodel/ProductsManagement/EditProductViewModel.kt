@@ -1,4 +1,4 @@
-package com.qrware.app.ui.viewmodel
+package com.qrware.app.ui.viewmodel.ProductsManagement
 
 import android.util.Log // <-- DODAJ TEN IMPORT
 import androidx.lifecycle.ViewModel
@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
 
 data class EditProductUiState(
     val isLoading: Boolean = true,

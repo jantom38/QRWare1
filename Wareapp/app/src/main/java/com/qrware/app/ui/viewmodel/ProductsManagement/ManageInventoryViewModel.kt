@@ -1,9 +1,9 @@
-package com.qrware.app.ui.viewmodel
+package com.qrware.app.ui.viewmodel.ProductsManagement
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.qrware.app.data.model.*
 import com.qrware.app.data.dto.InventoryItemDTO
+import com.qrware.app.data.model.*
 import com.qrware.app.data.repository.InventoryRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,12 +25,11 @@ class ManageInventoryViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                // ZMIANA: response to teraz PaginatedResponse<InventoryItemDTO>
                 val response = inventoryRepository.getAllInventoryItems(page, size)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    inventoryItems = response.content, // <-- ZMIANA (bez .data)
-                    totalPages = response.totalPages, // <-- ZMIANA (bez .data)
+                    inventoryItems = response.content,
+                    totalPages = response.totalPages,
                     currentPage = page
                 )
             } catch (e: Exception) {
@@ -42,34 +41,23 @@ class ManageInventoryViewModel(
         }
     }
 
-    fun searchByProduct(productId: Long) {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            try {
-                // ZMIANA: response to teraz List<InventoryItemDTO>
-                val response = inventoryRepository.getInventoryByProduct(productId)
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    inventoryItems = response // <-- ZMIANA (bez .data)
-                )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = e.message ?: "Błąd podczas wyszukiwania"
-                )
-            }
+    // --- NOWA FUNKCJA WYSZUKIWANIA ---
+    fun searchInventory(query: String) {
+        if (query.isBlank()) {
+            // Jeśli tekst jest pusty, wróć do standardowej paginacji
+            loadInventoryItems(page = 0)
+            return
         }
-    }
 
-    fun searchByLocation(locationId: Long) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                // ZMIANA: response to teraz List<InventoryItemDTO>
-                val response = inventoryRepository.getInventoryByLocation(locationId)
+                val response = inventoryRepository.searchInventory(query)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    inventoryItems = response // <-- ZMIANA (bez .data)
+                    inventoryItems = response,
+                    totalPages = 1, // Wyszukiwanie zwraca listę, wyłączamy paginację
+                    currentPage = 0
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -79,16 +67,18 @@ class ManageInventoryViewModel(
             }
         }
     }
+    // --------------------------------
 
     fun filterByStatus(status: InventoryStatus) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                // ZMIANA: response to teraz List<InventoryItemDTO>
                 val response = inventoryRepository.getInventoryByStatus(status)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    inventoryItems = response // <-- ZMIANA (bez .data)
+                    inventoryItems = response,
+                    totalPages = 1, // Filtrowanie po statusie (API List<>) wyłącza paginację
+                    currentPage = 0
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -99,15 +89,13 @@ class ManageInventoryViewModel(
         }
     }
 
-    // Funkcje receive, issue, delete nie wymagają zmian w logice,
-    // ponieważ po prostu wywołują loadInventoryItems(), która jest już poprawiona.
-
     fun receiveStock(itemId: Long, quantity: Int, reason: String?) {
         viewModelScope.launch {
             try {
                 val request = QuantityUpdateRequest(quantity, reason)
-                inventoryRepository.receiveStock(itemId, request) // Ta funkcja już nie rzuca błędu
-                loadInventoryItems() // Odśwież listę
+                inventoryRepository.receiveStock(itemId, request)
+                // Po operacji odświeżamy listę (zachowując kontekst jeśli byłby potrzebny, ale tu prosto reload)
+                loadInventoryItems()
                 _uiState.value = _uiState.value.copy(
                     successMessage = "Przyjęto towar pomyślnie"
                 )
@@ -124,7 +112,7 @@ class ManageInventoryViewModel(
             try {
                 val request = QuantityUpdateRequest(quantity, reason)
                 inventoryRepository.issueStock(itemId, request)
-                loadInventoryItems() // Odśwież listę
+                loadInventoryItems()
                 _uiState.value = _uiState.value.copy(
                     successMessage = "Wydano towar pomyślnie"
                 )
@@ -140,7 +128,7 @@ class ManageInventoryViewModel(
         viewModelScope.launch {
             try {
                 inventoryRepository.deleteInventoryItem(itemId)
-                loadInventoryItems() // Odśwież listę
+                loadInventoryItems()
                 _uiState.value = _uiState.value.copy(
                     successMessage = "Pozycja usunięta pomyślnie"
                 )
@@ -172,8 +160,6 @@ class ManageInventoryViewModel(
     }
 }
 
-// Ten plik (InventoryUiState) pozostaje bez zmian,
-// ponieważ już używa InventoryItemDTO
 data class InventoryUiState(
     val isLoading: Boolean = false,
     val inventoryItems: List<InventoryItemDTO> = emptyList(),

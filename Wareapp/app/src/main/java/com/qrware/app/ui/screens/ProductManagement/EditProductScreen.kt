@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.qrware.app.di.AppContainer
-import com.qrware.app.ui.viewmodel.EditProductViewModel
+import com.qrware.app.ui.viewmodel.ProductsManagement.EditProductViewModel
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)

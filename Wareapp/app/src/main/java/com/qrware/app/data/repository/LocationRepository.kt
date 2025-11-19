@@ -33,6 +33,17 @@ class LocationRepository(private val apiService: ApiService) {
         }
     }
 
+    suspend fun searchLocations(
+        query: String,
+        page: Int,
+        size: Int,
+        active: Boolean?
+    ): PaginatedResponse<LocationDTO> {
+        return withContext(Dispatchers.IO) {
+            apiService.searchLocations(query = query, page = page, size = size, active = active)
+        }
+    }
+
     suspend fun getLocationById(id: Long): LocationDTO {
         return withContext(Dispatchers.IO) {
             apiService.getLocationById(id)

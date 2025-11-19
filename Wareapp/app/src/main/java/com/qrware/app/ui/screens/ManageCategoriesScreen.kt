@@ -8,6 +8,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -23,7 +25,7 @@ import com.qrware.app.data.dto.CategoryDTO
 import com.qrware.app.data.model.CreateCategoryRequest
 import com.qrware.app.data.model.UpdateCategoryRequest
 import com.qrware.app.di.AppContainer
-import com.qrware.app.ui.viewmodel.CategoryViewModel
+import com.qrware.app.ui.viewmodel.ProductsManagement.CategoryViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +40,10 @@ fun ManageCategoriesScreen(
     var showAddDialog by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf<CategoryDTO?>(null) }
+    var selectedParentCategory by remember { mutableStateOf<CategoryDTO?>(null) }
     var searchQuery by remember { mutableStateOf("") }
+    var showHierarchical by remember { mutableStateOf(true) }
+    var expandedCategories by remember { mutableStateOf(setOf<Long>()) }
 
     LaunchedEffect(uiState.error, uiState.successMessage) {
         if (uiState.error != null || uiState.successMessage != null) {
@@ -57,8 +62,19 @@ fun ManageCategoriesScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { showAddDialog = true }) {
-                        Icon(Icons.Default.Add, contentDescription = "Dodaj kategorię")
+                    IconButton(
+                        onClick = { showHierarchical = !showHierarchical }
+                    ) {
+                        Icon(
+                            if (showHierarchical) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                            contentDescription = if (showHierarchical) "Widok listy" else "Widok drzewa"
+                        )
+                    }
+                    IconButton(onClick = { 
+                        selectedParentCategory = null
+                        showAddDialog = true 
+                    }) {
+                        Icon(Icons.Default.Add, contentDescription = "Dodaj kategorię główną")
                     }
                 }
             )
@@ -155,20 +171,55 @@ fun ManageCategoriesScreen(
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(uiState.categories) { category ->
-                        CategoryCard(
-                            category = category,
-                            onEdit = {
-                                selectedCategory = category
-                                showEditDialog = true
-                            },
-                            onDelete = {
-                                viewModel.deleteCategory(category.id)
-                            },
-                            onToggleActive = {
-                                viewModel.toggleCategoryActive(category.id)
-                            }
-                        )
+                    if (showHierarchical) {
+                        // Widok hierarchiczny - tylko kategorie główne
+                        val rootCategories = uiState.categories.filter { it.parent == null }
+                        items(rootCategories) { category ->
+                            HierarchicalCategoryCard(
+                                category = category,
+                                allCategories = uiState.categories,
+                                expandedCategories = expandedCategories,
+                                level = 0,
+                                onExpandToggle = { categoryId ->
+                                    expandedCategories = if (expandedCategories.contains(categoryId)) {
+                                        expandedCategories - categoryId
+                                    } else {
+                                        expandedCategories + categoryId
+                                    }
+                                },
+                                onEdit = { categoryToEdit ->
+                                    selectedCategory = categoryToEdit
+                                    showEditDialog = true
+                                },
+                                onDelete = { categoryToDelete ->
+                                    viewModel.deleteCategory(categoryToDelete.id)
+                                },
+                                onToggleActive = { categoryToToggle ->
+                                    viewModel.toggleCategoryActive(categoryToToggle.id)
+                                },
+                                onAddSubcategory = { parentCategory ->
+                                    selectedParentCategory = parentCategory
+                                    showAddDialog = true
+                                }
+                            )
+                        }
+                    } else {
+                        // Widok listy - wszystkie kategorie
+                        items(uiState.categories) { category ->
+                            CategoryCard(
+                                category = category,
+                                onEdit = {
+                                    selectedCategory = category
+                                    showEditDialog = true
+                                },
+                                onDelete = {
+                                    viewModel.deleteCategory(category.id)
+                                },
+                                onToggleActive = {
+                                    viewModel.toggleCategoryActive(category.id)
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -178,11 +229,22 @@ fun ManageCategoriesScreen(
     // Dialog dodawania kategorii
     if (showAddDialog) {
         AddCategoryDialog(
-            onDismiss = { showAddDialog = false },
-            onConfirm = { request ->
-                viewModel.createCategory(request)
+            onDismiss = { 
                 showAddDialog = false
-            }
+                selectedParentCategory = null
+            },
+            onConfirm = { request ->
+                // Dodaj parentId jeśli jest ustawione
+                val finalRequest = if (selectedParentCategory != null) {
+                    request.copy(parentId = selectedParentCategory!!.id)
+                } else {
+                    request
+                }
+                viewModel.createCategory(finalRequest)
+                showAddDialog = false
+                selectedParentCategory = null
+            },
+            initialParentCategory = selectedParentCategory
         )
     }
 
@@ -307,7 +369,8 @@ fun CategoryCard(
 @Composable
 fun AddCategoryDialog(
     onDismiss: () -> Unit,
-    onConfirm: (CreateCategoryRequest) -> Unit
+    onConfirm: (CreateCategoryRequest) -> Unit,
+    initialParentCategory: CategoryDTO? = null
 ) {
     var code by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
@@ -323,7 +386,12 @@ fun AddCategoryDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Dodaj kategorię") },
+        title = { 
+            Text(if (initialParentCategory != null) 
+                "Dodaj podkategorię do: ${initialParentCategory.name}" 
+                else "Dodaj kategorię główną"
+            ) 
+        },
         text = {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -640,4 +708,154 @@ fun EditCategoryDialog(
             }
         }
     )
+}
+
+@Composable
+fun HierarchicalCategoryCard(
+    category: CategoryDTO,
+    allCategories: List<CategoryDTO>,
+    expandedCategories: Set<Long>,
+    level: Int = 0,
+    onExpandToggle: (Long) -> Unit,
+    onEdit: (CategoryDTO) -> Unit,
+    onDelete: (CategoryDTO) -> Unit,
+    onToggleActive: (CategoryDTO) -> Unit,
+    onAddSubcategory: (CategoryDTO) -> Unit
+) {
+    val children = allCategories.filter { it.parent?.id == category.id }
+    val isExpanded = expandedCategories.contains(category.id)
+    
+    Column {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = (level * 16).dp),
+            colors = CardDefaults.cardColors(
+                containerColor = if (level == 0) 
+                    MaterialTheme.colorScheme.surface 
+                else 
+                    MaterialTheme.colorScheme.surfaceVariant
+            ),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = if (level == 0) 4.dp else 2.dp
+            )
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        // Przycisk rozwijania jeśli ma dzieci
+                        if (children.isNotEmpty()) {
+                            IconButton(onClick = { onExpandToggle(category.id) }) {
+                                Icon(
+                                    if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                    contentDescription = if (isExpanded) "Zwiń" else "Rozwiń"
+                                )
+                            }
+                        } else {
+                            Spacer(modifier = Modifier.width(48.dp))
+                        }
+                        
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "${category.name} (${category.code})",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = if (level == 0) FontWeight.Bold else FontWeight.Normal
+                            )
+                            category.fullPath?.let { path ->
+                                Text(
+                                    text = "Ścieżka: $path",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.outline
+                                )
+                            }
+                            category.description?.let { description ->
+                                Text(
+                                    text = description,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                            if (category.requiresSpecialHandling == true) {
+                                Text(
+                                    text = "⚠️ Wymaga specjalnego przechowywania",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                            if (category.storageTemperatureMin != null || category.storageTemperatureMax != null) {
+                                Text(
+                                    text = "🌡️ Temperatura: ${category.storageTemperatureMin ?: "?"}°C - ${category.storageTemperatureMax ?: "?"}°C",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.outline
+                                )
+                            }
+                            if (category.storageHumidityMin != null || category.storageHumidityMax != null) {
+                                Text(
+                                    text = "💧 Wilgotność: ${category.storageHumidityMin ?: "?"}% - ${category.storageHumidityMax ?: "?"}%",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.outline
+                                )
+                            }
+                            if (children.isNotEmpty()) {
+                                Text(
+                                    text = "📁 Podkategorie: ${children.size}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    }
+                    
+                    Row {
+                        // Przycisk dodawania podkategorii
+                        IconButton(onClick = { onAddSubcategory(category) }) {
+                            Icon(Icons.Default.Add, contentDescription = "Dodaj podkategorię")
+                        }
+                        
+                        IconButton(onClick = { onToggleActive(category) }) {
+                            Icon(
+                                if (category.active) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                contentDescription = if (category.active) "Dezaktywuj" else "Aktywuj",
+                                tint = if (category.active) 
+                                    MaterialTheme.colorScheme.primary 
+                                else 
+                                    MaterialTheme.colorScheme.outline
+                            )
+                        }
+                        
+                        IconButton(onClick = { onEdit(category) }) {
+                            Icon(Icons.Default.Edit, contentDescription = "Edytuj kategorię")
+                        }
+                        
+                        IconButton(onClick = { onDelete(category) }) {
+                            Icon(Icons.Default.Delete, contentDescription = "Usuń kategorię")
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Renderowanie dzieci jeśli rozwinięte
+        if (isExpanded && children.isNotEmpty()) {
+            children.forEach { child ->
+                HierarchicalCategoryCard(
+                    category = child,
+                    allCategories = allCategories,
+                    expandedCategories = expandedCategories,
+                    level = level + 1,
+                    onExpandToggle = onExpandToggle,
+                    onEdit = onEdit,
+                    onDelete = onDelete,
+                    onToggleActive = onToggleActive,
+                    onAddSubcategory = onAddSubcategory
+                )
+            }
+        }
+    }
 }

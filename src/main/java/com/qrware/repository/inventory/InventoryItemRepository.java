@@ -418,4 +418,11 @@ public interface InventoryItemRepository extends BaseRepository<InventoryItem> {
 """)
     List<InventoryItem> findItemsByFEFO(@Param("productId") Long productId);
 
+    @Query("SELECT i FROM InventoryItem i " +
+            "JOIN i.product p " +
+            "JOIN i.location l " +
+            "WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%')) " +
+            "OR LOWER(p.sku) LIKE LOWER(CONCAT('%', :query, '%')) " +
+            "OR LOWER(l.name) LIKE LOWER(CONCAT('%', :query, '%'))")
+    List<InventoryItem> searchInventory(@Param("query") String query);
 }

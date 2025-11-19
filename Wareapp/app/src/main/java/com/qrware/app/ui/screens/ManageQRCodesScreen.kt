@@ -41,6 +41,7 @@ fun ManageQRCodesScreen(
     var showAddDialog by remember { mutableStateOf(initialType != null && initialEntityId != null) }
     var showEditDialog by remember { mutableStateOf(false) }
     var selectedQRCode by remember { mutableStateOf<QRCodeData?>(null) }
+    var searchQuery by remember { mutableStateOf("") }
 
     LaunchedEffect(uiState.error, uiState.successMessage) {
         if (uiState.error != null || uiState.successMessage != null) {

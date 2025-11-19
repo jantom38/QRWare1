@@ -17,7 +17,7 @@ import androidx.navigation.NavController
 import com.qrware.app.data.dto.LocationDTO
 import com.qrware.app.data.model.InventoryStatus
 import com.qrware.app.di.AppContainer
-import com.qrware.app.ui.viewmodel.AddInventoryViewModel
+import com.qrware.app.ui.viewmodel.ProductsManagement.AddInventoryViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 

@@ -18,7 +18,8 @@ data class LocationUiState(
     val successMessage: String? = null,
     val currentPage: Int = 0,
     val totalPages: Int = 1,
-    val activeFilter: Boolean? = true // Domyślnie pokazuj aktywne
+    val activeFilter: Boolean? = true, // Domyślnie pokazuj aktywne
+    val searchQuery: String = ""
 )
 
 class ManageLocationsViewModel(private val repository: LocationRepository) : ViewModel() {
@@ -36,11 +37,21 @@ class ManageLocationsViewModel(private val repository: LocationRepository) : Vie
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                val response = repository.getLocations(
-                    page = _uiState.value.currentPage,
-                    size = pageSize,
-                    active = _uiState.value.activeFilter
-                )
+                val response = if (_uiState.value.searchQuery.isBlank()) {
+                    repository.getLocations(
+                        page = _uiState.value.currentPage,
+                        size = pageSize,
+                        active = _uiState.value.activeFilter
+                    )
+                } else {
+                    // Użyj wyszukiwania zamiast zwykłego listowania
+                    repository.searchLocations(
+                        query = _uiState.value.searchQuery,
+                        page = _uiState.value.currentPage,
+                        size = pageSize,
+                        active = _uiState.value.activeFilter
+                    )
+                }
                 _uiState.update {
                     it.copy(
                         isLoading = false,
@@ -85,6 +96,11 @@ class ManageLocationsViewModel(private val repository: LocationRepository) : Vie
             _uiState.update { it.copy(currentPage = it.currentPage - 1) }
             loadLocations()
         }
+    }
+
+    fun searchLocations(query: String) {
+        _uiState.update { it.copy(searchQuery = query, currentPage = 0) }
+        loadLocations()
     }
 
     fun clearMessages() {

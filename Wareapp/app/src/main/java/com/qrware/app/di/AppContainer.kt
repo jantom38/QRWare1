@@ -7,16 +7,16 @@ import com.qrware.app.data.repository.*
 import com.qrware.app.security.TokenManager
 import com.qrware.app.data.remote.ApiService
 import com.qrware.app.data.repository.UserManagementRepository
-import com.qrware.app.ui.viewmodel.AddInventoryViewModelFactory
-import com.qrware.app.ui.viewmodel.AddProductViewModelFactory
+import com.qrware.app.ui.viewmodel.ProductsManagement.AddInventoryViewModelFactory
+import com.qrware.app.ui.viewmodel.ProductsManagement.AddProductViewModelFactory
 import com.qrware.app.ui.viewmodel.UserManagament.AddUserViewModelFactory
-import com.qrware.app.ui.viewmodel.CategoryViewModelFactory
-import com.qrware.app.ui.viewmodel.EditProductViewModelFactory
-import com.qrware.app.ui.viewmodel.ManageInventoryViewModelFactory
+import com.qrware.app.ui.viewmodel.ProductsManagement.CategoryViewModelFactory
+import com.qrware.app.ui.viewmodel.ProductsManagement.EditProductViewModelFactory
+import com.qrware.app.ui.viewmodel.ProductsManagement.ManageInventoryViewModelFactory
 import com.qrware.app.ui.viewmodel.QRCodeViewModelFactory
 
 import com.qrware.app.ui.viewmodel.UserManagament.EditUserViewModelFactory
-import com.qrware.app.ui.viewmodel.ManageProductsViewModelFactory
+import com.qrware.app.ui.viewmodel.ProductsManagement.ManageProductsViewModelFactory
 import com.qrware.app.ui.viewmodel.UserManagament.ListUsersViewModelFactory
 import com.qrware.app.ui.viewmodel.UserManagament.ManagePermissionsViewModelFactory
 import com.qrware.app.ui.viewmodel.UserManagament.ManageRolesViewModelFactory

@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,6 +34,7 @@ fun ManageLocationsScreen(
         factory = appContainer.manageLocationsViewModelFactory
     )
     val uiState by viewModel.uiState.collectAsState()
+    var searchQuery by remember { mutableStateOf("") }
 
     LaunchedEffect(uiState.error, uiState.successMessage) {
         if (uiState.error != null || uiState.successMessage != null) {
@@ -73,6 +75,21 @@ fun ManageLocationsScreen(
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp)
         ) {
+            // --- WYSZUKIWANIE ---
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { 
+                    searchQuery = it
+                    viewModel.searchLocations(it)
+                },
+                label = { Text("Szukaj lokalizacji...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                singleLine = true
+            )
+            
             // --- FILTRY ---
             StatusFilterRow(
                 selectedFilter = uiState.activeFilter,

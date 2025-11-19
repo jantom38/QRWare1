@@ -1,4 +1,4 @@
-package com.qrware.app.ui.viewmodel
+package com.qrware.app.ui.viewmodel.ProductsManagement
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

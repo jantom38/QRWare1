@@ -13,7 +13,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.qrware.app.ui.viewmodel.AddProductViewModel
+import com.qrware.app.ui.viewmodel.ProductsManagement.AddProductViewModel
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)

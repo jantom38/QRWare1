@@ -1,4 +1,4 @@
-package com.qrware.app.ui.viewmodel
+package com.qrware.app.ui.viewmodel.ProductsManagement
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,7 +13,7 @@ class ManageProductsViewModel(
     private val productRepository: ProductRepository
 ) : ViewModel() {
 
-    // ZMIANA: Domyślnie filtrujemy po 'Aktywne' (true)
+    // Domyślnie filtrujemy po 'Aktywne' (true)
     private val _uiState = MutableStateFlow(ProductListUiState(activeFilter = true))
     val uiState: StateFlow<ProductListUiState> = _uiState.asStateFlow()
 
@@ -22,17 +22,15 @@ class ManageProductsViewModel(
         loadProducts(active = _uiState.value.activeFilter)
     }
 
-    // ZMIANA: Funkcja ładująca produkty przyjmuje i przekazuje filtr
+    // Funkcja ładująca produkty (paginacja)
     fun loadProducts(
         page: Int = 0,
         size: Int = 20,
-        active: Boolean? = _uiState.value.activeFilter // Pobierz bieżący filtr
+        active: Boolean? = _uiState.value.activeFilter
     ) {
         viewModelScope.launch {
-            // ZMIANA: Zapisz stan filtra przy ładowaniu
             _uiState.value = _uiState.value.copy(isLoading = true, error = null, activeFilter = active)
             try {
-                // ZMIANA: Przekazujemy filtr 'active' do repozytorium
                 val response = productRepository.getAllProducts(page, size, "id,asc", active)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
@@ -49,14 +47,39 @@ class ManageProductsViewModel(
         }
     }
 
-    // --- NOWA FUNKCJA DO FILTROWANIA ---
-    /**
-     * Wywoływana po kliknięciu kafelka filtra.
-     * Ładuje pierwszą stronę przefiltrowanych danych.
-     * 'null' oznacza "Wszystkie"
-     */
+    // --- NOWA FUNKCJA: WYSZUKIWARKA (Wzór: CategoryViewModel) ---
+    fun searchProducts(query: String) {
+        // Jeśli zapytanie jest puste, wracamy do standardowego widoku paginowanego
+        if (query.isBlank()) {
+            loadProducts(page = 0, active = _uiState.value.activeFilter)
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            try {
+                // Używamy metody searchProducts z repozytorium
+                val results = productRepository.searchProducts(query)
+
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    products = results,
+                    // Wyszukiwarka w repozytorium zwraca Listę, a nie stronę.
+                    // Ustawiamy totalPages na 1, aby ukryć lub zablokować paginację w UI.
+                    totalPages = 1,
+                    currentPage = 0
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message ?: "Błąd podczas wyszukiwania"
+                )
+            }
+        }
+    }
+
+    // --- FILTROWANIE ---
     fun filterByActiveStatus(active: Boolean?) {
-        // Załaduj od nowa tylko jeśli filtr się zmienił
         if (active != _uiState.value.activeFilter) {
             loadProducts(page = 0, active = active)
         }
@@ -66,7 +89,6 @@ class ManageProductsViewModel(
         viewModelScope.launch {
             try {
                 productRepository.deleteProduct(productId)
-                // ZMIANA: Odśwież listę z bieżącym filtrem
                 loadProducts(
                     page = _uiState.value.currentPage,
                     active = _uiState.value.activeFilter
@@ -91,7 +113,6 @@ class ManageProductsViewModel(
 
     fun nextPage() {
         if (_uiState.value.currentPage < _uiState.value.totalPages - 1) {
-            // ZMIANA: Przekaż filtr
             loadProducts(
                 page = _uiState.value.currentPage + 1,
                 active = _uiState.value.activeFilter
@@ -101,7 +122,6 @@ class ManageProductsViewModel(
 
     fun previousPage() {
         if (_uiState.value.currentPage > 0) {
-            // ZMIANA: Przekaż filtr
             loadProducts(
                 page = _uiState.value.currentPage - 1,
                 active = _uiState.value.activeFilter
@@ -117,5 +137,5 @@ data class ProductListUiState(
     val successMessage: String? = null,
     val currentPage: Int = 0,
     val totalPages: Int = 0,
-    val activeFilter: Boolean? = true // <-- DODANE POLE STANU (domyślnie true)
+    val activeFilter: Boolean? = true
 )

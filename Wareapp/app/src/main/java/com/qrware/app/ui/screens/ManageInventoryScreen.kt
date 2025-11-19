@@ -1,8 +1,5 @@
 package com.qrware.app.ui.screens
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -10,12 +7,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.Clear // Dodano
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.Search // Dodano
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,11 +21,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.qrware.app.data.dto.InventoryItemDTO // <-- ZMIANA IMPORTU
+import com.qrware.app.data.dto.InventoryItemDTO
 import com.qrware.app.data.model.InventoryStatus
 import com.qrware.app.di.AppContainer
-import com.qrware.app.ui.viewmodel.ManageInventoryViewModel
-import java.math.BigDecimal
+import com.qrware.app.ui.viewmodel.ProductsManagement.ManageInventoryViewModel
+import kotlinx.coroutines.delay
 import kotlin.Int
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,9 +39,12 @@ fun ManageInventoryScreen(
     )
     val uiState by viewModel.uiState.collectAsState()
 
+    // Stan lokalny dla pola tekstowego wyszukiwarki
+    var searchQuery by remember { mutableStateOf("") }
+
     LaunchedEffect(uiState.error, uiState.successMessage) {
         if (uiState.error != null || uiState.successMessage != null) {
-            kotlinx.coroutines.delay(3000)
+            delay(3000)
             viewModel.clearMessages()
         }
     }
@@ -58,7 +59,10 @@ fun ManageInventoryScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { viewModel.loadInventoryItems() }) {
+                    IconButton(onClick = {
+                        searchQuery = "" // Reset pola wyszukiwania
+                        viewModel.loadInventoryItems()
+                    }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Odśwież")
                     }
                 }
@@ -69,20 +73,51 @@ fun ManageInventoryScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
         ) {
-            // Filtry statusu
-            StatusFilterRow(
-                onStatusSelected = { status ->
-                    if (status != null) {
-                        viewModel.filterByStatus(status)
-                    } else {
-                        viewModel.loadInventoryItems()
+            // --- WYSZUKIWARKA ---
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { query ->
+                    searchQuery = query
+                    viewModel.searchInventory(query)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                placeholder = { Text("Szukaj po produkcie, SKU lub lokalizacji...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = {
+                            searchQuery = ""
+                            viewModel.searchInventory("") // Przywraca domyślną listę
+                        }) {
+                            Icon(Icons.Default.Clear, contentDescription = "Wyczyść")
+                        }
                     }
-                }
+                },
+                singleLine = true
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // --- FILTRY STATUSU ---
+            // Pokazujemy tylko, gdy NIE trwa wyszukiwanie
+            if (searchQuery.isEmpty()) {
+                StatusFilterRow(
+                    onStatusSelected = { status ->
+                        if (status != null) {
+                            viewModel.filterByStatus(status)
+                        } else {
+                            viewModel.loadInventoryItems()
+                        }
+                    }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            } else {
+                Spacer(modifier = Modifier.height(8.dp))
+            }
 
             // Komunikaty błędów/sukcesu
             uiState.error?.let { error ->
@@ -124,9 +159,8 @@ fun ManageInventoryScreen(
             } else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.weight(1f) // Dodaj wagę, aby paginacja była na dole
+                    modifier = Modifier.weight(1f)
                 ) {
-                    // uiState.inventoryItems to teraz List<InventoryItemDTO>
                     items(uiState.inventoryItems) { item ->
                         InventoryItemCard(
                             item = item,
@@ -147,11 +181,12 @@ fun ManageInventoryScreen(
                 }
 
                 // Paginacja
-                if (uiState.totalPages > 1) {
+                // Pokazujemy tylko gdy stron > 1 ORAZ nie trwa wyszukiwanie
+                if (uiState.totalPages > 1 && searchQuery.isEmpty()) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 16.dp), // Zmiana z padding(16.dp)
+                            .padding(top = 16.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -186,14 +221,14 @@ fun StatusFilterRow(onStatusSelected: (InventoryStatus?) -> Unit) {
             FilterChip(
                 onClick = { onStatusSelected(null) },
                 label = { Text("Wszystkie") },
-                selected = false // Możesz dodać logikę do śledzenia wybranego
+                selected = false
             )
         }
         items(InventoryStatus.values()) { status ->
             FilterChip(
                 onClick = { onStatusSelected(status) },
                 label = { Text(status.name) },
-                selected = false // Możesz dodać logikę do śledzenia wybranego
+                selected = false
             )
         }
     }
@@ -205,7 +240,7 @@ fun InventoryItemCard(
     onReceiveStock: (Int, String?) -> Unit,
     onIssueStock: (Int, String?) -> Unit,
     onDeleteItem: () -> Unit,
-    onGenerateQRItem: () -> Unit // Dodany parametr dla generowania QR
+    onGenerateQRItem: () -> Unit
 ) {
     var showQuantityDialog by remember { mutableStateOf(false) }
     var isReceiving by remember { mutableStateOf(true) }
@@ -223,16 +258,16 @@ fun InventoryItemCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = item.product.name, // Dostęp do ProductDTO
+                        text = item.product.name,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "SKU: ${item.product.sku}", // Dostęp do ProductDTO
+                        text = "SKU: ${item.product.sku}",
                         style = MaterialTheme.typography.bodySmall
                     )
                     Text(
-                        text = "Lokalizacja: ${item.location.name}", // Dostęp do LocationDTO
+                        text = "Lokalizacja: ${item.location.name}",
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -255,7 +290,7 @@ fun InventoryItemCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Dodatkowe informacje w kompaktowym formacie
+            // Dodatkowe informacje
             if (item.serialNumber != null) {
                 Text(
                     text = "S/N: ${item.serialNumber}",
@@ -281,7 +316,7 @@ fun InventoryItemCard(
                 Text(
                     text = "🗓️ Wygasa: ${item.expiryDate}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (item.expiryDate < java.time.LocalDate.now().toString()) 
+                    color = if (item.expiryDate < java.time.LocalDate.now().toString())
                         MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline
                 )
             }
@@ -429,7 +464,7 @@ fun QuantityDialog(
                         val qty = quantity.toInt()
                         onConfirm(qty, reason.takeIf { it.isNotBlank() })
                     } catch (e: NumberFormatException) {
-                        // Handle error (np. pokaż błąd walidacji)
+                        // Obsługa błędu
                     }
                 },
                 enabled = quantity.isNotBlank() && quantity.toIntOrNull() != null

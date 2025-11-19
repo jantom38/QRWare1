@@ -22,6 +22,7 @@ import com.qrware.app.ui.screens.UserManagement.ManagePermissionsScreen
 import com.qrware.app.ui.screens.UserManagement.ManageRolesScreen
 import com.qrware.app.ui.screens.UserManagement.ManageUsersScreen
 import com.qrware.app.ui.viewmodel.*
+import com.qrware.app.ui.viewmodel.ProductsManagement.AddProductViewModel
 import com.qrware.app.ui.viewmodel.UserManagament.AddUserViewModel
 import com.qrware.app.ui.viewmodel.UserManagament.EditUserViewModel
 import com.qrware.app.ui.viewmodel.UserManagament.ListUsersViewModel

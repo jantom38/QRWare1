@@ -7,11 +7,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear // Dodano
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit // Upewnij się, że ten import jest
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search // Dodano
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,10 +24,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.qrware.app.data.dto.ProductDTO
 import com.qrware.app.di.AppContainer
-import com.qrware.app.ui.viewmodel.ManageProductsViewModel
+import com.qrware.app.ui.viewmodel.ProductsManagement.ManageProductsViewModel
 import kotlinx.coroutines.delay
-
-// import java.math.BigDecimal // Już niepotrzebny
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,8 +38,8 @@ fun ManageProductsScreen(
     )
     val uiState by viewModel.uiState.collectAsState()
 
-    // Usunięte: 'showEditDialog' i 'selectedProduct',
-    // ponieważ nawigujemy do nowego ekranu.
+    // Stan lokalny dla pola tekstowego wyszukiwarki
+    var searchQuery by remember { mutableStateOf("") }
 
     LaunchedEffect(uiState.error, uiState.successMessage) {
         if (uiState.error != null || uiState.successMessage != null) {
@@ -58,7 +58,11 @@ fun ManageProductsScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { viewModel.loadProducts() }) {
+                    IconButton(onClick = {
+                        // Resetujemy wyszukiwanie przy odświeżaniu
+                        searchQuery = ""
+                        viewModel.loadProducts()
+                    }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Odśwież")
                     }
                 }
@@ -80,14 +84,45 @@ fun ManageProductsScreen(
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp)
         ) {
-            // --- FILTRY ---
-            StatusFilterRow(
-                selectedFilter = uiState.activeFilter,
-                onFilterSelected = { activeStatus ->
-                    viewModel.filterByActiveStatus(activeStatus)
+            // --- WYSZUKIWARKA ---
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { query ->
+                    searchQuery = query
+                    viewModel.searchProducts(query)
                 },
-                modifier = Modifier.padding(vertical = 8.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp), // Odstęp od góry
+                placeholder = { Text("Szukaj produktu po nazwie...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = {
+                            searchQuery = ""
+                            viewModel.searchProducts("") // Przywraca listę domyślną
+                        }) {
+                            Icon(Icons.Default.Clear, contentDescription = "Wyczyść")
+                        }
+                    }
+                },
+                singleLine = true
             )
+
+            // --- FILTRY ---
+            // Pokazujemy filtry statusu tylko wtedy, gdy NIE wyszukujemy
+            // (bo endpoint wyszukiwania zazwyczaj ignoruje flagę active lub zwraca wszystko)
+            if (searchQuery.isEmpty()) {
+                StatusFilterRow(
+                    selectedFilter = uiState.activeFilter,
+                    onFilterSelected = { activeStatus ->
+                        viewModel.filterByActiveStatus(activeStatus)
+                    },
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            } else {
+                Spacer(modifier = Modifier.height(8.dp))
+            }
             // --- KONIEC FILTRÓW ---
 
             // Komunikaty błędów/sukcesu
@@ -156,7 +191,8 @@ fun ManageProductsScreen(
                 }
 
                 // Paginacja
-                if (uiState.totalPages > 1) {
+                // Pokazujemy tylko jeśli jest więcej niż 1 strona I nie trwa wyszukiwanie
+                if (uiState.totalPages > 1 && searchQuery.isEmpty()) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -222,14 +258,13 @@ fun StatusFilterRow(
     }
 }
 
-
 @Composable
 fun ProductCard(
     product: ProductDTO,
     onDeleteItem: () -> Unit,
     onEditItem: () -> Unit,
     onGenerateQRItem: () -> Unit,
-    onAddToInventory: () -> Unit // Dodany parametr dla dodania do magazynu
+    onAddToInventory: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),

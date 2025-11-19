@@ -1,9 +1,9 @@
 package com.qrware.app.data.repository
 
-import com.qrware.app.data.model.*
 import com.qrware.app.data.dto.InventoryItemDTO
+import com.qrware.app.data.model.*
 import com.qrware.app.data.remote.ApiService
-import retrofit2.Response // Potrzebne dla delete
+import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -11,50 +11,55 @@ import javax.inject.Singleton
 class InventoryRepository @Inject constructor(
     private val apiService: ApiService
 ) {
-    /**
-     * ZMIANA: Zwracamy PaginatedResponse<...> bezpośrednio
-     */
     suspend fun getAllInventoryItems(
         page: Int = 0,
         size: Int = 20,
         sort: String = "id,asc"
-    ): PaginatedResponse<InventoryItemDTO> { // <-- ZMIANA
+    ): PaginatedResponse<InventoryItemDTO> {
         return apiService.getAllInventoryItems(page, size, sort)
     }
 
-    suspend fun getInventoryItemById(itemId: Long): InventoryItemDTO { // <-- ZMIANA
+    // --- NOWA METODA WYSZUKIWANIA ---
+    // Upewnij się, że masz tę metodę w ApiService:
+    // @GET("inventory/search") suspend fun searchInventory(@Query("query") query: String): List<InventoryItemDTO>
+    suspend fun searchInventory(query: String): List<InventoryItemDTO> {
+        return apiService.searchInventory(query)
+    }
+    // -------------------------------
+
+    suspend fun getInventoryItemById(itemId: Long): InventoryItemDTO {
         return apiService.getInventoryItemById(itemId)
     }
 
-    suspend fun getInventoryByProduct(productId: Long): List<InventoryItemDTO> { // <-- ZMIANA
+    suspend fun getInventoryByProduct(productId: Long): List<InventoryItemDTO> {
         return apiService.getInventoryByProduct(productId)
     }
 
-    suspend fun getInventoryByLocation(locationId: Long): List<InventoryItemDTO> { // <-- ZMIANA
+    suspend fun getInventoryByLocation(locationId: Long): List<InventoryItemDTO> {
         return apiService.getInventoryByLocation(locationId)
     }
 
-    suspend fun getInventoryByStatus(status: InventoryStatus): List<InventoryItemDTO> { // <-- ZMIANA
+    suspend fun getInventoryByStatus(status: InventoryStatus): List<InventoryItemDTO> {
         return apiService.getInventoryByStatus(status)
     }
 
-    suspend fun createInventoryItem(request: CreateInventoryRequest): InventoryItemDTO { // <-- ZMIANA
+    suspend fun createInventoryItem(request: CreateInventoryRequest): InventoryItemDTO {
         return apiService.createInventoryItem(request)
     }
 
-    suspend fun updateInventoryItem(itemId: Long, request: UpdateInventoryRequest): InventoryItemDTO { // <-- ZMIANA
+    suspend fun updateInventoryItem(itemId: Long, request: UpdateInventoryRequest): InventoryItemDTO {
         return apiService.updateInventoryItem(itemId, request)
     }
 
-    suspend fun deleteInventoryItem(itemId: Long): Response<Unit> { // <-- ZMIANA
+    suspend fun deleteInventoryItem(itemId: Long): Response<Unit> {
         return apiService.deleteInventoryItem(itemId)
     }
 
-    suspend fun receiveStock(itemId: Long, request: QuantityUpdateRequest): InventoryItemDTO { // <-- ZMIANA
+    suspend fun receiveStock(itemId: Long, request: QuantityUpdateRequest): InventoryItemDTO {
         return apiService.receiveStock(itemId, request)
     }
 
-    suspend fun issueStock(itemId: Long, request: QuantityUpdateRequest): InventoryItemDTO { // <-- ZMIANA
+    suspend fun issueStock(itemId: Long, request: QuantityUpdateRequest): InventoryItemDTO {
         return apiService.issueStock(itemId, request)
     }
 }
