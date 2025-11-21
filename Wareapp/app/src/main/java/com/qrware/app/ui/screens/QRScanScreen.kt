@@ -78,7 +78,7 @@ fun QRScanScreen(
                 when (result.type) {
                     QRCodeType.PRODUCT -> {
                         // Zakładam, że masz taką ścieżkę w nawigacji
-                        navController.navigate("products/${result.entityId}")
+                        navController.navigate("product_details/${result.entityId}")
                     }
                     QRCodeType.LOCATION -> {
                         navController.navigate("locations/${result.entityId}")

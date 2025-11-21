@@ -1,5 +1,6 @@
 package com.qrware.app.ui.viewmodel.ProductsManagement
 
+import android.util.Log // Dodaj ten import
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qrware.app.data.dto.LocationDTO
@@ -49,9 +50,47 @@ class AddInventoryViewModel(
                     presetProduct = product
                 )
             } catch (e: Exception) {
+                Log.e("AddInventoryVM", "Error loading product", e)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = "Błąd ładowania danych produktu: ${e.message}"
+                )
+            }
+        }
+    }
+
+    // --- ZMIANA: Funkcja jest teraz publiczna (usunięto private) ---
+    fun loadLocations() {
+        viewModelScope.launch {
+            Log.d("AddInventoryVM", "Rozpoczynam ładowanie lokalizacji...")
+            _uiState.value = _uiState.value.copy(locationsLoading = true)
+            try {
+                val paginatedResponse = locationRepository.getLocations(
+                    page = 0,
+                    size = 1000,
+                    active = true // Pobieramy tylko aktywne
+                )
+
+                Log.d("AddInventoryVM", "Pobrano z API: ${paginatedResponse.content.size} lokalizacji")
+
+                // --- DIAGNOSTYKA: Zakomentuj filtr, jeśli lista jest pusta ---
+                // Oryginalny filtr:
+                // val locations = paginatedResponse.content.filter { it.receivable }
+
+                // Tymczasowo bierzemy wszystkie aktywne, aby sprawdzić czy API działa:
+                val locations = paginatedResponse.content
+
+                Log.d("AddInventoryVM", "Lokalizacje po filtrowaniu: ${locations.size}")
+
+                _uiState.value = _uiState.value.copy(
+                    locationsLoading = false,
+                    availableLocations = locations
+                )
+            } catch (e: Exception) {
+                Log.e("AddInventoryVM", "Błąd ładowania lokalizacji", e)
+                _uiState.value = _uiState.value.copy(
+                    locationsLoading = false,
+                    error = "Błąd ładowania lokalizacji: ${e.message}"
                 )
             }
         }
@@ -84,14 +123,13 @@ class AddInventoryViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                // Konwersja dat
-                val receivedLocalDate = receivedDate?.let { 
+                val receivedLocalDate = receivedDate?.let {
                     try { LocalDate.parse(it, DateTimeFormatter.ISO_LOCAL_DATE) } catch (e: Exception) { null }
                 }
-                val expiryLocalDate = expiryDate?.let { 
+                val expiryLocalDate = expiryDate?.let {
                     try { LocalDate.parse(it, DateTimeFormatter.ISO_LOCAL_DATE) } catch (e: Exception) { null }
                 }
-                val manufactureLocalDate = manufactureDate?.let { 
+                val manufactureLocalDate = manufactureDate?.let {
                     try { LocalDate.parse(it, DateTimeFormatter.ISO_LOCAL_DATE) } catch (e: Exception) { null }
                 }
 
@@ -122,12 +160,13 @@ class AddInventoryViewModel(
                 )
 
                 val newInventoryItem = inventoryRepository.createInventoryItem(request)
-                
+
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     successMessage = "Pozycja magazynowa została utworzona! ID: ${newInventoryItem.id}"
                 )
             } catch (e: Exception) {
+                Log.e("AddInventoryVM", "Błąd tworzenia itemu", e)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = "Błąd tworzenia pozycji magazynowej: ${e.message}"
@@ -143,33 +182,6 @@ class AddInventoryViewModel(
             lotNumber?.let { append("-LOT-$it") }
             batchNumber?.let { append("-BATCH-$it") }
             append("-$timestamp")
-        }
-    }
-
-    private fun loadLocations() {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(locationsLoading = true)
-            try {
-                // Ładujemy aktywne lokalizacje z dużym page size żeby dostać wszystkie
-                val paginatedResponse = locationRepository.getLocations(
-                    page = 0, 
-                    size = 1000, // Duży rozmiar żeby dostać wszystkie lokalizacje
-                    active = true // Tylko aktywne
-                )
-                
-                // Filtrujemy tylko te nadające się do przyjęć
-                val locations = paginatedResponse.content.filter { it.receivable }
-                
-                _uiState.value = _uiState.value.copy(
-                    locationsLoading = false,
-                    availableLocations = locations
-                )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    locationsLoading = false,
-                    error = "Błąd ładowania lokalizacji: ${e.message}"
-                )
-            }
         }
     }
 

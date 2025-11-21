@@ -7,13 +7,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Clear // Dodano
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Search // Dodano
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -110,8 +110,6 @@ fun ManageProductsScreen(
             )
 
             // --- FILTRY ---
-            // Pokazujemy filtry statusu tylko wtedy, gdy NIE wyszukujemy
-            // (bo endpoint wyszukiwania zazwyczaj ignoruje flagę active lub zwraca wszystko)
             if (searchQuery.isEmpty()) {
                 StatusFilterRow(
                     selectedFilter = uiState.activeFilter,
@@ -123,7 +121,6 @@ fun ManageProductsScreen(
             } else {
                 Spacer(modifier = Modifier.height(8.dp))
             }
-            // --- KONIEC FILTRÓW ---
 
             // Komunikaty błędów/sukcesu
             uiState.error?.let { error ->
@@ -174,6 +171,10 @@ fun ManageProductsScreen(
                     items(uiState.products) { product ->
                         ProductCard(
                             product = product,
+                            // --- NOWOŚĆ: KLIKNIĘCIE W KARTĘ ---
+                            onCardClick = {
+                                navController.navigate("product_details/${product.id}")
+                            },
                             onDeleteItem = {
                                 viewModel.deleteProduct(product.id)
                             },
@@ -191,7 +192,6 @@ fun ManageProductsScreen(
                 }
 
                 // Paginacja
-                // Pokazujemy tylko jeśli jest więcej niż 1 strona I nie trwa wyszukiwanie
                 if (uiState.totalPages > 1 && searchQuery.isEmpty()) {
                     Row(
                         modifier = Modifier
@@ -222,7 +222,7 @@ fun ManageProductsScreen(
     }
 }
 
-// --- COMPOSABLE DLA FILTRÓW (Bez zmian) ---
+// --- FILTRY ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatusFilterRow(
@@ -236,21 +236,21 @@ fun StatusFilterRow(
     ) {
         item {
             FilterChip(
-                selected = selectedFilter == true, // Aktywne
+                selected = selectedFilter == true,
                 onClick = { onFilterSelected(true) },
                 label = { Text("Aktywne") }
             )
         }
         item {
             FilterChip(
-                selected = selectedFilter == false, // Nieaktywne
+                selected = selectedFilter == false,
                 onClick = { onFilterSelected(false) },
                 label = { Text("Nieaktywne") }
             )
         }
         item {
             FilterChip(
-                selected = selectedFilter == null, // Wszystkie
+                selected = selectedFilter == null,
                 onClick = { onFilterSelected(null) },
                 label = { Text("Wszystkie") }
             )
@@ -258,15 +258,18 @@ fun StatusFilterRow(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class) // Wymagane dla Card z onClick w niektórych wersjach
 @Composable
 fun ProductCard(
     product: ProductDTO,
+    onCardClick: () -> Unit, // --- NOWOŚĆ: Callback kliknięcia ---
     onDeleteItem: () -> Unit,
     onEditItem: () -> Unit,
     onGenerateQRItem: () -> Unit,
     onAddToInventory: () -> Unit
 ) {
     Card(
+        onClick = onCardClick, // --- NOWOŚĆ: Przypisanie akcji ---
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -315,6 +318,7 @@ fun ProductCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Przyciski akcji
             Row(
                 horizontalArrangement = Arrangement.End,
                 modifier = Modifier.fillMaxWidth()

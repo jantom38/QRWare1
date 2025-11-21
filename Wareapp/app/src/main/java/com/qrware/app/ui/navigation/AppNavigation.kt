@@ -14,6 +14,7 @@ import com.qrware.app.ui.screens.LocationManagement.ManageLocationsScreen
 import com.qrware.app.ui.screens.ProductManagement.AddProductScreen
 import com.qrware.app.ui.screens.ProductManagement.EditProductScreen
 import com.qrware.app.ui.screens.ProductManagement.ManageProductsScreen
+import com.qrware.app.ui.screens.ProductManagement.ProductDetailsScreen
 import com.qrware.app.ui.screens.UserManagement.AddUserScreen
 import com.qrware.app.ui.screens.UserManagement.AdminRoutes
 import com.qrware.app.ui.screens.UserManagement.EditUserScreen
@@ -220,6 +221,18 @@ fun AppNavigation(appContainer: AppContainer) {
                     appContainer = appContainer,
                     initialType = qrType,
                     initialEntityId = entityId
+                )
+            }
+
+            composable(
+                route = "product_details/{productId}",
+                arguments = listOf(navArgument("productId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val productId = backStackEntry.arguments?.getLong("productId") ?: 0L
+                ProductDetailsScreen(
+                    navController = navController,
+                    appContainer = appContainer,
+                    productId = productId
                 )
             }
 
