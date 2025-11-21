@@ -18,6 +18,7 @@ data class ListUsersUiState(
     val currentPage: Int = 0,
     val totalPages: Int = 0,
     val canLoadMore: Boolean = false,
+    val searchQuery: String = "",
     // Pola do obsługi dialogu usuwania
     val showDeleteDialog: Boolean = false,
     val userToDelete: AdminUserResponse? = null
@@ -37,19 +38,20 @@ class ListUsersViewModel(
     }
 
     fun loadUsers(page: Int) {
-        // ZMIANA: Usunięto błędny warunek 'if (_uiState.value.isLoading) return'
-        // Pozwala to na wykonanie wywołania z bloku 'init'
-
         viewModelScope.launch {
-            // Ustaw stan ładowania (szczególnie ważne przy paginacji)
             _uiState.update { it.copy(isLoading = true, error = null) }
 
-            repository.getAllUsers(page = page, size = 20)
-                .onSuccess { response ->
+            val currentQuery = _uiState.value.searchQuery
+            val result = if (currentQuery.isBlank()) {
+                repository.getAllUsers(page = page, size = 20)
+            } else {
+                repository.searchUsers(query = currentQuery, page = page, size = 20)
+            }
+
+            result.onSuccess { response ->
                     _uiState.update { currentState ->
                         currentState.copy(
                             isLoading = false,
-                            // Jeśli page == 0, zastąp listę, inaczej dodaj do listy
                             users = if (page == 0) response.content else currentState.users + response.content,
                             currentPage = response.number,
                             totalPages = response.totalPages,
@@ -77,6 +79,14 @@ class ListUsersViewModel(
         if (!currentState.isLoading && currentState.canLoadMore) {
             loadUsers(page = currentState.currentPage + 1)
         }
+    }
+
+    /**
+     * Wyszukuje użytkowników na podstawie zapytania.
+     */
+    fun searchUsers(query: String) {
+        _uiState.update { it.copy(searchQuery = query, users = emptyList(), currentPage = 0, totalPages = 0) }
+        loadUsers(page = 0)
     }
 
     /**

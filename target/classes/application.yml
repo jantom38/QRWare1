@@ -72,6 +72,18 @@ qrcode:
   format: PNG
   error-correction: M
 
+# File Storage Configuration
+file:
+  storage:
+    upload-dir: uploads
+    qr-code-dir: qr-codes
+    max-file-size: 10485760 # 10MB
+    allowed-extensions:
+      - png
+      - jpg
+      - jpeg
+      - svg
+
 # Application Configuration
 app:
   name: QRWare Warehouse Management System

@@ -49,6 +49,15 @@ data class GenerateQRRequest(
     val generationReason: String? = null
 )
 
+data class GenerateQRImageRequest(
+    val data: String,
+    val type: QRCodeType,
+    val entityType: String? = null,
+    val entityId: Long? = null,
+    val generatedBy: String? = null,
+    val generationReason: String? = null
+)
+
 data class UpdateQRRequest(
     val data: String? = null,
     val metadata: String? = null,

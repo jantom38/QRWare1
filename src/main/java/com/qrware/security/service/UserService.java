@@ -54,6 +54,18 @@ public class UserService {
     }
 
     /**
+     * Wyszukuje użytkowników na podstawie zapytania.
+     */
+    @Transactional(readOnly = true)
+    public Page<User> searchUsers(String query, Pageable pageable) {
+        if (query == null || query.trim().isEmpty()) {
+            return getAllUsers(pageable);
+        }
+        logger.debug("Wyszukiwanie użytkowników dla zapytania: '{}', strona: {}, rozmiar: {}", query, pageable.getPageNumber(), pageable.getPageSize());
+        return userRepository.searchUsers(query.trim(), pageable);
+    }
+
+    /**
      * Znajduje użytkownika po ID.
      */
     @Transactional(readOnly = true)

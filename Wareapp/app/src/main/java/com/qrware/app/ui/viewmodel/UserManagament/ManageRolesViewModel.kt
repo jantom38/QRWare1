@@ -19,6 +19,8 @@ data class ManageRolesUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val roles: List<RoleResponse> = emptyList(),
+    val allRoles: List<RoleResponse> = emptyList(),
+    val searchQuery: String = "",
     val allPermissions: List<PermissionResponse> = emptyList(), // Potrzebne do okna edycji
     val showDialog: DialogState = DialogState.None
 )
@@ -69,7 +71,8 @@ class ManageRolesViewModel(private val repository: UserManagementRepository) : V
             _uiState.update {
                 it.copy(
                     isLoading = false,
-                    roles = finalRoles,
+                    roles = filterRoles(finalRoles, it.searchQuery),
+                    allRoles = finalRoles,
                     allPermissions = finalPerms,
                     error = errorMessage
                 )
@@ -91,6 +94,26 @@ class ManageRolesViewModel(private val repository: UserManagementRepository) : V
 
     fun dismissDialog() {
         _uiState.update { it.copy(showDialog = DialogState.None) }
+    }
+
+    fun searchRoles(query: String) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                searchQuery = query,
+                roles = filterRoles(currentState.allRoles, query)
+            )
+        }
+    }
+
+    private fun filterRoles(roles: List<RoleResponse>, query: String): List<RoleResponse> {
+        if (query.isBlank()) return roles
+        
+        val lowerQuery = query.lowercase()
+        return roles.filter {
+            it.name.lowercase().contains(lowerQuery) ||
+            it.description?.lowercase()?.contains(lowerQuery) == true ||
+            it.permissions.any { permission -> permission.lowercase().contains(lowerQuery) }
+        }
     }
 
     fun saveRole(request: RoleRequest, roleId: Long? = null) {

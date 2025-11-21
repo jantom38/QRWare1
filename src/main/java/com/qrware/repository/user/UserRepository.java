@@ -2,6 +2,8 @@ package com.qrware.repository.user;
 
 import com.qrware.domain.user.User;
 import com.qrware.repository.BaseRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -207,6 +209,16 @@ public interface UserRepository extends BaseRepository<User> {
      */
     @Query("SELECT u FROM User u WHERE u.emailVerified = false AND u.createdAt < :expirationDate")
     List<User> findUsersWithExpiredEmailVerification(@Param("expirationDate") LocalDateTime expirationDate);
+
+    /**
+     * Search users by username, email, first name, or last name
+     */
+    @Query("SELECT u FROM User u WHERE " +
+           "LOWER(u.username) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "LOWER(u.email) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "LOWER(u.firstName) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "LOWER(u.lastName) LIKE LOWER(CONCAT('%', :query, '%'))")
+    Page<User> searchUsers(@Param("query") String query, Pageable pageable);
 
     /**
      * Get user statistics

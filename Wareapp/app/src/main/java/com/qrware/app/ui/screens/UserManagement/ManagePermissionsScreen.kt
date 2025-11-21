@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -70,17 +71,33 @@ fun ManagePermissionsScreen(
                     Text("Brak uprawnień do wyświetlenia.")
                 }
                 else -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(uiState.permissions, key = { it.id }) { permission ->
-                            PermissionListItem(
-                                permission = permission,
-                                onEditClick = { viewModel.requestEditPermission(permission) },
-                                onDeleteClick = { viewModel.requestDeletePermission(permission) }
-                            )
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        // Pole wyszukiwania
+                        OutlinedTextField(
+                            value = uiState.searchQuery,
+                            onValueChange = { viewModel.searchPermissions(it) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            placeholder = { Text("Szukaj uprawnień...") },
+                            leadingIcon = {
+                                Icon(Icons.Default.Search, contentDescription = "Szukaj")
+                            },
+                            singleLine = true
+                        )
+
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(uiState.permissions, key = { it.id }) { permission ->
+                                PermissionListItem(
+                                    permission = permission,
+                                    onEditClick = { viewModel.requestEditPermission(permission) },
+                                    onDeleteClick = { viewModel.requestDeletePermission(permission) }
+                                )
+                            }
                         }
                     }
                 }

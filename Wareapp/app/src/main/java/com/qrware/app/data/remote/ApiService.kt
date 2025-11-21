@@ -5,7 +5,6 @@ import com.qrware.app.data.dto.*
 import retrofit2.Response
 import retrofit2.http.*
 
-// ... (AuthService i reszta interfejsów bez zmian) ...
 interface AuthService {
     @POST("/api/auth/login")
     suspend fun login(@Body request: LoginRequest): Response<ApiResponse<AuthenticationResponse>>
@@ -29,6 +28,14 @@ interface ApiService {
 
     @GET("api/users/{id}")
     suspend fun getUserById(@Path("id") userId: Long): ApiResponse<AdminUserResponse>
+
+    @GET("api/users/search")
+    suspend fun searchUsers(
+        @Query("query") query: String,
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 20,
+        @Query("sort") sort: String = "id,asc"
+    ): ApiResponse<PaginatedResponse<AdminUserResponse>>
 
     @PUT("api/users/{id}")
     suspend fun updateUser(
@@ -83,7 +90,7 @@ interface ApiService {
     suspend fun deletePermission(@Path("id") permissionId: Long): ApiResponse<Unit>
 
 
-    // --- ENDPOINTY INVENTORY (Poprawione) ---
+    // --- ENDPOINTY INVENTORY (Poprawione i Uzupełnione) ---
 
     @GET("api/inventory")
     suspend fun getAllInventoryItems(
@@ -91,6 +98,11 @@ interface ApiService {
         @Query("size") size: Int = 20,
         @Query("sort") sort: String = "id,asc"
     ): PaginatedResponse<InventoryItemDTO>
+
+    // --- DODANO BRAKUJĄCY ENDPOINT WYSZUKIWANIA ---
+    @GET("api/inventory/search")
+    suspend fun searchInventory(@Query("query") query: String): List<InventoryItemDTO>
+    // -----------------------------------------------
 
     @GET("api/inventory/{id}")
     suspend fun getInventoryItemById(@Path("id") itemId: Long): InventoryItemDTO
@@ -214,43 +226,43 @@ interface ApiService {
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20,
         @Query("sort") sort: String = "id,desc"
-    ): PaginatedResponse<QRCodeData> // <-- POPRAWKA
+    ): PaginatedResponse<QRCodeData>
 
     @GET("api/qr-codes/{id}")
-    suspend fun getQRCodeById(@Path("id") qrCodeId: Long): QRCodeData // <-- POPRAWKA
+    suspend fun getQRCodeById(@Path("id") qrCodeId: Long): QRCodeData
 
     @GET("api/qr-codes/code/{code}")
-    suspend fun scanQRCode(@Path("code") code: String): QRCodeData // <-- POPRAWKA
+    suspend fun scanQRCode(@Path("code") code: String): QRCodeData
 
     @GET("api/qr-codes/entity/{entityType}/{entityId}")
     suspend fun getQRCodeByEntity(
         @Path("entityType") entityType: String,
         @Path("entityId") entityId: Long
-    ): QRCodeData // <-- POPRAWKA
+    ): QRCodeData
 
     @GET("api/qr-codes/active")
-    suspend fun getActiveQRCodes(): List<QRCodeData> // <-- POPRAWKA
+    suspend fun getActiveQRCodes(): List<QRCodeData>
 
     @GET("api/qr-codes/type/{type}")
-    suspend fun getQRCodesByType(@Path("type") type: QRCodeType): List<QRCodeData> // <-- POPRAWKA
+    suspend fun getQRCodesByType(@Path("type") type: QRCodeType): List<QRCodeData>
 
     @POST("api/qr-codes/generate")
-    suspend fun generateQRCode(@Body request: GenerateQRRequest): QRCodeData // <-- POPRAWKA
+    suspend fun generateQRCode(@Body request: GenerateQRRequest): QRCodeData
 
     @PUT("api/qr-codes/{id}")
     suspend fun updateQRCode(
         @Path("id") qrCodeId: Long,
         @Body request: UpdateQRRequest
-    ): QRCodeData // <-- POPRAWKA
+    ): QRCodeData
 
     @DELETE("api/qr-codes/{id}")
-    suspend fun deleteQRCode(@Path("id") qrCodeId: Long): Response<Unit> // <-- POPRAWKA
+    suspend fun deleteQRCode(@Path("id") qrCodeId: Long): Response<Unit>
 
     @PATCH("api/qr-codes/{id}/toggle-active")
-    suspend fun toggleQRCodeActive(@Path("id") qrCodeId: Long): QRCodeData // <-- POPRAWKA
+    suspend fun toggleQRCodeActive(@Path("id") qrCodeId: Long): QRCodeData
 
     @GET("api/qr-codes/stats")
-    suspend fun getQRStats(): QRStatsResponse // <-- POPRAWKA
+    suspend fun getQRStats(): QRStatsResponse
 
 
 //Location obsługa
@@ -261,10 +273,18 @@ interface ApiService {
         @Query("size") size: Int = 20,
         @Query("sort") sort: String = "id,asc",
         @Query("active") active: Boolean? = null
-    ): PaginatedResponse<LocationDTO> // Wymaga istnienia PaginatedResponse
+    ): PaginatedResponse<LocationDTO>
 
     @GET("api/locations/{id}")
     suspend fun getLocationById(@Path("id") locationId: Long): LocationDTO
+
+    @GET("api/locations/search")
+    suspend fun searchLocations(
+        @Query("query") query: String,
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 20,
+        @Query("active") active: Boolean? = null
+    ): PaginatedResponse<LocationDTO>
 
     @POST("api/locations")
     suspend fun createLocation(@Body request: CreateLocationRequest): LocationDTO
@@ -297,6 +317,34 @@ interface TestService {
     suspend fun getProtectedEndpoint(): Response<Map<String, Any>>
     @GET("/api/test/admin")
     suspend fun getAdminEndpoint(): Response<Map<String, Any>>
+    // ==================== QR CODE ENDPOINTS ====================
+    
+    @GET("api/qr-codes")
+    suspend fun getAllQRCodes(
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 20,
+        @Query("sort") sort: String = "id,desc"
+    ): ApiResponse<PaginatedResponse<QRCodeData>>
+
+    @GET("api/qr-codes/{id}")
+    suspend fun getQRCodeById(@Path("id") qrCodeId: Long): ApiResponse<QRCodeData>
+
+    @POST("api/qr-codes/generate-with-image")
+    suspend fun generateQRCodeWithImage(
+        @Body request: GenerateQRImageRequest
+    ): ApiResponse<QRCodeData>
+
+    @POST("api/qr-codes/scan/{code}")
+    suspend fun recordScan(@Path("code") code: String): ApiResponse<Map<String, String>>
+
+    @GET("api/qr-codes/stats")
+    suspend fun getQRStats(): ApiResponse<QRStatsResponse>
+
+    @DELETE("api/qr-codes/{id}")
+    suspend fun deleteQRCode(@Path("id") qrCodeId: Long): ApiResponse<Unit>
+
+    @PATCH("api/qr-codes/{id}/toggle-active")
+    suspend fun toggleQRCodeActive(@Path("id") qrCodeId: Long): ApiResponse<QRCodeData>
 }
 
 interface HealthService {

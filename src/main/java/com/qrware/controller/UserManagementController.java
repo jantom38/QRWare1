@@ -328,6 +328,32 @@ public class UserManagementController {
     }
 
     /**
+     * Wyszukuje użytkowników na podstawie zapytania.
+     */
+    @GetMapping("/users/search")
+    public ResponseEntity<?> searchUsers(
+            @RequestParam("query") String query,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "id,asc") String[] sort) {
+        try {
+            Sort sortOrder = Sort.by(sort[0]).ascending();
+            if (sort.length > 1 && sort[1].equalsIgnoreCase("desc")) {
+                sortOrder = Sort.by(sort[0]).descending();
+            }
+            Pageable pageable = PageRequest.of(page, size, sortOrder);
+            Page<User> userPage = userService.searchUsers(query, pageable);
+
+            // Mapowanie na DTO
+            Page<AdminUserResponse> responsePage = userPage.map(AdminUserResponse::new);
+
+            return buildSuccessResponse(responsePage, "Znaleziono użytkowników dla zapytania: " + query, HttpStatus.OK);
+        } catch (Exception ex) {
+            return buildErrorResponse("Błąd podczas wyszukiwania użytkowników: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
      * Tworzy nowego użytkownika (przez administratora).
      */
     @PostMapping("/users")

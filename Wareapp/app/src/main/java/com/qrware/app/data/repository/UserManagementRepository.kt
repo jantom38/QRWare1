@@ -40,6 +40,26 @@ class UserManagementRepository(private val apiService: ApiService) {
         }
     }
 
+    suspend fun searchUsers(query: String, page: Int, size: Int): Result<PaginatedResponse<AdminUserResponse>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val apiResponse = apiService.searchUsers(query = query, page = page, size = size)
+                if (apiResponse.success && apiResponse.data != null) {
+                    Result.success(apiResponse.data)
+                } else {
+                    Log.w(TAG, "API zwróciło błąd przy wyszukiwaniu: ${apiResponse.message}")
+                    Result.failure(Exception(apiResponse.message))
+                }
+            } catch (e: IOException) {
+                Log.e(TAG, "Błąd sieci przy wyszukiwaniu: ${e.message}", e)
+                Result.failure(Exception("Błąd sieci. Sprawdź połączenie."))
+            } catch (e: Exception) {
+                Log.e(TAG, "Nieoczekiwany błąd przy wyszukiwaniu: ${e.message}", e)
+                Result.failure(e)
+            }
+        }
+    }
+
     /**
      * Pobiera szczegóły użytkownika po ID.
      */

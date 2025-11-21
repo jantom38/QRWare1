@@ -7,10 +7,15 @@ import com.qrware.dto.QRCodeDTO;
 import com.qrware.dto.DTOMapper;
 import com.qrware.repository.qr.QRCodeDataRepository;
 import com.qrware.exception.ResourceNotFoundException;
+import com.qrware.service.FileStorageService;
+import com.qrware.service.QRCodeGenerationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +24,7 @@ import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -32,6 +38,12 @@ public class QRCodeController {
 
     @Autowired
     private DTOMapper dtoMapper;
+
+    @Autowired
+    private FileStorageService fileStorageService;
+
+    @Autowired
+    private QRCodeGenerationService qrCodeGenerationService;
 
     // Pobierz wszystkie kody QR z paginacją
     @GetMapping
@@ -275,5 +287,107 @@ public class QRCodeController {
         public void setInactiveCodes(long inactiveCodes) { this.inactiveCodes = inactiveCodes; }
         public long getTotalScans() { return totalScans; }
         public void setTotalScans(long totalScans) { this.totalScans = totalScans; }
+    }
+
+    // ==================== ENDPOINTS DO OBSŁUGI PLIKÓW QR ====================
+
+    /**
+     * Pobiera obraz QR kodu
+     */
+    @GetMapping("/image/{fileName}")
+    public ResponseEntity<Resource> getQRCodeImage(@PathVariable String fileName) {
+        try {
+            Resource resource = fileStorageService.loadQRCodeAsResource(fileName);
+            
+            String contentType = "image/png";
+            if (fileName.toLowerCase().endsWith(".jpg") || fileName.toLowerCase().endsWith(".jpeg")) {
+                contentType = "image/jpeg";
+            } else if (fileName.toLowerCase().endsWith(".svg")) {
+                contentType = "image/svg+xml";
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"")
+                    .body(resource);
+                    
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * Generuje nowy QR kod z obrazem (nowa implementacja)
+     */
+    @PostMapping("/generate-with-image")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    public ResponseEntity<?> generateQRCodeWithImage(@RequestBody @Valid GenerateQRImageRequest request) {
+        try {
+            QRCodeData qrCode = qrCodeGenerationService.generateQRCodeSync(
+                    request.getData(),
+                    request.getType(),
+                    request.getEntityType(),
+                    request.getEntityId(),
+                    request.getGeneratedBy(),
+                    request.getGenerationReason()
+            );
+
+            QRCodeDTO dto = dtoMapper.toDTO(qrCode);
+            dto.setImagePath(fileStorageService.getFileUrl(qrCode.getImagePath()));
+            
+            return ResponseEntity.ok(dto);
+            
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Failed to generate QR code: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Rejestruje skanowanie QR kodu
+     */
+    @PostMapping("/scan/{code}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    public ResponseEntity<?> recordScan(@PathVariable String code) {
+        try {
+            qrCodeGenerationService.recordScan(code);
+            return ResponseEntity.ok(Map.of("message", "Scan recorded successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Failed to record scan: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Request class for QR generation with image
+     */
+    public static class GenerateQRImageRequest {
+        private String data;
+        private QRCodeType type;
+        private String entityType;
+        private Long entityId;
+        private String generatedBy;
+        private String generationReason;
+
+        // Gettery i settery
+        public String getData() { return data; }
+        public void setData(String data) { this.data = data; }
+        
+        public QRCodeType getType() { return type; }
+        public void setType(QRCodeType type) { this.type = type; }
+        
+        public String getEntityType() { return entityType; }
+        public void setEntityType(String entityType) { this.entityType = entityType; }
+        
+        public Long getEntityId() { return entityId; }
+        public void setEntityId(Long entityId) { this.entityId = entityId; }
+        
+        public String getGeneratedBy() { return generatedBy; }
+        public void setGeneratedBy(String generatedBy) { this.generatedBy = generatedBy; }
+        
+        public String getGenerationReason() { return generationReason; }
+        public void setGenerationReason(String generationReason) { this.generationReason = generationReason; }
     }
 }

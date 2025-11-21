@@ -19,9 +19,7 @@ class InventoryRepository @Inject constructor(
         return apiService.getAllInventoryItems(page, size, sort)
     }
 
-    // --- NOWA METODA WYSZUKIWANIA ---
-    // Upewnij się, że masz tę metodę w ApiService:
-    // @GET("inventory/search") suspend fun searchInventory(@Query("query") query: String): List<InventoryItemDTO>
+
     suspend fun searchInventory(query: String): List<InventoryItemDTO> {
         return apiService.searchInventory(query)
     }

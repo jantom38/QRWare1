@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -92,32 +93,48 @@ fun ListUsersScreen(
 
                 // 4. Stan sukcesu - wyświetlamy listę
                 else -> {
-                    LazyColumn(
-                        state = listState,
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(uiState.users, key = { it.id }) { user ->
-                            UserListItem(
-                                user = user,
-                                onClick = {
-                                    // ZMIANA: Nawigacja do ekranu edycji użytkownika
-                                    // TODO: Zastąp "admin_edit_user" właściwą ścieżką
-                                    navController.navigate("admin_edit_user/${user.id}")
-                                },
-                                // ZMIANA: Przekazanie akcji usuwania
-                                onDeleteClick = {
-                                    viewModel.requestDeleteUser(user)
-                                }
-                            )
-                        }
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        // Pole wyszukiwania
+                        OutlinedTextField(
+                            value = uiState.searchQuery,
+                            onValueChange = { viewModel.searchUsers(it) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            placeholder = { Text("Szukaj użytkowników...") },
+                            leadingIcon = {
+                                Icon(Icons.Default.Search, contentDescription = "Szukaj")
+                            },
+                            singleLine = true
+                        )
 
-                        // Wskaźnik ładowania "więcej" na dole
-                        if (uiState.isLoading && uiState.users.isNotEmpty()) {
-                            item {
-                                Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
-                                    CircularProgressIndicator()
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(uiState.users, key = { it.id }) { user ->
+                                UserListItem(
+                                    user = user,
+                                    onClick = {
+                                        // ZMIANA: Nawigacja do ekranu edycji użytkownika
+                                        // TODO: Zastąp "admin_edit_user" właściwą ścieżką
+                                        navController.navigate("admin_edit_user/${user.id}")
+                                    },
+                                    // ZMIANA: Przekazanie akcji usuwania
+                                    onDeleteClick = {
+                                        viewModel.requestDeleteUser(user)
+                                    }
+                                )
+                            }
+
+                            // Wskaźnik ładowania "więcej" na dole
+                            if (uiState.isLoading && uiState.users.isNotEmpty()) {
+                                item {
+                                    Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
+                                        CircularProgressIndicator()
+                                    }
                                 }
                             }
                         }

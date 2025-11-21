@@ -18,6 +18,8 @@ data class ManagePermissionsUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val permissions: List<PermissionResponse> = emptyList(),
+    val allPermissions: List<PermissionResponse> = emptyList(),
+    val searchQuery: String = "",
     val showDialog: PermissionDialogState = PermissionDialogState.None
 )
 
@@ -41,11 +43,14 @@ class ManagePermissionsViewModel(private val repository: UserManagementRepositor
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
 
-            // POPRAWKA: Używamy .onSuccess i .onFailure
             repository.getAllPermissions()
                 .onSuccess { permissionsList ->
                     _uiState.update {
-                        it.copy(isLoading = false, permissions = permissionsList)
+                        it.copy(
+                            isLoading = false, 
+                            allPermissions = permissionsList,
+                            permissions = filterPermissions(permissionsList, it.searchQuery)
+                        )
                     }
                 }
                 .onFailure { exception ->
@@ -53,6 +58,27 @@ class ManagePermissionsViewModel(private val repository: UserManagementRepositor
                         it.copy(isLoading = false, error = exception.message ?: "Nieznany błąd")
                     }
                 }
+        }
+    }
+
+    fun searchPermissions(query: String) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                searchQuery = query,
+                permissions = filterPermissions(currentState.allPermissions, query)
+            )
+        }
+    }
+
+    private fun filterPermissions(permissions: List<PermissionResponse>, query: String): List<PermissionResponse> {
+        if (query.isBlank()) return permissions
+        
+        val lowerQuery = query.lowercase()
+        return permissions.filter {
+            it.name.lowercase().contains(lowerQuery) ||
+            it.description?.lowercase()?.contains(lowerQuery) == true ||
+            it.resource.lowercase().contains(lowerQuery) ||
+            it.action.lowercase().contains(lowerQuery)
         }
     }
 
