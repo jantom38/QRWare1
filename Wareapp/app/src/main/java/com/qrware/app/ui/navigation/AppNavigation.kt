@@ -71,6 +71,30 @@ fun AppNavigation(appContainer: AppContainer) {
                 )
                 HomeScreen(navController = navController, viewModel = homeViewModel)
             }
+            composable(
+                route = "qr_generate?type={type}&id={id}",
+                arguments = listOf(
+                    navArgument("type") { nullable = true },
+                    navArgument("id") { type = NavType.LongType; defaultValue = -1L }
+                )
+            ) { backStackEntry ->
+                val type = backStackEntry.arguments?.getString("type")
+                val id = backStackEntry.arguments?.getLong("id").takeIf { it != -1L }
+
+                QRGeneratorScreen(
+                    navController = navController,
+                    appContainer = appContainer,
+                    initialType = type,
+                    initialEntityId = id
+                )
+            }
+            composable(
+                route = "products/{productId}",
+                arguments = listOf(navArgument("productId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val productId = backStackEntry.arguments?.getLong("productId")
+                // ProductDetailsScreen(productId = productId) <- Twój ekran szczegółów
+            }
             composable("health") {
                 val healthViewModel: HealthViewModel = viewModel(
                     factory = HealthViewModelFactory(appContainer.healthRepository)
@@ -167,9 +191,7 @@ fun AppNavigation(appContainer: AppContainer) {
                     navController.popBackStack()
                 }
             }
-            composable("scan_qr") {
-                ScanQrScreen(navController = navController)
-            }
+
 
             composable("manage_categories") {
                 ManageCategoriesScreen(navController = navController, appContainer = appContainer)

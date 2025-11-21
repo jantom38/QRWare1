@@ -44,25 +44,29 @@ public class QRCodeGenerationService {
             Long entityId,
             String generatedBy,
             String generationReason) {
-        
+
         try {
-            // Generuj unikalny kod QR
+            // 1. Generuj unikalny kod systemowy (np. QR_A1B2C3D4)
             String qrCode = generateUniqueCode();
-            
-            // Stwórz rekord w bazie (w stanie "GENERATING")
-            QRCodeData qrCodeData = createQRCodeRecord(qrCode, data, type, entityType, 
-                    entityId, generatedBy, generationReason);
+
+            // 2. Dobierz poziom korekcji błędów w zależności od zastosowania
+            com.qrware.domain.qr.ErrorCorrectionLevel appEcLevel =
+                    com.qrware.domain.qr.ErrorCorrectionLevel.recommendForUsage(type);
+
+            // 3. Stwórz rekord w bazie
+            QRCodeData qrCodeData = createQRCodeRecord(qrCode, data, type, entityType,
+                    entityId, generatedBy, generationReason, appEcLevel);
             qrCodeData = qrCodeRepository.save(qrCodeData);
 
-            // Generuj obraz QR
-            byte[] qrImage = generateQRImage(data, 300, 300, 
-                    com.qrware.domain.qr.ErrorCorrectionLevel.M);
-            
-            // Zapisz obraz do pliku
-            String fileName = fileStorageService.storeQRCodeImage(qrImage, 
+            // 4. Generuj obraz QR
+            // WAŻNE: Kodujemy 'qrCode' (ID), a nie 'data' (opis)!
+            byte[] qrImage = generateQRImage(qrCode, 300, 300, appEcLevel);
+
+            // 5. Zapisz obraz do pliku
+            String fileName = fileStorageService.storeQRCodeImage(qrImage,
                     qrCode + ".png");
-            
-            // Aktualizuj rekord z ścieżką do pliku
+
+            // 6. Aktualizuj rekord
             qrCodeData.setImagePath(fileName);
             qrCodeData.setFormat("PNG");
             qrCodeData.setSize(300);
@@ -70,15 +74,14 @@ public class QRCodeGenerationService {
             qrCodeData = qrCodeRepository.save(qrCodeData);
 
             return CompletableFuture.completedFuture(qrCodeData);
-            
+
         } catch (Exception e) {
-            // W przypadku błędu, oznacz QR jako nieaktywny
             return CompletableFuture.failedFuture(e);
         }
     }
 
     /**
-     * Generuje QR kod synchronicznie (dla prostych przypadków)
+     * Generuje QR kod synchronicznie
      */
     public QRCodeData generateQRCodeSync(
             String data,
@@ -87,50 +90,59 @@ public class QRCodeGenerationService {
             Long entityId,
             String generatedBy,
             String generationReason) {
-        
+
         try {
+            // 1. Generuj unikalny kod systemowy
             String qrCode = generateUniqueCode();
-            
-            QRCodeData qrCodeData = createQRCodeRecord(qrCode, data, type, entityType, 
-                    entityId, generatedBy, generationReason);
+
+            // 2. Dobierz poziom korekcji
+            com.qrware.domain.qr.ErrorCorrectionLevel appEcLevel =
+                    com.qrware.domain.qr.ErrorCorrectionLevel.recommendForUsage(type);
+
+            // 3. Stwórz rekord
+            QRCodeData qrCodeData = createQRCodeRecord(qrCode, data, type, entityType,
+                    entityId, generatedBy, generationReason, appEcLevel);
             qrCodeData = qrCodeRepository.save(qrCodeData);
 
-            byte[] qrImage = generateQRImage(data, 300, 300, 
-                    com.qrware.domain.qr.ErrorCorrectionLevel.M);
-            
-            String fileName = fileStorageService.storeQRCodeImage(qrImage, 
+            // 4. Generuj obraz QR
+            // WAŻNE: Kodujemy 'qrCode' (ID), a nie 'data' (opis)!
+            byte[] qrImage = generateQRImage(qrCode, 300, 300, appEcLevel);
+
+            // 5. Zapisz obraz
+            String fileName = fileStorageService.storeQRCodeImage(qrImage,
                     qrCode + ".png");
-            
+
+            // 6. Aktualizuj i zwróć
             qrCodeData.setImagePath(fileName);
             qrCodeData.setFormat("PNG");
             qrCodeData.setSize(300);
             qrCodeData.setActive(true);
-            
+
             return qrCodeRepository.save(qrCodeData);
-            
+
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate QR code: " + e.getMessage(), e);
         }
     }
 
     /**
-     * Generuje obraz QR kodu
+     * Generuje obraz QR kodu (bitmapę)
      */
-    private byte[] generateQRImage(String data, int width, int height, 
-            com.qrware.domain.qr.ErrorCorrectionLevel errorCorrectionLevel) 
+    private byte[] generateQRImage(String contentToEncode, int width, int height,
+                                   com.qrware.domain.qr.ErrorCorrectionLevel errorCorrectionLevel)
             throws WriterException, IOException {
-        
+
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
-        
+
         Map<EncodeHintType, Object> hints = new HashMap<>();
         hints.put(EncodeHintType.ERROR_CORRECTION, mapErrorCorrectionLevel(errorCorrectionLevel));
         hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
         hints.put(EncodeHintType.MARGIN, 1);
 
-        BitMatrix bitMatrix = qrCodeWriter.encode(data, BarcodeFormat.QR_CODE, width, height, hints);
-        
+        BitMatrix bitMatrix = qrCodeWriter.encode(contentToEncode, BarcodeFormat.QR_CODE, width, height, hints);
+
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        
+
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 image.setRGB(x, y, bitMatrix.get(x, y) ? Color.BLACK.getRGB() : Color.WHITE.getRGB());
@@ -146,35 +158,42 @@ public class QRCodeGenerationService {
      * Tworzy rekord QR w bazie danych
      */
     private QRCodeData createQRCodeRecord(String code, String data, QRCodeType type,
-            String entityType, Long entityId, String generatedBy, String generationReason) {
-        
+                                          String entityType, Long entityId, String generatedBy, String generationReason,
+                                          com.qrware.domain.qr.ErrorCorrectionLevel ecLevel) {
+
         QRCodeData qrCodeData = new QRCodeData();
         qrCodeData.setCode(code);
         qrCodeData.setType(type);
         qrCodeData.setEntityType(entityType);
         qrCodeData.setEntityId(entityId);
         qrCodeData.setData(data);
-        qrCodeData.setActive(false); // Będzie aktywny po wygenerowaniu obrazu
+        qrCodeData.setActive(false);
         qrCodeData.setScanCount(0L);
-        qrCodeData.setErrorCorrectionLevel(com.qrware.domain.qr.ErrorCorrectionLevel.M);
+        qrCodeData.setErrorCorrectionLevel(ecLevel);
         qrCodeData.setGeneratedBy(generatedBy);
         qrCodeData.setGenerationReason(generationReason);
-        
+
+        // Ustawienie wygasania jeśli wymagane
+        if (type.requiresExpiration()) {
+            int hours = type.getDefaultExpirationHours();
+            if (hours > 0) {
+                qrCodeData.setExpirationHours(hours);
+            }
+        }
+
         return qrCodeData;
     }
 
     /**
-     * Generuje unikalny kod QR
+     * Generuje unikalny, krótki kod systemowy
+     * Format: QR_ + 8 znaków UUID (np. QR_1A2B3C4D)
      */
     private String generateUniqueCode() {
-        String prefix = "QR";
-        String timestamp = String.valueOf(System.currentTimeMillis());
-        String uuid = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        return prefix + "_" + timestamp + "_" + uuid;
+        return "QR_" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
     /**
-     * Mapuje poziom korekcji błędów
+     * Mapuje poziom korekcji błędów z domeny aplikacji na ZXing
      */
     private ErrorCorrectionLevel mapErrorCorrectionLevel(
             com.qrware.domain.qr.ErrorCorrectionLevel level) {
@@ -194,12 +213,9 @@ public class QRCodeGenerationService {
         try {
             QRCodeData qrCode = qrCodeRepository.findById(qrCodeId).orElse(null);
             if (qrCode != null) {
-                // Usuń plik obrazu
                 if (qrCode.getImagePath() != null) {
                     fileStorageService.deleteQRCodeImage(qrCode.getImagePath());
                 }
-                
-                // Usuń rekord z bazy
                 qrCodeRepository.delete(qrCode);
                 return true;
             }
@@ -214,8 +230,8 @@ public class QRCodeGenerationService {
      */
     public void recordScan(String code) {
         QRCodeData qrCode = qrCodeRepository.findByCode(code).orElse(null);
-        if (qrCode != null && qrCode.getActive()) {
-            qrCode.setScanCount(qrCode.getScanCount() + 1);
+        if (qrCode != null && Boolean.TRUE.equals(qrCode.getActive())) {
+            qrCode.incrementScanCount();
             qrCode.setLastScanned(LocalDateTime.now());
             qrCodeRepository.save(qrCode);
         }

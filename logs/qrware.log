@@ -234,3 +234,1086 @@
 2025-11-21 13:24:50 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
 2025-11-21 13:24:50 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
 2025-11-21 13:24:50 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-11-21 15:12:09 [main] INFO  c.q.WarehouseQRSystemApplication - Starting WarehouseQRSystemApplication using Java 24 with PID 21088 (C:\Users\jasie\Documents\GitHub\QRWare\target\classes started by jasie in C:\Users\jasie\Documents\GitHub\QRWare)
+2025-11-21 15:12:09 [main] INFO  c.q.WarehouseQRSystemApplication - The following 1 profile is active: "dev"
+2025-11-21 15:12:11 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-21 15:12:11 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 92 ms. Found 10 JPA repository interfaces.
+2025-11-21 15:12:12 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-11-21 15:12:12 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-11-21 15:12:12 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.16]
+2025-11-21 15:12:12 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-11-21 15:12:12 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3699 ms
+2025-11-21 15:12:13 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-11-21 15:12:15 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection conn1: url=jdbc:h2:file:./data/qrware_dev user=SA
+2025-11-21 15:12:15 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-11-21 15:12:15 [main] INFO  o.s.b.a.h.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:h2:file:./data/qrware_dev'
+2025-11-21 15:12:16 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-11-21 15:12:16 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.3.1.Final
+2025-11-21 15:12:16 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-11-21 15:12:16 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-11-21 15:12:16 [main] WARN  org.hibernate.dialect.Dialect - HHH000511: The 2.2.0 version for [org.hibernate.dialect.PostgreSQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 11.0.0. Check the community dialects project for available legacy versions.
+2025-11-21 15:12:16 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-11-21 15:12:18 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-11-21 15:12:18 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-11-21 15:12:19 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-11-21 15:12:22 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-11-21 15:12:23 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2025-11-21 15:12:23 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2025-11-21 15:12:23 [main] INFO  c.q.WarehouseQRSystemApplication - Started WarehouseQRSystemApplication in 15.252 seconds (process running for 24.947)
+2025-11-21 15:12:23 [main] INFO  com.qrware.config.DataInitializer - Initializing default data...
+2025-11-21 15:12:23 [main] INFO  com.qrware.config.DataInitializer - Creating default permissions...
+2025-11-21 15:12:24 [main] INFO  com.qrware.config.DataInitializer - Creating default roles...
+2025-11-21 15:12:24 [main] INFO  com.qrware.config.DataInitializer - Created USER role
+2025-11-21 15:12:24 [main] INFO  com.qrware.config.DataInitializer - Created WAREHOUSE_WORKER role
+2025-11-21 15:12:24 [main] INFO  com.qrware.config.DataInitializer - Created WAREHOUSE_MANAGER role
+2025-11-21 15:12:24 [main] INFO  com.qrware.config.DataInitializer - Created ADMIN role
+2025-11-21 15:12:24 [main] INFO  com.qrware.config.DataInitializer - Creating default users...
+2025-11-21 15:12:24 [main] INFO  com.qrware.config.DataInitializer - Created ADMIN user (pass: password)
+2025-11-21 15:12:24 [main] INFO  com.qrware.config.DataInitializer - Created WAREHOUSE_MANAGER user (pass: password)
+2025-11-21 15:12:24 [main] INFO  com.qrware.config.DataInitializer - Created WAREHOUSE_WORKER user (pass: password)
+2025-11-21 15:12:24 [main] INFO  com.qrware.config.DataInitializer - Created USER user (pass: password)
+2025-11-21 15:12:24 [main] INFO  com.qrware.config.DataInitializer - Creating extensive sample data...
+2025-11-21 15:12:27 [main] INFO  com.qrware.config.DataInitializer - Extensive sample data created successfully - 15 categories, 12 zones, 200+ locations, 150+ products, 300+ inventory items
+2025-11-21 15:12:27 [main] INFO  com.qrware.config.DataInitializer - Default data initialization completed
+2025-11-21 15:12:33 [http-nio-0.0.0.0-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-11-21 15:12:33 [http-nio-0.0.0.0-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-11-21 15:12:33 [http-nio-0.0.0.0-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2025-11-21 15:12:33 [http-nio-0.0.0.0-8080-exec-1] WARN  o.s.w.s.h.HandlerMappingIntrospector - Cache miss for REQUEST dispatch to '/api/auth/login' (previous null). Performing MatchableHandlerMapping lookup. This is logged once only at WARN level, and every time at TRACE.
+2025-11-21 15:12:33 [http-nio-0.0.0.0-8080-exec-1] INFO  c.qrware.controller.AuthController - Login attempt for user: admin
+2025-11-21 15:12:33 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.service.AuthenticationService - Attempting login for user: admin
+2025-11-21 15:12:34 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.service.AuthenticationService - Successful login for user: admin
+2025-11-21 15:12:34 [http-nio-0.0.0.0-8080-exec-1] INFO  c.qrware.controller.AuthController - Successful login for user: admin
+2025-11-21 15:12:34 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:12:39 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:12:39 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:12:42 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:12:46 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:12:46 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:20:46 [http-nio-0.0.0.0-8080-exec-5] INFO  c.qrware.controller.AuthController - Login attempt for user: admin
+2025-11-21 15:20:46 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.service.AuthenticationService - Attempting login for user: admin
+2025-11-21 15:20:47 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.service.AuthenticationService - Successful login for user: admin
+2025-11-21 15:20:47 [http-nio-0.0.0.0-8080-exec-5] INFO  c.qrware.controller.AuthController - Successful login for user: admin
+2025-11-21 15:20:47 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:20:48 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:20:48 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:20:51 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:20:52 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:20:52 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:20:53 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:20:53 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:21:03 [http-nio-0.0.0.0-8080-exec-10] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:21:03 [http-nio-0.0.0.0-8080-exec-10] ERROR o.a.c.c.C.[.[.[.[dispatcherServlet] - Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: jakarta.validation.ConstraintViolationException: Validation failed for classes [com.qrware.domain.qr.QRCodeData] during persist time for groups [jakarta.validation.groups.Default, ]
+List of constraint violations:[
+	ConstraintViolationImpl{interpolatedMessage='QR code is required', propertyPath=code, rootBeanClass=class com.qrware.domain.qr.QRCodeData, messageTemplate='QR code is required'}
+]] with root cause
+jakarta.validation.ConstraintViolationException: Validation failed for classes [com.qrware.domain.qr.QRCodeData] during persist time for groups [jakarta.validation.groups.Default, ]
+List of constraint violations:[
+	ConstraintViolationImpl{interpolatedMessage='QR code is required', propertyPath=code, rootBeanClass=class com.qrware.domain.qr.QRCodeData, messageTemplate='QR code is required'}
+]
+	at org.hibernate.boot.beanvalidation.BeanValidationEventListener.validate(BeanValidationEventListener.java:151)
+	at org.hibernate.boot.beanvalidation.BeanValidationEventListener.onPreInsert(BeanValidationEventListener.java:81)
+	at org.hibernate.action.internal.EntityIdentityInsertAction.preInsert(EntityIdentityInsertAction.java:186)
+	at org.hibernate.action.internal.EntityIdentityInsertAction.execute(EntityIdentityInsertAction.java:75)
+	at org.hibernate.engine.spi.ActionQueue.execute(ActionQueue.java:667)
+	at org.hibernate.engine.spi.ActionQueue.addResolvedEntityInsertAction(ActionQueue.java:290)
+	at org.hibernate.engine.spi.ActionQueue.addInsertAction(ActionQueue.java:271)
+	at org.hibernate.engine.spi.ActionQueue.addAction(ActionQueue.java:321)
+	at org.hibernate.event.internal.AbstractSaveEventListener.addInsertAction(AbstractSaveEventListener.java:386)
+	at org.hibernate.event.internal.AbstractSaveEventListener.performSaveOrReplicate(AbstractSaveEventListener.java:300)
+	at org.hibernate.event.internal.AbstractSaveEventListener.performSave(AbstractSaveEventListener.java:219)
+	at org.hibernate.event.internal.AbstractSaveEventListener.saveWithGeneratedId(AbstractSaveEventListener.java:134)
+	at org.hibernate.event.internal.DefaultPersistEventListener.entityIsTransient(DefaultPersistEventListener.java:175)
+	at org.hibernate.event.internal.DefaultPersistEventListener.persist(DefaultPersistEventListener.java:93)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:77)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:54)
+	at org.hibernate.event.service.internal.EventListenerGroupImpl.fireEventOnEachListener(EventListenerGroupImpl.java:127)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:766)
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:750)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.springframework.orm.jpa.ExtendedEntityManagerCreator$ExtendedEntityManagerInvocationHandler.invoke(ExtendedEntityManagerCreator.java:360)
+	at jdk.proxy2/jdk.proxy2.$Proxy170.persist(Unknown Source)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler.invoke(SharedEntityManagerCreator.java:311)
+	at jdk.proxy2/jdk.proxy2.$Proxy170.persist(Unknown Source)
+	at org.springframework.data.jpa.repository.support.SimpleJpaRepository.save(SimpleJpaRepository.java:618)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:352)
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker$RepositoryFragmentMethodInvoker.lambda$new$0(RepositoryMethodInvoker.java:277)
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker.doInvoke(RepositoryMethodInvoker.java:170)
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker.invoke(RepositoryMethodInvoker.java:158)
+	at org.springframework.data.repository.core.support.RepositoryComposition$RepositoryFragments.invoke(RepositoryComposition.java:516)
+	at org.springframework.data.repository.core.support.RepositoryComposition.invoke(RepositoryComposition.java:285)
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$ImplementationMethodExecutionInterceptor.invoke(RepositoryFactorySupport.java:628)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.doInvoke(QueryExecutorMethodInterceptor.java:168)
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.invoke(QueryExecutorMethodInterceptor.java:143)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.data.projection.DefaultMethodInvokingMethodInterceptor.invoke(DefaultMethodInvokingMethodInterceptor.java:70)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:123)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:385)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:137)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.data.jpa.repository.support.CrudMethodMetadataPostProcessor$CrudMethodMetadataPopulatingMethodInterceptor.invoke(CrudMethodMetadataPostProcessor.java:164)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:97)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:249)
+	at jdk.proxy2/jdk.proxy2.$Proxy190.save(Unknown Source)
+	at com.qrware.controller.QRCodeController.generateQRCode(QRCodeController.java:137)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:352)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:765)
+	at org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.invoke(AuthorizationManagerBeforeMethodInterceptor.java:198)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:765)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:717)
+	at com.qrware.controller.QRCodeController$$SpringCGLIB$$0.generateQRCode(<generated>)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:254)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:182)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:917)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:829)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:914)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:590)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$FilterObservation$SimpleFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:479)
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:340)
+	at org.springframework.security.web.ObservationFilterChainDecorator.lambda$wrapSecured$0(ObservationFilterChainDecorator.java:82)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:128)
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:100)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at com.qrware.security.jwt.JwtAuthenticationFilter.doFilterInternal(JwtAuthenticationFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$0(ObservationFilterChainDecorator.java:323)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:224)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:352)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:268)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:109)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:340)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:391)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1744)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.base/java.lang.Thread.run(Thread.java:1447)
+2025-11-21 15:24:37 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-11-21 15:24:37 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-11-21 15:24:37 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-11-21 15:24:57 [main] INFO  c.q.WarehouseQRSystemApplication - Starting WarehouseQRSystemApplication using Java 24 with PID 31852 (C:\Users\jasie\Documents\GitHub\QRWare\target\classes started by jasie in C:\Users\jasie\Documents\GitHub\QRWare)
+2025-11-21 15:24:57 [main] INFO  c.q.WarehouseQRSystemApplication - The following 1 profile is active: "dev"
+2025-11-21 15:24:58 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-21 15:24:58 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 70 ms. Found 10 JPA repository interfaces.
+2025-11-21 15:24:59 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-11-21 15:24:59 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-11-21 15:24:59 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.16]
+2025-11-21 15:24:59 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-11-21 15:24:59 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2172 ms
+2025-11-21 15:24:59 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-11-21 15:24:59 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection conn1: url=jdbc:h2:file:./data/qrware_dev user=SA
+2025-11-21 15:24:59 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-11-21 15:24:59 [main] INFO  o.s.b.a.h.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:h2:file:./data/qrware_dev'
+2025-11-21 15:25:00 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-11-21 15:25:00 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.3.1.Final
+2025-11-21 15:25:00 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-11-21 15:25:00 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-11-21 15:25:00 [main] WARN  org.hibernate.dialect.Dialect - HHH000511: The 2.2.0 version for [org.hibernate.dialect.PostgreSQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 11.0.0. Check the community dialects project for available legacy versions.
+2025-11-21 15:25:00 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-11-21 15:25:01 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-11-21 15:25:01 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-11-21 15:25:01 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-11-21 15:25:04 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-11-21 15:25:04 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2025-11-21 15:25:05 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2025-11-21 15:25:05 [main] INFO  c.q.WarehouseQRSystemApplication - Started WarehouseQRSystemApplication in 8.766 seconds (process running for 9.299)
+2025-11-21 15:25:05 [main] INFO  com.qrware.config.DataInitializer - Initializing default data...
+2025-11-21 15:25:05 [main] INFO  com.qrware.config.DataInitializer - Creating default permissions...
+2025-11-21 15:25:05 [main] INFO  com.qrware.config.DataInitializer - Creating default roles...
+2025-11-21 15:25:05 [main] INFO  com.qrware.config.DataInitializer - Created USER role
+2025-11-21 15:25:05 [main] INFO  com.qrware.config.DataInitializer - Created WAREHOUSE_WORKER role
+2025-11-21 15:25:05 [main] INFO  com.qrware.config.DataInitializer - Created WAREHOUSE_MANAGER role
+2025-11-21 15:25:05 [main] INFO  com.qrware.config.DataInitializer - Created ADMIN role
+2025-11-21 15:25:05 [main] INFO  com.qrware.config.DataInitializer - Creating default users...
+2025-11-21 15:25:05 [main] INFO  com.qrware.config.DataInitializer - Created ADMIN user (pass: password)
+2025-11-21 15:25:05 [main] INFO  com.qrware.config.DataInitializer - Created WAREHOUSE_MANAGER user (pass: password)
+2025-11-21 15:25:05 [main] INFO  com.qrware.config.DataInitializer - Created WAREHOUSE_WORKER user (pass: password)
+2025-11-21 15:25:05 [main] INFO  com.qrware.config.DataInitializer - Created USER user (pass: password)
+2025-11-21 15:25:05 [main] INFO  com.qrware.config.DataInitializer - Creating extensive sample data...
+2025-11-21 15:25:07 [main] INFO  com.qrware.config.DataInitializer - Extensive sample data created successfully - 15 categories, 12 zones, 200+ locations, 150+ products, 300+ inventory items
+2025-11-21 15:25:07 [main] INFO  com.qrware.config.DataInitializer - Default data initialization completed
+2025-11-21 15:25:30 [http-nio-0.0.0.0-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-11-21 15:25:30 [http-nio-0.0.0.0-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-11-21 15:25:30 [http-nio-0.0.0.0-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2025-11-21 15:25:30 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:25:30 [http-nio-0.0.0.0-8080-exec-1] WARN  o.s.w.s.h.HandlerMappingIntrospector - Cache miss for REQUEST dispatch to '/api/qr-codes/generate' (previous null). Performing MatchableHandlerMapping lookup. This is logged once only at WARN level, and every time at TRACE.
+2025-11-21 15:25:30 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:25:30 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:25:51 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:25:53 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:25:53 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:25:53 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:25:54 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:25:54 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:25:54 [http-nio-0.0.0.0-8080-exec-10] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:28:23 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:28:25 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:28:25 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:28:29 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:38:30 [http-nio-0.0.0.0-8080-exec-1] INFO  c.qrware.controller.AuthController - Login attempt for user: admin
+2025-11-21 15:38:30 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.service.AuthenticationService - Attempting login for user: admin
+2025-11-21 15:38:32 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.service.AuthenticationService - Successful login for user: admin
+2025-11-21 15:38:32 [http-nio-0.0.0.0-8080-exec-1] INFO  c.qrware.controller.AuthController - Successful login for user: admin
+2025-11-21 15:38:32 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:38:34 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:38:34 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 15:38:39 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:04 [http-nio-0.0.0.0-8080-exec-8] INFO  c.qrware.controller.AuthController - Login attempt for user: admin
+2025-11-21 16:01:04 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.service.AuthenticationService - Attempting login for user: admin
+2025-11-21 16:01:04 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.service.AuthenticationService - Successful login for user: admin
+2025-11-21 16:01:04 [http-nio-0.0.0.0-8080-exec-8] INFO  c.qrware.controller.AuthController - Successful login for user: admin
+2025-11-21 16:01:05 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:09 [http-nio-0.0.0.0-8080-exec-10] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:09 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:24 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:24 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:24 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:25 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:25 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:25 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:26 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:26 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:26 [http-nio-0.0.0.0-8080-exec-10] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:26 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:26 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:26 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:26 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:26 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:26 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:29 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:29 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:29 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:30 [http-nio-0.0.0.0-8080-exec-10] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:30 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:30 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:34 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:34 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:47 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:47 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:47 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:48 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:48 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:48 [http-nio-0.0.0.0-8080-exec-10] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:48 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:48 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:48 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:48 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:49 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:01:56 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:02:01 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:02:42 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:02:42 [http-nio-0.0.0.0-8080-exec-9] WARN  c.q.c.UserManagementController - Błąd zarządzania użytkownikami: Uprawnienie o nazwie QR_SCAN już istnieje. (Status: 400 BAD_REQUEST)
+2025-11-21 16:02:50 [http-nio-0.0.0.0-8080-exec-10] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:02:50 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:07:02 [http-nio-0.0.0.0-8080-exec-2] INFO  c.qrware.controller.AuthController - Login attempt for user: admin
+2025-11-21 16:07:02 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.service.AuthenticationService - Attempting login for user: admin
+2025-11-21 16:07:02 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.service.AuthenticationService - Successful login for user: admin
+2025-11-21 16:07:02 [http-nio-0.0.0.0-8080-exec-2] INFO  c.qrware.controller.AuthController - Successful login for user: admin
+2025-11-21 16:07:02 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:07:06 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:07:07 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:07:15 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:07:15 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:07:49 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:14:57 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-11-21 16:14:57 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-11-21 16:14:57 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-11-21 16:15:00 [main] INFO  c.q.WarehouseQRSystemApplication - Starting WarehouseQRSystemApplication using Java 24 with PID 32296 (C:\Users\jasie\Documents\GitHub\QRWare\target\classes started by jasie in C:\Users\jasie\Documents\GitHub\QRWare)
+2025-11-21 16:15:00 [main] INFO  c.q.WarehouseQRSystemApplication - The following 1 profile is active: "dev"
+2025-11-21 16:15:01 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-21 16:15:01 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 84 ms. Found 10 JPA repository interfaces.
+2025-11-21 16:15:02 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-11-21 16:15:02 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-11-21 16:15:02 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.16]
+2025-11-21 16:15:02 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-11-21 16:15:02 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2239 ms
+2025-11-21 16:15:02 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-11-21 16:15:03 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection conn1: url=jdbc:h2:file:./data/qrware_dev user=SA
+2025-11-21 16:15:03 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-11-21 16:15:03 [main] INFO  o.s.b.a.h.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:h2:file:./data/qrware_dev'
+2025-11-21 16:15:03 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-11-21 16:15:03 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.3.1.Final
+2025-11-21 16:15:03 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-11-21 16:15:03 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-11-21 16:15:03 [main] WARN  org.hibernate.dialect.Dialect - HHH000511: The 2.2.0 version for [org.hibernate.dialect.PostgreSQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 11.0.0. Check the community dialects project for available legacy versions.
+2025-11-21 16:15:03 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-11-21 16:15:05 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-11-21 16:15:05 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-11-21 16:15:05 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-11-21 16:15:08 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-11-21 16:15:08 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2025-11-21 16:15:08 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2025-11-21 16:15:08 [main] INFO  c.q.WarehouseQRSystemApplication - Started WarehouseQRSystemApplication in 9.122 seconds (process running for 9.563)
+2025-11-21 16:15:08 [main] INFO  com.qrware.config.DataInitializer - Initializing default data...
+2025-11-21 16:15:08 [main] INFO  com.qrware.config.DataInitializer - Creating default permissions...
+2025-11-21 16:15:09 [main] INFO  com.qrware.config.DataInitializer - Creating default roles...
+2025-11-21 16:15:09 [main] INFO  com.qrware.config.DataInitializer - Created USER role
+2025-11-21 16:15:09 [main] INFO  com.qrware.config.DataInitializer - Created WAREHOUSE_WORKER role
+2025-11-21 16:15:09 [main] INFO  com.qrware.config.DataInitializer - Created WAREHOUSE_MANAGER role
+2025-11-21 16:15:09 [main] INFO  com.qrware.config.DataInitializer - Created ADMIN role
+2025-11-21 16:15:09 [main] INFO  com.qrware.config.DataInitializer - Creating default users...
+2025-11-21 16:15:09 [main] INFO  com.qrware.config.DataInitializer - Created ADMIN user (pass: password)
+2025-11-21 16:15:09 [main] INFO  com.qrware.config.DataInitializer - Created WAREHOUSE_MANAGER user (pass: password)
+2025-11-21 16:15:09 [main] INFO  com.qrware.config.DataInitializer - Created WAREHOUSE_WORKER user (pass: password)
+2025-11-21 16:15:09 [main] INFO  com.qrware.config.DataInitializer - Created USER user (pass: password)
+2025-11-21 16:15:09 [main] INFO  com.qrware.config.DataInitializer - Creating extensive sample data...
+2025-11-21 16:15:10 [main] INFO  com.qrware.config.DataInitializer - Extensive sample data created successfully - 15 categories, 12 zones, 200+ locations, 150+ products, 300+ inventory items
+2025-11-21 16:15:10 [main] INFO  com.qrware.config.DataInitializer - Default data initialization completed
+2025-11-21 16:15:18 [http-nio-0.0.0.0-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-11-21 16:15:18 [http-nio-0.0.0.0-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-11-21 16:15:18 [http-nio-0.0.0.0-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2025-11-21 16:15:18 [http-nio-0.0.0.0-8080-exec-1] WARN  o.s.w.s.h.HandlerMappingIntrospector - Cache miss for REQUEST dispatch to '/api/auth/login' (previous null). Performing MatchableHandlerMapping lookup. This is logged once only at WARN level, and every time at TRACE.
+2025-11-21 16:15:19 [http-nio-0.0.0.0-8080-exec-1] INFO  c.qrware.controller.AuthController - Login attempt for user: admin
+2025-11-21 16:15:19 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.service.AuthenticationService - Attempting login for user: admin
+2025-11-21 16:15:19 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.service.AuthenticationService - Successful login for user: admin
+2025-11-21 16:15:19 [http-nio-0.0.0.0-8080-exec-1] INFO  c.qrware.controller.AuthController - Successful login for user: admin
+2025-11-21 16:15:19 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:15:34 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:15:34 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:15:35 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:15:36 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:20:13 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-11-21 16:20:13 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-11-21 16:20:13 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-11-21 16:20:17 [main] INFO  c.q.WarehouseQRSystemApplication - Starting WarehouseQRSystemApplication using Java 24 with PID 22236 (C:\Users\jasie\Documents\GitHub\QRWare\target\classes started by jasie in C:\Users\jasie\Documents\GitHub\QRWare)
+2025-11-21 16:20:17 [main] INFO  c.q.WarehouseQRSystemApplication - The following 1 profile is active: "dev"
+2025-11-21 16:20:18 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-21 16:20:18 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 76 ms. Found 10 JPA repository interfaces.
+2025-11-21 16:20:19 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-11-21 16:20:19 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-11-21 16:20:19 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.16]
+2025-11-21 16:20:19 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-11-21 16:20:19 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1871 ms
+2025-11-21 16:20:19 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-11-21 16:20:19 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection conn1: url=jdbc:h2:file:./data/qrware_dev user=SA
+2025-11-21 16:20:19 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-11-21 16:20:19 [main] INFO  o.s.b.a.h.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:h2:file:./data/qrware_dev'
+2025-11-21 16:20:19 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-11-21 16:20:19 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.3.1.Final
+2025-11-21 16:20:19 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-11-21 16:20:20 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-11-21 16:20:20 [main] WARN  org.hibernate.dialect.Dialect - HHH000511: The 2.2.0 version for [org.hibernate.dialect.PostgreSQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 11.0.0. Check the community dialects project for available legacy versions.
+2025-11-21 16:20:20 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-11-21 16:20:21 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-11-21 16:20:21 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-11-21 16:20:21 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-11-21 16:20:23 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-11-21 16:20:23 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2025-11-21 16:20:24 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2025-11-21 16:20:24 [main] INFO  c.q.WarehouseQRSystemApplication - Started WarehouseQRSystemApplication in 7.656 seconds (process running for 7.964)
+2025-11-21 16:20:24 [main] INFO  com.qrware.config.DataInitializer - Initializing default data...
+2025-11-21 16:20:24 [main] INFO  com.qrware.config.DataInitializer - Creating default permissions...
+2025-11-21 16:20:24 [main] INFO  com.qrware.config.DataInitializer - Creating default roles...
+2025-11-21 16:20:24 [main] INFO  com.qrware.config.DataInitializer - Created USER role
+2025-11-21 16:20:24 [main] INFO  com.qrware.config.DataInitializer - Created WAREHOUSE_WORKER role
+2025-11-21 16:20:24 [main] INFO  com.qrware.config.DataInitializer - Created WAREHOUSE_MANAGER role
+2025-11-21 16:20:25 [main] INFO  com.qrware.config.DataInitializer - Created ADMIN role
+2025-11-21 16:20:25 [main] INFO  com.qrware.config.DataInitializer - Creating default users...
+2025-11-21 16:20:25 [main] INFO  com.qrware.config.DataInitializer - Created ADMIN user (pass: password)
+2025-11-21 16:20:25 [main] INFO  com.qrware.config.DataInitializer - Created WAREHOUSE_MANAGER user (pass: password)
+2025-11-21 16:20:25 [main] INFO  com.qrware.config.DataInitializer - Created WAREHOUSE_WORKER user (pass: password)
+2025-11-21 16:20:25 [main] INFO  com.qrware.config.DataInitializer - Created USER user (pass: password)
+2025-11-21 16:20:25 [main] INFO  com.qrware.config.DataInitializer - Creating extensive sample data...
+2025-11-21 16:20:27 [main] INFO  com.qrware.config.DataInitializer - Extensive sample data created successfully - 15 categories, 12 zones, 200+ locations, 150+ products, 300+ inventory items
+2025-11-21 16:20:27 [main] INFO  com.qrware.config.DataInitializer - Default data initialization completed
+2025-11-21 16:20:39 [http-nio-0.0.0.0-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-11-21 16:20:39 [http-nio-0.0.0.0-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-11-21 16:20:39 [http-nio-0.0.0.0-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2025-11-21 16:20:39 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:20:39 [http-nio-0.0.0.0-8080-exec-1] WARN  o.s.w.s.h.HandlerMappingIntrospector - Cache miss for REQUEST dispatch to '/api/qr-codes/code/test' (previous null). Performing MatchableHandlerMapping lookup. This is logged once only at WARN level, and every time at TRACE.
+2025-11-21 16:20:39 [http-nio-0.0.0.0-8080-exec-1] INFO  c.qrware.controller.QRCodeController - Scanning QR code: test
+2025-11-21 16:20:39 [http-nio-0.0.0.0-8080-exec-1] WARN  c.qrware.controller.QRCodeController - QR Code 'test' not found in database
+2025-11-21 16:20:40 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:20:40 [http-nio-0.0.0.0-8080-exec-6] INFO  c.qrware.controller.QRCodeController - Scanning QR code: test
+2025-11-21 16:20:40 [http-nio-0.0.0.0-8080-exec-6] WARN  c.qrware.controller.QRCodeController - QR Code 'test' not found in database
+2025-11-21 16:21:31 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:22 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:22 [http-nio-0.0.0.0-8080-exec-7] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:22:22 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:24 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:24 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:24 [http-nio-0.0.0.0-8080-exec-8] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:22:28 [http-nio-0.0.0.0-8080-exec-10] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:30 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:32 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:32 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:32 [http-nio-0.0.0.0-8080-exec-3] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:22:32 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:32 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:32 [http-nio-0.0.0.0-8080-exec-4] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:22:36 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:36 [http-nio-0.0.0.0-8080-exec-7] INFO  c.qrware.controller.QRCodeController - Received request to generate QR Code via generic endpoint. Data: PRODUCT:1
+2025-11-21 16:22:36 [http-nio-0.0.0.0-8080-exec-7] INFO  c.qrware.controller.QRCodeController - Auto-generating QR code image and ID for entity: PRODUCT
+2025-11-21 16:22:36 [http-nio-0.0.0.0-8080-exec-7] INFO  c.qrware.controller.QRCodeController - QR Code generated successfully with ID: 1
+2025-11-21 16:22:36 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:36 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:36 [http-nio-0.0.0.0-8080-exec-6] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:22:38 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:38 [http-nio-0.0.0.0-8080-exec-10] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:38 [http-nio-0.0.0.0-8080-exec-10] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:22:40 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:40 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:40 [http-nio-0.0.0.0-8080-exec-1] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:22:40 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:40 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:40 [http-nio-0.0.0.0-8080-exec-5] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:22:41 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:41 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:41 [http-nio-0.0.0.0-8080-exec-7] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:22:42 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:42 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:42 [http-nio-0.0.0.0-8080-exec-2] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:22:43 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:45 [http-nio-0.0.0.0-8080-exec-10] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:45 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:45 [http-nio-0.0.0.0-8080-exec-10] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:22:50 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:50 [http-nio-0.0.0.0-8080-exec-3] INFO  c.qrware.controller.QRCodeController - Scanning QR code: PRODUCT:1
+2025-11-21 16:22:50 [http-nio-0.0.0.0-8080-exec-3] WARN  c.qrware.controller.QRCodeController - QR Code 'PRODUCT:1' not found in database
+2025-11-21 16:22:50 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:50 [http-nio-0.0.0.0-8080-exec-5] INFO  c.qrware.controller.QRCodeController - Scanning QR code: PRODUCT:1
+2025-11-21 16:22:50 [http-nio-0.0.0.0-8080-exec-5] WARN  c.qrware.controller.QRCodeController - QR Code 'PRODUCT:1' not found in database
+2025-11-21 16:22:50 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:50 [http-nio-0.0.0.0-8080-exec-9] INFO  c.qrware.controller.QRCodeController - Scanning QR code: PRODUCT:1
+2025-11-21 16:22:50 [http-nio-0.0.0.0-8080-exec-9] WARN  c.qrware.controller.QRCodeController - QR Code 'PRODUCT:1' not found in database
+2025-11-21 16:22:50 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:50 [http-nio-0.0.0.0-8080-exec-4] INFO  c.qrware.controller.QRCodeController - Scanning QR code: PRODUCT:1
+2025-11-21 16:22:50 [http-nio-0.0.0.0-8080-exec-4] WARN  c.qrware.controller.QRCodeController - QR Code 'PRODUCT:1' not found in database
+2025-11-21 16:22:50 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:50 [http-nio-0.0.0.0-8080-exec-7] INFO  c.qrware.controller.QRCodeController - Scanning QR code: PRODUCT:1
+2025-11-21 16:22:50 [http-nio-0.0.0.0-8080-exec-7] WARN  c.qrware.controller.QRCodeController - QR Code 'PRODUCT:1' not found in database
+2025-11-21 16:22:50 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:50 [http-nio-0.0.0.0-8080-exec-2] INFO  c.qrware.controller.QRCodeController - Scanning QR code: PRODUCT:1
+2025-11-21 16:22:50 [http-nio-0.0.0.0-8080-exec-2] WARN  c.qrware.controller.QRCodeController - QR Code 'PRODUCT:1' not found in database
+2025-11-21 16:22:50 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:50 [http-nio-0.0.0.0-8080-exec-6] INFO  c.qrware.controller.QRCodeController - Scanning QR code: PRODUCT:1
+2025-11-21 16:22:50 [http-nio-0.0.0.0-8080-exec-6] WARN  c.qrware.controller.QRCodeController - QR Code 'PRODUCT:1' not found in database
+2025-11-21 16:22:51 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:51 [http-nio-0.0.0.0-8080-exec-8] INFO  c.qrware.controller.QRCodeController - Scanning QR code: PRODUCT:1
+2025-11-21 16:22:51 [http-nio-0.0.0.0-8080-exec-8] WARN  c.qrware.controller.QRCodeController - QR Code 'PRODUCT:1' not found in database
+2025-11-21 16:22:52 [http-nio-0.0.0.0-8080-exec-10] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:52 [http-nio-0.0.0.0-8080-exec-10] INFO  c.qrware.controller.QRCodeController - Scanning QR code: test
+2025-11-21 16:22:52 [http-nio-0.0.0.0-8080-exec-10] WARN  c.qrware.controller.QRCodeController - QR Code 'test' not found in database
+2025-11-21 16:22:52 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:52 [http-nio-0.0.0.0-8080-exec-1] INFO  c.qrware.controller.QRCodeController - Scanning QR code: test
+2025-11-21 16:22:52 [http-nio-0.0.0.0-8080-exec-1] WARN  c.qrware.controller.QRCodeController - QR Code 'test' not found in database
+2025-11-21 16:22:52 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:52 [http-nio-0.0.0.0-8080-exec-3] INFO  c.qrware.controller.QRCodeController - Scanning QR code: test
+2025-11-21 16:22:52 [http-nio-0.0.0.0-8080-exec-3] WARN  c.qrware.controller.QRCodeController - QR Code 'test' not found in database
+2025-11-21 16:22:52 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:52 [http-nio-0.0.0.0-8080-exec-5] INFO  c.qrware.controller.QRCodeController - Scanning QR code: test
+2025-11-21 16:22:52 [http-nio-0.0.0.0-8080-exec-5] WARN  c.qrware.controller.QRCodeController - QR Code 'test' not found in database
+2025-11-21 16:22:53 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:53 [http-nio-0.0.0.0-8080-exec-9] INFO  c.qrware.controller.QRCodeController - Scanning QR code: test
+2025-11-21 16:22:53 [http-nio-0.0.0.0-8080-exec-9] WARN  c.qrware.controller.QRCodeController - QR Code 'test' not found in database
+2025-11-21 16:22:53 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:53 [http-nio-0.0.0.0-8080-exec-4] INFO  c.qrware.controller.QRCodeController - Scanning QR code: test
+2025-11-21 16:22:53 [http-nio-0.0.0.0-8080-exec-4] WARN  c.qrware.controller.QRCodeController - QR Code 'test' not found in database
+2025-11-21 16:22:53 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:53 [http-nio-0.0.0.0-8080-exec-7] INFO  c.qrware.controller.QRCodeController - Scanning QR code: test
+2025-11-21 16:22:53 [http-nio-0.0.0.0-8080-exec-7] WARN  c.qrware.controller.QRCodeController - QR Code 'test' not found in database
+2025-11-21 16:22:53 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:53 [http-nio-0.0.0.0-8080-exec-2] INFO  c.qrware.controller.QRCodeController - Scanning QR code: test
+2025-11-21 16:22:53 [http-nio-0.0.0.0-8080-exec-2] WARN  c.qrware.controller.QRCodeController - QR Code 'test' not found in database
+2025-11-21 16:22:53 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:53 [http-nio-0.0.0.0-8080-exec-6] INFO  c.qrware.controller.QRCodeController - Scanning QR code: test
+2025-11-21 16:22:53 [http-nio-0.0.0.0-8080-exec-6] WARN  c.qrware.controller.QRCodeController - QR Code 'test' not found in database
+2025-11-21 16:22:53 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:53 [http-nio-0.0.0.0-8080-exec-8] INFO  c.qrware.controller.QRCodeController - Scanning QR code: test
+2025-11-21 16:22:53 [http-nio-0.0.0.0-8080-exec-8] WARN  c.qrware.controller.QRCodeController - QR Code 'test' not found in database
+2025-11-21 16:22:57 [http-nio-0.0.0.0-8080-exec-10] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:57 [http-nio-0.0.0.0-8080-exec-10] INFO  c.qrware.controller.QRCodeController - Scanning QR code: PRODUCT:1
+2025-11-21 16:22:57 [http-nio-0.0.0.0-8080-exec-10] WARN  c.qrware.controller.QRCodeController - QR Code 'PRODUCT:1' not found in database
+2025-11-21 16:22:57 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:57 [http-nio-0.0.0.0-8080-exec-1] INFO  c.qrware.controller.QRCodeController - Scanning QR code: PRODUCT:1
+2025-11-21 16:22:57 [http-nio-0.0.0.0-8080-exec-1] WARN  c.qrware.controller.QRCodeController - QR Code 'PRODUCT:1' not found in database
+2025-11-21 16:22:57 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:57 [http-nio-0.0.0.0-8080-exec-3] INFO  c.qrware.controller.QRCodeController - Scanning QR code: PRODUCT:1
+2025-11-21 16:22:57 [http-nio-0.0.0.0-8080-exec-3] WARN  c.qrware.controller.QRCodeController - QR Code 'PRODUCT:1' not found in database
+2025-11-21 16:22:57 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:57 [http-nio-0.0.0.0-8080-exec-5] INFO  c.qrware.controller.QRCodeController - Scanning QR code: PRODUCT:1
+2025-11-21 16:22:57 [http-nio-0.0.0.0-8080-exec-5] WARN  c.qrware.controller.QRCodeController - QR Code 'PRODUCT:1' not found in database
+2025-11-21 16:22:57 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:57 [http-nio-0.0.0.0-8080-exec-9] INFO  c.qrware.controller.QRCodeController - Scanning QR code: PRODUCT:1
+2025-11-21 16:22:57 [http-nio-0.0.0.0-8080-exec-9] WARN  c.qrware.controller.QRCodeController - QR Code 'PRODUCT:1' not found in database
+2025-11-21 16:22:57 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:22:57 [http-nio-0.0.0.0-8080-exec-4] INFO  c.qrware.controller.QRCodeController - Scanning QR code: PRODUCT:1
+2025-11-21 16:22:57 [http-nio-0.0.0.0-8080-exec-4] WARN  c.qrware.controller.QRCodeController - QR Code 'PRODUCT:1' not found in database
+2025-11-21 16:23:08 [http-nio-0.0.0.0-8080-exec-10] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:23:08 [http-nio-0.0.0.0-8080-exec-10] INFO  c.qrware.controller.QRCodeController - Scanning QR code: PRODUCT:1
+2025-11-21 16:23:08 [http-nio-0.0.0.0-8080-exec-10] WARN  c.qrware.controller.QRCodeController - QR Code 'PRODUCT:1' not found in database
+2025-11-21 16:23:08 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:23:08 [http-nio-0.0.0.0-8080-exec-1] INFO  c.qrware.controller.QRCodeController - Scanning QR code: PRODUCT:1
+2025-11-21 16:23:08 [http-nio-0.0.0.0-8080-exec-1] WARN  c.qrware.controller.QRCodeController - QR Code 'PRODUCT:1' not found in database
+2025-11-21 16:23:14 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:23:14 [http-nio-0.0.0.0-8080-exec-3] INFO  c.qrware.controller.QRCodeController - Scanning QR code: PRODUCT:1
+2025-11-21 16:23:14 [http-nio-0.0.0.0-8080-exec-3] WARN  c.qrware.controller.QRCodeController - QR Code 'PRODUCT:1' not found in database
+2025-11-21 16:23:15 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:23:15 [http-nio-0.0.0.0-8080-exec-5] INFO  c.qrware.controller.QRCodeController - Scanning QR code: PRODUCT:1
+2025-11-21 16:23:15 [http-nio-0.0.0.0-8080-exec-5] WARN  c.qrware.controller.QRCodeController - QR Code 'PRODUCT:1' not found in database
+2025-11-21 16:23:18 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:28:45 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:28:45 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:28:48 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:28:48 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:28:50 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:28:51 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:28:51 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.controller.InventoryController - GET /api/inventory - Strona: 0, Rozmiar: 20
+2025-11-21 16:28:51 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.controller.InventoryController - Pomyślnie pobrano i zmapowano 20 pozycji.
+2025-11-21 16:28:54 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:28:55 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:28:57 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:28:57 [http-nio-0.0.0.0-8080-exec-10] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:29:05 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:29:56 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-11-21 16:29:56 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-11-21 16:29:56 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-11-21 16:32:27 [main] INFO  c.q.WarehouseQRSystemApplication - Starting WarehouseQRSystemApplication using Java 24 with PID 15548 (C:\Users\jasie\Documents\GitHub\QRWare\target\classes started by jasie in C:\Users\jasie\Documents\GitHub\QRWare)
+2025-11-21 16:32:27 [main] INFO  c.q.WarehouseQRSystemApplication - The following 1 profile is active: "dev"
+2025-11-21 16:32:28 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-21 16:32:28 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 79 ms. Found 10 JPA repository interfaces.
+2025-11-21 16:32:29 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-11-21 16:32:29 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-11-21 16:32:29 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.16]
+2025-11-21 16:32:29 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-11-21 16:32:29 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2256 ms
+2025-11-21 16:32:29 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-11-21 16:32:30 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection conn1: url=jdbc:h2:file:./data/qrware_dev user=SA
+2025-11-21 16:32:30 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-11-21 16:32:30 [main] INFO  o.s.b.a.h.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:h2:file:./data/qrware_dev'
+2025-11-21 16:32:30 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-11-21 16:32:30 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.3.1.Final
+2025-11-21 16:32:30 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-11-21 16:32:30 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-11-21 16:32:30 [main] WARN  org.hibernate.dialect.Dialect - HHH000511: The 2.2.0 version for [org.hibernate.dialect.PostgreSQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 11.0.0. Check the community dialects project for available legacy versions.
+2025-11-21 16:32:30 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-11-21 16:32:31 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-11-21 16:32:31 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-11-21 16:32:32 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-11-21 16:32:34 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-11-21 16:32:34 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2025-11-21 16:32:35 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2025-11-21 16:32:35 [main] INFO  c.q.WarehouseQRSystemApplication - Started WarehouseQRSystemApplication in 8.69 seconds (process running for 9.078)
+2025-11-21 16:32:35 [main] INFO  com.qrware.config.DataInitializer - Initializing default data...
+2025-11-21 16:32:35 [main] INFO  com.qrware.config.DataInitializer - Creating default permissions...
+2025-11-21 16:32:35 [http-nio-0.0.0.0-8080-exec-2] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-11-21 16:32:35 [http-nio-0.0.0.0-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-11-21 16:32:35 [http-nio-0.0.0.0-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2025-11-21 16:32:35 [main] INFO  com.qrware.config.DataInitializer - Creating default roles...
+2025-11-21 16:32:35 [main] INFO  com.qrware.config.DataInitializer - Created USER role
+2025-11-21 16:32:35 [main] INFO  com.qrware.config.DataInitializer - Created WAREHOUSE_WORKER role
+2025-11-21 16:32:35 [main] INFO  com.qrware.config.DataInitializer - Created WAREHOUSE_MANAGER role
+2025-11-21 16:32:35 [main] INFO  com.qrware.config.DataInitializer - Created ADMIN role
+2025-11-21 16:32:35 [http-nio-0.0.0.0-8080-exec-2] WARN  c.q.s.s.CustomUserDetailsService - User not found: admin
+2025-11-21 16:32:35 [main] INFO  com.qrware.config.DataInitializer - Creating default users...
+2025-11-21 16:32:35 [http-nio-0.0.0.0-8080-exec-1] WARN  c.q.s.s.CustomUserDetailsService - User not found: admin
+2025-11-21 16:32:35 [http-nio-0.0.0.0-8080-exec-1] ERROR c.q.s.jwt.JwtAuthenticationFilter - Error processing JWT authentication: User not found with username or email: admin
+org.springframework.security.core.userdetails.UsernameNotFoundException: User not found with username or email: admin
+	at com.qrware.security.service.CustomUserDetailsService.lambda$loadUserByUsername$0(CustomUserDetailsService.java:40)
+	at java.base/java.util.Optional.orElseThrow(Optional.java:403)
+	at com.qrware.security.service.CustomUserDetailsService.loadUserByUsername(CustomUserDetailsService.java:40)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:352)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:765)
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:123)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:385)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:765)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:717)
+	at com.qrware.security.service.CustomUserDetailsService$$SpringCGLIB$$0.loadUserByUsername(<generated>)
+	at com.qrware.security.jwt.JwtAuthenticationFilter.processAuthentication(JwtAuthenticationFilter.java:112)
+	at com.qrware.security.jwt.JwtAuthenticationFilter.doFilterInternal(JwtAuthenticationFilter.java:78)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$0(ObservationFilterChainDecorator.java:323)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:224)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:352)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:268)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:109)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:340)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:391)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1744)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.base/java.lang.Thread.run(Thread.java:1447)
+2025-11-21 16:32:35 [http-nio-0.0.0.0-8080-exec-2] ERROR c.q.s.jwt.JwtAuthenticationFilter - Error processing JWT authentication: User not found with username or email: admin
+org.springframework.security.core.userdetails.UsernameNotFoundException: User not found with username or email: admin
+	at com.qrware.security.service.CustomUserDetailsService.lambda$loadUserByUsername$0(CustomUserDetailsService.java:40)
+	at java.base/java.util.Optional.orElseThrow(Optional.java:403)
+	at com.qrware.security.service.CustomUserDetailsService.loadUserByUsername(CustomUserDetailsService.java:40)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:352)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:765)
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:123)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:385)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:765)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:717)
+	at com.qrware.security.service.CustomUserDetailsService$$SpringCGLIB$$0.loadUserByUsername(<generated>)
+	at com.qrware.security.jwt.JwtAuthenticationFilter.processAuthentication(JwtAuthenticationFilter.java:112)
+	at com.qrware.security.jwt.JwtAuthenticationFilter.doFilterInternal(JwtAuthenticationFilter.java:78)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$0(ObservationFilterChainDecorator.java:323)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:224)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:352)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:268)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:109)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:340)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:391)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1744)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.base/java.lang.Thread.run(Thread.java:1447)
+2025-11-21 16:32:35 [http-nio-0.0.0.0-8080-exec-1] WARN  o.s.w.s.h.HandlerMappingIntrospector - Cache miss for REQUEST dispatch to '/api/qr-codes/stats' (previous null). Performing MatchableHandlerMapping lookup. This is logged once only at WARN level, and every time at TRACE.
+2025-11-21 16:32:35 [main] INFO  com.qrware.config.DataInitializer - Created ADMIN user (pass: password)
+2025-11-21 16:32:35 [main] INFO  com.qrware.config.DataInitializer - Created WAREHOUSE_MANAGER user (pass: password)
+2025-11-21 16:32:35 [main] INFO  com.qrware.config.DataInitializer - Created WAREHOUSE_WORKER user (pass: password)
+2025-11-21 16:32:35 [main] INFO  com.qrware.config.DataInitializer - Created USER user (pass: password)
+2025-11-21 16:32:35 [main] INFO  com.qrware.config.DataInitializer - Creating extensive sample data...
+2025-11-21 16:32:36 [http-nio-0.0.0.0-8080-exec-4] WARN  c.q.s.s.CustomUserDetailsService - User not found: admin
+2025-11-21 16:32:36 [http-nio-0.0.0.0-8080-exec-4] ERROR c.q.s.jwt.JwtAuthenticationFilter - Error processing JWT authentication: User not found with username or email: admin
+org.springframework.security.core.userdetails.UsernameNotFoundException: User not found with username or email: admin
+	at com.qrware.security.service.CustomUserDetailsService.lambda$loadUserByUsername$0(CustomUserDetailsService.java:40)
+	at java.base/java.util.Optional.orElseThrow(Optional.java:403)
+	at com.qrware.security.service.CustomUserDetailsService.loadUserByUsername(CustomUserDetailsService.java:40)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:352)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:765)
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:123)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:385)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:765)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:717)
+	at com.qrware.security.service.CustomUserDetailsService$$SpringCGLIB$$0.loadUserByUsername(<generated>)
+	at com.qrware.security.jwt.JwtAuthenticationFilter.processAuthentication(JwtAuthenticationFilter.java:112)
+	at com.qrware.security.jwt.JwtAuthenticationFilter.doFilterInternal(JwtAuthenticationFilter.java:78)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$0(ObservationFilterChainDecorator.java:323)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:224)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:352)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:268)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:109)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:340)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:391)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1744)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.base/java.lang.Thread.run(Thread.java:1447)
+2025-11-21 16:32:37 [main] INFO  com.qrware.config.DataInitializer - Extensive sample data created successfully - 15 categories, 12 zones, 200+ locations, 150+ products, 300+ inventory items
+2025-11-21 16:32:37 [main] INFO  com.qrware.config.DataInitializer - Default data initialization completed
+2025-11-21 16:33:00 [http-nio-0.0.0.0-8080-exec-5] INFO  c.qrware.controller.AuthController - Login attempt for user: admin
+2025-11-21 16:33:00 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.service.AuthenticationService - Attempting login for user: admin
+2025-11-21 16:33:01 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.service.AuthenticationService - Successful login for user: admin
+2025-11-21 16:33:01 [http-nio-0.0.0.0-8080-exec-5] INFO  c.qrware.controller.AuthController - Successful login for user: admin
+2025-11-21 16:33:01 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:05 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:05 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:05 [http-nio-0.0.0.0-8080-exec-8] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:33:07 [http-nio-0.0.0.0-8080-exec-10] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:08 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:10 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:10 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:10 [http-nio-0.0.0.0-8080-exec-4] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:33:10 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:10 [http-nio-0.0.0.0-8080-exec-6] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:33:10 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:11 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:11 [http-nio-0.0.0.0-8080-exec-5] INFO  c.qrware.controller.QRCodeController - Received request to generate QR Code via generic endpoint. Data: PRODUCT:1
+2025-11-21 16:33:11 [http-nio-0.0.0.0-8080-exec-5] INFO  c.qrware.controller.QRCodeController - Auto-generating QR code image and ID for entity: PRODUCT
+2025-11-21 16:33:11 [http-nio-0.0.0.0-8080-exec-5] INFO  c.qrware.controller.QRCodeController - QR Code generated successfully with ID: 1
+2025-11-21 16:33:11 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:11 [http-nio-0.0.0.0-8080-exec-7] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:33:11 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:13 [http-nio-0.0.0.0-8080-exec-10] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:13 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:13 [http-nio-0.0.0.0-8080-exec-10] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:33:14 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:14 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:14 [http-nio-0.0.0.0-8080-exec-1] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:33:15 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:15 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:15 [http-nio-0.0.0.0-8080-exec-6] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:33:16 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:16 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:16 [http-nio-0.0.0.0-8080-exec-3] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:33:17 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:17 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:17 [http-nio-0.0.0.0-8080-exec-7] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:33:18 [http-nio-0.0.0.0-8080-exec-10] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:18 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:18 [http-nio-0.0.0.0-8080-exec-8] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:33:19 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:19 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:19 [http-nio-0.0.0.0-8080-exec-2] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:33:20 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:20 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:20 [http-nio-0.0.0.0-8080-exec-4] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:33:21 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:21 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:21 [http-nio-0.0.0.0-8080-exec-3] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:33:21 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:21 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:21 [http-nio-0.0.0.0-8080-exec-7] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:33:23 [http-nio-0.0.0.0-8080-exec-10] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:23 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:23 [http-nio-0.0.0.0-8080-exec-8] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:33:23 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:23 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:23 [http-nio-0.0.0.0-8080-exec-2] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:33:23 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:24 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:24 [http-nio-0.0.0.0-8080-exec-4] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:33:24 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:24 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:24 [http-nio-0.0.0.0-8080-exec-3] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:33:25 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:27 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:27 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:33:27 [http-nio-0.0.0.0-8080-exec-8] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:34:10 [http-nio-0.0.0.0-8080-exec-10] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:34:12 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:34:12 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:34:12 [http-nio-0.0.0.0-8080-exec-4] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:34:41 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:34:42 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:34:42 [http-nio-0.0.0.0-8080-exec-7] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:34:42 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:34:43 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:34:44 [http-nio-0.0.0.0-8080-exec-6] INFO  c.qrware.controller.QRCodeController - Scanning QR code: QR_C131249F
+2025-11-21 16:34:44 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:34:44 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:34:44 [http-nio-0.0.0.0-8080-exec-2] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:34:44 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:34:44 [http-nio-0.0.0.0-8080-exec-5] INFO  c.qrware.controller.QRCodeController - Scanning QR code: QR_C131249F
+2025-11-21 16:34:44 [http-nio-0.0.0.0-8080-exec-10] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:34:44 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:34:44 [http-nio-0.0.0.0-8080-exec-1] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:35:06 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:35:06 [http-nio-0.0.0.0-8080-exec-8] INFO  c.qrware.controller.QRCodeController - Scanning QR code: QR_C131249F
+2025-11-21 16:35:06 [http-nio-0.0.0.0-8080-exec-4] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:35:06 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:35:06 [http-nio-0.0.0.0-8080-exec-7] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:35:06 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:35:06 [http-nio-0.0.0.0-8080-exec-3] INFO  c.qrware.controller.QRCodeController - Scanning QR code: QR_C131249F
+2025-11-21 16:35:06 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:35:06 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:35:06 [http-nio-0.0.0.0-8080-exec-2] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2025-11-21 16:35:11 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, USER_READ, QR_SCAN, INVENTORY_UPDATE, PRODUCT_READ]
+2025-11-21 16:35:29 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-11-21 16:35:29 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-11-21 16:35:29 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

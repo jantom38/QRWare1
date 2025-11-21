@@ -12,7 +12,7 @@ object NetworkModule {
 
     // UŻYJ ADRESU IP TWOJEGO KOMPUTERA W SIECI LOKALNEJ
     // NIE 'localhost' ani '127.0.0.1'
-    private const val BASE_URL = "http://10.0.2.2:8080" // <-- ZMIEŃ NA SWÓJ ADRES IP
+    private const val BASE_URL = "http://192.168.0.178:8080" // <-- ZMIEŃ NA SWÓJ ADRES IP
 
     fun createClient(tokenManager: TokenManager): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor().apply {

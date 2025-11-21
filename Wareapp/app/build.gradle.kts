@@ -87,4 +87,18 @@ dependencies {
 
     // DataStore (do bezpiecznego przechowywania tokenu)
     implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
+    val cameraxVersion = "1.3.1"
+    implementation("androidx.camera:camera-core:${cameraxVersion}")
+    implementation("androidx.camera:camera-camera2:${cameraxVersion}")
+    implementation("androidx.camera:camera-lifecycle:${cameraxVersion}")
+    implementation("androidx.camera:camera-view:${cameraxVersion}")
+
+    // ML Kit Barcode Scanning
+    implementation("com.google.mlkit:barcode-scanning:17.2.0")
+
+    // Ikony (jeśli jeszcze nie masz extended)
+    implementation("androidx.compose.material:material-icons-extended:1.6.0")
 }

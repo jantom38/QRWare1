@@ -1,22 +1,40 @@
 package com.qrware.app.ui.screens
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.util.Size
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.FlashOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.qrware.app.data.model.QRCodeType
 import com.qrware.app.di.AppContainer
 import com.qrware.app.ui.viewmodel.QRCodeViewModel
+import com.qrware.app.util.BarcodeAnalyzer
+import java.util.concurrent.Executors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,331 +42,188 @@ fun QRScanScreen(
     navController: NavController,
     appContainer: AppContainer
 ) {
-    val viewModel: QRCodeViewModel = viewModel(
-        factory = appContainer.qrCodeViewModelFactory
-    )
+    val viewModel: QRCodeViewModel = viewModel(factory = appContainer.qrCodeViewModelFactory)
     val uiState by viewModel.uiState.collectAsState()
     val scanResult by viewModel.scanResult.collectAsState()
-    var manualCode by remember { mutableStateOf("") }
-    var showManualInput by remember { mutableStateOf(false) }
 
-    LaunchedEffect(uiState.error, uiState.successMessage) {
-        if (uiState.error != null || uiState.successMessage != null) {
-            kotlinx.coroutines.delay(3000)
-            viewModel.clearMessages()
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    var hasCameraPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { granted -> hasCameraPermission = granted }
+    )
+
+    LaunchedEffect(Unit) {
+        if (!hasCameraPermission) {
+            launcher.launch(Manifest.permission.CAMERA)
         }
     }
 
+    // === LOGIKA NAWIGACJI PO SKANOWANIU ===
+    // Reagujemy na zmianę scanResult. Jeśli jest sukces, nawigujemy.
     LaunchedEffect(scanResult) {
-        if (scanResult != null && scanResult!!.success) {
-            kotlinx.coroutines.delay(5000)
-            viewModel.clearScanResult()
+        scanResult?.let { result ->
+            if (result.success && result.entityId != null) {
+                // Tutaj następuje "Magiczne Przekierowanie" w zależności od typu
+                when (result.type) {
+                    QRCodeType.PRODUCT -> {
+                        // Zakładam, że masz taką ścieżkę w nawigacji
+                        navController.navigate("products/${result.entityId}")
+                    }
+                    QRCodeType.LOCATION -> {
+                        navController.navigate("locations/${result.entityId}")
+                    }
+                    QRCodeType.INVENTORY_ITEM -> {
+                        navController.navigate("inventory/${result.entityId}")
+                    }
+                    else -> {
+                        // Dla nieznanych typów zostajemy na ekranie i pokazujemy info
+                    }
+                }
+                // Czyścimy wynik, aby nie nawigować ponownie przy powrocie
+                viewModel.clearScanResult()
+            }
         }
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Skanuj Kod QR") },
+                title = { Text("Skanuj Kod") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Wróć")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White
+                )
             )
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // Header z instrukcjami
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.Default.QrCodeScanner,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            "Skanowanie Kodu QR",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        "Skieruj aparat na kod QR lub wprowadź kod ręcznie",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-            }
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (hasCameraPermission) {
+                AndroidView(
+                    factory = { ctx ->
+                        val previewView = PreviewView(ctx)
+                        val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
 
-            // Przycisk otwierania kamery (placeholder)
-            Button(
-                onClick = { 
-                    // TODO: Implementacja skanowania z kamery
-                    // Tymczasowo pokaż pole ręcznego wprowadzania
-                    showManualInput = true
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(Icons.Default.QrCodeScanner, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Otwórz Aparat")
-            }
-
-            // Ręczne wprowadzanie kodu
-            if (showManualInput) {
-                Card(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-                        Text(
-                            "Wprowadź kod ręcznie",
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        OutlinedTextField(
-                            value = manualCode,
-                            onValueChange = { manualCode = it },
-                            label = { Text("Kod QR") },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Button(
-                                onClick = {
-                                    if (manualCode.isNotBlank()) {
-                                        viewModel.scanQRCode(manualCode)
-                                    }
-                                },
-                                enabled = manualCode.isNotBlank() && !uiState.isScanning,
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                if (uiState.isScanning) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(16.dp),
-                                        strokeWidth = 2.dp
-                                    )
-                                } else {
-                                    Text("Skanuj")
-                                }
+                        cameraProviderFuture.addListener({
+                            val cameraProvider = cameraProviderFuture.get()
+                            val preview = Preview.Builder().build().also {
+                                it.setSurfaceProvider(previewView.surfaceProvider)
                             }
-                            OutlinedButton(
-                                onClick = {
-                                    manualCode = ""
-                                    showManualInput = false
-                                },
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text("Anuluj")
-                            }
-                        }
-                    }
-                }
-            }
 
-            // Komunikaty błędów/sukcesu
-            uiState.error?.let { error ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
-                ) {
-                    Text(
-                        text = error,
-                        modifier = Modifier.padding(16.dp),
-                        color = MaterialTheme.colorScheme.onErrorContainer
-                    )
-                }
-            }
-
-            uiState.successMessage?.let { message ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                ) {
-                    Text(
-                        text = message,
-                        modifier = Modifier.padding(16.dp),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-            }
-
-            // Wynik skanowania
-            scanResult?.let { result ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (result.success) 
-                            MaterialTheme.colorScheme.primaryContainer 
-                        else 
-                            MaterialTheme.colorScheme.errorContainer
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-                        Text(
-                            text = if (result.success) "✅ Skanowanie udane" else "❌ Skanowanie nieudane",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = if (result.success) 
-                                MaterialTheme.colorScheme.onPrimaryContainer 
-                            else 
-                                MaterialTheme.colorScheme.onErrorContainer
-                        )
-                        
-                        if (result.success) {
-                            Spacer(modifier = Modifier.height(8.dp))
-                            
-                            Text(
-                                "Kod: ${result.code}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                            
-                            Text(
-                                "Typ: ${getQRTypeDisplayName(result.type)}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                            
-                            if (result.entityType != null && result.entityId != null) {
-                                Text(
-                                    "Encja: ${result.entityType} (ID: ${result.entityId})",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                            }
-                            
-                            Text(
-                                "Dane: ${result.data}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                            
-                            Spacer(modifier = Modifier.height(12.dp))
-                            
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Button(
-                                    onClick = {
-                                        // Nawiguj do odpowiedniego ekranu na podstawie typu
-                                        when (result.type) {
-                                            QRCodeType.PRODUCT -> {
-                                                if (result.entityId != null) {
-                                                    navController.navigate("product_details/${result.entityId}")
-                                                }
-                                            }
-                                            QRCodeType.INVENTORY_ITEM -> {
-                                                navController.navigate("inventory")
-                                            }
-                                            QRCodeType.LOCATION -> {
-                                                navController.navigate("locations")
-                                            }
-                                            else -> {
-                                                // Dla niestandardowych kodów
+                            val imageAnalysis = ImageAnalysis.Builder()
+                                .setTargetResolution(Size(1280, 720))
+                                .build()
+                                .also {
+                                    it.setAnalyzer(
+                                        Executors.newSingleThreadExecutor(),
+                                        BarcodeAnalyzer { code ->
+                                            // Zapobiegamy wielokrotnym wywołaniom jeśli już przetwarzamy
+                                            if (!uiState.isScanning && !uiState.isLoading) {
+                                                viewModel.scanQRCode(code)
                                             }
                                         }
-                                    }
-                                ) {
-                                    Text("Przejdź do szczegółów")
+                                    )
                                 }
-                                
-                                OutlinedButton(
-                                    onClick = {
-                                        viewModel.clearScanResult()
-                                        manualCode = ""
-                                    }
-                                ) {
-                                    Text("Skanuj kolejny")
-                                }
-                            }
-                        } else {
-                            result.message?.let { message ->
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    message,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onErrorContainer
+
+                            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+                            try {
+                                cameraProvider.unbindAll()
+                                cameraProvider.bindToLifecycle(
+                                    lifecycleOwner,
+                                    cameraSelector,
+                                    preview,
+                                    imageAnalysis
                                 )
+                            } catch (e: Exception) {
+                                e.printStackTrace()
                             }
-                        }
+                        }, ContextCompat.getMainExecutor(ctx))
+                        previewView
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
+
+                // Nakładka (Overlay) celownika
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(250.dp)
+                        .border(2.dp, Color.White, RoundedCornerShape(12.dp))
+                )
+
+                Text(
+                    text = "Skieruj kamerę na kod QR",
+                    color = Color.White,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 100.dp)
+                        .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                        .padding(8.dp)
+                )
+
+            } else {
+                // Brak uprawnień
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Brak uprawnień do kamery")
+                    Button(onClick = { launcher.launch(Manifest.permission.CAMERA) }) {
+                        Text("Przyznaj uprawnienia")
                     }
                 }
             }
 
-            // Szybkie akcje - przykładowe kody do testowania
-            Card(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
+            // Wskaźnik ładowania (API call w tle)
+            if (uiState.isScanning || uiState.isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.5f)),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        "Szybkie testowanie",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Button(
-                            onClick = {
-                                viewModel.scanQRCode("PRODUCT_001")
-                            },
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text("Test Produkt")
-                        }
-                        Button(
-                            onClick = {
-                                viewModel.scanQRCode("LOC_A01")
-                            },
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text("Test Lokalizacja")
-                        }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text("Pobieranie danych...", color = Color.White)
                     }
                 }
+            }
+
+            // Obsługa błędów (np. kod nie znaleziony w bazie)
+            uiState.error?.let { error ->
+                // Możemy pokazać Snackbar lub Dialog
+                AlertDialog(
+                    onDismissRequest = { viewModel.clearMessages() },
+                    title = { Text("Błąd skanowania") },
+                    text = { Text(error) },
+                    confirmButton = {
+                        TextButton(onClick = { viewModel.clearMessages() }) {
+                            Text("OK")
+                        }
+                    }
+                )
             }
         }
-    }
-}
-
-@Composable
-private fun getQRTypeDisplayName(type: QRCodeType): String {
-    return when (type) {
-        QRCodeType.PRODUCT -> "Produkt"
-        QRCodeType.LOCATION -> "Lokalizacja"
-        QRCodeType.INVENTORY_ITEM -> "Pozycja magazynowa"
-        QRCodeType.SHIPMENT -> "Przesyłka"
-        QRCodeType.CUSTOM -> "Niestandardowy"
     }
 }

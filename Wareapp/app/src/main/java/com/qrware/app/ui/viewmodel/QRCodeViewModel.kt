@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
 
 class QRCodeViewModel(
     private val qrCodeRepository: QRCodeRepository
@@ -22,6 +24,10 @@ class QRCodeViewModel(
     private val _stats = MutableStateFlow<QRStatsResponse?>(null)
     val stats: StateFlow<QRStatsResponse?> = _stats.asStateFlow()
 
+    // NOWE: Przechowuje ostatnio wygenerowany kod (do wyświetlenia obrazka)
+    private val _generatedQRCode = MutableStateFlow<QRCodeData?>(null)
+    val generatedQRCode: StateFlow<QRCodeData?> = _generatedQRCode.asStateFlow()
+
     init {
         loadQRCodes()
         loadStats()
@@ -31,12 +37,11 @@ class QRCodeViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                // ZMIANA: 'response' to teraz bezpośrednio PaginatedResponse
                 val response = qrCodeRepository.getAllQRCodes(page, size)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    qrCodes = response.content, // <-- ZMIANA
-                    totalPages = response.totalPages, // <-- ZMIANA
+                    qrCodes = response.content,
+                    totalPages = response.totalPages,
                     currentPage = page
                 )
             } catch (e: Exception) {
@@ -52,11 +57,10 @@ class QRCodeViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                // ZMIANA: 'response' to teraz bezpośrednio Lista
                 val response = qrCodeRepository.getActiveQRCodes()
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    qrCodes = response // <-- ZMIANA
+                    qrCodes = response
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -71,11 +75,10 @@ class QRCodeViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                // ZMIANA: 'response' to teraz bezpośrednio Lista
                 val response = qrCodeRepository.getQRCodesByType(type)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    qrCodes = response // <-- ZMIANA
+                    qrCodes = response
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -87,12 +90,13 @@ class QRCodeViewModel(
     }
 
     fun scanQRCode(code: String) {
+        // Zapobiegamy wielokrotnym strzałom w tej samej chwili
+        if (_uiState.value.isScanning) return
+
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isScanning = true, error = null)
+
             try {
-                // ZMIANA: 'qrData' to teraz bezpośrednio QRCodeData
-                // Jeśli kod nie zostanie znaleziony, serwer rzuci wyjątek (np. 404),
-                // który zostanie przechwycony przez blok catch.
                 val qrData = qrCodeRepository.scanQRCode(code)
 
                 _scanResult.value = QRScanResult(
@@ -106,42 +110,65 @@ class QRCodeViewModel(
                 )
                 _uiState.value = _uiState.value.copy(
                     isScanning = false,
-                    successMessage = "Kod QR zeskanowany pomyślnie"
+                    successMessage = "Kod znaleziony!"
                 )
-                // Odśwież listę i statystyki
-                loadQRCodes()
+
+                // Odświeżamy statystyki w tle
                 loadStats()
 
             } catch (e: Exception) {
-                // ZMIANA: Ten blok obsłuży teraz błędy, np. 404 Not Found
+                val errorMessage = when (e) {
+                    is HttpException -> {
+                        when (e.code()) {
+                            401 -> "Sesja wygasła lub brak autoryzacji. Zaloguj się ponownie."
+                            403 -> "Brak uprawnień do skanowania tego kodu."
+                            404 -> "Nie znaleziono takiego kodu QR w bazie."
+                            500 -> "Wewnętrzny błąd serwera."
+                            else -> "Błąd sieci: ${e.code()} ${e.message()}"
+                        }
+                    }
+                    is IOException -> "Brak połączenia z serwerem. Sprawdź Wi-Fi."
+                    else -> e.message ?: "Nieznany błąd skanowania"
+                }
+
                 _scanResult.value = QRScanResult(
                     code = code,
                     data = "",
-                    type = QRCodeType.CUSTOM,
+                    type = QRCodeType.CUSTOM, // Domyślny typ przy błędzie
                     entityType = null,
                     entityId = null,
                     success = false,
-                    message = e.message ?: "Błąd podczas skanowania"
+                    message = errorMessage
                 )
+
                 _uiState.value = _uiState.value.copy(
                     isScanning = false,
-                    error = e.message ?: "Błąd podczas skanowania kodu QR"
+                    error = errorMessage
                 )
             }
         }
     }
 
+    // ZMODYFIKOWANA METODA GENEROWANIA
     fun generateQRCode(request: GenerateQRRequest) {
         viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
                 val response = qrCodeRepository.generateQRCode(request)
-                loadQRCodes() // Odśwież listę
-                loadStats() // Odśwież statystyki
+
+                // Zapisz odpowiedź, aby ekran mógł wyświetlić obrazek
+                _generatedQRCode.value = response
+
+                loadQRCodes()
+                loadStats()
+
                 _uiState.value = _uiState.value.copy(
+                    isLoading = false,
                     successMessage = "Kod QR został wygenerowany pomyślnie"
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
+                    isLoading = false,
                     error = e.message ?: "Błąd podczas generowania kodu QR"
                 )
             }
@@ -152,7 +179,7 @@ class QRCodeViewModel(
         viewModelScope.launch {
             try {
                 qrCodeRepository.updateQRCode(qrCodeId, request)
-                loadQRCodes() // Odśwież listę
+                loadQRCodes()
                 _uiState.value = _uiState.value.copy(
                     successMessage = "Kod QR został zaktualizowany pomyślnie"
                 )
@@ -168,8 +195,8 @@ class QRCodeViewModel(
         viewModelScope.launch {
             try {
                 qrCodeRepository.deleteQRCode(qrCodeId)
-                loadQRCodes() // Odśwież listę
-                loadStats() // Odśwież statystyki
+                loadQRCodes()
+                loadStats()
                 _uiState.value = _uiState.value.copy(
                     successMessage = "Kod QR został usunięty pomyślnie"
                 )
@@ -185,8 +212,8 @@ class QRCodeViewModel(
         viewModelScope.launch {
             try {
                 qrCodeRepository.toggleQRCodeActive(qrCodeId)
-                loadQRCodes() // Odśwież listę
-                loadStats() // Odśwież statystyki
+                loadQRCodes()
+                loadStats()
                 _uiState.value = _uiState.value.copy(
                     successMessage = "Status kodu QR został zmieniony"
                 )
@@ -198,12 +225,17 @@ class QRCodeViewModel(
         }
     }
 
+    // NOWE: Czyści stan wygenerowanego kodu (przy wyjściu z ekranu generatora)
+    fun clearGeneratedQRCode() {
+        _generatedQRCode.value = null
+        clearMessages()
+    }
+
     private fun loadStats() {
         viewModelScope.launch {
             try {
-                // ZMIANA: 'response' to teraz bezpośrednio QRStatsResponse
                 val response = qrCodeRepository.getQRStats()
-                _stats.value = response // <-- ZMIANA
+                _stats.value = response
             } catch (e: Exception) {
                 // Ignoruj błędy statystyk
             }
