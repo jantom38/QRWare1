@@ -143,9 +143,12 @@ class AddInventoryViewModel(
                     lotNumber = lotNumber,
                     batchNumber = batchNumber,
                     serialNumber = serialNumber,
-                    receivedDate = receivedLocalDate,
-                    expiryDate = expiryLocalDate,
-                    manufactureDate = manufactureLocalDate,
+
+                    // ZMIANA TUTAJ - przekazujemy Stringi bezpośrednio:
+                    receivedDate = receivedDate,
+                    expiryDate = expiryDate,
+                    manufactureDate = manufactureDate,
+
                     unitCost = unitCost,
                     supplierReference = supplierReference,
                     purchaseOrderNumber = purchaseOrderNumber,

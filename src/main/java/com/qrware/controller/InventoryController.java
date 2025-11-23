@@ -39,7 +39,10 @@ public class InventoryController {
 
     @Autowired
     private MovementHistoryRepository movementHistoryRepository;
-
+    @Autowired
+    private com.qrware.repository.product.ProductRepository productRepository; // Upewnij się co do importu
+    @Autowired
+    private com.qrware.repository.warehouse.LocationRepository locationRepository; // Upewnij się co do importu
     // --- WSTRZYKNIJ SWÓJ MAPPER ---
     @Autowired
     private DTOMapper dtoMapper;
@@ -142,15 +145,21 @@ public class InventoryController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('INVENTORY_WRITE')")
-    // --- ZMIEŃ TYP ZWRACANY NA INVENTORYITEMDTO ---
     public ResponseEntity<InventoryItemDTO> createInventoryItem(@Valid @RequestBody CreateInventoryRequest request) {
         logger.info("POST /api/inventory - Tworzenie nowej pozycji.");
 
+        // 1. Pobierz encje Product i Location z bazy danych
+        var product = productRepository.findById(request.getProductId())
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", request.getProductId()));
+
+        var location = locationRepository.findById(request.getLocationId())
+                .orElseThrow(() -> new ResourceNotFoundException("Location", "id", request.getLocationId()));
+
         InventoryItem item = new InventoryItem();
-        // TODO: Ustaw Product i Location na podstawie ID z requestu
-        // item.setProduct(productRepository.findById(request.getProductId()).orElseThrow());
-        // item.setLocation(locationRepository.findById(request.getLocationId()).orElseThrow());
-        
+
+        item.setProduct(product);
+        item.setLocation(location); 
+
         item.setQuantity(request.getQuantity());
         item.setReservedQuantity(request.getReservedQuantity() != null ? request.getReservedQuantity() : 0);
         item.setStatus(request.getStatus());
@@ -176,7 +185,7 @@ public class InventoryController {
         InventoryItem savedItem = inventoryRepository.save(item);
         logger.info("Utworzono nową pozycję z ID: {}", savedItem.getId());
 
-        // Zwróć DTO (musimy ponownie wczytać z findById, aby dociągnąć relacje dla mappera)
+        // Zwróć DTO
         InventoryItem reloadedItem = inventoryRepository.findById(savedItem.getId()).orElse(savedItem);
         return ResponseEntity.status(HttpStatus.CREATED).body(dtoMapper.toDTO(reloadedItem));
     }
