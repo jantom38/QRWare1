@@ -1,5 +1,6 @@
 package com.qrware.app.data.remote
 
+import com.qrware.app.data.preferences.ServerConfigManager
 import com.qrware.app.security.AuthInterceptor
 import com.qrware.app.security.TokenManager
 import okhttp3.OkHttpClient
@@ -10,9 +11,8 @@ import java.util.concurrent.TimeUnit
 
 object NetworkModule {
 
-    // UŻYJ ADRESU IP TWOJEGO KOMPUTERA W SIECI LOKALNEJ
-    // NIE 'localhost' ani '127.0.0.1'
-    private const val BASE_URL = "http://192.168.0.178:8080" // <-- ZMIEŃ NA SWÓJ ADRES IP
+    // DYNAMICZNY BASE_URL - teraz pobierany z ServerConfigManager
+    private lateinit var serverConfigManager: ServerConfigManager
 
     fun createClient(tokenManager: TokenManager): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
@@ -28,9 +28,27 @@ object NetworkModule {
             .build()
     }
 
+    /**
+     * Inicjalizuje NetworkModule z ServerConfigManager
+     */
+    fun init(serverConfigManager: ServerConfigManager) {
+        this.serverConfigManager = serverConfigManager
+    }
+    
+    /**
+     * Pobiera aktualny URL serwera
+     */
+    fun getBaseUrl(): String {
+        return if (::serverConfigManager.isInitialized) {
+            serverConfigManager.getServerUrl()
+        } else {
+            "http://192.168.0.178:8080" // Fallback
+        }
+    }
+
     fun createRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(getBaseUrl())
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

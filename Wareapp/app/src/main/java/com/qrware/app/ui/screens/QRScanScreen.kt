@@ -84,7 +84,7 @@ fun QRScanScreen(
                         navController.navigate("locations/${result.entityId}")
                     }
                     QRCodeType.INVENTORY_ITEM -> {
-                        navController.navigate("inventory/${result.entityId}")
+                        navController.navigate("inventory_details/${result.entityId}")
                     }
                     else -> {
                         // Dla nieznanych typów zostajemy na ekranie i pokazujemy info

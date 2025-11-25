@@ -2,8 +2,10 @@ package com.qrware.controller;
 
 import com.qrware.domain.inventory.InventoryItem;
 import com.qrware.domain.inventory.InventoryStatus;
+import com.qrware.domain.inventory.MovementType;
 import com.qrware.repository.inventory.InventoryItemRepository;
 import com.qrware.repository.inventory.MovementHistoryRepository;
+import com.qrware.service.MovementHistoryService;
 import com.qrware.exception.ResourceNotFoundException;
 
 // --- NOWE IMPORTY ---
@@ -39,6 +41,10 @@ public class InventoryController {
 
     @Autowired
     private MovementHistoryRepository movementHistoryRepository;
+    
+    @Autowired
+    private MovementHistoryService movementHistoryService;
+    
     @Autowired
     private com.qrware.repository.product.ProductRepository productRepository; // Upewnij się co do importu
     @Autowired
@@ -99,6 +105,23 @@ public class InventoryController {
                 .map(dtoMapper::toDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
+    }
+
+    // Pobierz pozycję po QR kodzie
+    @GetMapping("/qr/{qrCode}")
+    @PreAuthorize("hasAuthority('INVENTORY_READ')")
+    public ResponseEntity<InventoryItemDTO> getInventoryByQRCode(@PathVariable String qrCode) {
+        logger.info("GET /api/inventory/qr/{} - Pobieranie pozycji po QR kodzie.", qrCode);
+        
+        Optional<InventoryItem> item = inventoryRepository.findByQrCode(qrCode);
+        
+        if (item.isPresent()) {
+            logger.info("Znaleziono pozycję magazynową dla QR kodu: {}", qrCode);
+            return ResponseEntity.ok(dtoMapper.toDTO(item.get()));
+        }
+        
+        logger.warn("Nie znaleziono pozycji magazynowej dla QR kodu: {}", qrCode);
+        throw new ResourceNotFoundException("Inventory item", "qrCode", qrCode);
     }
 
     // Pobierz pozycje po lokalizacji
@@ -250,10 +273,28 @@ public class InventoryController {
         InventoryItem item = inventoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Inventory item", "id", id));
 
-        Integer newQuantity = item.getQuantity() + request.getQuantity();
+        Integer previousQuantity = item.getQuantity();
+        Integer newQuantity = previousQuantity + request.getQuantity();
         item.setQuantity(newQuantity);
 
         InventoryItem updatedItem = inventoryRepository.save(item);
+
+        // Create movement history record
+        try {
+            movementHistoryService.createMovementHistory(
+                item.getId(),
+                MovementType.RECEIPT,
+                previousQuantity,
+                newQuantity,
+                null, // fromLocation
+                item.getLocation(), // toLocation
+                request.getReason() != null ? request.getReason() : "Przyjęcie towaru przez aplikację"
+            );
+            logger.info("Utworzono wpis w historii ruchów dla przyjęcia towaru. ID pozycji: {}", id);
+        } catch (Exception e) {
+            logger.error("Błąd podczas tworzenia wpisu w historii ruchów: {}", e.getMessage());
+            // Kontynuuj - nie przerywaj operacji z powodu błędu historii
+        }
 
         // Zwróć DTO
         InventoryItem reloadedItem = inventoryRepository.findById(updatedItem.getId()).orElse(updatedItem);
@@ -284,7 +325,8 @@ public class InventoryController {
         InventoryItem item = inventoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Inventory item", "id", id));
 
-        Integer newQuantity = item.getQuantity() - request.getQuantity();
+        Integer previousQuantity = item.getQuantity();
+        Integer newQuantity = previousQuantity - request.getQuantity();
 
         if (newQuantity < 0) {
             logger.warn("Próba wydania większej ilości towaru niż dostępna dla ID: {}", id);
@@ -293,6 +335,23 @@ public class InventoryController {
 
         item.setQuantity(newQuantity);
         InventoryItem updatedItem = inventoryRepository.save(item);
+
+        // Create movement history record
+        try {
+            movementHistoryService.createMovementHistory(
+                item.getId(),
+                MovementType.ISSUE,
+                previousQuantity,
+                newQuantity,
+                item.getLocation(), // fromLocation
+                null, // toLocation
+                request.getReason() != null ? request.getReason() : "Wydanie towaru przez aplikację"
+            );
+            logger.info("Utworzono wpis w historii ruchów dla wydania towaru. ID pozycji: {}", id);
+        } catch (Exception e) {
+            logger.error("Błąd podczas tworzenia wpisu w historii ruchów: {}", e.getMessage());
+            // Kontynuuj - nie przerywaj operacji z powodu błędu historii
+        }
 
         // Zwróć DTO
         InventoryItem reloadedItem = inventoryRepository.findById(updatedItem.getId()).orElse(updatedItem);

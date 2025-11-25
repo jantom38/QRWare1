@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/qr-codes")
-@CrossOrigin(origins = {"http://localhost:3000", "http://10.0.2.2:8080", "http://192.168.0.178:8080"})
+@CrossOrigin(origins = {"http://localhost:3000", "http://10.0.2.2:8080", "http://192.168.0.178:8080","http://10.95.124.18D:8080"})
 public class QRCodeController {
 
     // 1. Definicja Loggera

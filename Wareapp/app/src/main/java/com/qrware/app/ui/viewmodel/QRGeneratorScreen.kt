@@ -105,7 +105,7 @@ fun QRGeneratorScreen(
                         Spacer(modifier = Modifier.height(24.dp))
 
                         // Obraz z serwera (używamy 10.0.2.2 dla emulatora, zmień na IP serwera dla fizycznego urządzenia)
-                        val imageUrl = "http://10.0.2.2:8080/api/qr-codes/image/${generatedQRCode!!.imagePath}"
+                        val imageUrl = "http://192.168.0.178:8080/api/qr-codes/image/${generatedQRCode!!.imagePath}"
 
                         AsyncImage(
                             model = imageUrl,

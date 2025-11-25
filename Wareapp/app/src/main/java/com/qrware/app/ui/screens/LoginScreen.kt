@@ -1,6 +1,8 @@
 package com.qrware.app.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,13 +27,28 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel) {
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("QRWare Login", style = MaterialTheme.typography.headlineMedium)
-        Spacer(modifier = Modifier.height(32.dp))
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Przycisk ustawień w prawym górnym rogu
+        IconButton(
+            onClick = { navController.navigate("server_settings") },
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Settings,
+                contentDescription = "Ustawienia serwera",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("QRWare Login", style = MaterialTheme.typography.headlineMedium)
+            Spacer(modifier = Modifier.height(32.dp))
 
         OutlinedTextField(
             value = username,
@@ -70,6 +87,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel) {
             TextButton(onClick = { navController.navigate("register") }) {
                 Text("Nie masz konta? Zarejestruj się")
             }
+        }
         }
     }
 }

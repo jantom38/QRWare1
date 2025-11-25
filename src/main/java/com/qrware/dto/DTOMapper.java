@@ -1,11 +1,13 @@
 package com.qrware.dto;
 
 import com.qrware.domain.inventory.InventoryItem;
+import com.qrware.domain.inventory.MovementHistory;
 import com.qrware.domain.product.Product;
 import com.qrware.domain.product.Category;
 import com.qrware.domain.warehouse.Location;
 import com.qrware.domain.warehouse.Zone;
 import com.qrware.domain.qr.QRCodeData;
+import java.time.format.DateTimeFormatter;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -175,5 +177,54 @@ public class DTOMapper {
         dto.setImagePath(qrCode.getImagePath());
         
         return dto;
+    }
+
+    public MovementHistoryDTO toMovementHistoryDTO(MovementHistory movement) {
+        if (movement == null) return null;
+        
+        MovementHistoryDTO dto = new MovementHistoryDTO();
+        dto.setId(movement.getId());
+        dto.setInventoryItem(toInventoryItemDTO(movement.getInventoryItem()));
+        dto.setMovementType(movement.getMovementType().name());
+        dto.setMovementDate(movement.getMovementDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        dto.setQuantityBefore(movement.getQuantityBefore());
+        dto.setQuantityAfter(movement.getQuantityAfter());
+        dto.setQuantityChanged(movement.getQuantityChanged());
+        dto.setFromLocation(movement.getFromLocation() != null ? toLocationDTO(movement.getFromLocation()) : null);
+        dto.setToLocation(movement.getToLocation() != null ? toLocationDTO(movement.getToLocation()) : null);
+        dto.setStatusBefore(movement.getStatusBefore());
+        dto.setStatusAfter(movement.getStatusAfter());
+        dto.setUnitCost(movement.getUnitCost());
+        dto.setTotalCost(movement.getTotalCost());
+        dto.setReferenceNumber(movement.getReferenceNumber());
+        dto.setReferenceType(movement.getReferenceType());
+        dto.setReason(movement.getReason());
+        dto.setNotes(movement.getNotes());
+        dto.setUserId(movement.getUserId());
+        dto.setUserName(movement.getUserName());
+        dto.setApproved(movement.getApproved());
+        dto.setApprovedBy(movement.getApprovedBy());
+        dto.setApprovedDate(movement.getApprovedDate() != null ? 
+            movement.getApprovedDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null);
+        dto.setBatchId(movement.getBatchId());
+        dto.setSystemGenerated(movement.getSystemGenerated());
+        dto.setTemperature(movement.getTemperature());
+        dto.setHumidity(movement.getHumidity());
+        dto.setWeight(movement.getWeight());
+        dto.setVolume(movement.getVolume());
+        dto.setCreatedAt(movement.getCreatedAt() != null ? 
+            movement.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null);
+        dto.setUpdatedAt(movement.getUpdatedAt() != null ? 
+            movement.getUpdatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null);
+        
+        return dto;
+    }
+
+    public InventoryItemDTO toInventoryItemDTO(InventoryItem item) {
+        return toDTO(item);
+    }
+
+    public LocationDTO toLocationDTO(Location location) {
+        return toDTO(location);
     }
 }

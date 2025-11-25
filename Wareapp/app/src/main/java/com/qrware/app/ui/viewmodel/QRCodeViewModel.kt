@@ -97,7 +97,11 @@ class QRCodeViewModel(
             _uiState.value = _uiState.value.copy(isScanning = true, error = null)
 
             try {
+                // 1. Pobierz dane QR kodu
                 val qrData = qrCodeRepository.scanQRCode(code)
+                
+                // 2. Sprawdź czy istnieje stan magazynowy dla tego QR kodu
+                val inventoryVerification = verifyInventoryForQRCode(code, qrData)
 
                 _scanResult.value = QRScanResult(
                     code = qrData.code,
@@ -106,11 +110,11 @@ class QRCodeViewModel(
                     entityType = qrData.entityType,
                     entityId = qrData.entityId,
                     success = true,
-                    message = "Kod QR zeskanowany pomyślnie"
+                    message = inventoryVerification.message
                 )
                 _uiState.value = _uiState.value.copy(
                     isScanning = false,
-                    successMessage = "Kod znaleziony!"
+                    successMessage = inventoryVerification.message
                 )
 
                 // Odświeżamy statystyki w tle
@@ -145,6 +149,80 @@ class QRCodeViewModel(
                     isScanning = false,
                     error = errorMessage
                 )
+            }
+        }
+    }
+
+    /**
+     * Weryfikuje czy istnieje stan magazynowy dla zeskanowanego QR kodu
+     */
+    private suspend fun verifyInventoryForQRCode(
+        qrCode: String,
+        qrData: QRCodeData
+    ): QRInventoryVerificationResult {
+        return try {
+            // Spróbuj pobrać pozycję magazynową po QR kodzie
+            val inventoryResult = qrCodeRepository.getInventoryByQRCode(qrCode)
+            
+            if (inventoryResult.isSuccess) {
+                val inventoryItem = inventoryResult.getOrNull()!!
+                
+                // Stan magazynowy istnieje
+                QRInventoryVerificationResult(
+                    qrCodeExists = true,
+                    inventoryExists = true,
+                    inventoryItem = inventoryItem,
+                    qrCodeData = qrData,
+                    message = "✅ QR kod i stan magazynowy znalezione! " +
+                            "Produkt: ${inventoryItem.product.name}, " +
+                            "Ilość: ${inventoryItem.availableQuantity}/${inventoryItem.quantity}, " +
+                            "Lokalizacja: ${inventoryItem.location.name}"
+                )
+            } else {
+                // QR kod istnieje, ale brak stanu magazynowego
+                QRInventoryVerificationResult(
+                    qrCodeExists = true,
+                    inventoryExists = false,
+                    inventoryItem = null,
+                    qrCodeData = qrData,
+                    message = "⚠️ QR kod znaleziony, ale brak stanu magazynowego. " +
+                            "Typ: ${qrData.type}, Dane: ${qrData.data}"
+                )
+            }
+        } catch (e: Exception) {
+            when (e) {
+                is HttpException -> {
+                    if (e.code() == 404) {
+                        // 404 oznacza brak stanu magazynowego dla tego QR
+                        QRInventoryVerificationResult(
+                            qrCodeExists = true,
+                            inventoryExists = false,
+                            inventoryItem = null,
+                            qrCodeData = qrData,
+                            message = "⚠️ QR kod znaleziony, ale nie przypisano stanu magazynowego. " +
+                                    "Typ: ${qrData.type}"
+                        )
+                    } else {
+                        // Inny błąd HTTP
+                        QRInventoryVerificationResult(
+                            qrCodeExists = true,
+                            inventoryExists = false,
+                            inventoryItem = null,
+                            qrCodeData = qrData,
+                            message = "❌ Błąd sprawdzania stanu magazynowego: ${e.message()}"
+                        )
+                    }
+                }
+                else -> {
+                    // Błąd sieci lub inny
+                    QRInventoryVerificationResult(
+                        qrCodeExists = true,
+                        inventoryExists = false,
+                        inventoryItem = null,
+                        qrCodeData = qrData,
+                        message = "❌ Nie można sprawdzić stanu magazynowego: ${e.message ?: "Nieznany błąd"}"
+                    )
+                }
             }
         }
     }

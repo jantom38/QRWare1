@@ -15,6 +15,8 @@ import com.qrware.app.ui.screens.ProductManagement.AddProductScreen
 import com.qrware.app.ui.screens.ProductManagement.EditProductScreen
 import com.qrware.app.ui.screens.ProductManagement.ManageProductsScreen
 import com.qrware.app.ui.screens.ProductManagement.ProductDetailsScreen
+import com.qrware.app.ui.screens.InventoryDetailsScreen
+import com.qrware.app.ui.screens.MovementHistoryScreen
 import com.qrware.app.ui.screens.UserManagement.AddUserScreen
 import com.qrware.app.ui.screens.UserManagement.AdminRoutes
 import com.qrware.app.ui.screens.UserManagement.EditUserScreen
@@ -125,6 +127,9 @@ fun AppNavigation(appContainer: AppContainer) {
                     viewModel = viewModel(factory = appContainer.managePermissionsViewModelFactory)
                 )
             }
+
+
+
             composable(
                 route = "admin_edit_user/{userId}",
                 arguments = listOf(navArgument("userId") { type = NavType.LongType })
@@ -200,6 +205,10 @@ fun AppNavigation(appContainer: AppContainer) {
 
             composable("qr_scan") {
                 QRScanScreen(navController = navController, appContainer = appContainer)
+            }
+            composable ( "server_settings")
+            {
+                ServerSettingsScreen(navController=navController, appContainer= appContainer)
             }
 
             composable("manage_qr") {
@@ -280,6 +289,83 @@ fun AppNavigation(appContainer: AppContainer) {
                     )
                 } else {
                     // Obsłuż błąd
+                    navController.popBackStack()
+                }
+            }
+
+            // Ekran szczegółów pozycji magazynowej
+            composable(
+                route = "inventory_details/{itemId}",
+                arguments = listOf(navArgument("itemId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val itemId = backStackEntry.arguments?.getLong("itemId")
+                if (itemId != null) {
+                    InventoryDetailsScreen(
+                        navController = navController,
+                        appContainer = appContainer,
+                        itemId = itemId
+                    )
+                } else {
+                    // Obsłuż błąd
+                    navController.popBackStack()
+                }
+            }
+
+            // Ekran historii ruchów magazynowych
+            composable("movement_history") {
+                MovementHistoryScreen(
+                    navController = navController,
+                    appContainer = appContainer
+                )
+            }
+
+            // Historia ruchów dla konkretnej pozycji magazynowej
+            composable(
+                route = "movement_history/item/{itemId}",
+                arguments = listOf(navArgument("itemId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val itemId = backStackEntry.arguments?.getLong("itemId")
+                if (itemId != null) {
+                    MovementHistoryScreen(
+                        navController = navController,
+                        appContainer = appContainer,
+                        itemId = itemId
+                    )
+                } else {
+                    navController.popBackStack()
+                }
+            }
+
+            // Historia ruchów dla produktu
+            composable(
+                route = "movement_history/product/{productId}",
+                arguments = listOf(navArgument("productId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val productId = backStackEntry.arguments?.getLong("productId")
+                if (productId != null) {
+                    MovementHistoryScreen(
+                        navController = navController,
+                        appContainer = appContainer,
+                        productId = productId
+                    )
+                } else {
+                    navController.popBackStack()
+                }
+            }
+
+            // Historia ruchów dla lokalizacji
+            composable(
+                route = "movement_history/location/{locationId}",
+                arguments = listOf(navArgument("locationId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val locationId = backStackEntry.arguments?.getLong("locationId")
+                if (locationId != null) {
+                    MovementHistoryScreen(
+                        navController = navController,
+                        appContainer = appContainer,
+                        locationId = locationId
+                    )
+                } else {
                     navController.popBackStack()
                 }
             }

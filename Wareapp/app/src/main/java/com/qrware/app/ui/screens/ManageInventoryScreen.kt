@@ -1,5 +1,6 @@
 package com.qrware.app.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -175,6 +176,9 @@ fun ManageInventoryScreen(
                             },
                             onGenerateQRItem = {
                                 navController.navigate("generate_qr/INVENTORY_ITEM/${item.id}")
+                            },
+                            onViewDetails = {
+                                navController.navigate("inventory_details/${item.id}")
                             }
                         )
                     }
@@ -240,13 +244,16 @@ fun InventoryItemCard(
     onReceiveStock: (Int, String?) -> Unit,
     onIssueStock: (Int, String?) -> Unit,
     onDeleteItem: () -> Unit,
-    onGenerateQRItem: () -> Unit
+    onGenerateQRItem: () -> Unit,
+    onViewDetails: () -> Unit
 ) {
     var showQuantityDialog by remember { mutableStateOf(false) }
     var isReceiving by remember { mutableStateOf(true) }
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onViewDetails() },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(

@@ -123,3 +123,13 @@ data class QuantityUpdateRequest(
     val quantity: Int,
     val reason: String? = null
 )
+
+// Usunięto typealias - używamy istniejącego InventoryItem
+
+data class QRInventoryVerificationResult(
+    val qrCodeExists: Boolean,
+    val inventoryExists: Boolean,
+    val inventoryItem: InventoryItem?,
+    val qrCodeData: QRCodeData?,
+    val message: String
+)

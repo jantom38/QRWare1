@@ -97,7 +97,7 @@ interface ApiService {
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20,
         @Query("sort") sort: String = "id,asc"
-    ): PaginatedResponse<InventoryItemDTO>
+    ): PaginatedResponse<  InventoryItemDTO>
 
     // --- DODANO BRAKUJĄCY ENDPOINT WYSZUKIWANIA ---
     @GET("api/inventory/search")
@@ -307,6 +307,8 @@ interface ApiService {
         @Query("size") size: Int = 1000, // Pobierzmy dużo na raz
         @Query("active") active: Boolean? = true // Chcemy tylko aktywne
     ): PaginatedResponse<ZoneDTO>
+    @GET("api/inventory/qr/{qrCode}")
+    suspend fun getInventoryByQRCode(@Path("qrCode") qrCode: String): InventoryItemDTO
 }
 
 // ... (TestService i HealthService bez zmian) ...
@@ -345,7 +347,10 @@ interface TestService {
 
     @PATCH("api/qr-codes/{id}/toggle-active")
     suspend fun toggleQRCodeActive(@Path("id") qrCodeId: Long): ApiResponse<QRCodeData>
-}
+
+    // ==================== INVENTORY ENDPOINTS ====================
+    
+   }
 
 interface HealthService {
     @GET("/api/health")
