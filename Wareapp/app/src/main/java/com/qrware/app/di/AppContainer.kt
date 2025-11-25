@@ -32,16 +32,20 @@ import com.qrware.app.ui.viewmodel.AddLocationViewModelFactory
 import com.qrware.app.ui.viewmodel.EditLocationViewModelFactory
 import com.qrware.app.ui.viewmodel.ManageLocationsViewModelFactory
 
-// Prosty kontener do wstrzykiwania zależności (Dependency Injection)
+// Importy dla Zone
+import com.qrware.app.ui.viewmodel.AddZoneViewModelFactory
+import com.qrware.app.ui.viewmodel.EditZoneViewModelFactory
+import com.qrware.app.ui.viewmodel.ManageZonesViewModelFactory
+
 class AppContainer(context: Context) {
     val tokenManager = TokenManager(context)
     val serverConfigManager = ServerConfigManager(context)
-    
+
     init {
         // Inicjalizuj NetworkModule z konfiguracją serwera
         NetworkModule.init(serverConfigManager)
     }
-    
+
     private val okHttpClient = NetworkModule.createClient(tokenManager)
     private val retrofit: Retrofit = NetworkModule.createRetrofit(okHttpClient)
 
@@ -51,47 +55,55 @@ class AppContainer(context: Context) {
     private val healthService: HealthService by lazy { retrofit.create(HealthService::class.java) }
     private val apiService: ApiService by lazy { retrofit.create(ApiService::class.java) }
     private val movementHistoryApiService: MovementHistoryApiService by lazy { retrofit.create(MovementHistoryApiService::class.java) }
+
     // Repositories
     val authRepository: AuthRepository by lazy { AuthRepository(authService) }
     val testRepository: TestRepository by lazy { TestRepository(testService) }
     val healthRepository: HealthRepository by lazy { HealthRepository(healthService) }
-    // Locations
+
     val locationRepository by lazy {
         LocationRepository(apiService)
     }
-
 
     // --- REPOSITORIES ---
     val userManagementRepository by lazy {
         UserManagementRepository(apiService)
     }
-    
+
     val inventoryRepository by lazy {
         InventoryRepository(apiService)
     }
-    
+
     val productRepository by lazy {
         ProductRepository(apiService)
     }
-    
+
     val categoryRepository by lazy {
         CategoryRepository(apiService)
     }
-    
+
     val qrCodeRepository by lazy {
         QRCodeRepository(apiService)
     }
-    
-    val movementHistoryRepository by lazy {
-        MovementHistoryRepository(movementHistoryApiService, LocalTokenManager(context))
+
+    val zoneRepository by lazy {
+        ZoneRepository(apiService)
     }
+
+    val movementHistoryRepository by lazy {
+        MovementHistoryRepository(movementHistoryApiService)
+    }
+
+    // --- VIEWMODEL FACTORIES ---
+
     val addProductViewModelFactory by lazy {
         AddProductViewModelFactory(productRepository)
     }
-    
+
     val addInventoryViewModelFactory by lazy {
         AddInventoryViewModelFactory(inventoryRepository, productRepository, locationRepository)
     }
+
     // Fabryka dla ListUsersViewModel
     val listUsersViewModelFactory: ViewModelProvider.Factory by lazy {
         ListUsersViewModelFactory(userManagementRepository)
@@ -125,17 +137,18 @@ class AppContainer(context: Context) {
     val movementHistoryViewModelFactory: ViewModelProvider.Factory by lazy {
         MovementHistoryViewModelFactory(movementHistoryRepository)
     }
+
     fun createEditProductViewModelFactory(productId: Long): ViewModelProvider.Factory {
         return EditProductViewModelFactory(productRepository, productId)
     }
+
+    // --- LOCATION FACTORIES ---
 
     val manageLocationsViewModelFactory: ViewModelProvider.Factory by lazy {
         ManageLocationsViewModelFactory(locationRepository)
     }
 
     val addLocationViewModelFactory: ViewModelProvider.Factory by lazy {
-        // Przekazujemy repozytorium stref (ZoneRepository) jeśli je masz
-        // Na razie używamy tylko locationRepository do pobierania stref
         AddLocationViewModelFactory(locationRepository)
     }
 
@@ -143,8 +156,24 @@ class AppContainer(context: Context) {
         return EditLocationViewModelFactory(locationRepository, locationId)
     }
 
+    // --- ZONE FACTORIES ---
+
+    val addZoneViewModelFactory: ViewModelProvider.Factory by lazy {
+        AddZoneViewModelFactory(zoneRepository)
+    }
+
+    fun createEditZoneViewModelFactory(zoneId: Long): ViewModelProvider.Factory {
+        return EditZoneViewModelFactory(zoneRepository, zoneId)
+    }
+
+    // Fabryka dla listy stref (ManageZonesViewModel)
+    val manageZonesViewModelFactory: ViewModelProvider.Factory by lazy {
+        ManageZonesViewModelFactory(zoneRepository)
+    }
+
+    // --- USER FACTORIES ---
+
     // NOWA METODA: Fabryka dla EditUserViewModel
-    // Potrzebuje userId, więc jest to funkcja, a nie 'val'
     fun createEditUserViewModelFactory(userId: Long): ViewModelProvider.Factory {
         return EditUserViewModelFactory(userManagementRepository, userId)
     }
@@ -159,7 +188,5 @@ class AppContainer(context: Context) {
      */
     fun refreshNetworkConfig() {
         NetworkModule.init(serverConfigManager)
-        // Można tutaj dodać logikę do przeładowania retrofit instancji jeśli potrzeba
     }
-
 }

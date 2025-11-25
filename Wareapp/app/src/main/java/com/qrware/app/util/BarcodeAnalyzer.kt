@@ -16,7 +16,7 @@ class BarcodeAnalyzer(
         BarcodeScannerOptions.Builder()
             .setBarcodeFormats(
                 Barcode.FORMAT_QR_CODE,
-                Barcode.FORMAT_CODE_128, // Opcjonalnie inne kody kreskowe
+                Barcode.FORMAT_CODE_128,
                 Barcode.FORMAT_EAN_13
             )
             .build()
@@ -37,7 +37,6 @@ class BarcodeAnalyzer(
                     }
                 }
                 .addOnCompleteListener {
-                    // Ważne: musimy zamknąć obraz, aby otrzymać kolejną klatkę
                     imageProxy.close()
                 }
         } else {

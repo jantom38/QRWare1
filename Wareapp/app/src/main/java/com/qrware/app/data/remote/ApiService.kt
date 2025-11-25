@@ -18,7 +18,7 @@ interface AuthService {
 
 interface ApiService {
 
-    // ... (Endpointy Użytkowników, Ról, Uprawnień bez zmian) ...
+    // --- UŻYTKOWNICY ---
     @GET("api/users")
     suspend fun getAllUsers(
         @Query("page") page: Int = 0,
@@ -44,15 +44,12 @@ interface ApiService {
     ): ApiResponse<AdminUserResponse>
 
     @POST("api/users")
-    suspend fun createUser(
-        @Body request: AdminCreateUserRequest
-    ): ApiResponse<AdminUserResponse>
+    suspend fun createUser(@Body request: AdminCreateUserRequest): ApiResponse<AdminUserResponse>
 
     @DELETE("api/users/{id}")
-    suspend fun deleteUser(
-        @Path("id") userId: Long
-    ): ApiResponse<Unit>
+    suspend fun deleteUser(@Path("id") userId: Long): ApiResponse<Unit>
 
+    // --- ROLE I UPRAWNIENIA ---
     @GET("api/roles")
     suspend fun getAllRoles(): ApiResponse<List<RoleResponse>>
 
@@ -63,10 +60,7 @@ interface ApiService {
     suspend fun getRoleById(@Path("id") roleId: Long): ApiResponse<RoleResponse>
 
     @PUT("api/roles/{id}")
-    suspend fun updateRole(
-        @Path("id") roleId: Long,
-        @Body request: RoleRequest
-    ): ApiResponse<RoleResponse>
+    suspend fun updateRole(@Path("id") roleId: Long, @Body request: RoleRequest): ApiResponse<RoleResponse>
 
     @DELETE("api/roles/{id}")
     suspend fun deleteRole(@Path("id") roleId: Long): ApiResponse<Unit>
@@ -81,28 +75,22 @@ interface ApiService {
     suspend fun getPermissionById(@Path("id") permissionId: Long): ApiResponse<PermissionResponse>
 
     @PUT("api/permissions/{id}")
-    suspend fun updatePermission(
-        @Path("id") permissionId: Long,
-        @Body request: PermissionRequest
-    ): ApiResponse<PermissionResponse>
+    suspend fun updatePermission(@Path("id") permissionId: Long, @Body request: PermissionRequest): ApiResponse<PermissionResponse>
 
     @DELETE("api/permissions/{id}")
     suspend fun deletePermission(@Path("id") permissionId: Long): ApiResponse<Unit>
 
 
-    // --- ENDPOINTY INVENTORY (Poprawione i Uzupełnione) ---
-
+    // --- INVENTORY ---
     @GET("api/inventory")
     suspend fun getAllInventoryItems(
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20,
         @Query("sort") sort: String = "id,asc"
-    ): PaginatedResponse<  InventoryItemDTO>
+    ): PaginatedResponse<InventoryItemDTO>
 
-    // --- DODANO BRAKUJĄCY ENDPOINT WYSZUKIWANIA ---
     @GET("api/inventory/search")
     suspend fun searchInventory(@Query("query") query: String): List<InventoryItemDTO>
-    // -----------------------------------------------
 
     @GET("api/inventory/{id}")
     suspend fun getInventoryItemById(@Path("id") itemId: Long): InventoryItemDTO
@@ -120,28 +108,22 @@ interface ApiService {
     suspend fun createInventoryItem(@Body request: CreateInventoryRequest): InventoryItemDTO
 
     @PUT("api/inventory/{id}")
-    suspend fun updateInventoryItem(
-        @Path("id") itemId: Long,
-        @Body request: UpdateInventoryRequest
-    ): InventoryItemDTO
+    suspend fun updateInventoryItem(@Path("id") itemId: Long, @Body request: UpdateInventoryRequest): InventoryItemDTO
 
     @DELETE("api/inventory/{id}")
     suspend fun deleteInventoryItem(@Path("id") itemId: Long): Response<Unit>
 
     @POST("api/inventory/{id}/receive")
-    suspend fun receiveStock(
-        @Path("id") itemId: Long,
-        @Body request: QuantityUpdateRequest
-    ): InventoryItemDTO
+    suspend fun receiveStock(@Path("id") itemId: Long, @Body request: QuantityUpdateRequest): InventoryItemDTO
 
     @POST("api/inventory/{id}/issue")
-    suspend fun issueStock(
-        @Path("id") itemId: Long,
-        @Body request: QuantityUpdateRequest
-    ): InventoryItemDTO
+    suspend fun issueStock(@Path("id") itemId: Long, @Body request: QuantityUpdateRequest): InventoryItemDTO
 
-    // --- ENDPOINTY PRODUCTS (ZAKTUALIZOWANE DO DTO) ---
+    @GET("api/inventory/qr/{qrCode}")
+    suspend fun getInventoryByQRCode(@Path("qrCode") qrCode: String): InventoryItemDTO
 
+
+    // --- PRODUCTS ---
     @GET("api/products")
     suspend fun getAllProducts(
         @Query("page") page: Int = 0,
@@ -156,7 +138,6 @@ interface ApiService {
     @GET("api/products/sku/{sku}")
     suspend fun getProductBySku(@Path("sku") sku: String): ProductDTO
 
-
     @GET("api/products/category/{categoryId}")
     suspend fun getProductsByCategory(@Path("categoryId") categoryId: Long): List<ProductDTO>
 
@@ -170,10 +151,7 @@ interface ApiService {
     suspend fun createProduct(@Body request: CreateProductRequest): ProductDTO
 
     @PUT("api/products/{id}")
-    suspend fun updateProduct(
-        @Path("id") productId: Long,
-        @Body request: UpdateProductRequest
-    ): ProductDTO
+    suspend fun updateProduct(@Path("id") productId: Long, @Body request: UpdateProductRequest): ProductDTO
 
     @DELETE("api/products/{id}")
     suspend fun deleteProduct(@Path("id") productId: Long): Response<Unit>
@@ -181,8 +159,8 @@ interface ApiService {
     @PATCH("api/products/{id}/toggle-active")
     suspend fun toggleProductActive(@Path("id") productId: Long): ProductDTO
 
-    // --- ENDPOINTY CATEGORIES ---
 
+    // --- CATEGORIES ---
     @GET("api/categories")
     suspend fun getAllCategories(): ApiResponse<List<CategoryDTO>>
 
@@ -208,10 +186,7 @@ interface ApiService {
     suspend fun createCategory(@Body request: CreateCategoryRequest): ApiResponse<CategoryDTO>
 
     @PUT("api/categories/{id}")
-    suspend fun updateCategory(
-        @Path("id") categoryId: Long,
-        @Body request: UpdateCategoryRequest
-    ): ApiResponse<CategoryDTO>
+    suspend fun updateCategory(@Path("id") categoryId: Long, @Body request: UpdateCategoryRequest): ApiResponse<CategoryDTO>
 
     @DELETE("api/categories/{id}")
     suspend fun deleteCategory(@Path("id") categoryId: Long): ApiResponse<Unit>
@@ -219,8 +194,8 @@ interface ApiService {
     @PATCH("api/categories/{id}/toggle-active")
     suspend fun toggleCategoryActive(@Path("id") categoryId: Long): ApiResponse<CategoryDTO>
 
-//--- OBSŁUGA QR KODÓW (POPRAWIONE) ---
 
+    // --- QR CODES ---
     @GET("api/qr-codes")
     suspend fun getAllQRCodes(
         @Query("page") page: Int = 0,
@@ -250,10 +225,7 @@ interface ApiService {
     suspend fun generateQRCode(@Body request: GenerateQRRequest): QRCodeData
 
     @PUT("api/qr-codes/{id}")
-    suspend fun updateQRCode(
-        @Path("id") qrCodeId: Long,
-        @Body request: UpdateQRRequest
-    ): QRCodeData
+    suspend fun updateQRCode(@Path("id") qrCodeId: Long, @Body request: UpdateQRRequest): QRCodeData
 
     @DELETE("api/qr-codes/{id}")
     suspend fun deleteQRCode(@Path("id") qrCodeId: Long): Response<Unit>
@@ -265,8 +237,7 @@ interface ApiService {
     suspend fun getQRStats(): QRStatsResponse
 
 
-//Location obsługa
-
+    // --- LOCATIONS ---
     @GET("api/locations")
     suspend fun getAllLocations(
         @Query("page") page: Int = 0,
@@ -290,10 +261,7 @@ interface ApiService {
     suspend fun createLocation(@Body request: CreateLocationRequest): LocationDTO
 
     @PUT("api/locations/{id}")
-    suspend fun updateLocation(
-        @Path("id") locationId: Long,
-        @Body request: UpdateLocationRequest
-    ): LocationDTO
+    suspend fun updateLocation(@Path("id") locationId: Long, @Body request: UpdateLocationRequest): LocationDTO
 
     @DELETE("api/locations/{id}")
     suspend fun deleteLocation(@Path("id") locationId: Long): Response<Unit>
@@ -301,17 +269,32 @@ interface ApiService {
     @PATCH("api/locations/{id}/toggle-active")
     suspend fun toggleLocationActive(@Path("id") locationId: Long): LocationDTO
 
+
+    // --- ZONES (STREFY) - TO NAPRAWIA BLAD NotImplementedError ---
     @GET("api/zones")
     suspend fun getZones(
         @Query("page") page: Int = 0,
-        @Query("size") size: Int = 1000, // Pobierzmy dużo na raz
-        @Query("active") active: Boolean? = true // Chcemy tylko aktywne
+        @Query("size") size: Int = 1000,
+        @Query("active") active: Boolean? = null
     ): PaginatedResponse<ZoneDTO>
-    @GET("api/inventory/qr/{qrCode}")
-    suspend fun getInventoryByQRCode(@Path("qrCode") qrCode: String): InventoryItemDTO
+
+    @GET("api/zones/{id}")
+    suspend fun getZoneById(@Path("id") id: Long): ZoneDTO
+
+    @POST("api/zones")
+    suspend fun createZone(@Body request: CreateZoneRequest): ZoneDTO
+
+    @PUT("api/zones/{id}")
+    suspend fun updateZone(@Path("id") id: Long, @Body request: UpdateZoneRequest): ZoneDTO
+
+    @DELETE("api/zones/{id}")
+    suspend fun deleteZone(@Path("id") id: Long): Response<Unit>
+
+    @PATCH("api/zones/{id}/toggle-active")
+    suspend fun toggleZoneActive(@Path("id") id: Long): ZoneDTO
 }
 
-// ... (TestService i HealthService bez zmian) ...
+// Interfejsy dla TestService i HealthService bez zmian
 interface TestService {
     @GET("/api/test/public")
     suspend fun getPublicEndpoint(): Response<Map<String, Any>>
@@ -319,38 +302,7 @@ interface TestService {
     suspend fun getProtectedEndpoint(): Response<Map<String, Any>>
     @GET("/api/test/admin")
     suspend fun getAdminEndpoint(): Response<Map<String, Any>>
-    // ==================== QR CODE ENDPOINTS ====================
-    
-    @GET("api/qr-codes")
-    suspend fun getAllQRCodes(
-        @Query("page") page: Int = 0,
-        @Query("size") size: Int = 20,
-        @Query("sort") sort: String = "id,desc"
-    ): ApiResponse<PaginatedResponse<QRCodeData>>
-
-    @GET("api/qr-codes/{id}")
-    suspend fun getQRCodeById(@Path("id") qrCodeId: Long): ApiResponse<QRCodeData>
-
-    @POST("api/qr-codes/generate-with-image")
-    suspend fun generateQRCodeWithImage(
-        @Body request: GenerateQRImageRequest
-    ): ApiResponse<QRCodeData>
-
-    @POST("api/qr-codes/scan/{code}")
-    suspend fun recordScan(@Path("code") code: String): ApiResponse<Map<String, String>>
-
-    @GET("api/qr-codes/stats")
-    suspend fun getQRStats(): ApiResponse<QRStatsResponse>
-
-    @DELETE("api/qr-codes/{id}")
-    suspend fun deleteQRCode(@Path("id") qrCodeId: Long): ApiResponse<Unit>
-
-    @PATCH("api/qr-codes/{id}/toggle-active")
-    suspend fun toggleQRCodeActive(@Path("id") qrCodeId: Long): ApiResponse<QRCodeData>
-
-    // ==================== INVENTORY ENDPOINTS ====================
-    
-   }
+}
 
 interface HealthService {
     @GET("/api/health")

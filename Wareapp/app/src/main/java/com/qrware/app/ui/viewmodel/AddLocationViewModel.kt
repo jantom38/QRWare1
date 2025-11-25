@@ -7,7 +7,6 @@ import com.qrware.app.data.dto.CreateLocationRequest
 
 import com.qrware.app.data.model.LocationType
 import com.qrware.app.data.dto.ZoneDTO
-import com.qrware.app.data.dto.ZoneType
 
 import com.qrware.app.data.repository.LocationRepository
 import kotlinx.coroutines.flow.MutableStateFlow

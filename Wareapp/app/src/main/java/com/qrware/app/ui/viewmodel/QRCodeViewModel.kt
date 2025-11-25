@@ -24,7 +24,6 @@ class QRCodeViewModel(
     private val _stats = MutableStateFlow<QRStatsResponse?>(null)
     val stats: StateFlow<QRStatsResponse?> = _stats.asStateFlow()
 
-    // NOWE: Przechowuje ostatnio wygenerowany kod (do wyświetlenia obrazka)
     private val _generatedQRCode = MutableStateFlow<QRCodeData?>(null)
     val generatedQRCode: StateFlow<QRCodeData?> = _generatedQRCode.asStateFlow()
 

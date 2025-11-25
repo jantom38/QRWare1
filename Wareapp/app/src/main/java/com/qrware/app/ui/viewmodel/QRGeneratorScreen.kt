@@ -6,21 +6,30 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import coil.compose.AsyncImage // Wymaga biblioteki Coil
+import coil.compose.AsyncImage
 import com.qrware.app.data.model.GenerateQRRequest
 import com.qrware.app.data.model.QRCodeType
 import com.qrware.app.di.AppContainer
 import com.qrware.app.ui.viewmodel.QRCodeViewModel
+
+// Pomocnicza klasa dla dynamicznych pól
+data class CustomField(
+    var key: String = "",
+    var value: String = ""
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,7 +49,13 @@ fun QRGeneratorScreen(
     } ?: QRCodeType.CUSTOM
 
     var selectedType by remember { mutableStateOf(defaultType) }
-    var data by remember { mutableStateOf("") }
+
+    // Główne dane (np. nazwa produktu)
+    var mainDataName by remember { mutableStateOf("") }
+
+    // Dynamiczna lista pól dodatkowych
+    val customFields = remember { mutableStateListOf<CustomField>() }
+
     var entityType by remember { mutableStateOf(initialType ?: "") }
     var entityId by remember { mutableStateOf(initialEntityId?.toString() ?: "") }
     var description by remember { mutableStateOf("") }
@@ -48,12 +63,7 @@ fun QRGeneratorScreen(
     // Automatyczne uzupełnianie danych jeśli przekazano parametry
     LaunchedEffect(initialType, initialEntityId) {
         if (initialType != null && initialEntityId != null) {
-            data = when (initialType) {
-                "PRODUCT" -> "PRODUCT:$initialEntityId"
-                "LOCATION" -> "LOCATION:$initialEntityId"
-                "INVENTORY_ITEM" -> "ITEM:$initialEntityId"
-                else -> "$initialType:$initialEntityId"
-            }
+            mainDataName = "$initialType #$initialEntityId"
             description = "QR dla $initialType #$initialEntityId"
         }
     }
@@ -63,12 +73,40 @@ fun QRGeneratorScreen(
         onDispose { viewModel.clearGeneratedQRCode() }
     }
 
+    // === LOGIKA INTELIGENTNEGO POWROTU ===
+    // Zapobiega pętlom nawigacyjnym (np. ManageQRCodes -> AutoRedirect -> Generator -> Back -> ManageQRCodes -> Loop)
+    val handleBackNavigation = {
+        var handled = false
+        // Jeśli mamy kontekst (przyszliśmy z konkretnego obiektu), wracamy jawnie do jego szczegółów
+        if (initialType != null && initialEntityId != null) {
+            val route = when (initialType) {
+                "PRODUCT" -> "product_details/$initialEntityId"
+                "INVENTORY_ITEM" -> "inventory_details/$initialEntityId"
+                else -> null
+            }
+            if (route != null) {
+                navController.navigate(route) {
+                    // Usuwamy generator (i ekrany pośrednie) ze stosu
+                    popUpTo(navController.currentBackStackEntry?.destination?.route ?: return@navigate) {
+                        inclusive = true
+                    }
+                }
+                handled = true
+            }
+        }
+        // Fallback: standardowe cofnięcie
+        if (!handled) {
+            navController.popBackStack()
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Generator QR") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    // Używamy naszej nowej funkcji powrotu
+                    IconButton(onClick = { handleBackNavigation() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Wróć")
                     }
                 }
@@ -104,7 +142,7 @@ fun QRGeneratorScreen(
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // Obraz z serwera (używamy 10.0.2.2 dla emulatora, zmień na IP serwera dla fizycznego urządzenia)
+                        // UWAGA: Zmień IP na właściwe dla Twojego środowiska
                         val imageUrl = "http://192.168.0.178:8080/api/qr-codes/image/${generatedQRCode!!.imagePath}"
 
                         AsyncImage(
@@ -117,28 +155,38 @@ fun QRGeneratorScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            "Kod: ${generatedQRCode!!.code}",
-                            style = MaterialTheme.typography.bodyLarge
+                            "Kod Systemowy: ${generatedQRCode!!.code}",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold
                         )
                         Text(
-                            "Dane: ${generatedQRCode!!.data}",
+                            "Zakodowana Treść:",
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                        Text(
+                            generatedQRCode!!.data,
                             style = MaterialTheme.typography.bodyMedium
                         )
 
                         Spacer(modifier = Modifier.height(24.dp))
 
                         Button(
-                            onClick = { viewModel.clearGeneratedQRCode() },
+                            onClick = {
+                                viewModel.clearGeneratedQRCode()
+                                // Opcjonalnie: wyczyść pola po sukcesie
+                                // customFields.clear()
+                            },
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text("Generuj kolejny")
                         }
 
                         OutlinedButton(
-                            onClick = { navController.popBackStack() },
+                            // Używamy naszej nowej funkcji powrotu również tutaj
+                            onClick = { handleBackNavigation() },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Wróć do listy")
+                            Text("Wróć do szczegółów")
                         }
                     }
                 }
@@ -150,9 +198,9 @@ fun QRGeneratorScreen(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Text("Nowy kod QR", style = MaterialTheme.typography.titleMedium)
+                        Text("Konfiguracja Kodu QR", style = MaterialTheme.typography.titleMedium)
 
-                        // Wybór typu (Dropdown)
+                        // 1. Wybór typu
                         var expanded by remember { mutableStateOf(false) }
                         ExposedDropdownMenuBox(
                             expanded = expanded,
@@ -162,7 +210,7 @@ fun QRGeneratorScreen(
                                 value = selectedType.name,
                                 onValueChange = {},
                                 readOnly = true,
-                                label = { Text("Typ") },
+                                label = { Text("Typ obiektu") },
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                                 modifier = Modifier.menuAnchor().fillMaxWidth()
                             )
@@ -182,25 +230,86 @@ fun QRGeneratorScreen(
                             }
                         }
 
+                        // 2. Główna nazwa / identyfikator
                         OutlinedTextField(
-                            value = data,
-                            onValueChange = { data = it },
-                            label = { Text("Dane / Treść kodu") },
-                            modifier = Modifier.fillMaxWidth(),
-                            minLines = 2
+                            value = mainDataName,
+                            onValueChange = { mainDataName = it },
+                            label = { Text("Główna nazwa / opis") },
+                            placeholder = { Text("np. Śruby M10 - Partia A") },
+                            modifier = Modifier.fillMaxWidth()
                         )
 
+                        Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+                        // 3. Dynamiczne Pola (Custom Fields)
+                        Text(
+                            "Dodatkowe dane (w kodzie QR)",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            "Te dane będą dostępne offline po zeskanowaniu.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                        customFields.forEachIndexed { index, field ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                OutlinedTextField(
+                                    value = field.key,
+                                    onValueChange = { customFields[index] = field.copy(key = it) },
+                                    label = { Text("Nazwa pola") },
+                                    placeholder = { Text("np. Waga") },
+                                    modifier = Modifier.weight(1f),
+                                    singleLine = true
+                                )
+                                OutlinedTextField(
+                                    value = field.value,
+                                    onValueChange = { customFields[index] = field.copy(value = it) },
+                                    label = { Text("Wartość") },
+                                    placeholder = { Text("np. 20kg") },
+                                    modifier = Modifier.weight(1f),
+                                    singleLine = true
+                                )
+                                IconButton(
+                                    onClick = { customFields.removeAt(index) }
+                                ) {
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = "Usuń pole",
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            }
+                        }
+
+                        OutlinedButton(
+                            onClick = { customFields.add(CustomField()) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Dodaj pole")
+                        }
+
+                        Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+                        // 4. Powiązania systemowe (opcjonalne)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             OutlinedTextField(
                                 value = entityType,
                                 onValueChange = { entityType = it },
-                                label = { Text("Typ encji") },
+                                label = { Text("System Entity Type") },
                                 modifier = Modifier.weight(1f)
                             )
                             OutlinedTextField(
                                 value = entityId,
                                 onValueChange = { if (it.all { c -> c.isDigit() }) entityId = it },
-                                label = { Text("ID encji") },
+                                label = { Text("System ID") },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 modifier = Modifier.weight(1f)
                             )
@@ -209,10 +318,11 @@ fun QRGeneratorScreen(
                         OutlinedTextField(
                             value = description,
                             onValueChange = { description = it },
-                            label = { Text("Powód / Opis") },
+                            label = { Text("Notatka wewnętrzna (tylko baza)") },
                             modifier = Modifier.fillMaxWidth()
                         )
 
+                        // Wyświetlanie błędu
                         if (uiState.error != null) {
                             Text(
                                 text = uiState.error!!,
@@ -221,12 +331,32 @@ fun QRGeneratorScreen(
                             )
                         }
 
+                        // Przycisk Generuj
                         Button(
                             onClick = {
+                                // === LOGIKA SKLEJANIA DANYCH ===
+                                val dataBuilder = StringBuilder()
+
+                                // 1. Dodaj główną nazwę
+                                if (mainDataName.isNotBlank()) {
+                                    dataBuilder.append(mainDataName)
+                                }
+
+                                // 2. Dodaj pola niestandardowe w formacie "Klucz:Wartość"
+                                // Oddzielone średnikami
+                                customFields.forEach { field ->
+                                    if (field.key.isNotBlank() && field.value.isNotBlank()) {
+                                        if (dataBuilder.isNotEmpty()) dataBuilder.append(";")
+                                        dataBuilder.append("${field.key}:${field.value}")
+                                    }
+                                }
+
+                                val finalData = dataBuilder.toString()
+
                                 val request = GenerateQRRequest(
-                                    code = "", // Generowane przez backend
+                                    code = "", // Puste -> Backend generuje ID
                                     type = selectedType,
-                                    data = data,
+                                    data = finalData, // Tutaj wysyłamy nasz sklejony ciąg
                                     entityType = entityType.ifBlank { null },
                                     entityId = entityId.toLongOrNull(),
                                     generationReason = description.ifBlank { null },
@@ -234,7 +364,7 @@ fun QRGeneratorScreen(
                                 )
                                 viewModel.generateQRCode(request)
                             },
-                            enabled = !uiState.isLoading && data.isNotBlank(),
+                            enabled = !uiState.isLoading && (mainDataName.isNotBlank() || customFields.isNotEmpty()),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             if (uiState.isLoading) {
@@ -245,7 +375,7 @@ fun QRGeneratorScreen(
                             } else {
                                 Icon(Icons.Default.QrCode, contentDescription = null)
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Wygeneruj")
+                                Text("Wygeneruj Kod QR")
                             }
                         }
                     }

@@ -93,6 +93,20 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
                             Text("Zarządzanie lokalizacjami")
                         }
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = { navController.navigate("manage_zones") },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Zarządzanie strefami")
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = { navController.navigate("movement_history") },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Historia ruchów")
+                    }
 
                     // Przycisk widoczny dla wszystkich zalogowanych użytkowników
                     Spacer(modifier = Modifier.height(20.dp))

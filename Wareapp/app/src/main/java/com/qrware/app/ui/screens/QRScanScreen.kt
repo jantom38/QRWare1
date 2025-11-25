@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.FlashOn
-import androidx.compose.material.icons.filled.FlashOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -69,28 +67,30 @@ fun QRScanScreen(
         }
     }
 
-    // === LOGIKA NAWIGACJI PO SKANOWANIU ===
-    // Reagujemy na zmianę scanResult. Jeśli jest sukces, nawigujemy.
+    // === LOGIKA NAWIGACJI PO SKANOWANIU (POPRAWIONA) ===
     LaunchedEffect(scanResult) {
         scanResult?.let { result ->
             if (result.success && result.entityId != null) {
-                // Tutaj następuje "Magiczne Przekierowanie" w zależności od typu
-                when (result.type) {
-                    QRCodeType.PRODUCT -> {
-                        // Zakładam, że masz taką ścieżkę w nawigacji
-                        navController.navigate("product_details/${result.entityId}")
-                    }
-                    QRCodeType.LOCATION -> {
-                        navController.navigate("locations/${result.entityId}")
-                    }
-                    QRCodeType.INVENTORY_ITEM -> {
-                        navController.navigate("inventory_details/${result.entityId}")
-                    }
-                    else -> {
-                        // Dla nieznanych typów zostajemy na ekranie i pokazujemy info
+                // Definiujemy trasę docelową
+                val route = when (result.type) {
+                    QRCodeType.PRODUCT -> "product_details/${result.entityId}"
+                    QRCodeType.INVENTORY_ITEM -> "inventory_details/${result.entityId}"
+                    else -> null
+                }
+
+                if (route != null) {
+                    navController.navigate(route) {
+                        // === KLUCZOWA POPRAWKA ===
+                        // Usuwamy ekran skanera (obecny ekran) ze stosu nawigacji.
+                        // Dzięki temu po kliknięciu "Wstecz" w szczegółach,
+                        // użytkownik wróci do ekranu PRZED skanerem (np. Menu/Lista),
+                        // a nie z powrotem do kamery (co powodowało pętlę).
+                        popUpTo(navController.currentBackStackEntry?.destination?.route ?: return@navigate) {
+                            inclusive = true
+                        }
                     }
                 }
-                // Czyścimy wynik, aby nie nawigować ponownie przy powrocie
+                // Czyścimy wynik, aby nie nawigować ponownie przy ewentualnym powrocie
                 viewModel.clearScanResult()
             }
         }
@@ -126,16 +126,30 @@ fun QRScanScreen(
                                 it.setSurfaceProvider(previewView.surfaceProvider)
                             }
 
+                            // Konfiguracja analizy obrazu
                             val imageAnalysis = ImageAnalysis.Builder()
                                 .setTargetResolution(Size(1280, 720))
+                                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                                 .build()
-                                .also {
-                                    it.setAnalyzer(
+                                .also { analysis ->
+                                    analysis.setAnalyzer(
                                         Executors.newSingleThreadExecutor(),
-                                        BarcodeAnalyzer { code ->
-                                            // Zapobiegamy wielokrotnym wywołaniom jeśli już przetwarzamy
+                                        BarcodeAnalyzer { rawScannedContent ->
+
+                                            // Sprawdzamy stan UI, aby nie skanować wielokrotnie
                                             if (!uiState.isScanning && !uiState.isLoading) {
-                                                viewModel.scanQRCode(code)
+
+                                                val separator = "###"
+
+                                                // Parsowanie danych (hybrydowe QR)
+                                                val systemId = if (rawScannedContent.contains(separator)) {
+                                                    rawScannedContent.split(separator)[0]
+                                                } else {
+                                                    rawScannedContent
+                                                }
+
+                                                // Przekazujemy CZYSTE ID do ViewModelu
+                                                viewModel.scanQRCode(systemId)
                                             }
                                         }
                                     )
@@ -160,7 +174,7 @@ fun QRScanScreen(
                     modifier = Modifier.fillMaxSize()
                 )
 
-                // Nakładka (Overlay) celownika
+                // Nakładka (Overlay)
                 Box(
                     modifier = Modifier
                         .align(Alignment.Center)
@@ -194,7 +208,7 @@ fun QRScanScreen(
                 }
             }
 
-            // Wskaźnik ładowania (API call w tle)
+            // Loader
             if (uiState.isScanning || uiState.isLoading) {
                 Box(
                     modifier = Modifier
@@ -205,14 +219,13 @@ fun QRScanScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text("Pobieranie danych...", color = Color.White)
+                        Text("Weryfikacja kodu...", color = Color.White)
                     }
                 }
             }
 
-            // Obsługa błędów (np. kod nie znaleziony w bazie)
+            // Błędy
             uiState.error?.let { error ->
-                // Możemy pokazać Snackbar lub Dialog
                 AlertDialog(
                     onDismissRequest = { viewModel.clearMessages() },
                     title = { Text("Błąd skanowania") },

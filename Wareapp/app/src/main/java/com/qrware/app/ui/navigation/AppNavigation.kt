@@ -24,6 +24,11 @@ import com.qrware.app.ui.screens.UserManagement.ListUsersScreen
 import com.qrware.app.ui.screens.UserManagement.ManagePermissionsScreen
 import com.qrware.app.ui.screens.UserManagement.ManageRolesScreen
 import com.qrware.app.ui.screens.UserManagement.ManageUsersScreen
+// --- IMPORTY STREF (ZONE) ---
+import com.qrware.app.ui.screens.ZoneManagement.AddZoneScreen
+import com.qrware.app.ui.screens.ZoneManagement.EditZoneScreen // <--- TEN IMPORT BYŁ POTRZEBNY
+import com.qrware.app.ui.screens.ZoneManagement.ManageZonesScreen
+// ----------------------------
 import com.qrware.app.ui.viewmodel.*
 import com.qrware.app.ui.viewmodel.ProductsManagement.AddProductViewModel
 import com.qrware.app.ui.viewmodel.UserManagament.AddUserViewModel
@@ -52,7 +57,8 @@ fun AppNavigation(appContainer: AppContainer) {
     }
     if (startDestination != null) {
         NavHost(navController = navController, startDestination = startDestination!!) {
-            // ... (Trasy login, register, home, health bez zmian) ...
+
+            // --- LOGOWANIE I REJESTRACJA ---
             composable("login") {
                 val loginViewModel: LoginViewModel = viewModel(
                     factory = LoginViewModelFactory(
@@ -74,6 +80,8 @@ fun AppNavigation(appContainer: AppContainer) {
                 )
                 HomeScreen(navController = navController, viewModel = homeViewModel)
             }
+
+            // --- QR KODY ---
             composable(
                 route = "qr_generate?type={type}&id={id}",
                 arguments = listOf(
@@ -91,13 +99,7 @@ fun AppNavigation(appContainer: AppContainer) {
                     initialEntityId = id
                 )
             }
-            composable(
-                route = "products/{productId}",
-                arguments = listOf(navArgument("productId") { type = NavType.LongType })
-            ) { backStackEntry ->
-                val productId = backStackEntry.arguments?.getLong("productId")
-                // ProductDetailsScreen(productId = productId) <- Twój ekran szczegółów
-            }
+
             composable("health") {
                 val healthViewModel: HealthViewModel = viewModel(
                     factory = HealthViewModelFactory(appContainer.healthRepository)
@@ -105,7 +107,7 @@ fun AppNavigation(appContainer: AppContainer) {
                 HealthCheckScreen(navController = navController, viewModel = healthViewModel)
             }
 
-            // ... (Sekcja Zarządzania Użytkownikami bez zmian) ...
+            // --- ZARZĄDZANIE UŻYTKOWNIKAMI ---
             composable("manage_users") {
                 ManageUsersScreen(navController = navController)
             }
@@ -127,8 +129,6 @@ fun AppNavigation(appContainer: AppContainer) {
                     viewModel = viewModel(factory = appContainer.managePermissionsViewModelFactory)
                 )
             }
-
-
 
             composable(
                 route = "admin_edit_user/{userId}",
@@ -158,7 +158,7 @@ fun AppNavigation(appContainer: AppContainer) {
                 )
             }
 
-            // --- SEKCJA PRODUKTÓW I MAGAZYNU ---
+            // --- PRODUKTY I MAGAZYN ---
 
             composable("inventory") {
                 ManageInventoryScreen(navController = navController, appContainer = appContainer)
@@ -168,10 +168,7 @@ fun AppNavigation(appContainer: AppContainer) {
                 ManageProductsScreen(navController = navController, appContainer = appContainer)
             }
 
-            // --- NOWA TRASA DLA DODAWANIA PRODUKTU ---
             composable("add_product") {
-                // Upewnij się, że masz `addProductViewModelFactory` w AppContainer
-                // (Instrukcje, jak to dodać, znajdziesz poniżej)
                 val addProductViewModel: AddProductViewModel = viewModel(
                     factory = appContainer.addProductViewModelFactory
                 )
@@ -180,7 +177,7 @@ fun AppNavigation(appContainer: AppContainer) {
                     viewModel = addProductViewModel
                 )
             }
-            // ... wewnątrz NavHost(...)
+
             composable(
                 route = "edit_product/{productId}",
                 arguments = listOf(navArgument("productId") { type = NavType.LongType })
@@ -193,11 +190,9 @@ fun AppNavigation(appContainer: AppContainer) {
                         productId = productId
                     )
                 } else {
-                    // Obsłuż błąd - np. wróć
                     navController.popBackStack()
                 }
             }
-
 
             composable("manage_categories") {
                 ManageCategoriesScreen(navController = navController, appContainer = appContainer)
@@ -206,8 +201,7 @@ fun AppNavigation(appContainer: AppContainer) {
             composable("qr_scan") {
                 QRScanScreen(navController = navController, appContainer = appContainer)
             }
-            composable ( "server_settings")
-            {
+            composable ( "server_settings") {
                 ServerSettingsScreen(navController=navController, appContainer= appContainer)
             }
 
@@ -215,7 +209,6 @@ fun AppNavigation(appContainer: AppContainer) {
                 ManageQRCodesScreen(navController = navController, appContainer = appContainer)
             }
 
-            // Ekran generowania QR kodu z parametrami
             composable(
                 route = "generate_qr/{type}/{id}",
                 arguments = listOf(
@@ -245,7 +238,30 @@ fun AppNavigation(appContainer: AppContainer) {
                 )
             }
 
-            // Ekran dodawania pozycji do magazynu z predefiniowanym produktem
+            // --- ZARZĄDZANIE STREFAMI (ZONES) ---
+
+            composable("manage_zones") {
+                ManageZonesScreen(navController = navController, appContainer = appContainer)
+            }
+
+            composable("add_zone") {
+                AddZoneScreen(navController = navController, appContainer = appContainer)
+            }
+
+            // <--- TUTAJ DODAŁEM BRAKUJĄCĄ TRASĘ DO EDYCJI STREFY --->
+            composable(
+                route = "edit_zone/{zoneId}",
+                arguments = listOf(navArgument("zoneId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val zoneId = backStackEntry.arguments?.getLong("zoneId")
+                if (zoneId != null) {
+                    EditZoneScreen(navController = navController, appContainer = appContainer, zoneId = zoneId)
+                } else {
+                    navController.popBackStack()
+                }
+            }
+            // --------------------------------------------------------
+
             composable(
                 route = "add_inventory/{type}/{id}",
                 arguments = listOf(
@@ -261,7 +277,9 @@ fun AppNavigation(appContainer: AppContainer) {
                     presetProductId = if (entityType == "PRODUCT") entityId else null
                 )
             }
-            // Lokalizacje
+
+            // --- LOKALIZACJE ---
+
             composable("manage_locations") {
                 ManageLocationsScreen(
                     navController = navController,
@@ -288,12 +306,12 @@ fun AppNavigation(appContainer: AppContainer) {
                         locationId = locationId
                     )
                 } else {
-                    // Obsłuż błąd
                     navController.popBackStack()
                 }
             }
 
-            // Ekran szczegółów pozycji magazynowej
+            // --- SZCZEGÓŁY INVENTORY ---
+
             composable(
                 route = "inventory_details/{itemId}",
                 arguments = listOf(navArgument("itemId") { type = NavType.LongType })
@@ -306,12 +324,12 @@ fun AppNavigation(appContainer: AppContainer) {
                         itemId = itemId
                     )
                 } else {
-                    // Obsłuż błąd
                     navController.popBackStack()
                 }
             }
 
-            // Ekran historii ruchów magazynowych
+            // --- HISTORIA RUCHÓW ---
+
             composable("movement_history") {
                 MovementHistoryScreen(
                     navController = navController,
@@ -319,7 +337,6 @@ fun AppNavigation(appContainer: AppContainer) {
                 )
             }
 
-            // Historia ruchów dla konkretnej pozycji magazynowej
             composable(
                 route = "movement_history/item/{itemId}",
                 arguments = listOf(navArgument("itemId") { type = NavType.LongType })
@@ -336,7 +353,6 @@ fun AppNavigation(appContainer: AppContainer) {
                 }
             }
 
-            // Historia ruchów dla produktu
             composable(
                 route = "movement_history/product/{productId}",
                 arguments = listOf(navArgument("productId") { type = NavType.LongType })
@@ -353,7 +369,6 @@ fun AppNavigation(appContainer: AppContainer) {
                 }
             }
 
-            // Historia ruchów dla lokalizacji
             composable(
                 route = "movement_history/location/{locationId}",
                 arguments = listOf(navArgument("locationId") { type = NavType.LongType })
@@ -372,4 +387,3 @@ fun AppNavigation(appContainer: AppContainer) {
         }
     }
 }
-

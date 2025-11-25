@@ -60,14 +60,7 @@ data class Zone(
     val type: ZoneType
 )
 
-enum class ZoneType {
-    RECEIVING,
-    STORAGE,
-    PICKING,
-    SHIPPING,
-    QUARANTINE,
-    DAMAGE
-}
+
 
 data class CreateInventoryRequest(
     val productId: Long,
