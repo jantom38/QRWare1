@@ -17,18 +17,16 @@ class AuthRepository(private val authService: AuthService) {
             Result.failure(e)
         }
     }
+
     suspend fun register(request: RegisterRequest): Result<AuthenticationResponse> {
         return try {
             val response = authService.register(request)
             if (response.isSuccessful && response.body()?.data != null) {
-                // Rejestracja się powiodła, zwracamy dane odpowiedzi
                 Result.success(response.body()!!.data!!)
             } else {
-                // Błąd serwera lub walidacji (np. użytkownik już istnieje)
                 Result.failure(Exception("Rejestracja nieudana: ${response.code()} - ${response.message()}"))
             }
         } catch (e: Exception) {
-            // Błąd sieciowy
             Result.failure(e)
         }
     }
@@ -42,6 +40,20 @@ class AuthRepository(private val authService: AuthService) {
                 Result.failure(Exception("Failed to get user info: ${response.code()}"))
             }
         } catch(e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun logout(): Result<Unit> {
+        return try {
+            val response = authService.logout()
+
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Wylogowanie nieudane: ${response.code()} - ${response.message()}"))
+            }
+        } catch (e: Exception) {
             Result.failure(e)
         }
     }

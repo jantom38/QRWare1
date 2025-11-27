@@ -9,10 +9,9 @@ public class FileStorageConfig {
     
     private String uploadDir = "uploads";
     private String qrCodeDir = "qr-codes";
-    private long maxFileSize = 10485760L; // 10MB
+    private long maxFileSize = 10485760L;
     private String[] allowedExtensions = {"png", "jpg", "jpeg", "svg"};
     
-    // Getters and Setters
     public String getUploadDir() {
         return uploadDir;
     }

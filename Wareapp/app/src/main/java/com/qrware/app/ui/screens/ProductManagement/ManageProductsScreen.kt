@@ -38,6 +38,24 @@ fun ManageProductsScreen(
     )
     val uiState by viewModel.uiState.collectAsState()
 
+    // Pobieranie informacji o użytkowniku dla uprawnień
+    var userInfo by remember { mutableStateOf<com.qrware.app.data.model.UserInfoResponse?>(null) }
+    
+    LaunchedEffect(Unit) {
+        appContainer.authRepository.getCurrentUser()
+            .onSuccess { userInfo = it }
+            .onFailure { userInfo = null }
+    }
+
+    // Funkcje pomocnicze do sprawdzania uprawnień
+    fun hasPermission(permission: String): Boolean {
+        return userInfo?.permissions?.contains(permission) == true
+    }
+    
+    fun hasRole(role: String): Boolean {
+        return userInfo?.roles?.contains(role) == true
+    }
+
     // Stan lokalny dla pola tekstowego wyszukiwarki
     var searchQuery by remember { mutableStateOf("") }
 
@@ -69,12 +87,15 @@ fun ManageProductsScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    navController.navigate("add_product")
+            // Przycisk dodawania tylko dla użytkowników z uprawnieniem PRODUCT_WRITE
+            if (hasPermission("PRODUCT_WRITE") || hasRole("ADMIN")) {
+                FloatingActionButton(
+                    onClick = {
+                        navController.navigate("add_product")
+                    }
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Dodaj nowy produkt")
                 }
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Dodaj nowy produkt")
             }
         }
     ) { paddingValues ->
@@ -171,22 +192,21 @@ fun ManageProductsScreen(
                     items(uiState.products) { product ->
                         ProductCard(
                             product = product,
-                            // --- NOWOŚĆ: KLIKNIĘCIE W KARTĘ ---
                             onCardClick = {
                                 navController.navigate("product_details/${product.id}")
                             },
-                            onDeleteItem = {
-                                viewModel.deleteProduct(product.id)
-                            },
-                            onEditItem = {
-                                navController.navigate("edit_product/${product.id}")
-                            },
-                            onGenerateQRItem = {
-                                navController.navigate("generate_qr/PRODUCT/${product.id}")
-                            },
-                            onAddToInventory = {
-                                navController.navigate("add_inventory/PRODUCT/${product.id}")
-                            }
+                            onDeleteItem = if (hasPermission("PRODUCT_DELETE") || hasRole("ADMIN")) {
+                                { viewModel.deleteProduct(product.id) }
+                            } else null,
+                            onEditItem = if (hasPermission("PRODUCT_WRITE") || hasRole("ADMIN")) {
+                                { navController.navigate("edit_product/${product.id}") }
+                            } else null,
+                            onGenerateQRItem = if (hasPermission("QR_GENERATE") || hasRole("ADMIN")) {
+                                { navController.navigate("generate_qr/PRODUCT/${product.id}") }
+                            } else null,
+                            onAddToInventory = if (hasPermission("INVENTORY_WRITE") || hasRole("ADMIN")) {
+                                { navController.navigate("add_inventory/PRODUCT/${product.id}") }
+                            } else null
                         )
                     }
                 }
@@ -258,15 +278,15 @@ fun StatusFilterRow(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class) // Wymagane dla Card z onClick w niektórych wersjach
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductCard(
     product: ProductDTO,
-    onCardClick: () -> Unit, // --- NOWOŚĆ: Callback kliknięcia ---
-    onDeleteItem: () -> Unit,
-    onEditItem: () -> Unit,
-    onGenerateQRItem: () -> Unit,
-    onAddToInventory: () -> Unit
+    onCardClick: () -> Unit,
+    onDeleteItem: (() -> Unit)? = null,
+    onEditItem: (() -> Unit)? = null,
+    onGenerateQRItem: (() -> Unit)? = null,
+    onAddToInventory: (() -> Unit)? = null
 ) {
     Card(
         onClick = onCardClick, // --- NOWOŚĆ: Przypisanie akcji ---
@@ -318,22 +338,30 @@ fun ProductCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Przyciski akcji
+            // Przyciski akcji - tylko te z uprawnieniami
             Row(
                 horizontalArrangement = Arrangement.End,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                IconButton(onClick = onAddToInventory) {
-                    Icon(Icons.Default.Inventory, contentDescription = "Dodaj do magazynu")
+                onAddToInventory?.let { action ->
+                    IconButton(onClick = action) {
+                        Icon(Icons.Default.Inventory, contentDescription = "Dodaj do magazynu")
+                    }
                 }
-                IconButton(onClick = onGenerateQRItem) {
-                    Icon(Icons.Default.QrCode, contentDescription = "Generuj kod QR")
+                onGenerateQRItem?.let { action ->
+                    IconButton(onClick = action) {
+                        Icon(Icons.Default.QrCode, contentDescription = "Generuj kod QR")
+                    }
                 }
-                IconButton(onClick = onEditItem) {
-                    Icon(Icons.Default.Edit, contentDescription = "Edytuj Produkt")
+                onEditItem?.let { action ->
+                    IconButton(onClick = action) {
+                        Icon(Icons.Default.Edit, contentDescription = "Edytuj Produkt")
+                    }
                 }
-                IconButton(onClick = onDeleteItem) {
-                    Icon(Icons.Default.Delete, contentDescription = "Usuń Produkt")
+                onDeleteItem?.let { action ->
+                    IconButton(onClick = action) {
+                        Icon(Icons.Default.Delete, contentDescription = "Usuń Produkt")
+                    }
                 }
             }
         }

@@ -8,11 +8,9 @@ import com.qrware.repository.product.CategoryRepository;
 import com.qrware.exception.ResourceNotFoundException;
 
 
-// --- NOWE IMPORTY ---
-import com.qrware.controller.ProductController.ProductDTO; // Import wewnętrznej klasy DTO
-import com.qrware.controller.ProductController.CategoryDTO; // Import wewnętrznej klasy DTO
+import com.qrware.controller.ProductController.ProductDTO;
+import com.qrware.controller.ProductController.CategoryDTO;
 import java.util.stream.Collectors;
-// --- KONIEC NOWYCH IMPORTÓW ---
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -38,7 +36,6 @@ public class ProductController {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    // Pobierz wszystkie produkty z paginacją
     @GetMapping
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
     public ResponseEntity<Page<ProductDTO>> getAllProducts(
@@ -57,7 +54,6 @@ public class ProductController {
         return ResponseEntity.ok(productsDTOPage);
     }
 
-    // Pobierz produkt po ID
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
@@ -68,7 +64,6 @@ public class ProductController {
         throw new ResourceNotFoundException("Product", "id", id);
     }
 
-    // Pobierz produkt po SKU
     @GetMapping("/sku/{sku}")
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
     public ResponseEntity<ProductDTO> getProductBySku(@PathVariable String sku) {
@@ -79,7 +74,6 @@ public class ProductController {
         throw new ResourceNotFoundException("Product", "sku", sku);
     }
 
-    // Pobierz produkty po kategorii
     @GetMapping("/category/{categoryId}")
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
     public ResponseEntity<List<ProductDTO>> getProductsByCategory(@PathVariable Long categoryId) {
@@ -90,7 +84,6 @@ public class ProductController {
         return ResponseEntity.ok(productDTOs);
     }
 
-    // Wyszukaj produkty po nazwie
     @GetMapping("/search")
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
     public ResponseEntity<List<ProductDTO>> searchProducts(@RequestParam String query) {
@@ -101,7 +94,6 @@ public class ProductController {
         return ResponseEntity.ok(productDTOs);
     }
 
-    // Pobierz aktywne produkty
     @GetMapping("/active")
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
     public ResponseEntity<List<ProductDTO>> getActiveProducts() {
@@ -112,7 +104,6 @@ public class ProductController {
         return ResponseEntity.ok(productDTOs);
     }
 
-    // Dodaj nowy produkt
     @PostMapping
     @PreAuthorize("hasAuthority('PRODUCT_WRITE')")
     public ResponseEntity<ProductDTO> createProduct(@Valid @RequestBody CreateProductRequest request) {
@@ -152,7 +143,6 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(convertToDTO(savedProduct));
     }
 
-    // Aktualizuj produkt
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('PRODUCT_WRITE')")
     public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long id,
@@ -194,7 +184,6 @@ public class ProductController {
         return ResponseEntity.ok(convertToDTO(updatedProduct));
     }
 
-    // Usuń produkt (soft delete)
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('PRODUCT_DELETE')")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
@@ -204,13 +193,12 @@ public class ProductController {
         }
 
         Product product = existingProduct.get();
-        product.setActive(false); // Soft delete
+        product.setActive(false);
         productRepository.save(product);
 
         return ResponseEntity.noContent().build();
     }
 
-    // Aktywuj/dezaktywuj produkt
     @PatchMapping("/{id}/toggle-active")
     @PreAuthorize("hasAuthority('PRODUCT_WRITE')")
     public ResponseEntity<ProductDTO> toggleProductActive(@PathVariable Long id) {
@@ -226,7 +214,6 @@ public class ProductController {
         return ResponseEntity.ok(convertToDTO(updatedProduct));
     }
 
-    // --- METODA POMOCNICZA DO KONWERSJI NA DTO ---
 
     /**
      * Konwertuje encję Product na ProductDTO.
@@ -276,7 +263,6 @@ public class ProductController {
     }
 
 
-    // --- DTOs ---
 
     /**
      * DTO dla Kategorii, pasujące do ProductDTO.kt
@@ -318,7 +304,6 @@ public class ProductController {
     }
 
 
-    // --- REQUEST DTOs (pozostają bez zmian) ---
 
     public static class CreateProductRequest {
         private String sku;

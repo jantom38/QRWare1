@@ -12,125 +12,119 @@ import com.qrware.app.ui.viewmodel.HomeViewModel
 
 @Composable
 fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
-    // Stan użytkownika jest jedynym stanem pobieranym z HomeViewModel
     val userState by viewModel.userState.collectAsState()
-
 
     LaunchedEffect(Unit) {
         viewModel.fetchData()
     }
 
-    Scaffold(
-        // Możesz tu dodać TopAppBar, jeśli jest potrzebny
-
-    ) { paddingValues ->
+    Scaffold { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally // Wycentrowanie dla CircularProgressIndicator
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Sprawdzamy, czy dane użytkownika zostały załadowane
             userState.let { user ->
                 if (user != null) {
-                    // Karta z informacjami o użytkowniku
                     UserInfoCard(user)
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Funkcje pomocnicze do sprawdzania uprawnień
+                    fun hasPermission(permission: String) = user.permissions.contains(permission)
+                    fun hasRole(role: String) = user.roles.contains(role)
 
-                    // Sprawdzenie, czy użytkownik ma rolę "ADMIN"
-                    val isAdmin = user.roles.contains("ADMIN")
-
-                    // Przyciski administracyjne widoczne tylko dla admina
-                    if (isAdmin) {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(
-                            onClick = { navController.navigate("manage_users") },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Zarządzanie Użytkownikami")
-                        }
-                        Spacer(modifier = Modifier.height(8.dp)) // Dodatkowy odstęp
-                        Button(
-                            onClick = { navController.navigate("manage_products") },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Zarządzanie produktami")
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Button(
-                            onClick = { navController.navigate("manage_categories") },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Zarządzaj Kategoriami")
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Button(
-                            onClick = { navController.navigate("qr_scan") },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Skanuj Kod QR")
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Button(
-                            onClick = { navController.navigate("manage_qr") },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Zarządzaj Kodami QR")
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Button(
-                            onClick = { navController.navigate("inventory") },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Zarządzanie stanami magazynowymi")
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Button(
-                            onClick = { navController.navigate("manage_locations") },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Zarządzanie lokalizacjami")
-                        }
+                    // Kafelki na podstawie uprawnień
+                    if (hasRole("ADMIN") || hasPermission("ADMIN_FULL")) {
+                        MenuButton(
+                            text = "Zarządzanie Użytkownikami",
+                            onClick = { navController.navigate("manage_users") }
+                        )
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Button(
-                        onClick = { navController.navigate("manage_zones") },
+
+                    if (hasPermission("PRODUCT_READ") || hasPermission("PRODUCT_WRITE")) {
+                        MenuButton(
+                            text = "Zarządzanie Produktami",
+                            onClick = { navController.navigate("manage_products") }
+                        )
+                        MenuButton(
+                            text = "Zarządzaj Kategoriami", 
+                            onClick = { navController.navigate("manage_categories") }
+                        )
+                    }
+
+                    if (hasPermission("INVENTORY_READ") || hasPermission("INVENTORY_WRITE")) {
+                        MenuButton(
+                            text = "Zarządzanie Stanem Magazynowym",
+                            onClick = { navController.navigate("inventory") }
+                        )
+                    }
+
+                    if (hasPermission("LOCATION_READ") || hasPermission("LOCATION_WRITE")) {
+                        MenuButton(
+                            text = "Zarządzanie Lokalizacjami",
+                            onClick = { navController.navigate("manage_locations") }
+                        )
+                    }
+
+                    if (hasPermission("ZONE_READ") || hasPermission("ZONE_WRITE")) {
+                        MenuButton(
+                            text = "Zarządzanie Strefami",
+                            onClick = { navController.navigate("manage_zones") }
+                        )
+                    }
+
+                    if (hasPermission("QR_SCAN")) {
+                        MenuButton(
+                            text = "Skanuj Kod QR",
+                            onClick = { navController.navigate("qr_scan") }
+                        )
+                    }
+
+                    if (hasPermission("QR_GENERATE")) {
+                        MenuButton(
+                            text = "Zarządzaj Kodami QR",
+                            onClick = { navController.navigate("manage_qr") }
+                        )
+                    }
+
+                    if (hasPermission("MOVEMENT_READ")) {
+                        MenuButton(
+                            text = "Historia Ruchów",
+                            onClick = { navController.navigate("movement_history") }
+                        )
+                    }
+
+                    // Przycisk dostępny dla wszystkich użytkowników
+                    MenuButton(
+                        text = "Sprawdź Stan Systemu",
+                        onClick = { navController.navigate("health") }
+                    )
+
+                    // Przycisk wylogowania
+                    Spacer(modifier = Modifier.height(16.dp))
+                    OutlinedButton(
+                        onClick = { 
+                            viewModel.logout()
+                            navController.navigate("login") {
+                                // Wyczyść stos nawigacji i ustaw login jako jedyny ekran
+                                popUpTo(navController.graph.startDestinationId) {
+                                    inclusive = true
+                                }
+                                launchSingleTop = true
+                            }
+                        },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Zarządzanie strefami")
+                        Text("Wyloguj się")
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Button(
-                        onClick = { navController.navigate("movement_history") },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Historia ruchów")
-                    }
-
-                    // Przycisk widoczny dla wszystkich zalogowanych użytkowników
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Button(
-                        onClick = { navController.navigate("health") },
-                        modifier = Modifier.fillMaxWidth() // Ujednolicenie wyglądu
-                    ) {
-                        Text("Sprawdź Stan Systemu")
-                    }
-
-                    // TODO: Dodaj tutaj inne przyciski nawigacyjne, np. Skanuj QR, Inwentaryzacja
-                    // Spacer(modifier = Modifier.height(8.dp))
-                    // Button(onClick = { navController.navigate("scan_qr") }, ...)
-                    // Spacer(modifier = Modifier.height(8.dp))
-                    // Button(onClick = { navController.navigate("inventory") }, ...)
-
 
                 } else {
-                    // Wyświetlamy wskaźnik ładowania, dopóki dane użytkownika nie zostaną pobrane
                     CircularProgressIndicator()
                 }
             }
-
-            // Usunięto EndpointResultCard dla "Public Endpoint" i "Protected Endpoint"
         }
     }
 }
@@ -150,4 +144,17 @@ fun UserInfoCard(user: UserInfoResponse) {
     }
 }
 
-// Usunięto funkcję EndpointResultCard, ponieważ nie jest już używana
+@Composable
+fun MenuButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Text(text)
+    }
+    Spacer(modifier = Modifier.height(8.dp))
+}

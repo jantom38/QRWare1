@@ -30,10 +30,8 @@ public class CategoryController {
     @Autowired
     private DTOMapper dtoMapper;
 
-    // Pobierz wszystkie kategorie
     @GetMapping
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
-    // ZMIANA: Zwraca opakowaną odpowiedź
     public ResponseEntity<ApiResponse<List<CategoryDTO>>> getAllCategories() {
         List<Category> categories = categoryRepository.findAll();
         List<CategoryDTO> categoryDTOs = categories.stream()
@@ -43,10 +41,8 @@ public class CategoryController {
         return ResponseEntity.ok(ApiResponse.success(categoryDTOs));
     }
 
-    // Pobierz aktywne kategorie
     @GetMapping("/active")
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
-    // ZMIANA: Zwraca opakowaną odpowiedź
     public ResponseEntity<ApiResponse<List<CategoryDTO>>> getActiveCategories() {
         List<Category> categories = categoryRepository.findByActiveTrue();
         List<CategoryDTO> categoryDTOs = categories.stream()

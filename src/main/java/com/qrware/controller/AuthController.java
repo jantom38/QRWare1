@@ -17,9 +17,6 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Authentication Controller for handling login, registration, and token management
- */
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -30,9 +27,6 @@ public class AuthController {
     @Autowired
     private AuthenticationService authenticationService;
 
-    /**
-     * User login endpoint
-     */
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
         logger.info("Login attempt for user: {}", loginRequest.getUsernameOrEmail());
@@ -60,9 +54,6 @@ public class AuthController {
         }
     }
 
-    /**
-     * User registration endpoint
-     */
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
         logger.info("Registration attempt for user: {}", registerRequest.getUsername());
@@ -91,9 +82,6 @@ public class AuthController {
         }
     }
 
-    /**
-     * Token refresh endpoint
-     */
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshTokenRequest refreshRequest) {
         logger.debug("Token refresh attempt");
@@ -121,9 +109,6 @@ public class AuthController {
         }
     }
 
-    /**
-     * User logout endpoint
-     */
     @PostMapping("/logout")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> logout() {
@@ -151,9 +136,6 @@ public class AuthController {
         }
     }
 
-    /**
-     * Change password endpoint
-     */
     @PostMapping("/change-password")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
@@ -181,9 +163,6 @@ public class AuthController {
         }
     }
 
-    /**
-     * Request password reset endpoint
-     */
     @PostMapping("/forgot-password")
     public ResponseEntity<?> requestPasswordReset(@RequestBody Map<String, String> request) {
         String email = request.get("email");
@@ -200,7 +179,6 @@ public class AuthController {
         try {
             authenticationService.requestPasswordReset(email);
             
-            // Always return success to prevent email enumeration
             return ResponseEntity.ok(new ApiResponse<>(
                 true,
                 "If the email exists, a password reset link has been sent",
@@ -210,7 +188,6 @@ public class AuthController {
         } catch (Exception ex) {
             logger.error("Password reset request error: {}", ex.getMessage(), ex);
             
-            // Still return success to prevent information disclosure
             return ResponseEntity.ok(new ApiResponse<>(
                 true,
                 "If the email exists, a password reset link has been sent",
@@ -219,9 +196,6 @@ public class AuthController {
         }
     }
 
-    /**
-     * Get current user information
-     */
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> getCurrentUser() {
@@ -239,7 +213,6 @@ public class AuthController {
             
             User user = userOpt.get();
             
-            // Create user info response (without sensitive data)
             UserInfoResponse userInfo = new UserInfoResponse(
                 user.getId(),
                 user.getUsername(),
@@ -273,9 +246,6 @@ public class AuthController {
         }
     }
 
-    /**
-     * Validate token endpoint
-     */
     @GetMapping("/validate")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> validateToken() {
@@ -307,9 +277,6 @@ public class AuthController {
         }
     }
 
-    /**
-     * Check username availability
-     */
     @GetMapping("/check-username")
     public ResponseEntity<?> checkUsername(@RequestParam String username) {
         try {
@@ -334,9 +301,6 @@ public class AuthController {
         }
     }
 
-    /**
-     * Check email availability
-     */
     @GetMapping("/check-email")
     public ResponseEntity<?> checkEmail(@RequestParam String email) {
         try {
@@ -361,9 +325,6 @@ public class AuthController {
         }
     }
 
-    /**
-     * Generic API Response wrapper
-     */
     public static class ApiResponse<T> {
         private boolean success;
         private String message;
@@ -377,16 +338,12 @@ public class AuthController {
             this.timestamp = LocalDateTime.now();
         }
 
-        // Getters
         public boolean isSuccess() { return success; }
         public String getMessage() { return message; }
         public T getData() { return data; }
         public LocalDateTime getTimestamp() { return timestamp; }
     }
 
-    /**
-     * User information response DTO
-     */
     public static class UserInfoResponse {
         private Long id;
         private String username;
@@ -418,7 +375,6 @@ public class AuthController {
             this.permissions = permissions;
         }
 
-        // Getters
         public Long getId() { return id; }
         public String getUsername() { return username; }
         public String getEmail() { return email; }

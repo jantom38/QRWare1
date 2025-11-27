@@ -40,6 +40,24 @@ fun ManageInventoryScreen(
     )
     val uiState by viewModel.uiState.collectAsState()
 
+    // Pobieranie informacji o użytkowniku dla uprawnień
+    var userInfo by remember { mutableStateOf<com.qrware.app.data.model.UserInfoResponse?>(null) }
+    
+    LaunchedEffect(Unit) {
+        appContainer.authRepository.getCurrentUser()
+            .onSuccess { userInfo = it }
+            .onFailure { userInfo = null }
+    }
+
+    // Funkcje pomocnicze do sprawdzania uprawnień
+    fun hasPermission(permission: String): Boolean {
+        return userInfo?.permissions?.contains(permission) == true
+    }
+    
+    fun hasRole(role: String): Boolean {
+        return userInfo?.roles?.contains(role) == true
+    }
+
     // Stan lokalny dla pola tekstowego wyszukiwarki
     var searchQuery by remember { mutableStateOf("") }
 
@@ -165,18 +183,18 @@ fun ManageInventoryScreen(
                     items(uiState.inventoryItems) { item ->
                         InventoryItemCard(
                             item = item,
-                            onReceiveStock = { quantity, reason ->
-                                viewModel.receiveStock(item.id, quantity, reason)
-                            },
-                            onIssueStock = { quantity, reason ->
-                                viewModel.issueStock(item.id, quantity, reason)
-                            },
-                            onDeleteItem = {
-                                viewModel.deleteInventoryItem(item.id)
-                            },
-                            onGenerateQRItem = {
-                                navController.navigate("generate_qr/INVENTORY_ITEM/${item.id}")
-                            },
+                            onReceiveStock = if (hasPermission("INVENTORY_WRITE") || hasRole("ADMIN")) {
+                                { quantity, reason -> viewModel.receiveStock(item.id, quantity, reason) }
+                            } else null,
+                            onIssueStock = if (hasPermission("INVENTORY_WRITE") || hasRole("ADMIN")) {
+                                { quantity, reason -> viewModel.issueStock(item.id, quantity, reason) }
+                            } else null,
+                            onDeleteItem = if (hasPermission("INVENTORY_DELETE") || hasRole("ADMIN")) {
+                                { viewModel.deleteInventoryItem(item.id) }
+                            } else null,
+                            onGenerateQRItem = if (hasPermission("QR_GENERATE") || hasRole("ADMIN")) {
+                                { navController.navigate("generate_qr/INVENTORY_ITEM/${item.id}") }
+                            } else null,
                             onViewDetails = {
                                 navController.navigate("inventory_details/${item.id}")
                             }
@@ -241,10 +259,10 @@ fun StatusFilterRow(onStatusSelected: (InventoryStatus?) -> Unit) {
 @Composable
 fun InventoryItemCard(
     item: InventoryItemDTO,
-    onReceiveStock: (Int, String?) -> Unit,
-    onIssueStock: (Int, String?) -> Unit,
-    onDeleteItem: () -> Unit,
-    onGenerateQRItem: () -> Unit,
+    onReceiveStock: ((Int, String?) -> Unit)? = null,
+    onIssueStock: ((Int, String?) -> Unit)? = null,
+    onDeleteItem: (() -> Unit)? = null,
+    onGenerateQRItem: (() -> Unit)? = null,
     onViewDetails: () -> Unit
 ) {
     var showQuantityDialog by remember { mutableStateOf(false) }
@@ -380,51 +398,86 @@ fun InventoryItemCard(
             Spacer(modifier = Modifier.height(12.dp))
 
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Button(
-                    onClick = {
-                        isReceiving = true
-                        showQuantityDialog = true
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = null)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Przyjmij")
+                if (onReceiveStock != null && onIssueStock != null) {
+                    // Oba przyciski - używamy weight
+                    Button(
+                        onClick = {
+                            isReceiving = true
+                            showQuantityDialog = true
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = null)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Przyjmij")
+                    }
+
+                    Button(
+                        onClick = {
+                            isReceiving = false
+                            showQuantityDialog = true
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(Icons.Default.Remove, contentDescription = null)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Wydaj")
+                    }
+                } else {
+                    // Tylko jeden przycisk lub żaden - bez weight
+                    if (onReceiveStock != null) {
+                        Button(
+                            onClick = {
+                                isReceiving = true
+                                showQuantityDialog = true
+                            }
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = null)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Przyjmij")
+                        }
+                    }
+
+                    if (onIssueStock != null) {
+                        Button(
+                            onClick = {
+                                isReceiving = false
+                                showQuantityDialog = true
+                            }
+                        ) {
+                            Icon(Icons.Default.Remove, contentDescription = null)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Wydaj")
+                        }
+                    }
                 }
 
-                Button(
-                    onClick = {
-                        isReceiving = false
-                        showQuantityDialog = true
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(Icons.Default.Remove, contentDescription = null)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Wydaj")
+                onGenerateQRItem?.let { action ->
+                    IconButton(onClick = action) {
+                        Icon(Icons.Default.QrCode, contentDescription = "Generuj kod QR")
+                    }
                 }
 
-                IconButton(onClick = onGenerateQRItem) {
-                    Icon(Icons.Default.QrCode, contentDescription = "Generuj kod QR")
-                }
-
-                IconButton(onClick = onDeleteItem) {
-                    Icon(Icons.Default.Delete, contentDescription = "Usuń")
+                onDeleteItem?.let { action ->
+                    IconButton(onClick = action) {
+                        Icon(Icons.Default.Delete, contentDescription = "Usuń")
+                    }
                 }
             }
         }
     }
 
-    if (showQuantityDialog) {
+    if (showQuantityDialog && ((isReceiving && onReceiveStock != null) || (!isReceiving && onIssueStock != null))) {
         QuantityDialog(
             isReceiving = isReceiving,
             onConfirm = { quantity, reason ->
                 if (isReceiving) {
-                    onReceiveStock(quantity, reason)
+                    onReceiveStock?.invoke(quantity, reason)
                 } else {
-                    onIssueStock(quantity, reason)
+                    onIssueStock?.invoke(quantity, reason)
                 }
                 showQuantityDialog = false
             },

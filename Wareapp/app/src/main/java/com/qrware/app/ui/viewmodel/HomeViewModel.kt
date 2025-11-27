@@ -29,6 +29,15 @@ class HomeViewModel(
             // Usunięte wywołania testRepository
         }
     }
+
+    fun logout() {
+        viewModelScope.launch {
+            authRepository.logout()
+                .onSuccess { 
+                    _userState.value = null 
+                }
+        }
+    }
 }
 
 // Factory dla ViewModel

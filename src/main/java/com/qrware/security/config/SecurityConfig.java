@@ -134,7 +134,7 @@ public class SecurityConfig {
 
                 // Inventory management
           //  .requestMatchers(HttpMethod.GET, "/api/inventory/**").hasAnyRole("USER", "WAREHOUSE_WORKER", "WAREHOUSE_MANAGER", "ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/inventory/**").hasAuthority("ADMIN_FULL")
+                .requestMatchers(HttpMethod.GET, "/api/inventory/**").authenticated()
 
            //     .requestMatchers(HttpMethod.POST, "/api/inventory/receive").hasAnyRole("WAREHOUSE_WORKER", "WAREHOUSE_MANAGER", "ADMIN")
            // .requestMatchers(HttpMethod.PUT, "/api/inventory/move").hasAnyRole("WAREHOUSE_WORKER", "WAREHOUSE_MANAGER", "ADMIN")

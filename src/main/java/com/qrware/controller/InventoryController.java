@@ -46,47 +46,37 @@ public class InventoryController {
     private MovementHistoryService movementHistoryService;
     
     @Autowired
-    private com.qrware.repository.product.ProductRepository productRepository; // Upewnij się co do importu
+    private com.qrware.repository.product.ProductRepository productRepository;
     @Autowired
-    private com.qrware.repository.warehouse.LocationRepository locationRepository; // Upewnij się co do importu
-    // --- WSTRZYKNIJ SWÓJ MAPPER ---
+    private com.qrware.repository.warehouse.LocationRepository locationRepository;
     @Autowired
     private DTOMapper dtoMapper;
 
-    // Pobierz wszystkie pozycje z paginacją
     @GetMapping
     @PreAuthorize("hasAuthority('INVENTORY_READ')")
-    // --- ZMIEŃ TYP ZWRACANY NA PAGE<INVENTORYITEMDTO> ---
     public ResponseEntity<Page<InventoryItemDTO>> getAllInventoryItems(Pageable pageable) {
 
         logger.info("GET /api/inventory - Strona: {}, Rozmiar: {}",
                 pageable.getPageNumber(), pageable.getPageSize());
 
-        // 1. Pobierz w pełni załadowane encje (dzięki @EntityGraph w repo)
         Page<InventoryItem> itemsPage = inventoryRepository.findAll(pageable);
 
-        // 2. Zmapuj Page<Encja> na Page<DTO> używając swojego mappera
         Page<InventoryItemDTO> dtoPage = itemsPage.map(dtoMapper::toDTO);
 
         logger.info("Pomyślnie pobrano i zmapowano {} pozycji.", dtoPage.getNumberOfElements());
 
-        // 3. Zwróć stronę DTO
         return ResponseEntity.ok(dtoPage);
     }
 
-    // Pobierz pozycję po ID
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('INVENTORY_READ')")
-    // --- ZMIEŃ TYP ZWRACANY NA INVENTORYITEMDTO ---
     public ResponseEntity<InventoryItemDTO> getInventoryItemById(@PathVariable Long id) {
         logger.info("GET /api/inventory/{} - Pobieranie pozycji po ID.", id);
 
-        // Użyj metody findById, która ma @EntityGraph
         Optional<InventoryItem> item = inventoryRepository.findById(id);
 
         if (item.isPresent()) {
             logger.info("Znaleziono pozycję dla ID: {}", id);
-            // Zmapuj pojedynczy wynik do DTO i zwróć
             return ResponseEntity.ok(dtoMapper.toDTO(item.get()));
         }
 
@@ -94,10 +84,8 @@ public class InventoryController {
         throw new ResourceNotFoundException("Inventory item", "id", id);
     }
 
-    // Pobierz pozycje po produktie
     @GetMapping("/product/{productId}")
     @PreAuthorize("hasAuthority('INVENTORY_READ')")
-    // --- ZMIEŃ TYP ZWRACANY NA LIST<INVENTORYITEMDTO> ---
     public ResponseEntity<List<InventoryItemDTO>> getInventoryByProduct(@PathVariable Long productId) {
         logger.info("GET /api/inventory/product/{}", productId);
         List<InventoryItem> items = inventoryRepository.findByProductId(productId);
@@ -107,7 +95,6 @@ public class InventoryController {
         return ResponseEntity.ok(dtos);
     }
 
-    // Pobierz pozycję po QR kodzie
     @GetMapping("/qr/{qrCode}")
     @PreAuthorize("hasAuthority('INVENTORY_READ')")
     public ResponseEntity<InventoryItemDTO> getInventoryByQRCode(@PathVariable String qrCode) {
@@ -124,10 +111,8 @@ public class InventoryController {
         throw new ResourceNotFoundException("Inventory item", "qrCode", qrCode);
     }
 
-    // Pobierz pozycje po lokalizacji
     @GetMapping("/location/{locationId}")
     @PreAuthorize("hasAuthority('INVENTORY_READ')")
-    // --- ZMIEŃ TYP ZWRACANY NA LIST<INVENTORYITEMDTO> ---
     public ResponseEntity<List<InventoryItemDTO>> getInventoryByLocation(@PathVariable Long locationId) {
         logger.info("GET /api/inventory/location/{}", locationId);
         List<InventoryItem> items = inventoryRepository.findByLocationId(locationId);
@@ -137,10 +122,8 @@ public class InventoryController {
         return ResponseEntity.ok(dtos);
     }
 
-    // Pobierz pozycje po statusie
     @GetMapping("/status/{status}")
     @PreAuthorize("hasAuthority('INVENTORY_READ')")
-    // --- ZMIEŃ TYP ZWRACANY NA LIST<INVENTORYITEMDTO> ---
     public ResponseEntity<List<InventoryItemDTO>> getInventoryByStatus(@PathVariable InventoryStatus status) {
         logger.info("GET /api/inventory/status/{}", status);
         List<InventoryItem> items = inventoryRepository.findByStatus(status);
@@ -150,10 +133,8 @@ public class InventoryController {
         return ResponseEntity.ok(dtos);
     }
 
-    // Pozycje z niskim stanem
     @GetMapping("/low-stock")
     @PreAuthorize("hasAuthority('INVENTORY_READ')")
-    // --- ZMIEŃ TYP ZWRACANY NA LIST<INVENTORYITEMDTO> ---
     public ResponseEntity<List<InventoryItemDTO>> getLowStockItems() {
         logger.info("GET /api/inventory/low-stock");
         List<InventoryItem> items = inventoryRepository.findLowStockItems();
@@ -163,15 +144,13 @@ public class InventoryController {
         return ResponseEntity.ok(dtos);
     }
 
-    // --- Metody POST/PUT/DELETE ---
-    // Dobrą praktyką jest również zwracanie DTO po utworzeniu/aktualizacji
+
 
     @PostMapping
     @PreAuthorize("hasAuthority('INVENTORY_WRITE')")
     public ResponseEntity<InventoryItemDTO> createInventoryItem(@Valid @RequestBody CreateInventoryRequest request) {
         logger.info("POST /api/inventory - Tworzenie nowej pozycji.");
 
-        // 1. Pobierz encje Product i Location z bazy danych
         var product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", request.getProductId()));
 
@@ -208,21 +187,19 @@ public class InventoryController {
         InventoryItem savedItem = inventoryRepository.save(item);
         logger.info("Utworzono nową pozycję z ID: {}", savedItem.getId());
 
-        // Zwróć DTO
+
         InventoryItem reloadedItem = inventoryRepository.findById(savedItem.getId()).orElse(savedItem);
         return ResponseEntity.status(HttpStatus.CREATED).body(dtoMapper.toDTO(reloadedItem));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('INVENTORY_WRITE')")
-    // --- ZMIEŃ TYP ZWRACANY NA INVENTORYITEMDTO ---
     public ResponseEntity<InventoryItemDTO> updateInventoryItem(@PathVariable Long id,
                                                                 @Valid @RequestBody UpdateInventoryRequest request) {
         logger.info("PUT /api/inventory/{} - Aktualizacja pozycji.", id);
         InventoryItem item = inventoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Inventory item", "id", id));
 
-        // TODO: Dodać update dla Location
         if (request.getQuantity() != null) item.setQuantity(request.getQuantity());
         if (request.getReservedQuantity() != null) item.setReservedQuantity(request.getReservedQuantity());
         if (request.getStatus() != null) item.setStatus(request.getStatus());
@@ -246,12 +223,10 @@ public class InventoryController {
 
         InventoryItem updatedItem = inventoryRepository.save(item);
 
-        // Zwróć DTO (musimy ponownie wczytać z findById, aby dociągnąć relacje dla mappera)
         InventoryItem reloadedItem = inventoryRepository.findById(updatedItem.getId()).orElse(updatedItem);
         return ResponseEntity.ok(dtoMapper.toDTO(reloadedItem));
     }
 
-    // Usuń pozycję
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('INVENTORY_DELETE')")
     public ResponseEntity<Void> deleteInventoryItem(@PathVariable Long id) {
@@ -263,10 +238,8 @@ public class InventoryController {
         return ResponseEntity.noContent().build();
     }
 
-    // Aktualizuj ilość - przyjęcie towaru
     @PostMapping("/{id}/receive")
     @PreAuthorize("hasAuthority('INVENTORY_WRITE')")
-    // --- ZMIEŃ TYP ZWRACANY NA INVENTORYITEMDTO ---
     public ResponseEntity<InventoryItemDTO> receiveStock(@PathVariable Long id,
                                                          @RequestBody QuantityUpdateRequest request) {
         logger.info("POST /api/inventory/{}/receive - Przyjęcie towaru.", id);
@@ -305,20 +278,16 @@ public class InventoryController {
     public ResponseEntity<List<InventoryItemDTO>> searchInventory(@RequestParam("query") String query) {
         logger.info("GET /api/inventory/search?query={}", query);
 
-        // Wywołanie metody, którą dodaliśmy w Kroku 1 do repozytorium
         List<InventoryItem> items = inventoryRepository.searchInventory(query);
 
-        // Mapowanie na DTO
         List<InventoryItemDTO> dtos = items.stream()
                 .map(dtoMapper::toDTO)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(dtos);
     }
-    // Aktualizuj ilość - wydanie towaru
     @PostMapping("/{id}/issue")
     @PreAuthorize("hasAuthority('INVENTORY_WRITE')")
-    // --- ZMIEŃ TYP ZWRACANY NA INVENTORYITEMDTO ---
     public ResponseEntity<InventoryItemDTO> issueStock(@PathVariable Long id,
                                                        @RequestBody QuantityUpdateRequest request) {
         logger.info("POST /api/inventory/{}/issue - Wydanie towaru.", id);

@@ -41,10 +41,8 @@ class ManageInventoryViewModel(
         }
     }
 
-    // --- NOWA FUNKCJA WYSZUKIWANIA ---
     fun searchInventory(query: String) {
         if (query.isBlank()) {
-            // Jeśli tekst jest pusty, wróć do standardowej paginacji
             loadInventoryItems(page = 0)
             return
         }
@@ -56,7 +54,7 @@ class ManageInventoryViewModel(
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     inventoryItems = response,
-                    totalPages = 1, // Wyszukiwanie zwraca listę, wyłączamy paginację
+                    totalPages = 1,
                     currentPage = 0
                 )
             } catch (e: Exception) {
@@ -67,7 +65,6 @@ class ManageInventoryViewModel(
             }
         }
     }
-    // --------------------------------
 
     fun filterByStatus(status: InventoryStatus) {
         viewModelScope.launch {
@@ -77,7 +74,7 @@ class ManageInventoryViewModel(
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     inventoryItems = response,
-                    totalPages = 1, // Filtrowanie po statusie (API List<>) wyłącza paginację
+                    totalPages = 1,
                     currentPage = 0
                 )
             } catch (e: Exception) {
@@ -94,7 +91,6 @@ class ManageInventoryViewModel(
             try {
                 val request = QuantityUpdateRequest(quantity, reason)
                 inventoryRepository.receiveStock(itemId, request)
-                // Po operacji odświeżamy listę (zachowując kontekst jeśli byłby potrzebny, ale tu prosto reload)
                 loadInventoryItems()
                 _uiState.value = _uiState.value.copy(
                     successMessage = "Przyjęto towar pomyślnie"

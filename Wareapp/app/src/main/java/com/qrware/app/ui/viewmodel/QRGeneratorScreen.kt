@@ -73,31 +73,9 @@ fun QRGeneratorScreen(
         onDispose { viewModel.clearGeneratedQRCode() }
     }
 
-    // === LOGIKA INTELIGENTNEGO POWROTU ===
-    // Zapobiega pętlom nawigacyjnym (np. ManageQRCodes -> AutoRedirect -> Generator -> Back -> ManageQRCodes -> Loop)
+    // === PROSTE COFANIE ===
     val handleBackNavigation = {
-        var handled = false
-        // Jeśli mamy kontekst (przyszliśmy z konkretnego obiektu), wracamy jawnie do jego szczegółów
-        if (initialType != null && initialEntityId != null) {
-            val route = when (initialType) {
-                "PRODUCT" -> "product_details/$initialEntityId"
-                "INVENTORY_ITEM" -> "inventory_details/$initialEntityId"
-                else -> null
-            }
-            if (route != null) {
-                navController.navigate(route) {
-                    // Usuwamy generator (i ekrany pośrednie) ze stosu
-                    popUpTo(navController.currentBackStackEntry?.destination?.route ?: return@navigate) {
-                        inclusive = true
-                    }
-                }
-                handled = true
-            }
-        }
-        // Fallback: standardowe cofnięcie
-        if (!handled) {
-            navController.popBackStack()
-        }
+        navController.popBackStack()
     }
 
     Scaffold(
