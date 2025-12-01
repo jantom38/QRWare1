@@ -14,7 +14,7 @@ class ServerConfigManager(context: Context) {
         private const val KEY_SERVER_URL = "server_url"
         private const val KEY_SERVER_PORT = "server_port"
         private const val KEY_USE_HTTPS = "use_https"
-        private const val DEFAULT_IP = "192.168.0.178"
+        private const val DEFAULT_IP = "192.168.180.18"
         private const val DEFAULT_PORT = "8080"
         private const val DEFAULT_USE_HTTPS = false
     }

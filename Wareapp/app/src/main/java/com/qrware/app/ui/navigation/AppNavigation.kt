@@ -28,6 +28,11 @@ import com.qrware.app.ui.screens.UserManagement.ManageUsersScreen
 import com.qrware.app.ui.screens.ZoneManagement.AddZoneScreen
 import com.qrware.app.ui.screens.ZoneManagement.EditZoneScreen // <--- TEN IMPORT BYŁ POTRZEBNY
 import com.qrware.app.ui.screens.ZoneManagement.ManageZonesScreen
+import com.qrware.app.ui.screens.OrderManagement.MyOrdersScreen
+import com.qrware.app.ui.screens.OrderManagement.OrderDetailsScreen
+import com.qrware.app.ui.screens.OrderManagement.QRScanOrderScreen
+import com.qrware.app.ui.screens.OrderManagement.ManageOrdersScreen
+import com.qrware.app.ui.screens.OrderManagement.CreateOrderScreen
 // ----------------------------
 import com.qrware.app.ui.viewmodel.*
 import com.qrware.app.ui.viewmodel.ProductsManagement.AddProductViewModel
@@ -379,6 +384,86 @@ fun AppNavigation(appContainer: AppContainer) {
                         navController = navController,
                         appContainer = appContainer,
                         locationId = locationId
+                    )
+                } else {
+                    navController.popBackStack()
+                }
+            }
+
+            // === ORDER ROUTES ===
+            
+            composable("my_orders") {
+                MyOrdersScreen(
+                    navController = navController,
+                    orderRepository = appContainer.orderRepository
+                )
+            }
+
+            composable("manage_orders") {
+                ManageOrdersScreen(
+                    navController = navController,
+                    orderRepository = appContainer.orderRepository
+                )
+            }
+
+            composable("create_order") {
+                CreateOrderScreen(
+                    navController = navController,
+                    orderRepository = appContainer.orderRepository,
+                    userRepository = appContainer.userManagementRepository,
+                    locationRepository = appContainer.locationRepository,
+                    productRepository = appContainer.productRepository,
+                    orderItemRepository = appContainer.orderItemRepository
+                )
+            }
+
+            composable(
+                route = "order_details/{orderId}",
+                arguments = listOf(navArgument("orderId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val orderId = backStackEntry.arguments?.getLong("orderId")
+                if (orderId != null) {
+                    OrderDetailsScreen(
+                        orderId = orderId,
+                        navController = navController,
+                        orderRepository = appContainer.orderRepository,
+                        orderItemRepository = appContainer.orderItemRepository
+                    )
+                } else {
+                    navController.popBackStack()
+                }
+            }
+
+            composable(
+                route = "qr_scan_order/{orderId}",
+                arguments = listOf(navArgument("orderId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val orderId = backStackEntry.arguments?.getLong("orderId")
+                if (orderId != null) {
+                    QRScanOrderScreen(
+                        orderId = orderId,
+                        navController = navController,
+                        orderRepository = appContainer.orderRepository,
+                        orderItemRepository = appContainer.orderItemRepository
+                    )
+                } else {
+                    navController.popBackStack()
+                }
+            }
+
+            composable(
+                route = "qr_scan_item/{itemId}",
+                arguments = listOf(navArgument("itemId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val itemId = backStackEntry.arguments?.getLong("itemId")
+                if (itemId != null) {
+                    // For individual item scanning, we can reuse QRScanOrderScreen
+                    // or create a separate QRScanItemScreen if needed
+                    QRScanOrderScreen(
+                        orderId = 0L, // Will be ignored for item-specific scanning
+                        navController = navController,
+                        orderRepository = appContainer.orderRepository,
+                        orderItemRepository = appContainer.orderItemRepository
                     )
                 } else {
                     navController.popBackStack()

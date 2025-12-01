@@ -44,7 +44,16 @@ public enum MovementType {
     REWORK("Rework", "Item sent for rework"),
     SAMPLE("Sample", "Item taken as sample"),
     LOAN("Loan", "Item loaned out"),
-    LOAN_RETURN("Loan Return", "Loaned item returned");
+    LOAN_RETURN("Loan Return", "Loaned item returned"),
+    
+    // Order-related movements
+    ORDER_RECEIPT("Order Receipt", "Item received via order"),
+    ORDER_ISSUE("Order Issue", "Item issued via order"),
+    ORDER_PICK("Order Pick", "Item picked for order fulfillment"),
+    ORDER_PACK("Order Pack", "Item packed for order shipment"),
+    ORDER_CANCEL("Order Cancel", "Movement cancelled due to order cancellation"),
+    ORDER_RETURN("Order Return", "Item returned from order"),
+    ORDER_ADJUSTMENT("Order Adjustment", "Quantity adjusted due to order discrepancy");
 
     private final String displayName;
     private final String description;
@@ -65,13 +74,14 @@ public enum MovementType {
     public boolean isInbound() {
         return this == RECEIPT || this == RETURN || this == FOUND || 
                this == RELEASE || this == UNHOLD || this == PRODUCTION ||
-               this == LOAN_RETURN;
+               this == LOAN_RETURN || this == ORDER_RECEIPT || this == ORDER_RETURN;
     }
 
     public boolean isOutbound() {
         return this == ISSUE || this == SHIP || this == DISPOSAL || 
                this == LOSS || this == SCRAP || this == CONSUMPTION ||
-               this == SAMPLE || this == LOAN;
+               this == SAMPLE || this == LOAN || this == ORDER_ISSUE || 
+               this == ORDER_PICK || this == ORDER_PACK;
     }
 
     public boolean isMovement() {
@@ -90,7 +100,9 @@ public enum MovementType {
 
     public boolean isOrderRelated() {
         return this == RESERVE || this == PICK || this == PACK || this == SHIP ||
-               this == ALLOCATION || this == DEALLOCATION;
+               this == ALLOCATION || this == DEALLOCATION || this == ORDER_RECEIPT ||
+               this == ORDER_ISSUE || this == ORDER_PICK || this == ORDER_PACK ||
+               this == ORDER_CANCEL || this == ORDER_RETURN || this == ORDER_ADJUSTMENT;
     }
 
     public boolean isQualityRelated() {
@@ -105,18 +117,27 @@ public enum MovementType {
 
     public boolean increasesQuantity() {
         return this == RECEIPT || this == RETURN || this == FOUND || 
-               this == PRODUCTION || this == LOAN_RETURN;
+               this == PRODUCTION || this == LOAN_RETURN || this == ORDER_RECEIPT || 
+               this == ORDER_RETURN;
     }
 
     public boolean decreasesQuantity() {
         return this == ISSUE || this == SHIP || this == DISPOSAL || 
                this == LOSS || this == SCRAP || this == CONSUMPTION ||
-               this == SAMPLE || this == LOAN;
+               this == SAMPLE || this == LOAN || this == ORDER_ISSUE || 
+               this == ORDER_PICK || this == ORDER_PACK;
     }
 
     public boolean requiresApproval() {
         return this == DISPOSAL || this == SCRAP || this == ADJUSTMENT ||
-               this == LOSS || this == DAMAGE;
+               this == LOSS || this == DAMAGE || this == ORDER_CANCEL ||
+               this == ORDER_ADJUSTMENT;
+    }
+
+    public boolean isOrderSpecific() {
+        return this == ORDER_RECEIPT || this == ORDER_ISSUE || this == ORDER_PICK ||
+               this == ORDER_PACK || this == ORDER_CANCEL || this == ORDER_RETURN ||
+               this == ORDER_ADJUSTMENT;
     }
 
     @Override

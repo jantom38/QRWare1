@@ -55,6 +55,7 @@ class AppContainer(context: Context) {
     private val healthService: HealthService by lazy { retrofit.create(HealthService::class.java) }
     private val apiService: ApiService by lazy { retrofit.create(ApiService::class.java) }
     private val movementHistoryApiService: MovementHistoryApiService by lazy { retrofit.create(MovementHistoryApiService::class.java) }
+    private val orderApiService: com.qrware.app.data.api.OrderApiService by lazy { retrofit.create(com.qrware.app.data.api.OrderApiService::class.java) }
 
     // Repositories
     val authRepository: AuthRepository by lazy { AuthRepository(authService) }
@@ -92,6 +93,14 @@ class AppContainer(context: Context) {
 
     val movementHistoryRepository by lazy {
         MovementHistoryRepository(movementHistoryApiService)
+    }
+
+    val orderRepository by lazy {
+        com.qrware.app.data.repository.OrderRepository(orderApiService)
+    }
+
+    val orderItemRepository by lazy {
+        com.qrware.app.data.repository.OrderItemRepository(orderApiService)
     }
 
     // --- VIEWMODEL FACTORIES ---

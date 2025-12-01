@@ -5,12 +5,8 @@ import com.qrware.domain.inventory.MovementType;
 import com.qrware.dto.DTOMapper;
 import com.qrware.dto.MovementHistoryDTO;
 import com.qrware.service.MovementHistoryService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -20,7 +16,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/movement-history")
-@Tag(name = "Movement History", description = "Zarządzanie historią ruchów magazynowych")
 public class MovementHistoryController {
 
     @Autowired
@@ -29,379 +24,138 @@ public class MovementHistoryController {
     @Autowired
     private DTOMapper dtoMapper;
 
-    @GetMapping("/inventory-item/{itemId}")
-    @Operation(summary = "Pobierz historię ruchów dla pozycji magazynowej")
-    @PreAuthorize("hasAuthority('MOVEMENT_READ')")
-    public ResponseEntity<List<MovementHistoryDTO>> getMovementHistoryByItemId(
-            @Parameter(description = "ID pozycji magazynowej") @PathVariable Long itemId) {
+    // --- PODSTAWOWE POBIERANIE DANYCH ---
 
+    @GetMapping("/{id}")
+    public ResponseEntity<MovementHistoryDTO> getById(@PathVariable Long id) {
+        MovementHistory movement = movementHistoryService.getMovementById(id);
+        return ResponseEntity.ok(dtoMapper.toMovementHistoryDTO(movement));
+    }
+
+    @GetMapping("/by-item/{itemId}")
+    public ResponseEntity<List<MovementHistoryDTO>> getByInventoryItem(@PathVariable Long itemId) {
         List<MovementHistory> movements = movementHistoryService.getMovementHistoryByItemId(itemId);
-        List<MovementHistoryDTO> movementDTOs = movements.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(movementDTOs);
+        return ResponseEntity.ok(movements.stream()
+                .map(dtoMapper::toMovementHistoryDTO)
+                .collect(Collectors.toList()));
     }
 
-    @GetMapping("/product/{productId}")
-    @Operation(summary = "Pobierz historię ruchów dla produktu")
-    @PreAuthorize("hasAuthority('MOVEMENT_READ')")
-    public ResponseEntity<List<MovementHistoryDTO>> getMovementHistoryByProductId(
-            @Parameter(description = "ID produktu") @PathVariable Long productId) {
-
+    @GetMapping("/by-product/{productId}")
+    public ResponseEntity<List<MovementHistoryDTO>> getByProduct(@PathVariable Long productId) {
         List<MovementHistory> movements = movementHistoryService.getMovementHistoryByProductId(productId);
-        List<MovementHistoryDTO> movementDTOs = movements.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(movementDTOs);
+        return ResponseEntity.ok(movements.stream()
+                .map(dtoMapper::toMovementHistoryDTO)
+                .collect(Collectors.toList()));
     }
 
-    @GetMapping("/location/{locationId}")
-    @Operation(summary = "Pobierz historię ruchów dla lokalizacji")
-    @PreAuthorize("hasAuthority('MOVEMENT_READ')")
-    public ResponseEntity<List<MovementHistoryDTO>> getMovementHistoryByLocationId(
-            @Parameter(description = "ID lokalizacji") @PathVariable Long locationId) {
+    // --- PUNKT, W KTÓRYM WYSTĄPIŁ BŁĄD ---
 
+    @GetMapping("/by-order/{orderReference}")
+    public ResponseEntity<List<MovementHistoryDTO>> getByOrderReference(@PathVariable String orderReference) {
+        // LINIA 59: Poprawiona metoda z getMovementHistoryByOrderReference (nieistniejącej)
+        // na getMovementsByReferenceNumber (istniejącą)
+        List<MovementHistory> movements = movementHistoryService.getMovementsByReferenceNumber(orderReference);
+
+        return ResponseEntity.ok(movements.stream()
+                .map(dtoMapper::toMovementHistoryDTO)
+                .collect(Collectors.toList()));
+    }
+
+    // ----------------------------------------
+
+    @GetMapping("/by-location/{locationId}")
+    public ResponseEntity<List<MovementHistoryDTO>> getByLocation(@PathVariable Long locationId) {
         List<MovementHistory> movements = movementHistoryService.getMovementHistoryByLocationId(locationId);
-        List<MovementHistoryDTO> movementDTOs = movements.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(movementDTOs);
+        return ResponseEntity.ok(movements.stream()
+                .map(dtoMapper::toMovementHistoryDTO)
+                .collect(Collectors.toList()));
     }
 
-    @GetMapping("/type/{movementType}")
-    @Operation(summary = "Pobierz historię ruchów według typu")
-    @PreAuthorize("hasAuthority('MOVEMENT_READ')")
-    public ResponseEntity<List<MovementHistoryDTO>> getMovementHistoryByType(
-            @Parameter(description = "Typ ruchu") @PathVariable String movementType) {
-
-        try {
-            MovementType type = MovementType.valueOf(movementType.toUpperCase());
-            List<MovementHistory> movements = movementHistoryService.getMovementHistoryByType(type);
-            List<MovementHistoryDTO> movementDTOs = movements.stream()
-                    .map(this::convertToDTO)
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.ok(movementDTOs);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @GetMapping("/date-range")
-    @Operation(summary = "Pobierz historię ruchów z zakresu dat")
-    @PreAuthorize("hasAuthority('MOVEMENT_READ')")
-    public ResponseEntity<List<MovementHistoryDTO>> getMovementHistoryByDateRange(
-            @Parameter(description = "Data początkowa (ISO format)")
-            @RequestParam String startDate,
-            @Parameter(description = "Data końcowa (ISO format)")
-            @RequestParam String endDate) {
-
-        try {
-            LocalDateTime start = LocalDateTime.parse(startDate);
-            LocalDateTime end = LocalDateTime.parse(endDate);
-
-            List<MovementHistory> movements = movementHistoryService.getMovementHistoryByDateRange(start, end);
-            List<MovementHistoryDTO> movementDTOs = movements.stream()
-                    .map(this::convertToDTO)
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.ok(movementDTOs);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+    @GetMapping("/by-type/{type}")
+    public ResponseEntity<List<MovementHistoryDTO>> getByType(@PathVariable MovementType type) {
+        List<MovementHistory> movements = movementHistoryService.getMovementHistoryByType(type);
+        return ResponseEntity.ok(movements.stream()
+                .map(dtoMapper::toMovementHistoryDTO)
+                .collect(Collectors.toList()));
     }
 
     @GetMapping("/recent")
-    @Operation(summary = "Pobierz ostatnie ruchy")
-    @PreAuthorize("hasAuthority('MOVEMENT_READ')")
-    public ResponseEntity<List<MovementHistoryDTO>> getRecentMovements(
-            @Parameter(description = "Limit wyników") @RequestParam(defaultValue = "50") int limit) {
-
+    public ResponseEntity<List<MovementHistoryDTO>> getRecent(@RequestParam(defaultValue = "10") int limit) {
         List<MovementHistory> movements = movementHistoryService.getRecentMovements(limit);
-        List<MovementHistoryDTO> movementDTOs = movements.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(movementDTOs);
+        return ResponseEntity.ok(movements.stream()
+                .map(dtoMapper::toMovementHistoryDTO)
+                .collect(Collectors.toList()));
     }
 
-    @GetMapping("/pending-approval")
-    @Operation(summary = "Pobierz ruchy oczekujące na zatwierdzenie")
-    @PreAuthorize("hasAuthority('MOVEMENT_READ')")
-    public ResponseEntity<List<MovementHistoryDTO>> getPendingApprovalMovements() {
-
-        List<MovementHistory> movements = movementHistoryService.getPendingApprovalMovements();
-        List<MovementHistoryDTO> movementDTOs = movements.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(movementDTOs);
-    }
-
-    @GetMapping("/inbound")
-    @Operation(summary = "Pobierz ruchy przychodzące")
-    @PreAuthorize("hasAuthority('MOVEMENT_READ')")
-    public ResponseEntity<List<MovementHistoryDTO>> getInboundMovements(
-            @Parameter(description = "Limit wyników") @RequestParam(required = false) Integer limit) {
-
-        List<MovementHistory> movements = movementHistoryService.getInboundMovements();
-        if (limit != null && limit > 0) {
-            movements = movements.stream().limit(limit).collect(Collectors.toList());
-        }
-
-        List<MovementHistoryDTO> movementDTOs = movements.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(movementDTOs);
-    }
-
-    @GetMapping("/outbound")
-    @Operation(summary = "Pobierz ruchy wychodzące")
-    @PreAuthorize("hasAuthority('MOVEMENT_READ')")
-    public ResponseEntity<List<MovementHistoryDTO>> getOutboundMovements(
-            @Parameter(description = "Limit wyników") @RequestParam(required = false) Integer limit) {
-
-        List<MovementHistory> movements = movementHistoryService.getOutboundMovements();
-        if (limit != null && limit > 0) {
-            movements = movements.stream().limit(limit).collect(Collectors.toList());
-        }
-
-        List<MovementHistoryDTO> movementDTOs = movements.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(movementDTOs);
-    }
-
-    @GetMapping("/adjustments")
-    @Operation(summary = "Pobierz korekty")
-    @PreAuthorize("hasAuthority('MOVEMENT_READ')")
-    public ResponseEntity<List<MovementHistoryDTO>> getAdjustmentMovements(
-            @Parameter(description = "Limit wyników") @RequestParam(required = false) Integer limit) {
-
-        List<MovementHistory> movements = movementHistoryService.getAdjustmentMovements();
-        if (limit != null && limit > 0) {
-            movements = movements.stream().limit(limit).collect(Collectors.toList());
-        }
-
-        List<MovementHistoryDTO> movementDTOs = movements.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(movementDTOs);
-    }
+    // --- OPERACJE WYSZUKIWANIA I FILTROWANIA ---
 
     @GetMapping("/search")
-    @Operation(summary = "Wyszukaj ruchy")
-    @PreAuthorize("hasAuthority('MOVEMENT_READ')")
-    public ResponseEntity<List<MovementHistoryDTO>> searchMovements(
-            @Parameter(description = "Słowo kluczowe") @RequestParam String keyword,
-            @Parameter(description = "Gdzie szukać: reason, notes, both")
+    public ResponseEntity<List<MovementHistoryDTO>> search(
+            @RequestParam String keyword,
             @RequestParam(defaultValue = "reason") String searchIn) {
-
         List<MovementHistory> movements = movementHistoryService.searchMovements(keyword, searchIn);
-        List<MovementHistoryDTO> movementDTOs = movements.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(movementDTOs);
+        return ResponseEntity.ok(movements.stream()
+                .map(dtoMapper::toMovementHistoryDTO)
+                .collect(Collectors.toList()));
     }
 
-    @PutMapping("/{movementId}/approve")
-    @Operation(summary = "Zatwierdź ruch")
-    @PreAuthorize("hasAuthority('MOVEMENT_WRITE')")
-    public ResponseEntity<MovementHistoryDTO> approveMovement(
-            @Parameter(description = "ID ruchu") @PathVariable Long movementId,
-            @RequestBody ApprovalRequest request) {
-
-        try {
-            MovementHistory approvedMovement = movementHistoryService.approveMovement(
-                    movementId,
-                    request.getApproverComment()
-            );
-
-            MovementHistoryDTO movementDTO = convertToDTO(approvedMovement);
-
-            return ResponseEntity.ok(movementDTO);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+    @GetMapping("/date-range")
+    public ResponseEntity<List<MovementHistoryDTO>> getByDateRange(
+            @RequestParam String startDate,
+            @RequestParam String endDate) {
+        LocalDateTime start = LocalDateTime.parse(startDate);
+        LocalDateTime end = LocalDateTime.parse(endDate);
+        List<MovementHistory> movements = movementHistoryService.getMovementHistoryByDateRange(start, end);
+        return ResponseEntity.ok(movements.stream()
+                .map(dtoMapper::toMovementHistoryDTO)
+                .collect(Collectors.toList()));
     }
 
-    @GetMapping("/{movementId}")
-    @Operation(summary = "Pobierz szczegóły ruchu")
-    @PreAuthorize("hasAuthority('MOVEMENT_READ')")
-    public ResponseEntity<MovementHistoryDTO> getMovementById(
-            @Parameter(description = "ID ruchu") @PathVariable Long movementId) {
-
-        try {
-            MovementHistory movement = movementHistoryService.getMovementById(movementId);
-            MovementHistoryDTO movementDTO = convertToDTO(movement);
-
-            return ResponseEntity.ok(movementDTO);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/requiring-attention")
-    @Operation(summary = "Pobierz ruchy wymagające uwagi")
-    @PreAuthorize("hasAuthority('MOVEMENT_READ')")
-    public ResponseEntity<List<MovementHistoryDTO>> getMovementsRequiringAttention() {
-
-        List<MovementHistory> movements = movementHistoryService.getMovementsRequiringAttention();
-        List<MovementHistoryDTO> movementDTOs = movements.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(movementDTOs);
-    }
-
-    @GetMapping("/audit-trail")
-    @Operation(summary = "Pobierz ścieżkę audytową")
-    @PreAuthorize("hasAuthority('MOVEMENT_READ')")
-    public ResponseEntity<List<MovementHistoryDTO>> getAuditTrail(
-            @Parameter(description = "Data początkowa") @RequestParam String startDate,
-            @Parameter(description = "Data końcowa") @RequestParam String endDate) {
-
-        try {
-            LocalDateTime start = LocalDateTime.parse(startDate);
-            LocalDateTime end = LocalDateTime.parse(endDate);
-
-            List<MovementHistory> movements = movementHistoryService.getAuditTrail(start, end);
-            List<MovementHistoryDTO> movementDTOs = movements.stream()
-                    .map(this::convertToDTO)
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.ok(movementDTOs);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @GetMapping("/velocity")
-    @Operation(summary = "Pobierz prędkość ruchów (ruchy na godzinę)")
-    @PreAuthorize("hasAuthority('MOVEMENT_READ')")
-    public ResponseEntity<Double> getMovementVelocity(
-            @Parameter(description = "Data początkowa") @RequestParam String startDate,
-            @Parameter(description = "Data końcowa") @RequestParam String endDate) {
-
-        try {
-            LocalDateTime start = LocalDateTime.parse(startDate);
-            LocalDateTime end = LocalDateTime.parse(endDate);
-
-            Double velocity = movementHistoryService.getMovementVelocity(start, end);
-
-            return ResponseEntity.ok(velocity != null ? velocity : 0.0);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @GetMapping("/stats/by-type")
-    @Operation(summary = "Pobierz statystyki ruchów według typu")
-    @PreAuthorize("hasAuthority('MOVEMENT_READ')")
-    public ResponseEntity<Map<String, Object>> getMovementStatsByType() {
-
-        Map<String, Object> stats = movementHistoryService.getMovementStatsByType();
-
-        return ResponseEntity.ok(stats);
-    }
-
-    @GetMapping("/stats/by-date")
-    @Operation(summary = "Pobierz statystyki ruchów według dat")
-    @PreAuthorize("hasAuthority('MOVEMENT_READ')")
-    public ResponseEntity<Map<String, Object>> getMovementStatsByDate(
-            @Parameter(description = "Data początkowa") @RequestParam String startDate,
-            @Parameter(description = "Data końcowa") @RequestParam String endDate) {
-
-        try {
-            LocalDateTime start = LocalDateTime.parse(startDate);
-            LocalDateTime end = LocalDateTime.parse(endDate);
-
-            Map<String, Object> stats = movementHistoryService.getMovementStatsByDate(start, end);
-
-            return ResponseEntity.ok(stats);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @GetMapping("/environmental-data")
-    @Operation(summary = "Pobierz ruchy z danymi środowiskowymi")
-    @PreAuthorize("hasAuthority('MOVEMENT_READ')")
-    public ResponseEntity<List<MovementHistoryDTO>> getMovementsWithEnvironmentalData() {
-
-        List<MovementHistory> movements = movementHistoryService.getMovementsWithEnvironmentalData();
-        List<MovementHistoryDTO> movementDTOs = movements.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(movementDTOs);
-    }
-
-    @GetMapping("/batch/{batchId}")
-    @Operation(summary = "Pobierz ruchy według ID partii")
-    @PreAuthorize("hasAuthority('MOVEMENT_READ')")
-    public ResponseEntity<List<MovementHistoryDTO>> getMovementsByBatchId(
-            @Parameter(description = "ID partii") @PathVariable String batchId) {
-
+    @GetMapping("/by-batch/{batchId}")
+    public ResponseEntity<List<MovementHistoryDTO>> getByBatchId(@PathVariable String batchId) {
         List<MovementHistory> movements = movementHistoryService.getMovementsByBatchId(batchId);
-        List<MovementHistoryDTO> movementDTOs = movements.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(movementDTOs);
+        return ResponseEntity.ok(movements.stream()
+                .map(dtoMapper::toMovementHistoryDTO)
+                .collect(Collectors.toList()));
     }
 
-    @GetMapping("/reference/{referenceNumber}")
-    @Operation(summary = "Pobierz ruchy według numeru referencyjnego")
-    @PreAuthorize("hasAuthority('MOVEMENT_READ')")
-    public ResponseEntity<List<MovementHistoryDTO>> getMovementsByReferenceNumber(
-            @Parameter(description = "Numer referencyjny") @PathVariable String referenceNumber) {
 
-        List<MovementHistory> movements = movementHistoryService.getMovementsByReferenceNumber(referenceNumber);
-        List<MovementHistoryDTO> movementDTOs = movements.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    // --- ZARZĄDZANIE I STATYSTYKI ---
 
-        return ResponseEntity.ok(movementDTOs);
+    @GetMapping("/pending-approval")
+    public ResponseEntity<List<MovementHistoryDTO>> getPendingApproval() {
+        List<MovementHistory> movements = movementHistoryService.getPendingApprovalMovements();
+        return ResponseEntity.ok(movements.stream()
+                .map(dtoMapper::toMovementHistoryDTO)
+                .collect(Collectors.toList()));
     }
 
-    @GetMapping("/summary")
-    @Operation(summary = "Pobierz podsumowanie ruchów")
-    @PreAuthorize("hasAuthority('MOVEMENT_READ')")
+    @PostMapping("/{id}/approve")
+    public ResponseEntity<MovementHistoryDTO> approve(
+            @PathVariable Long id,
+            @RequestBody(required = false) Map<String, String> requestBody) {
+
+        String comment = requestBody != null ? requestBody.get("approverComment") : null;
+        MovementHistory approvedMovement = movementHistoryService.approveMovement(id, comment);
+        return ResponseEntity.ok(dtoMapper.toMovementHistoryDTO(approvedMovement));
+    }
+
+    @GetMapping("/statistics/count-summary")
     public ResponseEntity<Map<String, Long>> getMovementCountSummary() {
-
-        Map<String, Long> summary = movementHistoryService.getMovementCountSummary();
-
-        return ResponseEntity.ok(summary);
+        return ResponseEntity.ok(movementHistoryService.getMovementCountSummary());
     }
 
-    /**
-     * Convert MovementHistory entity to DTO
-     */
-    private MovementHistoryDTO convertToDTO(MovementHistory movement) {
-        return dtoMapper.toMovementHistoryDTO(movement);
+    @GetMapping("/statistics/by-type")
+    public ResponseEntity<Map<String, Object>> getMovementStatsByType() {
+        return ResponseEntity.ok(movementHistoryService.getMovementStatsByType());
     }
 
-    /**
-     * Request class for approval
-     */
-    public static class ApprovalRequest {
-        private String approverComment;
-
-        public String getApproverComment() {
-            return approverComment;
-        }
-
-        public void setApproverComment(String approverComment) {
-            this.approverComment = approverComment;
-        }
+    @GetMapping("/statistics/by-date")
+    public ResponseEntity<Map<String, Object>> getMovementStatsByDate(
+            @RequestParam String startDate,
+            @RequestParam String endDate) {
+        LocalDateTime start = LocalDateTime.parse(startDate);
+        LocalDateTime end = LocalDateTime.parse(endDate);
+        return ResponseEntity.ok(movementHistoryService.getMovementStatsByDate(start, end));
     }
-
 }

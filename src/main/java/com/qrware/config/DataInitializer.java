@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.qrware.domain.user.User;
@@ -26,6 +27,9 @@ import com.qrware.domain.warehouse.Location;
 import com.qrware.domain.warehouse.Zone;
 import com.qrware.domain.warehouse.ZoneType;
 import com.qrware.domain.inventory.InventoryStatus;
+import com.qrware.domain.order.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import com.qrware.repository.product.ProductRepository;
 import com.qrware.repository.product.CategoryRepository;
 import com.qrware.repository.inventory.InventoryItemRepository;
@@ -70,6 +74,12 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     private ZoneRepository zoneRepository;
 
+    @Autowired
+    private com.qrware.repository.order.OrderRepository orderRepository;
+
+    @Autowired
+    private com.qrware.repository.order.OrderItemRepository orderItemRepository;
+
     @Override
     @Transactional
     public void run(String... args) throws Exception {
@@ -80,6 +90,9 @@ public class DataInitializer implements CommandLineRunner {
         createUsers();
         createSampleData();
 
+        // Create sample orders
+        createSampleOrders();
+        
         logger.info("Default data initialization completed");
     }
 
@@ -110,6 +123,16 @@ public class DataInitializer implements CommandLineRunner {
         // QR Code permissions
         createPermissionIfNotExists("QR_SCAN", "Scan QR codes", "QR", "SCAN");
         createPermissionIfNotExists("QR_GENERATE", "Generate QR codes", "QR", "GENERATE");
+
+        // Order permissions
+        createPermissionIfNotExists("ORDER_READ", "Read order information", "ORDER", "READ");
+        createPermissionIfNotExists("ORDER_WRITE", "Create and update orders", "ORDER", "WRITE");
+        createPermissionIfNotExists("ORDER_ASSIGN", "Assign orders to users", "ORDER", "ASSIGN");
+        createPermissionIfNotExists("ORDER_DELETE", "Delete orders", "ORDER", "DELETE");
+
+        // Movement permissions
+        createPermissionIfNotExists("MOVEMENT_READ", "Read movement history", "MOVEMENT", "READ");
+        createPermissionIfNotExists("MOVEMENT_WRITE", "Create movement entries", "MOVEMENT", "WRITE");
 
         // Admin permissions
         createPermissionIfNotExists("ADMIN_FULL", "Full administrative access", "ADMIN", "ALL");
@@ -142,6 +165,9 @@ public class DataInitializer implements CommandLineRunner {
             workerPermissions.add(getPermission("INVENTORY_WRITE"));
             workerPermissions.add(getPermission("INVENTORY_UPDATE"));
             workerPermissions.add(getPermission("QR_SCAN"));
+            workerPermissions.add(getPermission("ORDER_READ"));
+            workerPermissions.add(getPermission("ORDER_WRITE"));
+            workerPermissions.add(getPermission("MOVEMENT_READ"));
             workerRole.setPermissions(workerPermissions);
             roleRepository.save(workerRole);
             logger.info("Created WAREHOUSE_WORKER role");
@@ -162,6 +188,12 @@ public class DataInitializer implements CommandLineRunner {
             managerPermissions.add(getPermission("INVENTORY_DELETE"));
             managerPermissions.add(getPermission("QR_SCAN"));
             managerPermissions.add(getPermission("QR_GENERATE"));
+            managerPermissions.add(getPermission("ORDER_READ"));
+            managerPermissions.add(getPermission("ORDER_WRITE"));
+            managerPermissions.add(getPermission("ORDER_ASSIGN"));
+            managerPermissions.add(getPermission("ORDER_DELETE"));
+            managerPermissions.add(getPermission("MOVEMENT_READ"));
+            managerPermissions.add(getPermission("MOVEMENT_WRITE"));
             managerRole.setPermissions(managerPermissions);
             roleRepository.save(managerRole);
             logger.info("Created WAREHOUSE_MANAGER role");
@@ -186,11 +218,14 @@ public class DataInitializer implements CommandLineRunner {
             adminPermissions.add(getPermission("LOCATION_WRITE"));
             adminPermissions.add(getPermission("ZONE_READ"));
             adminPermissions.add(getPermission("ZONE_WRITE"));
-
-
-            adminPermissions.add(getPermission("INVENTORY_DELETE"));
             adminPermissions.add(getPermission("QR_SCAN"));
             adminPermissions.add(getPermission("QR_GENERATE"));
+            adminPermissions.add(getPermission("ORDER_READ"));
+            adminPermissions.add(getPermission("ORDER_WRITE"));
+            adminPermissions.add(getPermission("ORDER_ASSIGN"));
+            adminPermissions.add(getPermission("ORDER_DELETE"));
+            adminPermissions.add(getPermission("MOVEMENT_READ"));
+            adminPermissions.add(getPermission("MOVEMENT_WRITE"));
             adminRole.setPermissions(adminPermissions);
             roleRepository.save(adminRole);
             logger.info("Created ADMIN role");
@@ -560,5 +595,148 @@ public class DataInitializer implements CommandLineRunner {
             item.setReceivedDate(LocalDate.now());
             return inventoryItemRepository.save(item);
         });
+    }
+
+    private void createSampleOrders() {
+        if (orderRepository.count() > 0) {
+            logger.info("📦 Orders already exist, skipping sample order creation");
+            return;
+        }
+
+        try {
+            logger.info("📦 Creating sample orders...");
+
+            // Get sample data
+            User admin = userRepository.findByUsername("admin")
+                .orElseThrow(() -> new RuntimeException("Admin user not found"));
+            User manager = userRepository.findByUsername("manager")
+                .orElseThrow(() -> new RuntimeException("Manager user not found"));
+            User worker = userRepository.findByUsername("worker")
+                .orElseThrow(() -> new RuntimeException("Worker user not found"));
+
+            Product product1 = productRepository.findBySku("PHN001")
+                .orElseThrow(() -> new RuntimeException("Phone product not found"));
+            Product product2 = productRepository.findBySku("LAP001")
+                .orElseThrow(() -> new RuntimeException("Laptop product not found"));
+
+            List<Location> locations = locationRepository.findAll();
+            if (locations.size() < 2) {
+                logger.warn("Not enough locations for sample orders, skipping...");
+                return;
+            }
+            Location location1 = locations.get(0);
+            Location location2 = locations.get(1);
+
+            Order order1 = new Order("ORD-001", OrderType.INBOUND, admin);
+            order1.setDescription("Przyjęcie nowych telefonów - dostawa od dostawcy");
+            order1.setPriority(OrderPriority.HIGH);
+            order1.setAssignedTo(worker);
+            order1.setDestinationLocation(location1);
+            order1.setExpectedDate(LocalDateTime.now().plusDays(1));
+            order1.setNotes("Sprawdzić stan opakowań przy odbiorze");
+            order1.setExternalReference("SUPP-DEL-2024-001");
+            order1 = orderRepository.save(order1);
+
+            // Add order items to order 1
+            OrderItem item1_1 = new OrderItem(order1, 1, product1, 50);
+            item1_1.setDestinationLocation(location1);
+            item1_1.setUnitPrice(new BigDecimal("2500.00"));
+            item1_1.setNotes("Nowe iPhone 15 Pro - sprawdzić IMEI");
+            orderItemRepository.save(item1_1);
+
+            OrderItem item1_2 = new OrderItem(order1, 2, product2, 20);
+            item1_2.setDestinationLocation(location1);
+            item1_2.setUnitPrice(new BigDecimal("4200.00"));
+            item1_2.setNotes("Laptopy Dell - sprawdzić licencje Windows");
+            orderItemRepository.save(item1_2);
+
+            // Update order totals
+            order1.updateProgress();
+            orderRepository.save(order1);
+
+            // Sample Order 2 - OUTBOUND (Normal Priority, assigned to worker)
+            Order order2 = new Order("ORD-002", OrderType.OUTBOUND, manager);
+            order2.setDescription("Wysyłka zamówienia dla klienta VIP");
+            order2.setPriority(OrderPriority.NORMAL);
+            order2.setAssignedTo(worker);
+            order2.setSourceLocation(location1);
+            order2.setExpectedDate(LocalDateTime.now().plusHours(4));
+            order2.setNotes("Klient VIP - priorytetowe opakowanie");
+            order2.setExternalReference("CUST-ORDER-VIP-123");
+            order2.setStatus(OrderStatus.IN_PROGRESS);
+            order2.setStartedAt(LocalDateTime.now().minusHours(1));
+            order2 = orderRepository.save(order2);
+
+            // Add order item to order 2
+            OrderItem item2_1 = new OrderItem(order2, 1, product1, 5);
+            item2_1.setSourceLocation(location1);
+            item2_1.setUnitPrice(new BigDecimal("2500.00"));
+            item2_1.setCompletedQuantity(3); // Partially completed
+            item2_1.setStatus(OrderItemStatus.PARTIALLY_COMPLETED);
+            item2_1.setPickedAt(LocalDateTime.now().minusMinutes(30));
+            item2_1.setNotes("3 sztuki już skompletowane, pozostałe 2 w trakcie");
+            orderItemRepository.save(item2_1);
+
+            // Update order totals
+            order2.updateProgress();
+            orderRepository.save(order2);
+
+            // Sample Order 3 - TRANSFER (Urgent Priority, not assigned yet)
+            Order order3 = new Order("ORD-003", OrderType.TRANSFER, admin);
+            order3.setDescription("Transfer sprzętu między strefami magazynowymi");
+            order3.setPriority(OrderPriority.URGENT);
+            order3.setSourceLocation(location1);
+            order3.setDestinationLocation(location2);
+            order3.setExpectedDate(LocalDateTime.now().plusHours(2));
+            order3.setNotes("Pilny transfer - reorganizacja magazynu");
+            order3.setStatus(OrderStatus.CREATED);
+            order3 = orderRepository.save(order3);
+
+            // Add order item to order 3
+            OrderItem item3_1 = new OrderItem(order3, 1, product2, 10);
+            item3_1.setSourceLocation(location1);
+            item3_1.setDestinationLocation(location2);
+            item3_1.setUnitPrice(new BigDecimal("4200.00"));
+            item3_1.setNotes("Przeniesienie laptopów do nowej strefy");
+            orderItemRepository.save(item3_1);
+
+            // Update order totals
+            order3.updateProgress();
+            orderRepository.save(order3);
+
+            // Sample Order 4 - COMPLETED ORDER
+            Order order4 = new Order("ORD-004", OrderType.PICK, manager);
+            order4.setDescription("Kompletacja zamówienia e-commerce");
+            order4.setPriority(OrderPriority.NORMAL);
+            order4.setAssignedTo(worker);
+            order4.setSourceLocation(location1);
+            order4.setExpectedDate(LocalDateTime.now().minusHours(2));
+            order4.setStartedAt(LocalDateTime.now().minusHours(3));
+            order4.setCompletedAt(LocalDateTime.now().minusMinutes(30));
+            order4.setStatus(OrderStatus.COMPLETED);
+            order4.setNotes("Zamówienie zrealizowane zgodnie z planem");
+            order4.setExternalReference("ECOM-2024-0456");
+            order4 = orderRepository.save(order4);
+
+            // Add completed order item
+            OrderItem item4_1 = new OrderItem(order4, 1, product1, 2);
+            item4_1.setSourceLocation(location1);
+            item4_1.setCompletedQuantity(2);
+            item4_1.setUnitPrice(new BigDecimal("2500.00"));
+            item4_1.setStatus(OrderItemStatus.COMPLETED);
+            item4_1.setPickedAt(LocalDateTime.now().minusHours(2));
+            item4_1.setCompletedAt(LocalDateTime.now().minusMinutes(30));
+            item4_1.setCompletionNotes("Zrealizowane bez problemów");
+            orderItemRepository.save(item4_1);
+
+            // Update order totals
+            order4.updateProgress();
+            orderRepository.save(order4);
+
+            logger.info("✅ Created {} sample orders with order items", 4);
+
+        } catch (Exception e) {
+            logger.error("❌ Error creating sample orders: {}", e.getMessage(), e);
+        }
     }
 }

@@ -97,6 +97,20 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
                         )
                     }
 
+                    if (hasPermission("ORDER_READ")) {
+                        MenuButton(
+                            text = "Moje Zamówienia",
+                            onClick = { navController.navigate("my_orders") }
+                        )
+                    }
+
+                    if (hasPermission("ORDER_WRITE") || hasRole("ADMIN")) {
+                        MenuButton(
+                            text = "Zarządzanie Zamówieniami",
+                            onClick = { navController.navigate("manage_orders") }
+                        )
+                    }
+
                     // Przycisk dostępny dla wszystkich użytkowników
                     MenuButton(
                         text = "Sprawdź Stan Systemu",

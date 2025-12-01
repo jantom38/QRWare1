@@ -7,7 +7,10 @@ import com.qrware.domain.product.Category;
 import com.qrware.domain.warehouse.Location;
 import com.qrware.domain.warehouse.Zone;
 import com.qrware.domain.qr.QRCodeData;
+import com.qrware.domain.order.Order;
+import com.qrware.domain.order.OrderItem;
 import java.time.format.DateTimeFormatter;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,7 +18,7 @@ public class DTOMapper {
 
     public InventoryItemDTO toDTO(InventoryItem item) {
         if (item == null) return null;
-        
+
         InventoryItemDTO dto = new InventoryItemDTO();
         dto.setId(item.getId());
         dto.setQuantity(item.getQuantity());
@@ -31,16 +34,16 @@ public class DTOMapper {
         dto.setUnitCost(item.getUnitCost());
         dto.setTotalCost(item.getTotalCost());
         dto.setNotes(item.getNotes());
-        
+
         dto.setProduct(toDTO(item.getProduct()));
         dto.setLocation(toDTO(item.getLocation()));
-        
+
         return dto;
     }
 
     public ProductDTO toDTO(Product product) {
         if (product == null) return null;
-        
+
         ProductDTO dto = new ProductDTO();
         dto.setId(product.getId());
         dto.setSku(product.getSku());
@@ -56,15 +59,15 @@ public class DTOMapper {
         dto.setMaximumStock(product.getMaximumStock());
         dto.setReorderPoint(product.getReorderPoint());
         dto.setActive(product.getActive());
-        
+
         dto.setCategory(toDTO(product.getCategory()));
-        
+
         return dto;
     }
 
     public CategoryDTO toDTO(Category category) {
         if (category == null) return null;
-        
+
         CategoryDTO dto = new CategoryDTO();
         dto.setId(category.getId());
         dto.setName(category.getName());
@@ -81,7 +84,7 @@ public class DTOMapper {
         dto.setStorageHumidityMax(category.getStorageHumidityMax());
         dto.setLevel(category.getLevel());
         dto.setFullPath(category.getFullPath());
-        
+
         // Parent bez rekurencji (tylko podstawowe dane)
         if (category.getParent() != null) {
             CategoryDTO parentDTO = new CategoryDTO();
@@ -90,13 +93,13 @@ public class DTOMapper {
             parentDTO.setCode(category.getParent().getCode());
             dto.setParent(parentDTO);
         }
-        
+
         return dto;
     }
 
     public LocationDTO toDTO(Location location) {
         if (location == null) return null;
-        
+
         LocationDTO dto = new LocationDTO();
         dto.setId(location.getId());
         dto.setCode(location.getCode());
@@ -107,9 +110,9 @@ public class DTOMapper {
         dto.setShelf(location.getShelf());
         dto.setBarcode(location.getBarcode());
         dto.setActive(location.getActive());
-        
+
         dto.setZone(toDTO(location.getZone()));
-        
+
         return dto;
     }
 
@@ -156,7 +159,7 @@ public class DTOMapper {
 
     public QRCodeDTO toDTO(QRCodeData qrCode) {
         if (qrCode == null) return null;
-        
+
         QRCodeDTO dto = new QRCodeDTO();
         dto.setId(qrCode.getId());
         dto.setCode(qrCode.getCode());
@@ -175,13 +178,13 @@ public class DTOMapper {
         dto.setGeneratedBy(qrCode.getGeneratedBy());
         dto.setGenerationReason(qrCode.getGenerationReason());
         dto.setImagePath(qrCode.getImagePath());
-        
+
         return dto;
     }
 
     public MovementHistoryDTO toMovementHistoryDTO(MovementHistory movement) {
         if (movement == null) return null;
-        
+
         MovementHistoryDTO dto = new MovementHistoryDTO();
         dto.setId(movement.getId());
         dto.setInventoryItem(toInventoryItemDTO(movement.getInventoryItem()));
@@ -204,19 +207,19 @@ public class DTOMapper {
         dto.setUserName(movement.getUserName());
         dto.setApproved(movement.getApproved());
         dto.setApprovedBy(movement.getApprovedBy());
-        dto.setApprovedDate(movement.getApprovedDate() != null ? 
-            movement.getApprovedDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null);
+        dto.setApprovedDate(movement.getApprovedDate() != null ?
+                movement.getApprovedDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null);
         dto.setBatchId(movement.getBatchId());
         dto.setSystemGenerated(movement.getSystemGenerated());
         dto.setTemperature(movement.getTemperature());
         dto.setHumidity(movement.getHumidity());
         dto.setWeight(movement.getWeight());
         dto.setVolume(movement.getVolume());
-        dto.setCreatedAt(movement.getCreatedAt() != null ? 
-            movement.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null);
-        dto.setUpdatedAt(movement.getUpdatedAt() != null ? 
-            movement.getUpdatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null);
-        
+        dto.setCreatedAt(movement.getCreatedAt() != null ?
+                movement.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null);
+        dto.setUpdatedAt(movement.getUpdatedAt() != null ?
+                movement.getUpdatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null);
+
         return dto;
     }
 
@@ -226,5 +229,154 @@ public class DTOMapper {
 
     public LocationDTO toLocationDTO(Location location) {
         return toDTO(location);
+    }
+
+    // === ORDER MAPPING ===
+
+    public OrderDTO toOrderDTO(Order order) {
+        if (order == null) return null;
+
+        OrderDTO dto = new OrderDTO();
+        dto.setId(order.getId());
+        dto.setOrderNumber(order.getOrderNumber());
+        dto.setType(order.getType());
+        dto.setStatus(order.getStatus());
+        dto.setPriority(order.getPriority());
+        dto.setDescription(order.getDescription());
+
+        // User information
+        if (order.getCreatedBy() != null) {
+            dto.setCreatedById(order.getCreatorUser().getId());
+            dto.setCreatedByUsername(order.getCreatorUser().getUsername());
+            dto.setCreatedByFullName(order.getCreatorUser().getFullName());
+        }
+
+        if (order.getAssignedTo() != null) {
+            dto.setAssignedToId(order.getAssignedTo().getId());
+            dto.setAssignedToUsername(order.getAssignedTo().getUsername());
+            dto.setAssignedToFullName(order.getAssignedTo().getFullName());
+        }
+
+        // Location information - POPRAWIONE getLocationCode() na getCode()
+        if (order.getSourceLocation() != null) {
+            dto.setSourceLocationId(order.getSourceLocation().getId());
+            dto.setSourceLocationName(order.getSourceLocation().getName());
+            dto.setSourceLocationCode(order.getSourceLocation().getCode());
+        }
+
+        if (order.getDestinationLocation() != null) {
+            dto.setDestinationLocationId(order.getDestinationLocation().getId());
+            dto.setDestinationLocationName(order.getDestinationLocation().getName());
+            dto.setDestinationLocationCode(order.getDestinationLocation().getCode());
+        }
+
+        // Dates
+        dto.setExpectedDate(order.getExpectedDate());
+        dto.setStartedAt(order.getStartedAt());
+        dto.setCompletedAt(order.getCompletedAt());
+        dto.setCancelledAt(order.getCancelledAt());
+        dto.setCreatedAt(order.getCreatedAt());
+        dto.setUpdatedAt(order.getUpdatedAt());
+
+        // Additional information
+        dto.setCancellationReason(order.getCancellationReason());
+        dto.setTotalItems(order.getTotalItems());
+        dto.setCompletedItems(order.getCompletedItems());
+        dto.setEstimatedValue(order.getEstimatedValue());
+        dto.setNotes(order.getNotes());
+        dto.setExternalReference(order.getExternalReference());
+
+        // Order items (convert to DTOs)
+        if (order.getOrderItems() != null) {
+            dto.setOrderItems(order.getOrderItems().stream()
+                    .map(this::toOrderItemDTO)
+                    .collect(Collectors.toList()));
+        }
+
+        // Calculated fields
+        dto.setCompletionPercentage(order.getCompletionPercentage());
+        dto.setIsOverdue(order.isOverdue());
+        dto.setIsHighPriority(order.isHighPriority());
+        dto.setCanBeStarted(order.canBeStarted());
+        dto.setCanBeCompleted(order.canBeCompleted());
+        dto.setCanBeCancelled(order.canBeCancelled());
+        dto.setIsActive(order.isActive());
+
+        return dto;
+    }
+
+    public OrderItemDTO toOrderItemDTO(OrderItem orderItem) {
+        if (orderItem == null) return null;
+
+        OrderItemDTO dto = new OrderItemDTO();
+        dto.setId(orderItem.getId());
+        dto.setLineNumber(orderItem.getLineNumber());
+
+        // Order information
+        if (orderItem.getOrder() != null) {
+            dto.setOrderId(orderItem.getOrder().getId());
+            dto.setOrderNumber(orderItem.getOrder().getOrderNumber());
+        }
+
+        // Product information
+        if (orderItem.getProduct() != null) {
+            dto.setProductId(orderItem.getProduct().getId());
+            dto.setProductName(orderItem.getProduct().getName());
+            dto.setProductSku(orderItem.getProduct().getSku());
+            dto.setProductDescription(orderItem.getProduct().getDescription());
+        }
+
+        // Inventory information - POPRAWIONE getItemCode() na getQrCode() (przykład użycia dostępnej metody)
+        if (orderItem.getInventoryItem() != null) {
+            dto.setInventoryItemId(orderItem.getInventoryItem().getId());
+            dto.setInventoryItemCode(orderItem.getInventoryItem().getQrCode());
+        }
+
+        // Location information - POPRAWIONE getLocationCode() na getCode()
+        if (orderItem.getSourceLocation() != null) {
+            dto.setSourceLocationId(orderItem.getSourceLocation().getId());
+            dto.setSourceLocationName(orderItem.getSourceLocation().getName());
+            dto.setSourceLocationCode(orderItem.getSourceLocation().getCode());
+        }
+
+        if (orderItem.getDestinationLocation() != null) {
+            dto.setDestinationLocationId(orderItem.getDestinationLocation().getId());
+            dto.setDestinationLocationName(orderItem.getDestinationLocation().getName());
+            dto.setDestinationLocationCode(orderItem.getDestinationLocation().getCode());
+        }
+
+        // Quantities and pricing
+        dto.setRequestedQuantity(orderItem.getRequestedQuantity());
+        dto.setCompletedQuantity(orderItem.getCompletedQuantity());
+        dto.setRemainingQuantity(orderItem.getRemainingQuantity());
+        dto.setUnitPrice(orderItem.getUnitPrice());
+        dto.setTotalValue(orderItem.getTotalValue());
+
+        // Status and tracking
+        dto.setStatus(orderItem.getStatus());
+        dto.setNotes(orderItem.getNotes());
+        dto.setBatchNumber(orderItem.getBatchNumber());
+        dto.setSerialNumber(orderItem.getSerialNumber());
+        dto.setQrCodeData(orderItem.getQrCodeData());
+
+        // Dates
+        dto.setExpiryDate(orderItem.getExpiryDate());
+        dto.setPickedAt(orderItem.getPickedAt());
+        dto.setCompletedAt(orderItem.getCompletedAt());
+        dto.setCreatedAt(orderItem.getCreatedAt());
+        dto.setUpdatedAt(orderItem.getUpdatedAt());
+
+        // Additional information
+        dto.setCompletionNotes(orderItem.getCompletionNotes());
+
+        // Calculated fields
+        dto.setCompletionPercentage(orderItem.getCompletionPercentage());
+        dto.setIsCompleted(orderItem.isCompleted());
+        dto.setIsPartiallyCompleted(orderItem.isPartiallyCompleted());
+        dto.setCanBeCompleted(orderItem.canBeCompleted());
+        dto.setRequiresQRScan(orderItem.requiresQRScan());
+        dto.setIsQRScanned(orderItem.isQRScanned());
+
+        return dto;
     }
 }
