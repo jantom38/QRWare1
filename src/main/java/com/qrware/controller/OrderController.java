@@ -11,6 +11,9 @@ import com.qrware.repository.user.UserRepository;
 import com.qrware.repository.warehouse.LocationRepository;
 import com.qrware.security.util.SecurityUtils;
 import com.qrware.exception.ResourceNotFoundException;
+import org.hibernate.Hibernate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +38,8 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "*")
 public class OrderController {
 
+    private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
+
     @Autowired
     private OrderService orderService;
 
@@ -56,6 +61,7 @@ public class OrderController {
             Page<OrderDTO> orderDTOs = orders.map(dtoMapper::toOrderDTO);
             return ResponseEntity.ok(ApiResponse.success(orderDTOs));
         } catch (Exception e) {
+            logger.error("Failed to retrieve orders", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to retrieve orders: " + e.getMessage()));
         }
@@ -70,16 +76,28 @@ public class OrderController {
             User currentUser = SecurityUtils.getCurrentUser()
                 .orElseThrow(() -> new SecurityException("User not authenticated"));
             if (!orderService.canUserAccessOrder(order, currentUser)) {
+                logger.warn("User {} attempted to access unauthorized order {}", currentUser.getUsername(), id);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(ApiResponse.error("Access denied to this order"));
             }
             
+            // Force initialization of lazy-loaded collections
+            Hibernate.initialize(order.getOrderItems());
+            order.getOrderItems().forEach(item -> {
+                Hibernate.initialize(item.getInventoryItem());
+                if (item.getInventoryItem() != null) {
+                    logger.info("Order item {} is linked to inventory item {} with QR code {}", 
+                        item.getId(), item.getInventoryItem().getId(), item.getInventoryItem().getQrCode());
+                }
+            });
+
             OrderDTO orderDTO = dtoMapper.toOrderDTO(order);
             return ResponseEntity.ok(ApiResponse.success(orderDTO));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
+            logger.error("Failed to retrieve order {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to retrieve order: " + e.getMessage()));
         }
@@ -96,6 +114,7 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
+            logger.error("Failed to retrieve order by number {}", orderNumber, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to retrieve order: " + e.getMessage()));
         }
@@ -130,12 +149,14 @@ public class OrderController {
             );
 
             OrderDTO orderDTO = dtoMapper.toOrderDTO(order);
+            logger.info("Order {} created successfully", order.getOrderNumber());
             return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(orderDTO, "Order created successfully"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
+            logger.error("Failed to create order", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to create order: " + e.getMessage()));
         }
@@ -149,6 +170,7 @@ public class OrderController {
                 .orElseThrow(() -> new SecurityException("User not authenticated"));
             Order order = orderService.startOrder(id, currentUser);
             OrderDTO orderDTO = dtoMapper.toOrderDTO(order);
+            logger.info("Order {} started by user {}", id, currentUser.getUsername());
             return ResponseEntity.ok(ApiResponse.success(orderDTO, "Order started successfully"));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -157,6 +179,7 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
+            logger.error("Failed to start order {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to start order: " + e.getMessage()));
         }
@@ -170,6 +193,7 @@ public class OrderController {
                 .orElseThrow(() -> new SecurityException("User not authenticated"));
             Order order = orderService.completeOrder(id, currentUser);
             OrderDTO orderDTO = dtoMapper.toOrderDTO(order);
+            logger.info("Order {} completed by user {}", id, currentUser.getUsername());
             return ResponseEntity.ok(ApiResponse.success(orderDTO, "Order completed successfully"));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -178,6 +202,7 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
+            logger.error("Failed to complete order {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to complete order: " + e.getMessage()));
         }
@@ -192,6 +217,7 @@ public class OrderController {
                 .orElseThrow(() -> new SecurityException("User not authenticated"));
             Order order = orderService.cancelOrder(id, currentUser, request.getReason());
             OrderDTO orderDTO = dtoMapper.toOrderDTO(order);
+            logger.info("Order {} cancelled by user {}", id, currentUser.getUsername());
             return ResponseEntity.ok(ApiResponse.success(orderDTO, "Order cancelled successfully"));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -200,6 +226,7 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
+            logger.error("Failed to cancel order {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to cancel order: " + e.getMessage()));
         }
@@ -214,11 +241,13 @@ public class OrderController {
                 .orElseThrow(() -> new SecurityException("User not authenticated"));
             Order order = orderService.assignOrder(id, request.getAssignedToId(), currentUser);
             OrderDTO orderDTO = dtoMapper.toOrderDTO(order);
+            logger.info("Order {} assigned to user {} by {}", id, request.getAssignedToId(), currentUser.getUsername());
             return ResponseEntity.ok(ApiResponse.success(orderDTO, "Order assigned successfully"));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
+            logger.error("Failed to assign order {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to assign order: " + e.getMessage()));
         }
@@ -234,6 +263,7 @@ public class OrderController {
                 .collect(Collectors.toList());
             return ResponseEntity.ok(ApiResponse.success(orderDTOs));
         } catch (Exception e) {
+            logger.error("Failed to retrieve active orders", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to retrieve active orders: " + e.getMessage()));
         }
@@ -251,6 +281,7 @@ public class OrderController {
                 .collect(Collectors.toList());
             return ResponseEntity.ok(ApiResponse.success(orderDTOs));
         } catch (Exception e) {
+            logger.error("Failed to retrieve orders for user {}", SecurityUtils.getCurrentUsername(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to retrieve user orders: " + e.getMessage()));
         }
@@ -266,6 +297,7 @@ public class OrderController {
                 .collect(Collectors.toList());
             return ResponseEntity.ok(ApiResponse.success(orderDTOs));
         } catch (Exception e) {
+            logger.error("Failed to retrieve overdue orders", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to retrieve overdue orders: " + e.getMessage()));
         }
@@ -281,6 +313,7 @@ public class OrderController {
                 .collect(Collectors.toList());
             return ResponseEntity.ok(ApiResponse.success(orderDTOs));
         } catch (Exception e) {
+            logger.error("Failed to retrieve high priority orders", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to retrieve high priority orders: " + e.getMessage()));
         }
@@ -296,6 +329,7 @@ public class OrderController {
             Page<OrderDTO> orderDTOs = orders.map(dtoMapper::toOrderDTO);
             return ResponseEntity.ok(ApiResponse.success(orderDTOs));
         } catch (Exception e) {
+            logger.error("Failed to search orders with query: {}", q, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to search orders: " + e.getMessage()));
         }
@@ -311,6 +345,7 @@ public class OrderController {
                 .collect(Collectors.toList());
             return ResponseEntity.ok(ApiResponse.success(statistics));
         } catch (Exception e) {
+            logger.error("Failed to retrieve order statistics", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to retrieve order statistics: " + e.getMessage()));
         }
@@ -352,6 +387,8 @@ public class OrderController {
 
         public Long getDestinationLocationId() { return destinationLocationId; }
         public void setDestinationLocationId(Long destinationLocationId) { this.destinationLocationId = destinationLocationId; }
+
+
 
         public LocalDateTime getExpectedDate() { return expectedDate; }
         public void setExpectedDate(LocalDateTime expectedDate) { this.expectedDate = expectedDate; }

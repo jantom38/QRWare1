@@ -1,10 +1,14 @@
 package com.qrware.controller;
 
+import com.qrware.domain.inventory.InventoryItem;
+import com.qrware.domain.order.OrderItem;
 import com.qrware.domain.qr.QRCodeData;
 import com.qrware.domain.qr.QRCodeType;
 import com.qrware.domain.qr.ErrorCorrectionLevel;
 import com.qrware.dto.QRCodeDTO;
 import com.qrware.dto.DTOMapper;
+import com.qrware.repository.inventory.InventoryItemRepository;
+import com.qrware.repository.order.OrderItemRepository;
 import com.qrware.repository.qr.QRCodeDataRepository;
 import com.qrware.exception.ResourceNotFoundException;
 import com.qrware.service.FileStorageService;
@@ -35,11 +39,16 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = {"http://localhost:3000", "http://10.0.2.2:8080", "http://192.168.0.178:8080","http://10.95.124.18D:8080"})
 public class QRCodeController {
 
-    // 1. Definicja Loggera
     private static final Logger logger = LoggerFactory.getLogger(QRCodeController.class);
 
     @Autowired
     private QRCodeDataRepository qrCodeRepository;
+
+    @Autowired
+    private InventoryItemRepository inventoryItemRepository;
+
+    @Autowired
+    private OrderItemRepository orderItemRepository;
 
     @Autowired
     private DTOMapper dtoMapper;
@@ -119,7 +128,6 @@ public class QRCodeController {
         return ResponseEntity.ok(qrCodeDTOs);
     }
 
-    // Wygeneruj nowy kod QR
     @PostMapping("/generate")
     @PreAuthorize("hasAuthority('QR_GENERATE')")
     public ResponseEntity<QRCodeDTO> generateQRCode(@Valid @RequestBody GenerateQRRequest request) {
@@ -160,11 +168,20 @@ public class QRCodeController {
                 savedQRCode = qrCodeRepository.save(qrCode);
             }
 
+            if ("inventory_item".equalsIgnoreCase(request.getEntityType())) {
+                InventoryItem item = inventoryItemRepository.findById(request.getEntityId()).orElseThrow(() -> new ResourceNotFoundException("InventoryItem not found"));
+                item.setQrCode(savedQRCode.getCode());
+                inventoryItemRepository.save(item);
+            } else if ("order_item".equalsIgnoreCase(request.getEntityType())) {
+                OrderItem item = orderItemRepository.findById(request.getEntityId()).orElseThrow(() -> new ResourceNotFoundException("OrderItem not found"));
+                item.setQrCodeData(savedQRCode.getCode());
+                orderItemRepository.save(item);
+            }
+
             logger.info("QR Code generated successfully with ID: {}", savedQRCode.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(dtoMapper.toDTO(savedQRCode));
 
         } catch (Exception e) {
-            // LOGOWANIE BŁĘDU Z PEŁNYM STACK TRACE
             logger.error("CRITICAL ERROR in /generate endpoint: ", e);
             throw new RuntimeException("Błąd podczas generowania kodu QR: " + e.getMessage(), e);
         }
@@ -241,8 +258,6 @@ public class QRCodeController {
         return ResponseEntity.ok(stats);
     }
 
-    // ==================== ENDPOINTS DO OBSŁUGI PLIKÓW QR ====================
-
     @GetMapping("/image/{fileName}")
     public ResponseEntity<Resource> getQRCodeImage(@PathVariable String fileName) {
         logger.info("Requesting image file: {}", fileName);
@@ -285,13 +300,12 @@ public class QRCodeController {
             );
 
             QRCodeDTO dto = dtoMapper.toDTO(qrCode);
-            dto.setImagePath(fileStorageService.getFileUrl(qrCode.getImagePath()));
+dto.setImagePath(fileStorageService.getFileUrl(qrCode.getImagePath()));
 
             logger.info("QR Code generated successfully. Image path: {}", qrCode.getImagePath());
             return ResponseEntity.ok(dto);
 
         } catch (Exception e) {
-            // LOGOWANIE BŁĘDU GENEROWANIA Z OBRAZEM
             logger.error("FAILED to generate QR with image: ", e);
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "Failed to generate QR code: " + e.getMessage()));
@@ -311,7 +325,6 @@ public class QRCodeController {
         }
     }
 
-    // DTO Classes (Bez zmian, pozostawione dla kompletności pliku)
     public static class GenerateQRRequest {
         private String code;
         private QRCodeType type;

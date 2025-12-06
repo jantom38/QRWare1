@@ -19,11 +19,17 @@ import androidx.compose.ui.window.Dialog
 import com.qrware.app.data.model.*
 import com.qrware.app.data.dto.LocationDTO
 import com.qrware.app.data.dto.ProductDTO
+import androidx.compose.ui.graphics.Color
 
-// Zakładamy istnienie tych klas w data/model, jeśli ich nie ma, należy je utworzyć
-// data class OrderItemRequest(...)
-// enum class OrderType { ... }
-// data class AdminUserResponse(...)
+// Data class for order item creation
+data class OrderItemRequest(
+    val productId: Long,
+    val productName: String,
+    val productSku: String,
+    val requestedQuantity: Int,
+    val notes: String? = null,
+    val requiresExactInventory: Boolean = true
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -248,6 +254,7 @@ fun AddOrderItemDialog(
     var quantity by remember { mutableStateOf("1") }
     var notes by remember { mutableStateOf("") }
     var showProductDialog by remember { mutableStateOf(false) }
+    var requiresExactInventory by remember { mutableStateOf(true) }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -356,6 +363,60 @@ fun AddOrderItemDialog(
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
                 )
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Fulfillment Type Section
+                Text(
+                    text = "Typ realizacji",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (requiresExactInventory) Color(0xFFFF9800).copy(alpha = 0.1f) else Color(0xFF4CAF50).copy(alpha = 0.1f)
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Switch(
+                                checked = !requiresExactInventory,
+                                onCheckedChange = { requiresExactInventory = !it },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color(0xFF4CAF50),
+                                    checkedTrackColor = Color(0xFF4CAF50).copy(alpha = 0.5f)
+                                )
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = if (requiresExactInventory) "Dokładny stan magazynowy" else "Elastyczna realizacja",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (requiresExactInventory) Color(0xFFFF9800) else Color(0xFF4CAF50)
+                                )
+                                Text(
+                                    text = if (requiresExactInventory) 
+                                        "Zamówienie musi być zrealizowane z dokładnie określonego stanu magazynowego" 
+                                    else 
+                                        "Zamówienie może być zrealizowane z dowolnej dostępnej lokalizacji",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Buttons
@@ -381,7 +442,8 @@ fun AddOrderItemDialog(
                                     productName = product.name,
                                     productSku = product.sku,
                                     requestedQuantity = qty,
-                                    notes = notes.takeIf { it.isNotBlank() }
+                                    notes = notes.takeIf { it.isNotBlank() },
+                                    requiresExactInventory = requiresExactInventory
                                 )
                                 onItemAdded(orderItem)
                             }

@@ -38,6 +38,7 @@ fun OrderDetailsScreen(
     // Lokalne stany dla dialogów
     var showCompleteDialog by remember { mutableStateOf(false) }
     var selectedOrderItem by remember { mutableStateOf<OrderItemDTO?>(null) }
+    var showAddItemDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {

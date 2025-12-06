@@ -458,15 +458,6 @@ fun CreateOrderScreen(
     }
 }
 
-// Helper data classes and enums
-data class OrderItemRequest(
-    val productId: Long,
-    val productName: String,
-    val productSku: String,
-    val requestedQuantity: Int,
-    val notes: String? = null
-)
-
 enum class LocationDialogType {
     SOURCE, DESTINATION
 }

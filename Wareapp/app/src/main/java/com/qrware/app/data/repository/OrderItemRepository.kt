@@ -1,12 +1,18 @@
 package com.qrware.app.data.repository
 
+import android.util.Log
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.qrware.app.data.api.OrderApiService
 import com.qrware.app.data.api.PagedResponse
 import com.qrware.app.data.model.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class OrderItemRepository(private val apiService: OrderApiService) {
+class OrderItemRepository(
+    private val apiService: OrderApiService,
+    private val gson: Gson
+) {
 
     // === ORDER ITEM OPERATIONS ===
 
@@ -97,19 +103,38 @@ class OrderItemRepository(private val apiService: OrderApiService) {
 
     // === QR CODE OPERATIONS ===
 
-    suspend fun scanQRCode(qrCodeData: String): Result<OrderItemDTO> {
+    suspend fun scanQRCode(qrCodeData: String, orderId: Long? = null): Result<Any> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = apiService.scanQRCode(ScanQRRequest(qrCodeData))
+                val response = apiService.scanQRCode(ScanQRRequest(qrCodeData, orderId))
                 if (response.isSuccessful) {
-                    response.body()?.data?.let { orderItem ->
-                        Result.success(orderItem)
-                    } ?: Result.failure(Exception("Failed to process QR code"))
+                    val data = response.body()?.data
+                    if (data is Map<*, *>) {
+                        val json = gson.toJson(data)
+                        Log.d("OrderItemRepository", "Deserializing JSON: $json")
+                        if (data.containsKey("requestedQuantity")) {
+                            val orderItem = gson.fromJson(json, OrderItemDTO::class.java)
+                            Log.d("OrderItemRepository", "Deserialized as OrderItemDTO: $orderItem")
+                            Result.success(orderItem)
+                        } else if (data.containsKey("availableQuantity")) {
+                            val inventoryItem = gson.fromJson(json, com.qrware.app.data.dto.InventoryItemDTO::class.java)
+                            Log.d("OrderItemRepository", "Deserialized as InventoryItemDTO: $inventoryItem")
+                            Result.success(inventoryItem)
+                        } else {
+                            Log.e("OrderItemRepository", "Unknown data type in response")
+                            Result.failure(Exception("Unknown data type in response"))
+                        }
+                    } else {
+                        Log.e("OrderItemRepository", "Invalid data format in response")
+                        Result.failure(Exception("Invalid data format in response"))
+                    }
                 } else {
                     val errorMessage = response.body()?.message ?: response.message()
+                    Log.e("OrderItemRepository", "QR scan failed: $errorMessage")
                     Result.failure(Exception("QR scan failed: $errorMessage"))
                 }
             } catch (e: Exception) {
+                Log.e("OrderItemRepository", "Exception in scanQRCode", e)
                 Result.failure(e)
             }
         }

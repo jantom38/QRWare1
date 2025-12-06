@@ -12,9 +12,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * InventoryItem entity representing physical inventory items in specific locations
- */
 @Entity
 @Table(name = "inventory_items", indexes = {
     @Index(name = "idx_inventory_product", columnList = "product_id"),
@@ -132,7 +129,6 @@ public class InventoryItem extends BaseEntity {
     @OneToMany(mappedBy = "inventoryItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MovementHistory> movementHistory = new ArrayList<>();
 
-    // Constructors
     public InventoryItem() {}
 
     public InventoryItem(Product product, Location location, Integer quantity, String qrCode) {
@@ -144,7 +140,6 @@ public class InventoryItem extends BaseEntity {
         this.receivedDate = LocalDate.now();
     }
 
-    // Business methods
     @PrePersist
     @PreUpdate
     private void onPersistOrUpdate() {
@@ -168,10 +163,6 @@ public class InventoryItem extends BaseEntity {
         return expiryDate != null && expiryDate.isBefore(LocalDate.now());
     }
 
-    public boolean isExpiringSoon(int days) {
-        return expiryDate != null && expiryDate.isBefore(LocalDate.now().plusDays(days));
-    }
-
     public boolean isAvailable() {
         return status == InventoryStatus.AVAILABLE && !quarantine && !hold && availableQuantity > 0;
     }
@@ -185,7 +176,6 @@ public class InventoryItem extends BaseEntity {
             throw new IllegalStateException("Cannot reserve " + quantityToReserve + " items. Available: " + availableQuantity);
         }
         this.reservedQuantity += quantityToReserve;
-        calculateAvailableQuantity();
     }
 
     public void unreserve(int quantityToUnreserve) {
@@ -193,15 +183,23 @@ public class InventoryItem extends BaseEntity {
             throw new IllegalStateException("Cannot unreserve " + quantityToUnreserve + " items. Reserved: " + reservedQuantity);
         }
         this.reservedQuantity -= quantityToUnreserve;
-        calculateAvailableQuantity();
+    }
+
+    public void fulfillReservationAndDecreaseStock(int quantityToFulfill) {
+        if (this.reservedQuantity < quantityToFulfill) {
+            throw new IllegalStateException("Cannot fulfill " + quantityToFulfill + " items. Only " + this.reservedQuantity + " are reserved.");
+        }
+        if (this.quantity < quantityToFulfill) {
+            throw new IllegalStateException("Cannot fulfill " + quantityToFulfill + " items. Only " + this.quantity + " exist in total (data integrity issue).");
+        }
+        this.quantity -= quantityToFulfill;
+        this.reservedQuantity -= quantityToFulfill;
     }
 
     public void adjustQuantity(int newQuantity, String reason) {
         int oldQuantity = this.quantity;
         this.quantity = newQuantity;
-        calculateAvailableQuantity();
         
-        // Create movement history record
         MovementHistory movement = new MovementHistory();
         movement.setInventoryItem(this);
         movement.setMovementType(MovementType.ADJUSTMENT);
@@ -219,7 +217,6 @@ public class InventoryItem extends BaseEntity {
         this.location = newLocation;
         this.lastMovedDate = LocalDateTime.now();
         
-        // Create movement history record
         MovementHistory movement = new MovementHistory();
         movement.setInventoryItem(this);
         movement.setMovementType(MovementType.MOVE);
@@ -232,30 +229,6 @@ public class InventoryItem extends BaseEntity {
         this.movementHistory.add(movement);
     }
 
-    public void putOnHold(String reason) {
-        this.hold = true;
-        this.holdReason = reason;
-        this.status = InventoryStatus.ON_HOLD;
-    }
-
-    public void removeHold() {
-        this.hold = false;
-        this.holdReason = null;
-        this.status = InventoryStatus.AVAILABLE;
-    }
-
-    public void quarantineItem(String reason) {
-        this.quarantine = true;
-        this.quarantineReason = reason;
-        this.status = InventoryStatus.QUARANTINE;
-    }
-
-    public void releaseFromQuarantine() {
-        this.quarantine = false;
-        this.quarantineReason = null;
-        this.status = InventoryStatus.AVAILABLE;
-    }
-
     public BigDecimal calculateTotalVolume() {
         if (product != null && quantity != null) {
             BigDecimal itemVolume = product.calculateVolume();
@@ -263,264 +236,71 @@ public class InventoryItem extends BaseEntity {
                 return itemVolume.multiply(new BigDecimal(quantity));
             }
         }
-        return null;
+        return BigDecimal.ZERO;
     }
 
     public BigDecimal calculateTotalWeight() {
         if (product != null && product.getWeight() != null && quantity != null) {
             return product.getWeight().multiply(new BigDecimal(quantity));
         }
-        return null;
-    }
-
-    public int getDaysInStock() {
-        return (int) java.time.temporal.ChronoUnit.DAYS.between(receivedDate, LocalDate.now());
-    }
-
-    public int getDaysUntilExpiry() {
-        if (expiryDate == null) {
-            return Integer.MAX_VALUE;
-        }
-        return (int) java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), expiryDate);
-    }
-
-    public void updateLastCounted() {
-        this.lastCountedDate = LocalDateTime.now();
+        return BigDecimal.ZERO;
     }
 
     // Getters and Setters
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public Integer getReservedQuantity() {
-        return reservedQuantity;
-    }
-
-    public void setReservedQuantity(Integer reservedQuantity) {
-        this.reservedQuantity = reservedQuantity;
-    }
-
-    public Integer getAvailableQuantity() {
-        return availableQuantity;
-    }
-
-    public void setAvailableQuantity(Integer availableQuantity) {
-        this.availableQuantity = availableQuantity;
-    }
-
-    public InventoryStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(InventoryStatus status) {
-        this.status = status;
-    }
-
-    public String getQrCode() {
-        return qrCode;
-    }
-
-    public void setQrCode(String qrCode) {
-        this.qrCode = qrCode;
-    }
-
-    public String getLotNumber() {
-        return lotNumber;
-    }
-
-    public void setLotNumber(String lotNumber) {
-        this.lotNumber = lotNumber;
-    }
-
-    public String getBatchNumber() {
-        return batchNumber;
-    }
-
-    public void setBatchNumber(String batchNumber) {
-        this.batchNumber = batchNumber;
-    }
-
-    public String getSerialNumber() {
-        return serialNumber;
-    }
-
-    public void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
-    }
-
-    public LocalDate getReceivedDate() {
-        return receivedDate;
-    }
-
-    public void setReceivedDate(LocalDate receivedDate) {
-        this.receivedDate = receivedDate;
-    }
-
-    public LocalDate getExpiryDate() {
-        return expiryDate;
-    }
-
-    public void setExpiryDate(LocalDate expiryDate) {
-        this.expiryDate = expiryDate;
-    }
-
-    public LocalDate getManufactureDate() {
-        return manufactureDate;
-    }
-
-    public void setManufactureDate(LocalDate manufactureDate) {
-        this.manufactureDate = manufactureDate;
-    }
-
-    public LocalDateTime getLastCountedDate() {
-        return lastCountedDate;
-    }
-
-    public void setLastCountedDate(LocalDateTime lastCountedDate) {
-        this.lastCountedDate = lastCountedDate;
-    }
-
-    public LocalDateTime getLastMovedDate() {
-        return lastMovedDate;
-    }
-
-    public void setLastMovedDate(LocalDateTime lastMovedDate) {
-        this.lastMovedDate = lastMovedDate;
-    }
-
-    public BigDecimal getUnitCost() {
-        return unitCost;
-    }
-
-    public void setUnitCost(BigDecimal unitCost) {
-        this.unitCost = unitCost;
-    }
-
-    public BigDecimal getTotalCost() {
-        return totalCost;
-    }
-
-    public void setTotalCost(BigDecimal totalCost) {
-        this.totalCost = totalCost;
-    }
-
-    public String getSupplierReference() {
-        return supplierReference;
-    }
-
-    public void setSupplierReference(String supplierReference) {
-        this.supplierReference = supplierReference;
-    }
-
-    public String getPurchaseOrderNumber() {
-        return purchaseOrderNumber;
-    }
-
-    public void setPurchaseOrderNumber(String purchaseOrderNumber) {
-        this.purchaseOrderNumber = purchaseOrderNumber;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
-
-    public Integer getTemperature() {
-        return temperature;
-    }
-
-    public void setTemperature(Integer temperature) {
-        this.temperature = temperature;
-    }
-
-    public Integer getHumidity() {
-        return humidity;
-    }
-
-    public void setHumidity(Integer humidity) {
-        this.humidity = humidity;
-    }
-
-    public Integer getConditionRating() {
-        return conditionRating;
-    }
-
-    public void setConditionRating(Integer conditionRating) {
-        this.conditionRating = conditionRating;
-    }
-
-    public Boolean getQuarantine() {
-        return quarantine;
-    }
-
-    public void setQuarantine(Boolean quarantine) {
-        this.quarantine = quarantine;
-    }
-
-    public String getQuarantineReason() {
-        return quarantineReason;
-    }
-
-    public void setQuarantineReason(String quarantineReason) {
-        this.quarantineReason = quarantineReason;
-    }
-
-    public Boolean getHold() {
-        return hold;
-    }
-
-    public void setHold(Boolean hold) {
-        this.hold = hold;
-    }
-
-    public String getHoldReason() {
-        return holdReason;
-    }
-
-    public void setHoldReason(String holdReason) {
-        this.holdReason = holdReason;
-    }
-
-    public List<MovementHistory> getMovementHistory() {
-        return movementHistory;
-    }
-
-    public void setMovementHistory(List<MovementHistory> movementHistory) {
-        this.movementHistory = movementHistory;
-    }
-
-    @Override
-    public String toString() {
-        return "InventoryItem{" +
-                "product=" + (product != null ? product.getSku() : null) +
-                ", location=" + (location != null ? location.getCode() : null) +
-                ", quantity=" + quantity +
-                ", status=" + status +
-                ", qrCode='" + qrCode + '\'' +
-                '}';
-    }
+    public Product getProduct() { return product; }
+    public void setProduct(Product product) { this.product = product; }
+    public Location getLocation() { return location; }
+    public void setLocation(Location location) { this.location = location; }
+    public Integer getQuantity() { return quantity; }
+    public void setQuantity(Integer quantity) { this.quantity = quantity; }
+    public Integer getReservedQuantity() { return reservedQuantity; }
+    public void setReservedQuantity(Integer reservedQuantity) { this.reservedQuantity = reservedQuantity; }
+    public Integer getAvailableQuantity() { return availableQuantity; }
+    public void setAvailableQuantity(Integer availableQuantity) { this.availableQuantity = availableQuantity; }
+    public InventoryStatus getStatus() { return status; }
+    public void setStatus(InventoryStatus status) { this.status = status; }
+    public String getQrCode() { return qrCode; }
+    public void setQrCode(String qrCode) { this.qrCode = qrCode; }
+    public String getLotNumber() { return lotNumber; }
+    public void setLotNumber(String lotNumber) { this.lotNumber = lotNumber; }
+    public String getBatchNumber() { return batchNumber; }
+    public void setBatchNumber(String batchNumber) { this.batchNumber = batchNumber; }
+    public String getSerialNumber() { return serialNumber; }
+    public void setSerialNumber(String serialNumber) { this.serialNumber = serialNumber; }
+    public LocalDate getReceivedDate() { return receivedDate; }
+    public void setReceivedDate(LocalDate receivedDate) { this.receivedDate = receivedDate; }
+    public LocalDate getExpiryDate() { return expiryDate; }
+    public void setExpiryDate(LocalDate expiryDate) { this.expiryDate = expiryDate; }
+    public BigDecimal getUnitCost() { return unitCost; }
+    public void setUnitCost(BigDecimal unitCost) { this.unitCost = unitCost; }
+    public List<MovementHistory> getMovementHistory() { return movementHistory; }
+    public void setMovementHistory(List<MovementHistory> movementHistory) { this.movementHistory = movementHistory; }
+    public LocalDate getManufactureDate() { return manufactureDate; }
+    public void setManufactureDate(LocalDate manufactureDate) { this.manufactureDate = manufactureDate; }
+    public LocalDateTime getLastCountedDate() { return lastCountedDate; }
+    public void setLastCountedDate(LocalDateTime lastCountedDate) { this.lastCountedDate = lastCountedDate; }
+    public LocalDateTime getLastMovedDate() { return lastMovedDate; }
+    public void setLastMovedDate(LocalDateTime lastMovedDate) { this.lastMovedDate = lastMovedDate; }
+    public BigDecimal getTotalCost() { return totalCost; }
+    public void setTotalCost(BigDecimal totalCost) { this.totalCost = totalCost; }
+    public String getSupplierReference() { return supplierReference; }
+    public void setSupplierReference(String supplierReference) { this.supplierReference = supplierReference; }
+    public String getPurchaseOrderNumber() { return purchaseOrderNumber; }
+    public void setPurchaseOrderNumber(String purchaseOrderNumber) { this.purchaseOrderNumber = purchaseOrderNumber; }
+    public String getNotes() { return notes; }
+    public void setNotes(String notes) { this.notes = notes; }
+    public Integer getTemperature() { return temperature; }
+    public void setTemperature(Integer temperature) { this.temperature = temperature; }
+    public Integer getHumidity() { return humidity; }
+    public void setHumidity(Integer humidity) { this.humidity = humidity; }
+    public Integer getConditionRating() { return conditionRating; }
+    public void setConditionRating(Integer conditionRating) { this.conditionRating = conditionRating; }
+    public Boolean getQuarantine() { return quarantine; }
+    public void setQuarantine(Boolean quarantine) { this.quarantine = quarantine; }
+    public String getQuarantineReason() { return quarantineReason; }
+    public void setQuarantineReason(String quarantineReason) { this.quarantineReason = quarantineReason; }
+    public Boolean getHold() { return hold; }
+    public void setHold(Boolean hold) { this.hold = hold; }
+    public String getHoldReason() { return holdReason; }
+    public void setHoldReason(String holdReason) { this.holdReason = holdReason; }
 }

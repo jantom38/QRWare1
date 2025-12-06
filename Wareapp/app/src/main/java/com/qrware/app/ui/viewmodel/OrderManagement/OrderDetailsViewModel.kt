@@ -3,8 +3,10 @@ package com.qrware.app.ui.viewmodel.OrderManagement
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qrware.app.data.model.CompleteOrderItemRequest
+import com.qrware.app.data.model.CreateOrderItemRequest
 import com.qrware.app.data.model.OrderDTO
 import com.qrware.app.data.model.OrderItemDTO
+import com.qrware.app.ui.screens.OrderManagement.OrderItemRequest
 import com.qrware.app.data.repository.OrderItemRepository
 import com.qrware.app.data.repository.OrderRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -94,6 +96,32 @@ class OrderDetailsViewModel(
                 }
                 .onFailure { e ->
                     _uiState.update { it.copy(isOperationProcessing = false, error = "Błąd pozycji: ${e.message}") }
+                }
+        }
+    }
+
+    fun addOrderItem(orderItemRequest: OrderItemRequest) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isOperationProcessing = true) }
+
+            val createRequest = CreateOrderItemRequest(
+                productId = orderItemRequest.productId,
+                requestedQuantity = orderItemRequest.requestedQuantity,
+                sourceLocationId = null,
+                destinationLocationId = null,
+                unitPrice = null,
+                notes = orderItemRequest.notes,
+                requiresExactInventory = orderItemRequest.requiresExactInventory
+            )
+
+            orderItemRepository.addOrderItem(orderId, createRequest)
+                .onSuccess {
+                    // Po sukcesie odświeżamy całe zamówienie
+                    loadOrderDetails()
+                    _uiState.update { it.copy(isOperationProcessing = false) }
+                }
+                .onFailure { e ->
+                    _uiState.update { it.copy(isOperationProcessing = false, error = "Błąd dodawania pozycji: ${e.message}") }
                 }
         }
     }

@@ -1,12 +1,16 @@
 package com.qrware.service;
 
-import com.qrware.domain.order.*;
-import com.qrware.domain.product.Product;
 import com.qrware.domain.inventory.InventoryItem;
+import com.qrware.domain.order.Order;
+import com.qrware.domain.order.OrderItem;
+import com.qrware.domain.order.OrderItemStatus;
+import com.qrware.domain.product.Product;
 import com.qrware.domain.warehouse.Location;
-import com.qrware.repository.order.OrderItemRepository;
-import com.qrware.repository.inventory.InventoryItemRepository;
 import com.qrware.exception.ResourceNotFoundException;
+import com.qrware.repository.inventory.InventoryItemRepository;
+import com.qrware.repository.order.OrderItemRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,18 +24,14 @@ import java.util.Optional;
 @Service
 @Transactional
 public class OrderItemService {
+    
+    private static final Logger logger = LoggerFactory.getLogger(OrderItemService.class);
 
     @Autowired
     private OrderItemRepository orderItemRepository;
 
     @Autowired
     private InventoryItemRepository inventoryItemRepository;
-
-    // === DODANA STAŁA DLA PARSOWANIA DANYCH QR ===
-    private static final String QR_DATA_SEPARATOR = "###";
-    // =============================================
-
-    // === ORDER ITEM MANAGEMENT ===
 
     public OrderItem getOrderItemById(Long id) {
         return orderItemRepository.findById(id)
@@ -58,47 +58,6 @@ public class OrderItemService {
         return orderItemRepository.searchOrderItems(searchTerm, pageable);
     }
 
-    // === QR CODE OPERATIONS ===
-
-    public OrderItem processQRScan(String qrCodeData) {
-        // 1. Spróbuj znaleźć OrderItem bezpośrednio po pełnych danych QR
-        Optional<OrderItem> orderItem = orderItemRepository.findByQrCodeData(qrCodeData);
-
-        if (orderItem.isPresent()) {
-            return orderItem.get();
-        }
-
-        // --- ZMIENIONA LOGIKA: Obsługa ustrukturyzowanych danych QR ---
-        String actualQrCode = qrCodeData;
-
-        // Jeśli dane zawierają separator, wyodrębnij właściwy kod (zakładając, że jest pierwszym elementem)
-        if (qrCodeData.contains(QR_DATA_SEPARATOR)) {
-            String[] parts = qrCodeData.split(QR_DATA_SEPARATOR);
-            if (parts.length > 0) {
-                actualQrCode = parts[0];
-            }
-        }
-        // --- KONIEC ZMIENIONEJ LOGIKI ---
-
-        // 2. Spróbuj znaleźć Inventory Item po prostym/wyodrębnionym kodzie QR
-        Optional<InventoryItem> inventoryItem = inventoryItemRepository.findByQrCode(actualQrCode);
-
-        if (inventoryItem.isPresent()) {
-            // Znajdź oczekujący Order Item dla tego Inventory Item
-            Optional<OrderItem> pendingOrderItem = orderItemRepository
-                    .findByInventoryItemAndStatus(inventoryItem.get(), OrderItemStatus.PENDING);
-
-            if (pendingOrderItem.isPresent()) {
-                OrderItem item = pendingOrderItem.get();
-                item.setQrCodeData(qrCodeData); // Zapisz pełne, ustrukturyzowane dane
-                item.pick(); // Zmień status na IN_PROGRESS (lub PICKED)
-                return orderItemRepository.save(item);
-            }
-        }
-
-        throw new ResourceNotFoundException("No order item found for QR code: " + qrCodeData);
-    }
-
     public OrderItem linkInventoryToOrderItem(Long orderItemId, Long inventoryItemId) {
         OrderItem orderItem = getOrderItemById(orderItemId);
         InventoryItem inventoryItem = inventoryItemRepository.findById(inventoryItemId)
@@ -115,8 +74,6 @@ public class OrderItemService {
     public List<OrderItem> getItemsWithQRCode() {
         return orderItemRepository.findItemsWithQrCode();
     }
-
-    // === ORDER ITEM STATUS MANAGEMENT ===
 
     public OrderItem pickOrderItem(Long orderItemId) {
         OrderItem orderItem = getOrderItemById(orderItemId);
@@ -140,28 +97,11 @@ public class OrderItemService {
         return orderItemRepository.save(orderItem);
     }
 
-    public OrderItem partiallyCompleteOrderItem(Long orderItemId, Integer partialQuantity, String reason) {
-        OrderItem orderItem = getOrderItemById(orderItemId);
-
-        if (!orderItem.canBeCompleted()) {
-            throw new IllegalStateException("Order item cannot be partially completed in current status: " + orderItem.getStatus());
-        }
-
-        if (partialQuantity >= orderItem.getRequestedQuantity()) {
-            throw new IllegalArgumentException("Partial quantity must be less than requested quantity");
-        }
-
-        orderItem.complete(partialQuantity, reason);
-        return orderItemRepository.save(orderItem);
-    }
-
     public OrderItem cancelOrderItem(Long orderItemId, String reason) {
         OrderItem orderItem = getOrderItemById(orderItemId);
         orderItem.cancel(reason);
         return orderItemRepository.save(orderItem);
     }
-
-    // === BATCH AND SERIAL NUMBER OPERATIONS ===
 
     public OrderItem setBatchNumber(Long orderItemId, String batchNumber) {
         OrderItem orderItem = getOrderItemById(orderItemId);
@@ -193,8 +133,6 @@ public class OrderItemService {
         return orderItemRepository.findExpiringBatches(date);
     }
 
-    // === LOCATION OPERATIONS ===
-
     public OrderItem setSourceLocation(Long orderItemId, Location sourceLocation) {
         OrderItem orderItem = getOrderItemById(orderItemId);
         orderItem.setSourceLocation(sourceLocation);
@@ -210,8 +148,6 @@ public class OrderItemService {
     public List<OrderItem> getOrderItemsByLocation(Location location) {
         return orderItemRepository.findByLocation(location);
     }
-
-    // === ANALYTICS AND STATISTICS ===
 
     public List<OrderItem> getPartiallyCompletedItems() {
         return orderItemRepository.findPartiallyCompletedItems();
@@ -260,17 +196,13 @@ public class OrderItemService {
         return orderItemRepository.findRecentlyCompletedItems(since);
     }
 
-    // === VALIDATION AND BUSINESS LOGIC ===
-
     public boolean isOrderItemReadyForCompletion(Long orderItemId) {
         OrderItem orderItem = getOrderItemById(orderItemId);
 
-        // Check if item requires QR scan and has been scanned
         if (orderItem.requiresQRScan() && !orderItem.isQRScanned()) {
             return false;
         }
 
-        // Check if item is in correct status
         return orderItem.canBeCompleted();
     }
 
@@ -293,7 +225,6 @@ public class OrderItemService {
         return productCode + "-" + dateCode + "-" + sequence;
     }
 
-    // === FILTERING AND SEARCHING ===
 
     public Page<OrderItem> getOrderItemsWithFilters(Long orderId, Long productId,
                                                     OrderItemStatus status, Long sourceLocationId,

@@ -19,6 +19,13 @@ import java.util.Optional;
 @Repository
 public interface OrderRepository extends BaseRepository<Order> {
 
+    @Query("SELECT o FROM Order o " +
+           "LEFT JOIN FETCH o.orderItems oi " +
+           "LEFT JOIN FETCH oi.product " +
+           "LEFT JOIN FETCH oi.inventoryItem " +
+           "WHERE o.id = :id")
+    Optional<Order> findByIdWithDetails(@Param("id") Long id);
+
     // Basic finders
     Optional<Order> findByOrderNumber(String orderNumber);
     

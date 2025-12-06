@@ -1,16 +1,14 @@
 package com.qrware.controller;
 
+import com.qrware.domain.inventory.InventoryItem;
 import com.qrware.domain.order.*;
-import com.qrware.domain.product.Product;
-import com.qrware.domain.warehouse.Location;
 import com.qrware.dto.ApiResponse;
-import com.qrware.dto.OrderItemDTO;
 import com.qrware.dto.DTOMapper;
-import com.qrware.service.OrderService;
-import com.qrware.service.OrderItemService;
-import com.qrware.repository.product.ProductRepository;
-import com.qrware.repository.warehouse.LocationRepository;
+import com.qrware.dto.InventoryItemDTO;
+import com.qrware.dto.OrderItemDTO;
 import com.qrware.exception.ResourceNotFoundException;
+import com.qrware.service.OrderItemService;
+import com.qrware.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,11 +20,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,12 +38,6 @@ public class OrderItemController {
 
     @Autowired
     private OrderItemService orderItemService;
-
-    @Autowired
-    private ProductRepository productRepository;
-
-    @Autowired
-    private LocationRepository locationRepository;
 
     @Autowired
     private DTOMapper dtoMapper;
@@ -79,7 +70,8 @@ public class OrderItemController {
                 request.getSourceLocationId(),
                 request.getDestinationLocationId(),
                 request.getUnitPrice(),
-                request.getNotes()
+                request.getNotes(),
+                request.getRequiresExactInventory()
             );
 
             OrderItemDTO orderItemDTO = dtoMapper.toOrderItemDTO(orderItem);
@@ -142,7 +134,7 @@ public class OrderItemController {
     @PutMapping("/{id}/cancel")
     @PreAuthorize("hasAuthority('ORDER_WRITE')")
     public ResponseEntity<ApiResponse<OrderItemDTO>> cancelOrderItem(@PathVariable Long id,
-                                                                   @Valid @RequestBody CancelOrderItemRequest request) {
+                                                                   @Valid @RequestBody CancelOrderRequest request) {
         try {
             OrderItem orderItem = orderItemService.cancelOrderItem(id, request.getReason());
             OrderItemDTO orderItemDTO = dtoMapper.toOrderItemDTO(orderItem);
@@ -161,14 +153,56 @@ public class OrderItemController {
 
     @PostMapping("/scan-qr")
     @PreAuthorize("hasAuthority('QR_SCAN')")
-    public ResponseEntity<ApiResponse<OrderItemDTO>> scanQRCode(@Valid @RequestBody ScanQRRequest request) {
+    public ResponseEntity<ApiResponse<Object>> processOrderItemScan(@Valid @RequestBody ScanQRRequest request) {
         try {
-            OrderItem orderItem = orderItemService.processQRScan(request.getQrCodeData());
-            OrderItemDTO orderItemDTO = dtoMapper.toOrderItemDTO(orderItem);
-            return ResponseEntity.ok(ApiResponse.success(orderItemDTO, "QR code processed successfully"));
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error(e.getMessage()));
+            Optional<Object> resultOptional = orderService.processQRScan(request.getQrCodeData(), request.getOrderId());
+
+            if (resultOptional.isPresent()) {
+                Object result = resultOptional.get();
+                Object dto;
+
+                if (result instanceof OrderItem) {
+                    dto = dtoMapper.toOrderItemDTO((OrderItem) result);
+                } else if (result instanceof InventoryItem) {
+                    dto = dtoMapper.toInventoryItemDTO((InventoryItem) result);
+                } else {
+                    dto = result;
+                }
+                
+                return ResponseEntity.ok(ApiResponse.success(dto, "QR code processed successfully"));
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error("No object found for QR code: " + request.getQrCodeData()));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Failed to process QR code: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/scan-generic")
+    @PreAuthorize("hasAuthority('QR_SCAN')")
+    public ResponseEntity<ApiResponse<Object>> scanQRCode(@Valid @RequestBody GenericScanRequest request) {
+        try {
+            Optional<Object> resultOptional = orderService.processQRScan(request.getQrCodeData());
+
+            if (resultOptional.isPresent()) {
+                Object result = resultOptional.get();
+                Object dto;
+
+                if (result instanceof OrderItem) {
+                    dto = dtoMapper.toOrderItemDTO((OrderItem) result);
+                } else if (result instanceof InventoryItem) {
+                    dto = dtoMapper.toInventoryItemDTO((InventoryItem) result);
+                } else {
+                    dto = result;
+                }
+                
+                return ResponseEntity.ok(ApiResponse.success(dto, "QR code processed successfully"));
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error("No object found for QR code: " + request.getQrCodeData()));
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to process QR code: " + e.getMessage()));
@@ -302,8 +336,6 @@ public class OrderItemController {
         }
     }
 
-    // === REQUEST/RESPONSE DTOs ===
-
     public static class CreateOrderItemRequest {
         @NotNull
         private Long productId;
@@ -319,24 +351,22 @@ public class OrderItemController {
         @Size(max = 500)
         private String notes;
 
-        // Getters and setters
+        private Boolean requiresExactInventory = true;
+
         public Long getProductId() { return productId; }
         public void setProductId(Long productId) { this.productId = productId; }
-
         public Integer getRequestedQuantity() { return requestedQuantity; }
         public void setRequestedQuantity(Integer requestedQuantity) { this.requestedQuantity = requestedQuantity; }
-
         public Long getSourceLocationId() { return sourceLocationId; }
         public void setSourceLocationId(Long sourceLocationId) { this.sourceLocationId = sourceLocationId; }
-
         public Long getDestinationLocationId() { return destinationLocationId; }
         public void setDestinationLocationId(Long destinationLocationId) { this.destinationLocationId = destinationLocationId; }
-
         public BigDecimal getUnitPrice() { return unitPrice; }
         public void setUnitPrice(BigDecimal unitPrice) { this.unitPrice = unitPrice; }
-
         public String getNotes() { return notes; }
         public void setNotes(String notes) { this.notes = notes; }
+        public Boolean getRequiresExactInventory() { return requiresExactInventory; }
+        public void setRequiresExactInventory(Boolean requiresExactInventory) { this.requiresExactInventory = requiresExactInventory; }
     }
 
     public static class CompleteOrderItemRequest {
@@ -350,18 +380,15 @@ public class OrderItemController {
         @Size(max = 200)
         private String qrCodeData;
 
-        // Getters and setters
         public Integer getCompletedQuantity() { return completedQuantity; }
         public void setCompletedQuantity(Integer completedQuantity) { this.completedQuantity = completedQuantity; }
-
         public String getCompletionNotes() { return completionNotes; }
         public void setCompletionNotes(String completionNotes) { this.completionNotes = completionNotes; }
-
         public String getQrCodeData() { return qrCodeData; }
         public void setQrCodeData(String qrCodeData) { this.qrCodeData = qrCodeData; }
     }
 
-    public static class CancelOrderItemRequest {
+    public static class CancelOrderRequest {
         @NotNull
         @Size(max = 500)
         private String reason;
@@ -369,8 +396,21 @@ public class OrderItemController {
         public String getReason() { return reason; }
         public void setReason(String reason) { this.reason = reason; }
     }
-
+    
     public static class ScanQRRequest {
+        @NotNull
+        @Size(max = 200)
+        private String qrCodeData;
+        
+        private Long orderId; // Optional: for context-aware scanning
+
+        public String getQrCodeData() { return qrCodeData; }
+        public void setQrCodeData(String qrCodeData) { this.qrCodeData = qrCodeData; }
+        public Long getOrderId() { return orderId; }
+        public void setOrderId(Long orderId) { this.orderId = orderId; }
+    }
+
+    public static class GenericScanRequest {
         @NotNull
         @Size(max = 200)
         private String qrCodeData;
@@ -408,7 +448,6 @@ public class OrderItemController {
 
         public OrderItemStatus getStatus() { return status; }
         public void setStatus(OrderItemStatus status) { this.status = status; }
-
         public Long getCount() { return count; }
         public void setCount(Long count) { this.count = count; }
     }

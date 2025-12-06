@@ -28,10 +28,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Main Security Configuration for QRWare system
- * Configures JWT-based authentication, authorization, CORS, and security headers
- */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
@@ -55,128 +51,62 @@ public class SecurityConfig {
     @Value("${app.cors.allow-credentials}")
     private boolean allowCredentials;
 
-    /**
-     * Main Security Filter Chain Configuration
-     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // Disable CSRF for REST API (using JWT tokens)
             .csrf(AbstractHttpConfigurer::disable)
-            
-            // Configure CORS
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            
-            // Configure session management (stateless for JWT)
             .sessionManagement(session -> 
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            
-            // Configure security headers
             .headers(headers -> configureSecurityHeaders(headers))
-            
-            // Configure authorization rules
             .authorizeHttpRequests(authz -> configureAuthorization(authz))
-            
-            // Configure authentication provider
             .authenticationProvider(authenticationProvider())
-            
-            // Add JWT filter before UsernamePasswordAuthenticationFilter
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            
-            // Configure exception handling
             .exceptionHandling(exceptions -> configureExceptionHandling(exceptions));
 
         return http.build();
     }
 
-    /**
-     * Configure authorization rules
-     */
     private void configureAuthorization(org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry authz) {
         authz
-            // Public endpoints - no authentication required
             .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/auth/refresh", "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/health", "/api/status").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/test/public").permitAll()
-                // H2 Console (development only)
+            .requestMatchers(HttpMethod.GET, "/api/test/public").permitAll()
             .requestMatchers("/h2-console/**").permitAll()
-
-            // Actuator endpoints
             .requestMatchers("/actuator/health", "/actuator/info").permitAll()
             .requestMatchers("/actuator/**").hasRole("ADMIN")
-            
-            // Swagger/OpenAPI documentation
             .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-resources/**").permitAll()
-            
-            // Static resources
             .requestMatchers("/static/**", "/assets/**", "/favicon.ico").permitAll()
-            
-            // Authentication endpoints
             .requestMatchers("/api/auth/**").permitAll()
-            
-            // User management - only admins can manage users
             .requestMatchers(HttpMethod.GET, "/api/users/me").authenticated()
             .requestMatchers(HttpMethod.PUT, "/api/users/me").authenticated()
-                .requestMatchers("/api/users/**").hasAuthority("ADMIN_FULL")
+            .requestMatchers("/api/users/**").hasAuthority("ADMIN_FULL")
             .requestMatchers("/api/roles/**").hasAuthority("ADMIN_FULL")
             .requestMatchers("/api/permissions/**").hasAuthority("ADMIN_FULL")
-            
-            // Product management
-                .requestMatchers("/api/products/**").authenticated()
-            
-            // Category management
-
+            .requestMatchers("/api/products/**").authenticated()
+            .requestMatchers("/api/orders/**").authenticated()
+            .requestMatchers("/api/order-items/**").authenticated()
             .requestMatchers(HttpMethod.DELETE, "/api/categories/**").authenticated()
-                .requestMatchers("/api/locations/**").authenticated()
-                .requestMatchers("/api/zone/**").authenticated()
-
-
-                // Inventory management
-          //  .requestMatchers(HttpMethod.GET, "/api/inventory/**").hasAnyRole("USER", "WAREHOUSE_WORKER", "WAREHOUSE_MANAGER", "ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/inventory/**").authenticated()
-
-           //     .requestMatchers(HttpMethod.POST, "/api/inventory/receive").hasAnyRole("WAREHOUSE_WORKER", "WAREHOUSE_MANAGER", "ADMIN")
-           // .requestMatchers(HttpMethod.PUT, "/api/inventory/move").hasAnyRole("WAREHOUSE_WORKER", "WAREHOUSE_MANAGER", "ADMIN")
-            //.requestMatchers(HttpMethod.PUT, "/api/inventory/adjust").hasAnyRole("WAREHOUSE_MANAGER", "ADMIN")
-            //.requestMatchers(HttpMethod.DELETE, "/api/inventory/**").hasRole("ADMIN")
-            
-
-                .requestMatchers("/api/qr/**").authenticated()
-            
-            // Movement history and audit
+            .requestMatchers("/api/locations/**").authenticated()
+            .requestMatchers("/api/zone/**").authenticated()
+            .requestMatchers(HttpMethod.GET, "/api/inventory/**").authenticated()
+            .requestMatchers("/api/qr/**").authenticated()
             .requestMatchers(HttpMethod.GET, "/api/movements/**").hasAnyRole("USER", "WAREHOUSE_MANAGER", "ADMIN")
             .requestMatchers("/api/audit/**").hasAnyRole("WAREHOUSE_MANAGER", "ADMIN")
-            
-            // Reports
             .requestMatchers("/api/reports/**").hasAnyRole("WAREHOUSE_MANAGER", "ADMIN")
-            
-            // Administrative functions
             .requestMatchers("/api/admin/**").hasRole("ADMIN")
-            
-            // All other requests require authentication
             .anyRequest().authenticated();
     }
 
-    /**
-     * Configure security headers
-     */
     private void configureSecurityHeaders(org.springframework.security.config.annotation.web.configurers.HeadersConfigurer<HttpSecurity> headers) {
         headers
-            // Frame options
                 .frameOptions(frameOptions -> frameOptions.sameOrigin())
-            // Content type options
             .contentTypeOptions(contentTypeOptions -> contentTypeOptions.and())
-            
-            // XSS protection
             .httpStrictTransportSecurity(hstsConfig -> hstsConfig
                 .maxAgeInSeconds(31536000)
                 .includeSubDomains(true))
-            
-            // Referrer policy
             .referrerPolicy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
-            
-            // Permissions policy
             .and()
             .addHeaderWriter((request, response) -> {
                 response.setHeader("Permissions-Policy", 
@@ -184,12 +114,8 @@ public class SecurityConfig {
             });
     }
 
-    /**
-     * Configure exception handling
-     */
     private void configureExceptionHandling(org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer<HttpSecurity> exceptions) {
         exceptions
-            // Handle authentication failures
             .authenticationEntryPoint((request, response, authException) -> {
                 response.setStatus(401);
                 response.setContentType("application/json");
@@ -203,8 +129,6 @@ public class SecurityConfig {
                     }
                     """.formatted(java.time.Instant.now(), request.getRequestURI()));
             })
-            
-            // Handle access denied
             .accessDeniedHandler((request, response, accessDeniedException) -> {
                 response.setStatus(403);
                 response.setContentType("application/json");
@@ -222,31 +146,19 @@ public class SecurityConfig {
             });
     }
 
-    /**
-     * CORS Configuration
-     */
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
-        // Parse allowed origins from application properties
         List<String> origins = Arrays.asList(allowedOrigins.split(","));
         configuration.setAllowedOriginPatterns(origins);
-        
-        // Parse allowed methods
         List<String> methods = Arrays.asList(allowedMethods.split(","));
         configuration.setAllowedMethods(methods);
-        
-        // Parse allowed headers
         if ("*".equals(allowedHeaders)) {
             configuration.addAllowedHeader("*");
         } else {
             List<String> headers = Arrays.asList(allowedHeaders.split(","));
             configuration.setAllowedHeaders(headers);
         }
-        
-        // Expose headers that clients can access
         configuration.setExposedHeaders(Arrays.asList(
             "Authorization", 
             "X-Auth-Token", 
@@ -254,38 +166,27 @@ public class SecurityConfig {
             "X-Page-Number",
             "X-Page-Size"
         ));
-        
         configuration.setAllowCredentials(allowCredentials);
-        configuration.setMaxAge(3600L); // Cache preflight response for 1 hour
-        
+        configuration.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 
-    /**
-     * Password Encoder Bean
-     */
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12); // Strength 12 for good security
+        return new BCryptPasswordEncoder(12);
     }
 
-    /**
-     * Authentication Provider Bean
-     */
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(customUserDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
-        authProvider.setHideUserNotFoundExceptions(false); // For better error messages
+        authProvider.setHideUserNotFoundExceptions(false);
         return authProvider;
     }
 
-    /**
-     * Authentication Manager Bean
-     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();

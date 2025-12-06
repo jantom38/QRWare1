@@ -91,7 +91,7 @@ interface OrderApiService {
     ): Response<ApiResponse<OrderItemDTO>>
 
     @POST("api/order-items/scan-qr")
-    suspend fun scanQRCode(@Body request: ScanQRRequest): Response<ApiResponse<OrderItemDTO>>
+    suspend fun scanQRCode(@Body request: ScanQRRequest): Response<ApiResponse<Any>>
 
     @GET("api/order-items/qr/{qrCodeData}")
     suspend fun getOrderItemByQR(@Path("qrCodeData") qrCodeData: String): Response<ApiResponse<OrderItemDTO>>

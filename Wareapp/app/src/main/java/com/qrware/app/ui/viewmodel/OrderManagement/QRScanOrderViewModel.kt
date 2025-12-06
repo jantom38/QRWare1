@@ -1,8 +1,10 @@
 package com.qrware.app.ui.viewmodel.OrderManagement
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.qrware.app.data.dto.InventoryItemDTO
 import com.qrware.app.data.model.CompleteOrderItemRequest
 import com.qrware.app.data.model.OrderItemDTO
 import com.qrware.app.data.repository.OrderItemRepository
@@ -12,7 +14,7 @@ import kotlinx.coroutines.launch
 
 data class QRScanUiState(
     val isScanning: Boolean = true,
-    val scannedItem: OrderItemDTO? = null,
+    val scannedItem: Any? = null,
     val isLoading: Boolean = false,
     val error: String? = null,
     val successMessage: String? = null,
@@ -45,35 +47,45 @@ class QRScanOrderViewModel(
         if (_uiState.value.isLoading) return
 
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, isScanning = false, error = null) }
+            _uiState.update { it.copy(isLoading = true, isScanning = false, error = null, successMessage = null) }
 
             val cleanQrCode = extractDataFromQr(rawQrCode)
 
+            Log.d("QRScanOrderViewModel", "Searching for local match for QR: $cleanQrCode")
+            Log.d("QRScanOrderViewModel", "Current order items: ${_uiState.value.currentOrderItems}")
+
             val localMatch = _uiState.value.currentOrderItems.find { item ->
                 (item.qrCodeData != null && item.qrCodeData.equals(cleanQrCode, ignoreCase = true)) ||
-                        item.productSku.equals(cleanQrCode, ignoreCase = true)
+                (item.inventoryItemCode != null && item.inventoryItemCode.equals(cleanQrCode, ignoreCase = true)) ||
+                item.productSku.equals(cleanQrCode, ignoreCase = true)
             }
 
             if (localMatch != null) {
+                Log.d("QRScanOrderViewModel", "Local match found: ${localMatch.productName}")
                 _uiState.update {
                     it.copy(
                         isLoading = false,
                         scannedItem = localMatch,
-                        successMessage = "Znaleziono: ${localMatch.productName}"
+                        successMessage = "Znaleziono w zamówieniu: ${localMatch.productName}"
                     )
                 }
             } else {
-                orderItemRepository.scanQRCode(cleanQrCode)
+                Log.d("QRScanOrderViewModel", "No local match found. Querying server with orderId: $orderId...")
+                orderItemRepository.scanQRCode(cleanQrCode, orderId)
                     .onSuccess { item ->
-                        _uiState.update {
-                            it.copy(isLoading = false, scannedItem = item, successMessage = "Znaleziono: ${item.productName}")
-                        }
-                    }
-                    .onFailure {
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                error = "Nie znaleziono w zamówieniu.\nSzukano kodu: $cleanQrCode",
+                                scannedItem = item, // Zawsze ustawiaj to, co zostało zeskanowane
+                                successMessage = if (item is OrderItemDTO) "Znaleziono: ${item.productName}" else null
+                            )
+                        }
+                    }
+                    .onFailure { throwable ->
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                error = "Nie znaleziono przedmiotu dla kodu: $cleanQrCode. Błąd: ${throwable.message}",
                                 isScanning = false
                             )
                         }

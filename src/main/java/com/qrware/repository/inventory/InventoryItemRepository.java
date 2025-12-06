@@ -2,6 +2,8 @@ package com.qrware.repository.inventory;
 
 import com.qrware.domain.inventory.InventoryItem;
 import com.qrware.domain.inventory.InventoryStatus;
+import com.qrware.domain.product.Product;
+import com.qrware.domain.warehouse.Location;
 import com.qrware.repository.BaseRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -46,6 +48,18 @@ public interface InventoryItemRepository extends BaseRepository<InventoryItem> {
      */
     @Query("SELECT i FROM InventoryItem i WHERE i.product.sku = :sku")
     List<InventoryItem> findByProductSku(@Param("sku") String sku);
+
+    /**
+     * Find inventory item by product and location
+     */
+    @Query("SELECT i FROM InventoryItem i WHERE i.product = :product AND i.location = :location")
+    Optional<InventoryItem> findByProductAndLocation(@Param("product") Product product, @Param("location") Location location);
+
+    /**
+     * Find first available inventory item by product and location
+     */
+    @Query("SELECT i FROM InventoryItem i WHERE i.product = :product AND i.location = :location AND i.availableQuantity > 0 ORDER BY i.createdAt ASC")
+    Optional<InventoryItem> findFirstAvailableByProductAndLocation(@Param("product") Product product, @Param("location") Location location);
 
     /**
      * Find inventory items by location ID

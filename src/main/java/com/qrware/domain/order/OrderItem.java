@@ -92,8 +92,19 @@ public class OrderItem extends BaseEntity {
     private String completionNotes;
 
     @Size(max = 200)
-    @Column(name = "qr_code_data", length = 200)
+    @Column(name = "qr_code_data", length = 200, unique = true)
     private String qrCodeData;
+
+    @Column(name = "requires_exact_inventory", nullable = false)
+    private Boolean requiresExactInventory = true;
+
+    @Size(max = 200)
+    @Column(name = "actual_source_qr", length = 200)
+    private String actualSourceQrCode;
+
+    @Size(max = 500)
+    @Column(name = "fulfillment_notes", length = 500)
+    private String fulfillmentNotes;
 
     // Constructors
     public OrderItem() {}
@@ -239,6 +250,15 @@ public class OrderItem extends BaseEntity {
 
     public String getQrCodeData() { return qrCodeData; }
     public void setQrCodeData(String qrCodeData) { this.qrCodeData = qrCodeData; }
+
+    public Boolean getRequiresExactInventory() { return requiresExactInventory; }
+    public void setRequiresExactInventory(Boolean requiresExactInventory) { this.requiresExactInventory = requiresExactInventory; }
+
+    public String getActualSourceQrCode() { return actualSourceQrCode; }
+    public void setActualSourceQrCode(String actualSourceQrCode) { this.actualSourceQrCode = actualSourceQrCode; }
+
+    public String getFulfillmentNotes() { return fulfillmentNotes; }
+    public void setFulfillmentNotes(String fulfillmentNotes) { this.fulfillmentNotes = fulfillmentNotes; }
 
     @Override
     public String toString() {

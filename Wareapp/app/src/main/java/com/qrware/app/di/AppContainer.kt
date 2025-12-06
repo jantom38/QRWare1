@@ -2,6 +2,7 @@ package com.qrware.app.di
 
 import android.content.Context
 import androidx.lifecycle.ViewModelProvider
+import com.google.gson.Gson
 import com.qrware.app.data.preferences.ServerConfigManager
 import com.qrware.app.data.remote.*
 import com.qrware.app.data.repository.*
@@ -27,6 +28,7 @@ import com.qrware.app.ui.viewmodel.UserManagament.ListUsersViewModelFactory
 import com.qrware.app.ui.viewmodel.UserManagament.ManagePermissionsViewModelFactory
 import com.qrware.app.ui.viewmodel.UserManagament.ManageRolesViewModelFactory
 import retrofit2.Retrofit
+import okhttp3.OkHttpClient
 import com.qrware.app.data.repository.LocationRepository
 import com.qrware.app.ui.viewmodel.AddLocationViewModelFactory
 import com.qrware.app.ui.viewmodel.EditLocationViewModelFactory
@@ -40,22 +42,88 @@ import com.qrware.app.ui.viewmodel.ManageZonesViewModelFactory
 class AppContainer(context: Context) {
     val tokenManager = TokenManager(context)
     val serverConfigManager = ServerConfigManager(context)
+    val gson = Gson()
 
     init {
         // Inicjalizuj NetworkModule z konfiguracją serwera
         NetworkModule.init(serverConfigManager)
     }
 
-    private val okHttpClient = NetworkModule.createClient(tokenManager)
-    private val retrofit: Retrofit = NetworkModule.createRetrofit(okHttpClient)
+    // Make these properties that recreate when configuration changes
+    private var _okHttpClient: OkHttpClient? = null
+    private var _retrofit: Retrofit? = null
+    
+    private val okHttpClient: OkHttpClient
+        get() {
+            if (_okHttpClient == null) {
+                _okHttpClient = NetworkModule.createClient(tokenManager)
+            }
+            return _okHttpClient!!
+        }
+    
+    private val retrofit: Retrofit
+        get() {
+            if (_retrofit == null) {
+                _retrofit = NetworkModule.createRetrofit(okHttpClient)
+            }
+            return _retrofit!!
+        }
 
-    // Services
-    private val authService: AuthService by lazy { retrofit.create(AuthService::class.java) }
-    private val testService: TestService by lazy { retrofit.create(TestService::class.java) }
-    private val healthService: HealthService by lazy { retrofit.create(HealthService::class.java) }
-    private val apiService: ApiService by lazy { retrofit.create(ApiService::class.java) }
-    private val movementHistoryApiService: MovementHistoryApiService by lazy { retrofit.create(MovementHistoryApiService::class.java) }
-    private val orderApiService: com.qrware.app.data.api.OrderApiService by lazy { retrofit.create(com.qrware.app.data.api.OrderApiService::class.java) }
+    // Services - these will now be recreated when retrofit is recreated
+    private var _authService: AuthService? = null
+    private var _testService: TestService? = null
+    private var _healthService: HealthService? = null
+    private var _apiService: ApiService? = null
+    private var _movementHistoryApiService: MovementHistoryApiService? = null
+    private var _orderApiService: com.qrware.app.data.api.OrderApiService? = null
+    
+    private val authService: AuthService
+        get() {
+            if (_authService == null) {
+                _authService = retrofit.create(AuthService::class.java)
+            }
+            return _authService!!
+        }
+    
+    private val testService: TestService
+        get() {
+            if (_testService == null) {
+                _testService = retrofit.create(TestService::class.java)
+            }
+            return _testService!!
+        }
+    
+    private val healthService: HealthService
+        get() {
+            if (_healthService == null) {
+                _healthService = retrofit.create(HealthService::class.java)
+            }
+            return _healthService!!
+        }
+    
+    private val apiService: ApiService
+        get() {
+            if (_apiService == null) {
+                _apiService = retrofit.create(ApiService::class.java)
+            }
+            return _apiService!!
+        }
+    
+    private val movementHistoryApiService: MovementHistoryApiService
+        get() {
+            if (_movementHistoryApiService == null) {
+                _movementHistoryApiService = retrofit.create(MovementHistoryApiService::class.java)
+            }
+            return _movementHistoryApiService!!
+        }
+    
+    private val orderApiService: com.qrware.app.data.api.OrderApiService
+        get() {
+            if (_orderApiService == null) {
+                _orderApiService = retrofit.create(com.qrware.app.data.api.OrderApiService::class.java)
+            }
+            return _orderApiService!!
+        }
 
     // Repositories
     val authRepository: AuthRepository by lazy { AuthRepository(authService) }
@@ -100,7 +168,7 @@ class AppContainer(context: Context) {
     }
 
     val orderItemRepository by lazy {
-        com.qrware.app.data.repository.OrderItemRepository(orderApiService)
+        com.qrware.app.data.repository.OrderItemRepository(orderApiService, gson)
     }
 
     // --- VIEWMODEL FACTORIES ---
@@ -196,6 +264,17 @@ class AppContainer(context: Context) {
      * Odświeża konfigurację sieci po zmianie ustawień serwera
      */
     fun refreshNetworkConfig() {
+        // Reinicjalizuj NetworkModule z nową konfiguracją
         NetworkModule.init(serverConfigManager)
+        
+        // Wyczyść wszystkie cached instancje żeby zostały odtworzone z nowym URL
+        _okHttpClient = null
+        _retrofit = null
+        _authService = null
+        _testService = null
+        _healthService = null
+        _apiService = null
+        _movementHistoryApiService = null
+        _orderApiService = null
     }
 }

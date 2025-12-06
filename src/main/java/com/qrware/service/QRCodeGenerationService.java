@@ -33,15 +33,12 @@ public class QRCodeGenerationService {
     @Autowired
     private QRCodeDataRepository qrCodeRepository;
 
-    // DEFINICJA SEPARATORA DANYCH
     private static final String QR_DATA_SEPARATOR = "###";
 
-    /**
-     * Generuje QR kod asynchronicznie (Hybrydowo: ID + Dane)
-     */
+
     @Async
     public CompletableFuture<QRCodeData> generateQRCodeAsync(
-            String data, // <--- To są Twoje dane (np. "Waga:20kg;Seria:ABC")
+            String data,
             QRCodeType type,
             String entityType,
             Long entityId,
@@ -49,22 +46,16 @@ public class QRCodeGenerationService {
             String generationReason) {
 
         try {
-            // 1. Generuj unikalny kod systemowy (to on będzie kluczem w bazie)
             String systemId = generateUniqueCode();
 
-            // 2. Dobierz poziom korekcji (High - bo upychamy więcej danych w obrazku)
             com.qrware.domain.qr.ErrorCorrectionLevel appEcLevel =
                     com.qrware.domain.qr.ErrorCorrectionLevel.H;
 
-            // 3. Stwórz rekord w bazie
-            // W bazie zapisujemy: code=systemId, data=TwojeDane
             QRCodeData qrCodeData = createQRCodeRecord(systemId, data, type, entityType,
                     entityId, generatedBy, generationReason, appEcLevel);
             qrCodeData = qrCodeRepository.save(qrCodeData);
 
-            // 4. PRZYGOTUJ TREŚĆ DO OBRAZKA QR
-            // Łączymy ID z Twoimi danymi, aby kod był czytelny też offline
-            // Jeśli 'data' jest pusta, kodujemy samo ID.
+
             String contentToEncode;
             if (data != null && !data.isEmpty()) {
                 contentToEncode = systemId + QR_DATA_SEPARATOR + data;
@@ -72,14 +63,11 @@ public class QRCodeGenerationService {
                 contentToEncode = systemId;
             }
 
-            // 5. Generuj obraz QR z połączonych danych
             byte[] qrImage = generateQRImage(contentToEncode, 300, 300, appEcLevel);
 
-            // 6. Zapisz obraz do pliku (nazwa pliku nadal bazuje na ID)
             String fileName = fileStorageService.storeQRCodeImage(qrImage,
                     systemId + ".png");
 
-            // 7. Aktualizuj rekord ścieżką do pliku
             qrCodeData.setImagePath(fileName);
             qrCodeData.setFormat("PNG");
             qrCodeData.setSize(300);
@@ -93,9 +81,7 @@ public class QRCodeGenerationService {
         }
     }
 
-    /**
-     * Generuje QR kod synchronicznie (Hybrydowo)
-     */
+
     public QRCodeData generateQRCodeSync(
             String data,
             QRCodeType type,
@@ -136,9 +122,7 @@ public class QRCodeGenerationService {
         }
     }
 
-    /**
-     * Generuje obraz QR kodu (bitmapę)
-     */
+
     private byte[] generateQRImage(String contentToEncode, int width, int height,
                                    com.qrware.domain.qr.ErrorCorrectionLevel errorCorrectionLevel)
             throws WriterException, IOException {

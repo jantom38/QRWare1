@@ -9,6 +9,7 @@ import com.qrware.domain.warehouse.Zone;
 import com.qrware.domain.qr.QRCodeData;
 import com.qrware.domain.order.Order;
 import com.qrware.domain.order.OrderItem;
+import com.qrware.domain.order.OrderItemStatus;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
@@ -85,7 +86,6 @@ public class DTOMapper {
         dto.setLevel(category.getLevel());
         dto.setFullPath(category.getFullPath());
 
-        // Parent bez rekurencji (tylko podstawowe dane)
         if (category.getParent() != null) {
             CategoryDTO parentDTO = new CategoryDTO();
             parentDTO.setId(category.getParent().getId());
@@ -141,19 +141,14 @@ public class DTOMapper {
                 zone.getManager(),
                 zone.getContactInfo(),
                 zone.getColor(),
-
-                // Upewnij się, że te metody zwracają LocalDateTime
                 zone.getCreatedAt(),
                 zone.getUpdatedAt(),
-
                 zone.getCreatedBy(),
                 zone.getUpdatedBy(),
-
-                // Upewnij się, że te metody zwracają int, long, long, double
-                zone.getLocationCount(),      //
-                zone.getActiveLocationCount(),  //
-                zone.getOccupiedLocationCount(),//
-                zone.getOccupancyRate()       //
+                zone.getLocationCount(),
+                zone.getActiveLocationCount(),
+                zone.getOccupiedLocationCount(),
+                zone.getOccupancyRate()
         );
     }
 
@@ -231,8 +226,6 @@ public class DTOMapper {
         return toDTO(location);
     }
 
-    // === ORDER MAPPING ===
-
     public OrderDTO toOrderDTO(Order order) {
         if (order == null) return null;
 
@@ -244,7 +237,6 @@ public class DTOMapper {
         dto.setPriority(order.getPriority());
         dto.setDescription(order.getDescription());
 
-        // User information
         if (order.getCreatedBy() != null) {
             dto.setCreatedById(order.getCreatorUser().getId());
             dto.setCreatedByUsername(order.getCreatorUser().getUsername());
@@ -257,7 +249,6 @@ public class DTOMapper {
             dto.setAssignedToFullName(order.getAssignedTo().getFullName());
         }
 
-        // Location information - POPRAWIONE getLocationCode() na getCode()
         if (order.getSourceLocation() != null) {
             dto.setSourceLocationId(order.getSourceLocation().getId());
             dto.setSourceLocationName(order.getSourceLocation().getName());
@@ -270,7 +261,6 @@ public class DTOMapper {
             dto.setDestinationLocationCode(order.getDestinationLocation().getCode());
         }
 
-        // Dates
         dto.setExpectedDate(order.getExpectedDate());
         dto.setStartedAt(order.getStartedAt());
         dto.setCompletedAt(order.getCompletedAt());
@@ -278,7 +268,6 @@ public class DTOMapper {
         dto.setCreatedAt(order.getCreatedAt());
         dto.setUpdatedAt(order.getUpdatedAt());
 
-        // Additional information
         dto.setCancellationReason(order.getCancellationReason());
         dto.setTotalItems(order.getTotalItems());
         dto.setCompletedItems(order.getCompletedItems());
@@ -286,14 +275,12 @@ public class DTOMapper {
         dto.setNotes(order.getNotes());
         dto.setExternalReference(order.getExternalReference());
 
-        // Order items (convert to DTOs)
         if (order.getOrderItems() != null) {
             dto.setOrderItems(order.getOrderItems().stream()
                     .map(this::toOrderItemDTO)
                     .collect(Collectors.toList()));
         }
 
-        // Calculated fields
         dto.setCompletionPercentage(order.getCompletionPercentage());
         dto.setIsOverdue(order.isOverdue());
         dto.setIsHighPriority(order.isHighPriority());
@@ -312,13 +299,11 @@ public class DTOMapper {
         dto.setId(orderItem.getId());
         dto.setLineNumber(orderItem.getLineNumber());
 
-        // Order information
         if (orderItem.getOrder() != null) {
             dto.setOrderId(orderItem.getOrder().getId());
             dto.setOrderNumber(orderItem.getOrder().getOrderNumber());
         }
 
-        // Product information
         if (orderItem.getProduct() != null) {
             dto.setProductId(orderItem.getProduct().getId());
             dto.setProductName(orderItem.getProduct().getName());
@@ -326,13 +311,11 @@ public class DTOMapper {
             dto.setProductDescription(orderItem.getProduct().getDescription());
         }
 
-        // Inventory information - POPRAWIONE getItemCode() na getQrCode() (przykład użycia dostępnej metody)
         if (orderItem.getInventoryItem() != null) {
             dto.setInventoryItemId(orderItem.getInventoryItem().getId());
             dto.setInventoryItemCode(orderItem.getInventoryItem().getQrCode());
         }
 
-        // Location information - POPRAWIONE getLocationCode() na getCode()
         if (orderItem.getSourceLocation() != null) {
             dto.setSourceLocationId(orderItem.getSourceLocation().getId());
             dto.setSourceLocationName(orderItem.getSourceLocation().getName());
@@ -345,37 +328,36 @@ public class DTOMapper {
             dto.setDestinationLocationCode(orderItem.getDestinationLocation().getCode());
         }
 
-        // Quantities and pricing
         dto.setRequestedQuantity(orderItem.getRequestedQuantity());
         dto.setCompletedQuantity(orderItem.getCompletedQuantity());
         dto.setRemainingQuantity(orderItem.getRemainingQuantity());
         dto.setUnitPrice(orderItem.getUnitPrice());
         dto.setTotalValue(orderItem.getTotalValue());
 
-        // Status and tracking
-        dto.setStatus(orderItem.getStatus());
+        dto.setStatus(orderItem.getStatus() != null ? orderItem.getStatus() : OrderItemStatus.PENDING);
         dto.setNotes(orderItem.getNotes());
         dto.setBatchNumber(orderItem.getBatchNumber());
         dto.setSerialNumber(orderItem.getSerialNumber());
         dto.setQrCodeData(orderItem.getQrCodeData());
 
-        // Dates
         dto.setExpiryDate(orderItem.getExpiryDate());
         dto.setPickedAt(orderItem.getPickedAt());
         dto.setCompletedAt(orderItem.getCompletedAt());
         dto.setCreatedAt(orderItem.getCreatedAt());
         dto.setUpdatedAt(orderItem.getUpdatedAt());
 
-        // Additional information
         dto.setCompletionNotes(orderItem.getCompletionNotes());
 
-        // Calculated fields
         dto.setCompletionPercentage(orderItem.getCompletionPercentage());
         dto.setIsCompleted(orderItem.isCompleted());
         dto.setIsPartiallyCompleted(orderItem.isPartiallyCompleted());
         dto.setCanBeCompleted(orderItem.canBeCompleted());
         dto.setRequiresQRScan(orderItem.requiresQRScan());
         dto.setIsQRScanned(orderItem.isQRScanned());
+        
+        dto.setRequiresExactInventory(orderItem.getRequiresExactInventory());
+        dto.setActualSourceQrCode(orderItem.getActualSourceQrCode());
+        dto.setFulfillmentNotes(orderItem.getFulfillmentNotes());
 
         return dto;
     }

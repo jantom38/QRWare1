@@ -136,7 +136,12 @@ data class OrderItemDTO(
     val isPartiallyCompleted: Boolean? = false,
     val canBeCompleted: Boolean? = false,
     val requiresQRScan: Boolean? = false,
-    val isQRScanned: Boolean? = false
+    val isQRScanned: Boolean? = false,
+    
+    // Fulfillment fields
+    val requiresExactInventory: Boolean? = true,
+    val actualSourceQrCode: String? = null,
+    val fulfillmentNotes: String? = null
 )
 
 // Request Models
@@ -157,7 +162,8 @@ data class CreateOrderItemRequest(
     val sourceLocationId: Long? = null,
     val destinationLocationId: Long? = null,
     val unitPrice: BigDecimal? = null,
-    val notes: String? = null
+    val notes: String? = null,
+    val requiresExactInventory: Boolean? = true
 )
 
 data class CompleteOrderItemRequest(
@@ -167,7 +173,8 @@ data class CompleteOrderItemRequest(
 )
 
 data class ScanQRRequest(
-    val qrCodeData: String
+    val qrCodeData: String,
+    val orderId: Long? = null
 )
 
 data class CancelOrderRequest(

@@ -64,6 +64,9 @@ public class OrderItemDTO {
     private Boolean canBeCompleted;
     private Boolean requiresQRScan;
     private Boolean isQRScanned;
+    private Boolean requiresExactInventory;
+    private String actualSourceQrCode;
+    private String fulfillmentNotes;
 
     // Constructors
     public OrderItemDTO() {}
@@ -191,6 +194,15 @@ public class OrderItemDTO {
 
     public Boolean getIsQRScanned() { return isQRScanned; }
     public void setIsQRScanned(Boolean isQRScanned) { this.isQRScanned = isQRScanned; }
+
+    public Boolean getRequiresExactInventory() { return requiresExactInventory; }
+    public void setRequiresExactInventory(Boolean requiresExactInventory) { this.requiresExactInventory = requiresExactInventory; }
+
+    public String getActualSourceQrCode() { return actualSourceQrCode; }
+    public void setActualSourceQrCode(String actualSourceQrCode) { this.actualSourceQrCode = actualSourceQrCode; }
+
+    public String getFulfillmentNotes() { return fulfillmentNotes; }
+    public void setFulfillmentNotes(String fulfillmentNotes) { this.fulfillmentNotes = fulfillmentNotes; }
 
     @Override
     public String toString() {

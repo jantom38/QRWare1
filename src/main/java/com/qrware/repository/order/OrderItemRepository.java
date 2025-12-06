@@ -35,6 +35,9 @@ public interface OrderItemRepository extends BaseRepository<OrderItem> {
     
     @Query("SELECT oi FROM OrderItem oi WHERE oi.product = :product AND oi.status IN :statuses")
     List<OrderItem> findByProductAndStatusIn(@Param("product") Product product, @Param("statuses") List<OrderItemStatus> statuses);
+    
+    @Query("SELECT oi FROM OrderItem oi WHERE oi.product = :product AND oi.status IN :statuses AND oi.inventoryItem IS NULL")
+    List<OrderItem> findByProductAndStatusInAndInventoryItemIsNull(@Param("product") Product product, @Param("statuses") List<OrderItemStatus> statuses);
 
     // Status-based queries
     List<OrderItem> findByStatus(OrderItemStatus status);
@@ -56,6 +59,9 @@ public interface OrderItemRepository extends BaseRepository<OrderItem> {
     List<OrderItem> findByInventoryItem(InventoryItem inventoryItem);
     
     Optional<OrderItem> findByInventoryItemAndStatus(InventoryItem inventoryItem, OrderItemStatus status);
+
+    @Query("SELECT oi FROM OrderItem oi WHERE oi.inventoryItem = :inventoryItem AND oi.status IN ('PENDING', 'IN_PROGRESS')")
+    Optional<OrderItem> findActiveByInventoryItem(@Param("inventoryItem") InventoryItem inventoryItem);
 
     // QR Code queries
     @Query("SELECT oi FROM OrderItem oi WHERE oi.qrCodeData = :qrData")
@@ -153,4 +159,11 @@ public interface OrderItemRepository extends BaseRepository<OrderItem> {
     // Recent activity
     @Query("SELECT oi FROM OrderItem oi WHERE oi.completedAt >= :since ORDER BY oi.completedAt DESC")
     List<OrderItem> findRecentlyCompletedItems(@Param("since") LocalDateTime since);
+
+    // Flexible fulfillment queries
+    @Query("SELECT oi FROM OrderItem oi WHERE oi.product = :product AND oi.inventoryItem IS NULL AND oi.status IN ('PENDING', 'IN_PROGRESS')")
+    List<OrderItem> findUnhookedOrderItemsByProduct(@Param("product") Product product);
+
+    @Query("SELECT oi FROM OrderItem oi WHERE oi.product = :product AND oi.requiresExactInventory = true AND oi.status IN ('PENDING', 'IN_PROGRESS')")
+    List<OrderItem> findActiveExactMatchOrderItemsByProduct(@Param("product") Product product);
 }
