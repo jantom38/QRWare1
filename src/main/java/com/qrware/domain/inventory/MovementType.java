@@ -5,6 +5,7 @@ package com.qrware.domain.inventory;
  */
 public enum MovementType {
     
+    UNKNOWN("Unknown", "Unknown movement type"),
     RECEIPT("Receipt", "Item received into inventory"),
     ISSUE("Issue", "Item issued from inventory"),
     TRANSFER("Transfer", "Item transferred between locations"),

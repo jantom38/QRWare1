@@ -324,8 +324,8 @@ public class DataInitializer implements CommandLineRunner {
             testInventoryItem.setReservedQuantity(0);
             testInventoryItem.setStatus(InventoryStatus.AVAILABLE);
             testInventoryItem.setReceivedDate(LocalDate.now());
-            // QR code will be set manually
-            testInventoryItem.setQrCode("TO_BE_GENERATED"); 
+            testInventoryItem.setQrCode("TO_BE_GENERATED");
+            
             inventoryItemRepository.save(testInventoryItem);
             
             Order testOrder = new Order("TEST-ADMIN-ORDER", OrderType.PICK, admin);

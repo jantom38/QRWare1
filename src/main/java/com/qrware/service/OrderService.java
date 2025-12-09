@@ -182,7 +182,7 @@ public class OrderService {
             if (orderItem.getInventoryItem() == null) {
                 throw new IllegalStateException("OrderItem requires an exact inventory item, but none is assigned.");
             }
-            if (!orderItem.getInventoryItem().getQrCode().equals(systemId)) {
+            if (orderItem.getInventoryItem().getQrCode().equals(systemId)) {
                 throw new IllegalStateException("Incorrect item scanned. Expected QR: " + orderItem.getInventoryItem().getQrCode() + ", but got: " + systemId);
             }
             logger.info("Correct item scanned for exact-match OrderItem.");
@@ -298,10 +298,88 @@ public class OrderService {
     public Order startOrder(Long orderId, User user) { Order order = getOrderById(orderId); if (!order.canBeStarted()) { throw new IllegalStateException("Order cannot be started in current status: " + order.getStatus()); } OrderStatus oldStatus = order.getStatus(); order.start(user); orderRepository.save(order); createStatusHistory(order, oldStatus, order.getStatus(), user, "Order started"); return order; }
     public Order cancelOrder(Long orderId, User user, String reason) { Order order = getOrderById(orderId); if (!order.canBeCancelled()) { throw new IllegalStateException("Order cannot be cancelled in current status: " + order.getStatus()); } OrderStatus oldStatus = order.getStatus(); order.cancel(user, reason); orderRepository.save(order); createStatusHistory(order, oldStatus, order.getStatus(), user, reason); return order; }
     public Order assignOrder(Long orderId, Long userId, User assignedBy) { Order order = getOrderById(orderId); User assignee = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId)); OrderStatus oldStatus = order.getStatus(); order.assign(assignee); orderRepository.save(order); if (oldStatus != order.getStatus()) { createStatusHistory(order, oldStatus, order.getStatus(), assignedBy, "Order assigned to " + assignee.getUsername()); } return order; }
-    public OrderItem completeOrderItem(Long orderItemId, Integer completedQuantity, String completionNotes, String qrCodeData) { OrderItem orderItem = orderItemRepository.findById(orderItemId).orElseThrow(() -> new ResourceNotFoundException("Order item not found with id: " + orderItemId)); orderItem.complete(completedQuantity, completionNotes); if (qrCodeData != null) { orderItem.setQrCodeData(qrCodeData); } orderItemRepository.save(orderItem); updateOrderProgress(orderItem.getOrder()); return orderItem; }
+    public OrderItem completeOrderItem(Long orderItemId, Integer completedQuantity, String completionNotes, String qrCodeData) { 
+        OrderItem orderItem = orderItemRepository.findById(orderItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order item not found with id: " + orderItemId)); 
+        
+        orderItem.complete(completedQuantity, completionNotes); 
+        if (qrCodeData != null) { 
+            orderItem.setQrCodeData(qrCodeData); 
+        } 
+        
+        // Tworzymy MovementHistory dla pojedynczego item
+        createMovementHistoryForOrderItem(orderItem);
+        
+        orderItemRepository.save(orderItem); 
+        updateOrderProgress(orderItem.getOrder()); 
+        return orderItem;
+    }
     private void createStatusHistory(Order order, OrderStatus oldStatus, OrderStatus newStatus, User changedBy, String reason) { statusHistoryRepository.save(new OrderStatusHistory(order, oldStatus, newStatus, changedBy, reason)); }
     private void updateOrderProgress(Order order) { order.updateProgress(); orderRepository.save(order); }
-    private void createMovementHistoryForCompletedOrder(Order order) { MovementType movementType = getMovementTypeForOrder(order.getType()); for (OrderItem item : order.getOrderItems()) { if (item.isCompleted() && item.getInventoryItem() != null) { movementHistoryService.createSystemMovement(item.getInventoryItem().getId(), movementType, null, item.getCompletedQuantity(), item.getSourceLocation(), item.getDestinationLocation(), "Completed via order: " + order.getOrderNumber(), order.getOrderNumber()); } } }
+    private void createMovementHistoryForCompletedOrder(Order order) { 
+        MovementType movementType = getMovementTypeForOrder(order.getType()); 
+        for (OrderItem item : order.getOrderItems()) { 
+            if (item.isCompleted() && item.getInventoryItem() != null) { 
+                movementHistoryService.createSystemMovement(
+                    item.getInventoryItem().getId(), 
+                    movementType, 
+                    null, 
+                    item.getCompletedQuantity(), 
+                    item.getSourceLocation(), 
+                    item.getDestinationLocation(), 
+                    "Completed via order: " + order.getOrderNumber(), 
+                    order.getOrderNumber()
+                ); 
+            } 
+        } 
+    }
+
+    private void createMovementHistoryForOrderItem(OrderItem orderItem) {
+        try {
+            if (orderItem.isCompleted()) {
+                MovementType movementType = getMovementTypeForOrder(orderItem.getOrder().getType());
+                
+                if (orderItem.getInventoryItem() != null) {
+                    // Standardowy przypadek z InventoryItem
+                    movementHistoryService.createSystemMovement(
+                        orderItem.getInventoryItem().getId(),
+                        movementType,
+                        null,
+                        orderItem.getCompletedQuantity(),
+                        orderItem.getSourceLocation(),
+                        orderItem.getDestinationLocation(),
+                        "Completed via order item: " + orderItem.getOrder().getOrderNumber() + " line " + orderItem.getLineNumber(),
+                        orderItem.getOrder().getOrderNumber()
+                    );
+                } else {
+                    // Przypadek bez InventoryItem - tworzymy ogólny wpis historii
+                    logger.warn("Creating movement history without InventoryItem for OrderItem ID: {}", orderItem.getId());
+                    // BEZPIECZNE TWORZENIE RUCHU BEZ INVENTORY ITEM
+                    createOrderMovementWithoutInventoryItem(orderItem, movementType);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Failed to create movement history for OrderItem ID: {}, Error: {}", orderItem.getId(), e.getMessage());
+            // Nie przerywamy procesu, tylko logujemy błąd
+        }
+    }
+
+    private void createOrderMovementWithoutInventoryItem(OrderItem orderItem, MovementType movementType) {
+        try {
+            // Tworzymy ruch w historii bez konkretnej pozycji magazynowej
+            movementHistoryService.createOrderMovementHistory(
+                movementType,
+                orderItem.getCompletedQuantity(),
+                orderItem.getSourceLocation(),
+                orderItem.getDestinationLocation(),
+                "Order item completed: " + orderItem.getProduct().getName() + " (SKU: " + orderItem.getProduct().getSku() + ")",
+                orderItem.getOrder().getOrderNumber()
+            );
+            logger.info("Created order movement history for OrderItem ID: {} without InventoryItem", orderItem.getId());
+        } catch (Exception e) {
+            logger.error("Failed to create order movement history for OrderItem ID: {}, Error: {}", orderItem.getId(), e.getMessage());
+        }
+    }
     private MovementType getMovementTypeForOrder(OrderType orderType) { return switch (orderType) { case INBOUND -> MovementType.ORDER_RECEIPT; case OUTBOUND, PICK, PUTAWAY, ADJUSTMENT -> MovementType.ORDER_ISSUE; case TRANSFER -> MovementType.TRANSFER; case RETURN -> MovementType.ORDER_RETURN; default -> MovementType.ORDER_ISSUE; }; }
     public boolean canUserAccessOrder(Order order, User user) { return order.getCreatedBy().equals(user) || (order.getAssignedTo() != null && order.getAssignedTo().equals(user)) || user.getRoles().stream().anyMatch(role -> role.getName().equals("ADMIN")); }
     public String generateOrderNumber(OrderType type) { String prefix = type.name().substring(0, 3).toUpperCase(); String timestamp = String.valueOf(System.currentTimeMillis()); return prefix + "-" + timestamp.substring(timestamp.length() - 8); }

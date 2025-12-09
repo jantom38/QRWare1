@@ -41,11 +41,17 @@ public class MovementHistoryService {
     public MovementHistory createMovementHistory(Long inventoryItemId, MovementType movementType,
                                                  Integer quantityBefore, Integer quantityAfter,
                                                  Location fromLocation, Location toLocation, String reason) {
-        InventoryItem inventoryItem = inventoryItemRepository.findById(inventoryItemId)
-                .orElseThrow(() -> new ResourceNotFoundException("Inventory item not found with id: " + inventoryItemId));
+        // BEZPIECZNE SPRAWDZENIE - sprawdzamy czy InventoryItem istnieje
+        InventoryItem inventoryItem = null;
+        if (inventoryItemId != null) {
+            inventoryItem = inventoryItemRepository.findById(inventoryItemId).orElse(null);
+            if (inventoryItem == null) {
+                throw new ResourceNotFoundException("Inventory item not found with id: " + inventoryItemId);
+            }
+        }
 
         MovementHistory movement = new MovementHistory();
-        movement.setInventoryItem(inventoryItem);
+        movement.setInventoryItem(inventoryItem); // Może być null
         movement.setMovementType(movementType);
         movement.setMovementDate(LocalDateTime.now());
         movement.setQuantityBefore(quantityBefore);
@@ -301,6 +307,40 @@ public class MovementHistoryService {
     @Transactional(readOnly = true)
     public List<MovementHistory> getMovementsByReferenceNumber(String referenceNumber) {
         return movementHistoryRepository.findByReferenceNumberOrderByMovementDateDesc(referenceNumber);
+    }
+
+    /**
+     * Create movement history without specific inventory item (for order tracking)
+     */
+    public MovementHistory createOrderMovementHistory(MovementType movementType,
+                                                     Integer quantity,
+                                                     Location fromLocation, 
+                                                     Location toLocation, 
+                                                     String reason, 
+                                                     String referenceNumber) {
+        MovementHistory movement = new MovementHistory();
+        movement.setInventoryItem(null); // Brak konkretnej pozycji magazynowej
+        movement.setMovementType(movementType);
+        movement.setMovementDate(LocalDateTime.now());
+        movement.setQuantityBefore(null);
+        movement.setQuantityAfter(null);
+        movement.setQuantityChanged(quantity != null ? quantity : 0);
+        movement.setFromLocation(fromLocation);
+        movement.setToLocation(toLocation);
+        movement.setReason(reason);
+        movement.setReferenceNumber(referenceNumber);
+        movement.setReferenceType("ORDER");
+
+        // Set user information from security context
+        String currentUser = SecurityUtils.getCurrentUsername().orElse("system");
+        movement.setUserId(currentUser);
+        movement.setUserName(currentUser);
+
+        // Order movements are system generated and auto-approved
+        movement.setSystemGenerated(true);
+        movement.setApproved(true);
+
+        return movementHistoryRepository.save(movement);
     }
 
     /**
