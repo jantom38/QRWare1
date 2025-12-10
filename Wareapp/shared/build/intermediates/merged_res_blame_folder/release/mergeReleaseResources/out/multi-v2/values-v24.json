@@ -1,0 +1,34 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.qrware.shared-release-48:/values-v24/values-v24.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\jasie\\.gradle\\caches\\8.11.1\\transforms\\5d466ffde5fd00875689755a44a7d575\\transformed\\appcompat-1.6.1\\res\\values-v24\\values-v24.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,212",
+                        "endColumns": "156,134",
+                        "endOffsets": "207,342"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "com.qrware.shared-mergeReleaseResources-46:/values-v24/values-v24.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\jasie\\.gradle\\caches\\8.11.1\\transforms\\5d466ffde5fd00875689755a44a7d575\\transformed\\appcompat-1.6.1\\res\\values-v24\\values-v24.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,212",
+                        "endColumns": "156,134",
+                        "endOffsets": "207,342"
+                    }
+                }
+            ]
+        }
+    ]
+}

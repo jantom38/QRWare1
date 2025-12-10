@@ -1,0 +1,6 @@
+[
+    {
+        "merged": "com.qrware.shared-release-48:/drawable-watch-v20/abc_dialog_material_background.xml",
+        "source": "com.qrware.shared-appcompat-1.6.1-15:/drawable-watch-v20/abc_dialog_material_background.xml"
+    }
+]

@@ -1,0 +1,187 @@
+[
+  {
+    "moduleId": "module org.jetbrains.kotlin:kotlin-stdlib:2.0.21",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.kotlin-kotlin-stdlib-2.0.21-commonMain-WPEnbA.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.compose.runtime:runtime:1.7.1",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.compose.runtime-runtime-1.7.1-commonMain-9pDeVQ.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.compose.foundation:foundation:1.7.1",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.compose.foundation-foundation-1.7.1-commonMain-Ti2hsw.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.compose.material3:material3:1.7.1",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.compose.material3-material3-1.7.1-commonMain-qpUt6Q.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.compose.ui:ui:1.7.1",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.compose.ui-ui-1.7.1-commonMain-5yvGlQ.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.compose.components:components-resources:1.7.1",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.compose.components-components-resources-1.7.1-blockingMain-Tn2Qyw.klib",
+    "sourceSetName": "blockingMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.compose.components:components-resources:1.7.1",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.compose.components-components-resources-1.7.1-commonMain-Tn2Qyw.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.kotlinx-kotlinx-coroutines-core-1.8.0-concurrentMain-UxhG-g.klib",
+    "sourceSetName": "concurrentMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.kotlinx-kotlinx-coroutines-core-1.8.0-commonMain-UxhG-g.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.kotlinx-kotlinx-serialization-json-1.6.3-commonMain-JDnEfA.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.kotlinx:kotlinx-datetime:0.6.0",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.kotlinx-kotlinx-datetime-0.6.0-commonMain-v1Leig.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module io.ktor:ktor-client-core:2.3.7",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\io.ktor-ktor-client-core-2.3.7-commonMain-FU-9lg.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module io.ktor:ktor-client-content-negotiation:2.3.7",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\io.ktor-ktor-client-content-negotiation-2.3.7-commonMain-jI37cw.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module io.ktor:ktor-serialization-kotlinx-json:2.3.7",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\io.ktor-ktor-serialization-kotlinx-json-2.3.7-commonMain-sJ8SDA.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module io.ktor:ktor-client-logging:2.3.7",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\io.ktor-ktor-client-logging-2.3.7-commonMain-grxlVw.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module io.ktor:ktor-client-auth:2.3.7",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\io.ktor-ktor-client-auth-2.3.7-commonMain-tgNnVQ.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module io.insert-koin:koin-core:3.5.3",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\io.insert-koin-koin-core-3.5.3-commonMain-CRvD8w.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.compose.animation:animation:1.7.1",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.compose.animation-animation-1.7.1-commonMain-TojQLQ.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.compose.material:material-icons-core:1.7.1",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.compose.material-material-icons-core-1.7.1-commonMain-OY6u5w.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.compose.material:material-ripple:1.7.1",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.compose.material-material-ripple-1.7.1-commonMain-hYj_-Q.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.compose.ui:ui-graphics:1.7.1",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.compose.ui-ui-graphics-1.7.1-commonMain-kJsJ2w.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.compose.ui:ui-text:1.7.1",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.compose.ui-ui-text-1.7.1-commonMain-22Ga_g.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.compose.runtime:runtime-saveable:1.7.1",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.compose.runtime-runtime-saveable-1.7.1-commonMain-dToAUQ.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.compose.ui:ui-geometry:1.7.1",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.compose.ui-ui-geometry-1.7.1-commonMain-CwQ9Eg.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.compose.ui:ui-unit:1.7.1",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.compose.ui-ui-unit-1.7.1-commonMain-pR3KgA.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.compose.ui:ui-util:1.7.1",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.compose.ui-ui-util-1.7.1-commonMain-3-t5Ow.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.3",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.kotlinx-kotlinx-serialization-core-1.6.3-commonMain-oyg_tw.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module io.ktor:ktor-http:2.3.7",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\io.ktor-ktor-http-2.3.7-commonMain-QgEQ0Q.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module io.ktor:ktor-events:2.3.7",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\io.ktor-ktor-events-2.3.7-commonMain-_htHDg.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module io.ktor:ktor-websocket-serialization:2.3.7",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\io.ktor-ktor-websocket-serialization-2.3.7-commonMain-8xBQEg.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module io.ktor:ktor-serialization:2.3.7",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\io.ktor-ktor-serialization-2.3.7-commonMain-NxrIfg.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module io.ktor:ktor-serialization-kotlinx:2.3.7",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\io.ktor-ktor-serialization-kotlinx-2.3.7-commonMain-s53Slg.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.compose.animation:animation-core:1.7.1",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.compose.animation-animation-core-1.7.1-commonMain-KAIxIA.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module org.jetbrains.compose.foundation:foundation-layout:1.7.1",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\org.jetbrains.compose.foundation-foundation-layout-1.7.1-commonMain-Nkt8ew.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module io.ktor:ktor-utils:2.3.7",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\io.ktor-ktor-utils-2.3.7-commonMain-jdPpcw.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module io.ktor:ktor-websockets:2.3.7",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\io.ktor-ktor-websockets-2.3.7-commonMain-8-9-_g.klib",
+    "sourceSetName": "commonMain"
+  },
+  {
+    "moduleId": "module io.ktor:ktor-io:2.3.7",
+    "file": "C:\\Users\\jasie\\Documents\\GitHub\\QRWare\\Wareapp\\shared\\build\\kotlinTransformedMetadataLibraries\\commonMain\\io.ktor-ktor-io-2.3.7-commonMain-VFYQnA.klib",
+    "sourceSetName": "commonMain"
+  }
+]

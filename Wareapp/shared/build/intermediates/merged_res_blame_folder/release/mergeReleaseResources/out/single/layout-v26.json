@@ -1,0 +1,6 @@
+[
+    {
+        "merged": "com.qrware.shared-release-48:/layout-v26/abc_screen_toolbar.xml",
+        "source": "com.qrware.shared-appcompat-1.6.1-15:/layout-v26/abc_screen_toolbar.xml"
+    }
+]

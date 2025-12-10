@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "com.qrware.shared-release-48:/animator/fragment_open_exit.xml",
+        "source": "com.qrware.shared-fragment-1.6.2-29:/animator/fragment_open_exit.xml"
+    },
+    {
+        "merged": "com.qrware.shared-release-48:/animator/fragment_close_enter.xml",
+        "source": "com.qrware.shared-fragment-1.6.2-29:/animator/fragment_close_enter.xml"
+    },
+    {
+        "merged": "com.qrware.shared-release-48:/animator/fragment_open_enter.xml",
+        "source": "com.qrware.shared-fragment-1.6.2-29:/animator/fragment_open_enter.xml"
+    },
+    {
+        "merged": "com.qrware.shared-release-48:/animator/fragment_fade_enter.xml",
+        "source": "com.qrware.shared-fragment-1.6.2-29:/animator/fragment_fade_enter.xml"
+    },
+    {
+        "merged": "com.qrware.shared-release-48:/animator/fragment_close_exit.xml",
+        "source": "com.qrware.shared-fragment-1.6.2-29:/animator/fragment_close_exit.xml"
+    },
+    {
+        "merged": "com.qrware.shared-release-48:/animator/fragment_fade_exit.xml",
+        "source": "com.qrware.shared-fragment-1.6.2-29:/animator/fragment_fade_exit.xml"
+    }
+]
