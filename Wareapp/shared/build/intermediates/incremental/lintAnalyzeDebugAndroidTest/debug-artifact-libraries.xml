@@ -1,9 +1,9 @@
 <libraries>
   <library
       name=":@@:shared::debug"
-      jars="C:\Users\jasie\.gradle\caches\8.11.1\transforms\e39ae119a7ced9870ddc848ffd91fc1b\transformed\out\jars\classes.jar;C:\Users\jasie\.gradle\caches\8.11.1\transforms\e39ae119a7ced9870ddc848ffd91fc1b\transformed\out\jars\libs\R.jar"
+      jars="C:\Users\jasie\.gradle\caches\8.11.1\transforms\f3f8fd32d1b9fb211408182aae1cb45e\transformed\out\jars\classes.jar;C:\Users\jasie\.gradle\caches\8.11.1\transforms\f3f8fd32d1b9fb211408182aae1cb45e\transformed\out\jars\libs\R.jar"
       resolved="QRWare:shared:unspecified"
-      folder="C:\Users\jasie\.gradle\caches\8.11.1\transforms\e39ae119a7ced9870ddc848ffd91fc1b\transformed\out"
+      folder="C:\Users\jasie\.gradle\caches\8.11.1\transforms\f3f8fd32d1b9fb211408182aae1cb45e\transformed\out"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"

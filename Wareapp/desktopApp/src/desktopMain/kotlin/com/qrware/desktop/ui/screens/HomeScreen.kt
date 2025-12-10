@@ -18,7 +18,9 @@ import androidx.compose.ui.unit.sp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onNavigateToProducts: () -> Unit = {},
+    onNavigateToInventory: () -> Unit = {}
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
     
@@ -96,7 +98,7 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(getQuickActions()) { action ->
+                items(getQuickActions(onNavigateToProducts, onNavigateToInventory)) { action ->
                     QuickActionCard(
                         icon = action.icon,
                         title = action.title,
@@ -186,19 +188,22 @@ private data class QuickAction(
     val onClick: () -> Unit
 )
 
-private fun getQuickActions(): List<QuickAction> {
+private fun getQuickActions(
+    onNavigateToProducts: () -> Unit,
+    onNavigateToInventory: () -> Unit
+): List<QuickAction> {
     return listOf(
-        QuickAction(
-            icon = Icons.Default.QrCode,
-            title = "QR Scanner",
-            description = "Scan warehouse items",
-            onClick = { /* TODO: Navigate to QR scanner */ }
-        ),
         QuickAction(
             icon = Icons.Default.Inventory,
             title = "Inventory",
             description = "Manage inventory",
-            onClick = { /* TODO: Navigate to inventory */ }
+            onClick = onNavigateToInventory
+        ),
+        QuickAction(
+            icon = Icons.Default.Category,
+            title = "Products",
+            description = "Manage products",
+            onClick = onNavigateToProducts
         ),
         QuickAction(
             icon = Icons.Default.ShoppingCart,
@@ -211,12 +216,6 @@ private fun getQuickActions(): List<QuickAction> {
             title = "Locations",
             description = "Manage warehouse locations",
             onClick = { /* TODO: Navigate to locations */ }
-        ),
-        QuickAction(
-            icon = Icons.Default.Category,
-            title = "Products",
-            description = "Manage products",
-            onClick = { /* TODO: Navigate to products */ }
         ),
         QuickAction(
             icon = Icons.Default.People,

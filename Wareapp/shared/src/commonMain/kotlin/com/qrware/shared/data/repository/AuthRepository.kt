@@ -1,5 +1,6 @@
 package com.qrware.shared.data.repository
 
+import com.qrware.shared.data.auth.TokenManager
 import com.qrware.shared.data.model.*
 import com.qrware.shared.data.network.AuthApiService
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,7 +12,8 @@ import kotlinx.coroutines.flow.asStateFlow
  * Migracja z Android AuthRepository na shared Kotlin Multiplatform
  */
 class AuthRepository(
-    private val authApiService: AuthApiService
+    private val authApiService: AuthApiService,
+    private val tokenManager: TokenManager
 ) {
     
     // Auth state management
@@ -52,7 +54,10 @@ class AuthRepository(
                     if (apiResponse.success && apiResponse.data != null) {
                         val authData = apiResponse.data
                         
-                        // Pobierz dane użytkownika po udanym logowaniu
+                        // KLUCZOWE: Zapisz token przed wywołaniem kolejnych API calls
+                        tokenManager.saveToken(authData.token)
+                        
+                        // Pobierz dane użytkownika po udanym logowaniu (teraz z tokenem)
                         val userResult = getCurrentUser()
                         userResult.fold(
                             onSuccess = { userInfo ->
@@ -181,6 +186,7 @@ class AuthRepository(
             authApiService.logout()
             
             // Wyczyść lokalny stan niezależnie od wyniku API call
+            tokenManager.clearToken() // KLUCZOWE: Wyczyść token
             _currentUser = null
             _isAuthenticated.value = false
             _authState.value = AuthState.Unauthenticated
@@ -188,6 +194,7 @@ class AuthRepository(
             Result.success(Unit)
         } catch (e: Exception) {
             // Wyczyść stan mimo błędu API
+            tokenManager.clearToken() // KLUCZOWE: Wyczyść token
             _currentUser = null
             _isAuthenticated.value = false
             _authState.value = AuthState.Unauthenticated

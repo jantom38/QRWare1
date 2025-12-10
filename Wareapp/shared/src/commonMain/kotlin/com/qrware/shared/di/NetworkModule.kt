@@ -1,8 +1,13 @@
 package com.qrware.shared.di
 
+import com.qrware.shared.data.auth.TokenManager
 import com.qrware.shared.data.network.AuthApiService
+import com.qrware.shared.data.network.ProductApiService
+import com.qrware.shared.data.network.InventoryApiService
 import com.qrware.shared.data.network.HttpClientFactory
 import com.qrware.shared.data.repository.AuthRepository
+import com.qrware.shared.data.repository.ProductRepository
+import com.qrware.shared.data.repository.InventoryRepository
 import io.ktor.client.*
 
 /**
@@ -14,8 +19,11 @@ class NetworkModule(
     private val enableLogging: Boolean = true
 ) {
     
-    // Token provider - będzie używany przez HttpClient do auth
-    private var tokenProvider: suspend () -> String? = { null }
+    // Token Manager
+    private val tokenManager = TokenManager()
+    
+    // Token provider - łączy się z TokenManager
+    private val tokenProvider: suspend () -> String? = { tokenManager.getToken() }
     
     // HTTP Client instance  
     private val _httpClient: HttpClient by lazy {
@@ -31,22 +39,41 @@ class NetworkModule(
         AuthApiService(_httpClient)
     }
     
+    private val _productApiService: ProductApiService by lazy {
+        ProductApiService(_httpClient)
+    }
+    
+    private val _inventoryApiService: InventoryApiService by lazy {
+        InventoryApiService(_httpClient)
+    }
+    
     // Repositories
     private val _authRepository: AuthRepository by lazy {
-        AuthRepository(_authApiService)
+        AuthRepository(_authApiService, tokenManager)
+    }
+    
+    private val _productRepository: ProductRepository by lazy {
+        ProductRepository(_productApiService)
+    }
+    
+    private val _inventoryRepository: InventoryRepository by lazy {
+        InventoryRepository(_inventoryApiService)
     }
     
     // Public getters
     fun getHttpClient(): HttpClient = _httpClient
     fun getAuthApiService(): AuthApiService = _authApiService
+    fun getProductApiService(): ProductApiService = _productApiService
+    fun getInventoryApiService(): InventoryApiService = _inventoryApiService
     fun getAuthRepository(): AuthRepository = _authRepository
+    fun getProductRepository(): ProductRepository = _productRepository
+    fun getInventoryRepository(): InventoryRepository = _inventoryRepository
+    fun getTokenManager(): TokenManager = tokenManager
     
     /**
-     * Update token provider dla authenticated requests
+     * Update token provider - usunąłem bo nie jest potrzebne
+     * TokenManager automatycznie dostarcza token
      */
-    fun updateTokenProvider(provider: suspend () -> String?) {
-        tokenProvider = provider
-    }
     
     /**
      * Update base URL (np. gdy user zmienia server settings)
@@ -81,7 +108,11 @@ object NetworkDI {
     
     // Convenience methods
     fun getAuthRepository(): AuthRepository = getModule().getAuthRepository()
+    fun getProductRepository(): ProductRepository = getModule().getProductRepository()
+    fun getInventoryRepository(): InventoryRepository = getModule().getInventoryRepository()
     fun getAuthApiService(): AuthApiService = getModule().getAuthApiService()
+    fun getProductApiService(): ProductApiService = getModule().getProductApiService()
+    fun getInventoryApiService(): InventoryApiService = getModule().getInventoryApiService()
     fun getHttpClient(): HttpClient = getModule().getHttpClient()
     
     fun updateServerUrl(newUrl: String) {
