@@ -27,7 +27,8 @@ fun CreateOrderScreen(
     userRepository: com.qrware.app.data.repository.UserManagementRepository,
     locationRepository: com.qrware.app.data.repository.LocationRepository,
     productRepository: com.qrware.app.data.repository.ProductRepository,
-    orderItemRepository: com.qrware.app.data.repository.OrderItemRepository
+    orderItemRepository: com.qrware.app.data.repository.OrderItemRepository,
+    inventoryRepository: com.qrware.app.data.repository.InventoryRepository
 ) {
     var orderNumber by remember { mutableStateOf("") }
     var selectedOrderType by remember { mutableStateOf<OrderType?>(null) }
@@ -58,6 +59,7 @@ fun CreateOrderScreen(
     var users by remember { mutableStateOf<List<AdminUserResponse>>(emptyList()) }
     var locations by remember { mutableStateOf<List<LocationDTO>>(emptyList()) }
     var products by remember { mutableStateOf<List<ProductDTO>>(emptyList()) }
+    var availableInventory by remember { mutableStateOf<Map<Long, Int>>(emptyMap()) }
 
     // Load initial data
     LaunchedEffect(Unit) {
@@ -78,6 +80,22 @@ fun CreateOrderScreen(
             products = productsResponse.content
         } catch (e: Exception) {
             errorMessage = "Błąd ładowania produktów: ${e.message}"
+        }
+    }
+
+    LaunchedEffect(selectedSourceLocation) {
+        selectedSourceLocation?.let { location ->
+            try {
+                val inventory = inventoryRepository.getInventoryByLocation(location.id)
+                availableInventory = inventory.groupBy { inventoryItem -> inventoryItem.product.id }
+                    .mapValues { (_, inventoryItems) -> inventoryItems.sumOf { inventoryItem -> inventoryItem.availableQuantity } }
+                android.util.Log.i("CreateOrderScreen", "Loaded inventory for location ${location.name}: ${availableInventory.size} products available")
+            } catch (e: Exception) {
+                android.util.Log.e("CreateOrderScreen", "Failed to load inventory for location ${location.name}", e)
+                errorMessage = "Nie udało się załadować inwentarza dla lokalizacji ${location.name}: ${e.message}"
+            }
+        } ?: run {
+            availableInventory = emptyMap()
         }
     }
 
@@ -112,18 +130,35 @@ fun CreateOrderScreen(
                                 kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
                                     orderRepository.createOrder(request)
                                         .onSuccess { createdOrder ->
+                                            android.util.Log.i("CreateOrderScreen", "Order created successfully: ${createdOrder.orderNumber}")
                                             // Add order items if any
                                             if (orderItems.isNotEmpty()) {
-                                                addOrderItems(createdOrder.id, orderItems, orderItemRepository) {
-                                                    navController.popBackStack()
+                                                try {
+                                                    addOrderItems(
+                                                        createdOrder.id, 
+                                                        orderItems, 
+                                                        orderItemRepository, 
+                                                        selectedSourceLocation?.id, 
+                                                        selectedDestinationLocation?.id
+                                                    ) {
+                                                        isLoading = false
+                                                        android.util.Log.i("CreateOrderScreen", "Order and items creation completed")
+                                                        navController.popBackStack()
+                                                    }
+                                                } catch (e: Exception) {
+                                                    errorMessage = "Zamówienie ${createdOrder.orderNumber} zostało utworzone, ale wystąpił błąd podczas dodawania pozycji: ${e.message}"
+                                                    isLoading = false
+                                                    android.util.Log.e("CreateOrderScreen", "Error adding order items", e)
                                                 }
                                             } else {
+                                                isLoading = false
                                                 navController.popBackStack()
                                             }
                                         }
                                         .onFailure { 
-                                            errorMessage = it.message
+                                            errorMessage = "Błąd podczas tworzenia zamówienia: ${it.message}"
                                             isLoading = false
+                                            android.util.Log.e("CreateOrderScreen", "Failed to create order", it)
                                         }
                                 }
                             }
@@ -147,7 +182,6 @@ fun CreateOrderScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Error message
             if (errorMessage != null) {
                 item {
                     Card(
@@ -314,7 +348,6 @@ fun CreateOrderScreen(
                 )
             }
 
-            // Additional Information Section
             item {
                 Text(
                     text = "Dodatkowe informacje",
@@ -449,10 +482,26 @@ fun CreateOrderScreen(
     if (showAddItemDialog) {
         AddOrderItemDialog(
             products = products,
+            availableInventory = availableInventory,
+            sourceLocation = selectedSourceLocation,
             onDismiss = { showAddItemDialog = false },
             onItemAdded = { newItem ->
                 orderItems = orderItems + newItem
                 showAddItemDialog = false
+            },
+            onRefreshInventory = {
+                // Refresh inventory for selected source location
+                selectedSourceLocation?.let { location ->
+                    kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
+                        try {
+                            val inventory = inventoryRepository.getInventoryByLocation(location.id)
+                            availableInventory = inventory.groupBy { inventoryItem -> inventoryItem.product.id }
+                                .mapValues { (_, inventoryItems) -> inventoryItems.sumOf { inventoryItem -> inventoryItem.availableQuantity } }
+                        } catch (e: Exception) {
+                            android.util.Log.e("CreateOrderScreen", "Failed to load inventory", e)
+                        }
+                    }
+                }
             }
         )
     }
@@ -477,29 +526,40 @@ suspend fun addOrderItems(
     orderId: Long,
     items: List<OrderItemRequest>,
     orderItemRepository: com.qrware.app.data.repository.OrderItemRepository,
+    sourceLocationId: Long?,
+    destinationLocationId: Long?,
     onComplete: () -> Unit
 ) {
-    var completedCount = 0
-    items.forEach { item ->
-        val request = CreateOrderItemRequest(
-            productId = item.productId,
-            requestedQuantity = item.requestedQuantity,
-            notes = item.notes
-        )
+    try {
+        // Przetwarzamy wszystkie pozycje sekwencyjnie dla lepszej kontroli błędów
+        var successCount = 0
+        var errorCount = 0
         
-        orderItemRepository.addOrderItem(orderId, request)
-            .onSuccess {
-                completedCount++
-                if (completedCount == items.size) {
-                    onComplete()
-                }
+        items.forEach { item ->
+            val request = CreateOrderItemRequest(
+                productId = item.productId,
+                requestedQuantity = item.requestedQuantity,
+                notes = item.notes,
+                sourceLocationId = sourceLocationId,
+                destinationLocationId = destinationLocationId,
+                requiresExactInventory = item.requiresExactInventory
+            )
+            
+            val result = orderItemRepository.addOrderItem(orderId, request)
+            if (result.isSuccess) {
+                successCount++
+                android.util.Log.i("CreateOrderScreen", "Successfully added order item for product: ${item.productName}")
+            } else {
+                errorCount++
+                android.util.Log.e("CreateOrderScreen", "Failed to add order item for product: ${item.productName}, error: ${result.exceptionOrNull()?.message}")
             }
-            .onFailure {
-                // Handle error - for now just continue
-                completedCount++
-                if (completedCount == items.size) {
-                    onComplete()
-                }
-            }
+        }
+        
+        android.util.Log.i("CreateOrderScreen", "Order items summary: $successCount added successfully, $errorCount failed")
+        onComplete()
+        
+    } catch (e: Exception) {
+        android.util.Log.e("CreateOrderScreen", "Error adding order items", e)
+        onComplete() // Wywołujemy onComplete nawet w przypadku błędu, aby UI nie zostało zablokowane
     }
 }

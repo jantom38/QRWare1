@@ -420,7 +420,7 @@ fun MovementHistoryCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = movement.movementType.displayName,
+                        text = movement.movementType?.displayName ?: "Ruch magazynowy",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )

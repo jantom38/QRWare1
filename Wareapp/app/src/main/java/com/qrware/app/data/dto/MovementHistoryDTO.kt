@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter
 data class MovementHistoryDTO(
     val id: Long,
     val inventoryItem: InventoryItemDTO,
-    val movementType: MovementType,
+    val movementType: MovementType?,
     val movementDate: String, // ISO format: yyyy-MM-ddTHH:mm:ss
     val quantityBefore: Int?,
     val quantityAfter: Int?,
@@ -60,8 +60,8 @@ data class MovementHistoryDTO(
 
     fun getMovementDescription(): String {
         val description = StringBuilder()
-        // MovementType posiada displayName (z pliku MovementType.kt), więc to jest OK
-        description.append(movementType.displayName)
+        val type = movementType
+        description.append(type?.displayName ?: "Ruch magazynowy")
 
         if (quantityChanged != 0) {
             description.append(" - Ilość: ")
@@ -95,11 +95,11 @@ data class MovementHistoryDTO(
     fun isStatusChange(): Boolean =
         statusBefore != null && statusAfter != null && statusBefore != statusAfter
 
-    fun isInbound(): Boolean = movementType.increasesQuantity
+    fun isInbound(): Boolean = movementType?.increasesQuantity == true
 
-    fun isOutbound(): Boolean = movementType.decreasesQuantity
+    fun isOutbound(): Boolean = movementType?.decreasesQuantity == true
 
-    fun requiresApproval(): Boolean = movementType.requiresApproval
+    fun requiresApproval(): Boolean = movementType?.requiresApproval == true
 
     fun isApprovalPending(): Boolean = requiresApproval() && !approved
 
@@ -121,7 +121,8 @@ data class MovementHistoryDTO(
     }
 
     fun getMovementIcon(): String {
-        return when (movementType) {
+        val type = movementType ?: return "\u25A0" // fallback icon
+        return when (type) {
             MovementType.RECEIPT -> "📥"
             MovementType.ISSUE -> "📤"
             MovementType.TRANSFER, MovementType.MOVE -> "🔄"

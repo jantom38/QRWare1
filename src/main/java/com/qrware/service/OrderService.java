@@ -69,14 +69,12 @@ public class OrderService {
         logger.info("QR scan processing for code: {} (orderId: {})", qrCode, orderId);
         String systemId = qrCode.split(QR_DATA_SEPARATOR)[0];
 
-        // First check for OrderItem directly by QR code
         Optional<OrderItem> orderItemOptional = orderItemRepository.findByQrCodeData(systemId);
         if (orderItemOptional.isPresent()) {
             logger.info("Found OrderItem by QR code: {}", systemId);
             return Optional.of(orderItemOptional.get());
         }
 
-        // Then check for InventoryItem
         Optional<InventoryItem> inventoryItemOptional = inventoryItemRepository.findByQrCode(systemId);
         if (inventoryItemOptional.isPresent()) {
             InventoryItem inventoryItem = inventoryItemOptional.get();
@@ -84,18 +82,15 @@ public class OrderService {
                 systemId, inventoryItem.getId(), inventoryItem.getProduct().getName(), 
                 inventoryItem.getLocation().getName());
             
-            // Try to find a matching OrderItem that needs this inventory item
             Optional<OrderItem> matchingOrderItem = findMatchingOrderItemForInventory(inventoryItem, orderId);
             if (matchingOrderItem.isPresent()) {
                 OrderItem orderItem = matchingOrderItem.get();
                 logger.info("SUCCESS: Found matching OrderItem {} for InventoryItem {}", orderItem.getId(), inventoryItem.getId());
                 
-                // Link the inventory item to the order item
                 orderItem.setInventoryItem(inventoryItem);
-                orderItem.setQrCodeData(systemId); // Set the QR code data
+                orderItem.setQrCodeData(systemId);
                 orderItem = orderItemRepository.save(orderItem);
                 
-                // Reserve the inventory if not already reserved
                 if (inventoryItem.getAvailableQuantity() >= orderItem.getRequestedQuantity()) {
                     inventoryItem.reserve(orderItem.getRequestedQuantity());
                     inventoryItemRepository.save(inventoryItem);
@@ -104,10 +99,9 @@ public class OrderService {
                 }
                 
                 logger.info("RETURNING OrderItem instead of InventoryItem: {}", orderItem.getId());
-                return Optional.of(orderItem); // Return the linked OrderItem instead of InventoryItem
+                return Optional.of(orderItem);
             } else {
                 logger.warn("NO MATCH: No matching OrderItem found for InventoryItem {}. Returning InventoryItem.", inventoryItem.getId());
-                // No matching order item found, return the inventory item
                 return Optional.of(inventoryItem);
             }
         }
@@ -117,7 +111,6 @@ public class OrderService {
     }
 
     private Optional<OrderItem> findMatchingOrderItemForInventory(InventoryItem inventoryItem, Long orderId) {
-        // Look for active order items with the same product that don't have inventory assigned yet
         List<OrderItemStatus> activeStatuses = Arrays.asList(
             OrderItemStatus.PENDING, 
             OrderItemStatus.IN_PROGRESS
@@ -142,11 +135,9 @@ public class OrderService {
         
         return candidates.stream()
         .filter(orderItem -> {
-            // If orderId is provided, prioritize items from that specific order
             boolean orderMatch = orderId == null || orderItem.getOrder().getId().equals(orderId);
             
-            // Additional checks if needed
-            boolean locationMatch = orderItem.getSourceLocation() == null || 
+            boolean locationMatch = orderItem.getSourceLocation() == null ||
                    orderItem.getSourceLocation().equals(inventoryItem.getLocation());
             
             logger.info("OrderItem {} checks: orderMatch={} (required: {}, actual: {}), locationMatch={} (required: {}, actual: {})", 
@@ -158,7 +149,6 @@ public class OrderService {
             
             return orderMatch && locationMatch;
         })
-        // If orderId is provided, prioritize items from that order
         .sorted((a, b) -> {
             if (orderId != null) {
                 boolean aIsFromTargetOrder = a.getOrder().getId().equals(orderId);

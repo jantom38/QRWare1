@@ -413,7 +413,8 @@ fun AppNavigation(appContainer: AppContainer) {
                     userRepository = appContainer.userManagementRepository,
                     locationRepository = appContainer.locationRepository,
                     productRepository = appContainer.productRepository,
-                    orderItemRepository = appContainer.orderItemRepository
+                    orderItemRepository = appContainer.orderItemRepository,
+                    inventoryRepository = appContainer.inventoryRepository
                 )
             }
 

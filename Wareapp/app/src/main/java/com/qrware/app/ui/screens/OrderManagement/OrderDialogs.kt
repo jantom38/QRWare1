@@ -247,8 +247,11 @@ fun LocationSelectionDialog(
 @Composable
 fun AddOrderItemDialog(
     products: List<ProductDTO>,
+    availableInventory: Map<Long, Int> = emptyMap(),
+    sourceLocation: LocationDTO? = null,
     onDismiss: () -> Unit,
-    onItemAdded: (OrderItemRequest) -> Unit
+    onItemAdded: (OrderItemRequest) -> Unit,
+    onRefreshInventory: () -> Unit = {}
 ) {
     var selectedProduct by remember { mutableStateOf<ProductDTO?>(null) }
     var quantity by remember { mutableStateOf("1") }
@@ -299,9 +302,16 @@ fun AddOrderItemDialog(
 
                 if (selectedProduct != null) {
                     Spacer(modifier = Modifier.height(8.dp))
+                    
+                    val availableQty = availableInventory[selectedProduct!!.id] ?: 0
+                    val hasStock = availableQty > 0
+                    
                     Card(
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                            containerColor = if (hasStock) 
+                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                            else 
+                                MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
                         )
                     ) {
                         Column(
@@ -319,7 +329,73 @@ fun AddOrderItemDialog(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+                            
+                            // Stock information
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column {
+                                    if (sourceLocation != null) {
+                                        Text(
+                                            text = "Dostępne w ${sourceLocation.name}:",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Text(
+                                            text = "$availableQty szt.",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = if (hasStock) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                                        )
+                                    } else {
+                                        Text(
+                                            text = "Wybierz lokalizację źródłową",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                                
+                                if (sourceLocation != null) {
+                                    TextButton(
+                                        onClick = onRefreshInventory
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Refresh,
+                                            contentDescription = "Odśwież",
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text("Odśwież", style = MaterialTheme.typography.bodySmall)
+                                    }
+                                }
+                            }
+                            
+                            // Warning for no stock
+                            if (!hasStock && sourceLocation != null && requiresExactInventory) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        Icons.Default.Warning,
+                                        contentDescription = "Ostrzeżenie",
+                                        tint = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = "Brak produktu w tej lokalizacji",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            }
+                            
                             if (selectedProduct!!.description?.isNotEmpty() == true) {
+                                Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = selectedProduct!!.description!!,
                                     style = MaterialTheme.typography.bodySmall,
@@ -449,9 +525,26 @@ fun AddOrderItemDialog(
                             }
                         },
                         modifier = Modifier.weight(1f),
-                        enabled = selectedProduct != null && (quantity.toIntOrNull() ?: 0) > 0
+                        enabled = selectedProduct != null && 
+                                 (quantity.toIntOrNull() ?: 0) > 0 && 
+                                 (if (requiresExactInventory && sourceLocation != null) {
+                                     val availableQty = availableInventory[selectedProduct?.id] ?: 0
+                                     val requestedQty = quantity.toIntOrNull() ?: 0
+                                     availableQty >= requestedQty
+                                 } else true)
                     ) {
-                        Text("Dodaj")
+                        val product = selectedProduct
+                        val qty = quantity.toIntOrNull() ?: 0
+                        val availableQty = if (product != null) availableInventory[product.id] ?: 0 else 0
+                        
+                        val isValid = if (requiresExactInventory && sourceLocation != null && product != null) {
+                            availableQty >= qty
+                        } else true
+                        
+                        Text(
+                            if (!isValid) "Niewystarczający stan" 
+                            else "Dodaj"
+                        )
                     }
                 }
             }
@@ -561,9 +654,9 @@ fun ProductSelectionDialog(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
-                                if (product.name?.isNotEmpty() == true) {
+                                if (product.category?.name?.isNotEmpty() == true) {
                                     Text(
-                                        text = "Kategoria: ${product.name}",
+                                        text = "Kategoria: ${product.category.name}",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.primary
                                     )

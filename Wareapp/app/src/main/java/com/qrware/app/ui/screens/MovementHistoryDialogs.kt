@@ -366,7 +366,7 @@ fun ApprovalDialog(
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(
-                            text = "${movement.getMovementIcon()} ${movement.movementType.displayName}",
+                            text = "${movement.getMovementIcon()} ${movement.movementType?.displayName ?: "Ruch magazynowy"}",
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
