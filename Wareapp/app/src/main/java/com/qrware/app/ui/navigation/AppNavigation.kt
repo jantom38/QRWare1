@@ -15,10 +15,8 @@ import com.qrware.app.ui.screens.ProductManagement.AddProductScreen
 import com.qrware.app.ui.screens.ProductManagement.EditProductScreen
 import com.qrware.app.ui.screens.ProductManagement.ManageProductsScreen
 import com.qrware.app.ui.screens.ProductManagement.ProductDetailsScreen
-import com.qrware.app.ui.screens.InventoryManagement.InventoryDetailsScreen
-import com.qrware.app.ui.screens.InventoryManagement.AddInventoryScreen
-import com.qrware.app.ui.screens.InventoryManagement.ManageInventoryScreen
-import com.qrware.app.ui.screens.HistoryManagement.MovementHistoryScreen
+import com.qrware.app.ui.screens.InventoryDetailsScreen
+import com.qrware.app.ui.screens.MovementHistoryScreen
 import com.qrware.app.ui.screens.UserManagement.AddUserScreen
 import com.qrware.app.ui.screens.UserManagement.AdminRoutes
 import com.qrware.app.ui.screens.UserManagement.EditUserScreen
@@ -35,11 +33,6 @@ import com.qrware.app.ui.screens.OrderManagement.OrderDetailsScreen
 import com.qrware.app.ui.screens.OrderManagement.QRScanOrderScreen
 import com.qrware.app.ui.screens.OrderManagement.ManageOrdersScreen
 import com.qrware.app.ui.screens.OrderManagement.CreateOrderScreen
-import com.qrware.app.ui.screens.basic.HealthCheckScreen
-import com.qrware.app.ui.screens.basic.HomeScreen
-import com.qrware.app.ui.screens.basic.LoginScreen
-import com.qrware.app.ui.screens.basic.RegisterScreen
-import com.qrware.app.ui.screens.basic.ServerSettingsScreen
 // ----------------------------
 import com.qrware.app.ui.viewmodel.*
 import com.qrware.app.ui.viewmodel.ProductsManagement.AddProductViewModel
@@ -214,7 +207,7 @@ fun AppNavigation(appContainer: AppContainer) {
                 QRScanScreen(navController = navController, appContainer = appContainer)
             }
             composable ( "server_settings") {
-                ServerSettingsScreen(navController = navController, appContainer = appContainer)
+                ServerSettingsScreen(navController=navController, appContainer= appContainer)
             }
 
             composable("manage_qr") {
