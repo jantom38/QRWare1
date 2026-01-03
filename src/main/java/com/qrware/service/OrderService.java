@@ -66,47 +66,37 @@ public class OrderService {
     }
 
     public Optional<Object> processQRScan(String qrCode, Long orderId) {
-        logger.info("QR scan processing for code: {} (orderId: {})", qrCode, orderId);
         String systemId = qrCode.split(QR_DATA_SEPARATOR)[0];
 
         Optional<OrderItem> orderItemOptional = orderItemRepository.findByQrCodeData(systemId);
         if (orderItemOptional.isPresent()) {
-            logger.info("Found OrderItem by QR code: {}", systemId);
             return Optional.of(orderItemOptional.get());
         }
 
         Optional<InventoryItem> inventoryItemOptional = inventoryItemRepository.findByQrCode(systemId);
         if (inventoryItemOptional.isPresent()) {
             InventoryItem inventoryItem = inventoryItemOptional.get();
-            logger.info("Found InventoryItem by QR code: {} - ID: {}, Product: {}, Location: {}", 
-                systemId, inventoryItem.getId(), inventoryItem.getProduct().getName(), 
-                inventoryItem.getLocation().getName());
-            
+
             Optional<OrderItem> matchingOrderItem = findMatchingOrderItemForInventory(inventoryItem, orderId);
+
             if (matchingOrderItem.isPresent()) {
                 OrderItem orderItem = matchingOrderItem.get();
-                logger.info("SUCCESS: Found matching OrderItem {} for InventoryItem {}", orderItem.getId(), inventoryItem.getId());
-                
+
                 orderItem.setInventoryItem(inventoryItem);
                 orderItem.setQrCodeData(systemId);
                 orderItem = orderItemRepository.save(orderItem);
-                
+
                 if (inventoryItem.getAvailableQuantity() >= orderItem.getRequestedQuantity()) {
                     inventoryItem.reserve(orderItem.getRequestedQuantity());
                     inventoryItemRepository.save(inventoryItem);
-                    logger.info("Reserved {} units of inventory item {} for order item {}", 
-                        orderItem.getRequestedQuantity(), inventoryItem.getId(), orderItem.getId());
                 }
-                
-                logger.info("RETURNING OrderItem instead of InventoryItem: {}", orderItem.getId());
+
                 return Optional.of(orderItem);
             } else {
-                logger.warn("NO MATCH: No matching OrderItem found for InventoryItem {}. Returning InventoryItem.", inventoryItem.getId());
                 return Optional.of(inventoryItem);
             }
         }
 
-        logger.error("No object found for QR code: {}", systemId);
         return Optional.empty();
     }
 
@@ -161,39 +151,6 @@ public class OrderService {
         .findFirst();
     }
 
-    public OrderItem processOrderItemScan(Long orderItemId, String qrCode) {
-        logger.info("Processing scan for OrderItem ID: {} with QR code: {}", orderItemId, qrCode);
-        String systemId = qrCode.split(QR_DATA_SEPARATOR)[0];
-
-        OrderItem orderItem = orderItemRepository.findById(orderItemId)
-                .orElseThrow(() -> new ResourceNotFoundException("OrderItem not found with id: " + orderItemId));
-
-        if (orderItem.getRequiresExactInventory()) {
-            if (orderItem.getInventoryItem() == null) {
-                throw new IllegalStateException("OrderItem requires an exact inventory item, but none is assigned.");
-            }
-            if (!orderItem.getInventoryItem().getQrCode().equals(systemId)) {
-                throw new IllegalStateException("Incorrect item scanned. Expected QR: " + orderItem.getInventoryItem().getQrCode() + ", but got: " + systemId);
-            }
-            logger.info("Correct item scanned for exact-match OrderItem.");
-        } else {
-            if (orderItem.getInventoryItem() == null) {
-                InventoryItem inventoryItem = inventoryItemRepository.findByQrCode(systemId)
-                        .orElseThrow(() -> new ResourceNotFoundException("InventoryItem not found for QR code: " + systemId));
-                
-                if (!inventoryItem.getProduct().equals(orderItem.getProduct())) {
-                    throw new IllegalStateException("Incorrect product type scanned. Expected " + orderItem.getProduct().getName() + ", got " + inventoryItem.getProduct().getName());
-                }
-
-                inventoryItem.reserve(orderItem.getRequestedQuantity());
-                orderItem.setInventoryItem(inventoryItem);
-                logger.info("Successfully assigned and reserved InventoryItem ID {} to flexible OrderItem ID {}", inventoryItem.getId(), orderItem.getId());
-            }
-        }
-
-        orderItem.pick();
-        return orderItemRepository.save(orderItem);
-    }
 
     public OrderItem addOrderItem(Long orderId, Long productId, Integer requestedQuantity,
                                   Long sourceLocationId, Long destinationLocationId,
@@ -301,3 +258,4 @@ public class OrderService {
     public Page<Order> searchOrders(String searchTerm, Pageable pageable) { return orderRepository.searchOrders(searchTerm, pageable); }
     public List<Object[]> getOrderCountByStatus() { return orderRepository.getOrderCountByStatus(); }
 }
+

@@ -7,10 +7,8 @@ import com.qrware.repository.warehouse.LocationRepository;
 import com.qrware.repository.warehouse.ZoneRepository;
 import com.qrware.exception.ResourceNotFoundException;
 
-// --- POPRAWIONE IMPORTY ---
-import com.qrware.dto.LocationDTO; // Import z pliku LocationDTO.java
-import com.qrware.dto.DTOMapper;     // Import z pliku DTOMapper.java
-// --- KONIEC POPRAWEK ---
+import com.qrware.dto.LocationDTO;
+import com.qrware.dto.DTOMapper;
 
 import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,15 +37,9 @@ public class LocationController {
     @Autowired
     private ZoneRepository zoneRepository;
 
-    // --- KLUCZOWA ZMIANA: WSTRZYKNIĘCIE MAPPERA ---
     @Autowired
     private DTOMapper mapper;
 
-
-
-    /**
-     * Pobierz wszystkie lokalizacje z paginacją, z opcjonalnym filtrem 'active'.
-     */
     @GetMapping
     @PreAuthorize("hasAuthority('LOCATION_READ')")
     public ResponseEntity<Page<LocationDTO>> getAllLocations(
@@ -59,111 +51,81 @@ public class LocationController {
         if (active == null) {
             locationsPage = locationRepository.findAll(pageable);
         } else {
-            // Zakładamy, że repozytorium (lub BaseRepository) dostarcza tę metodę,
-            // analogicznie do ProductController.
             locationsPage = locationRepository.findByActive(active, pageable);
         }
 
-        // --- ZMIANA: Użycie mappera ---
         Page<LocationDTO> locationsDTOPage = locationsPage.map(mapper::toDTO);
         return ResponseEntity.ok(locationsDTOPage);
     }
 
-    /**
-     * Pobierz lokalizację po ID.
-     */
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('LOCATION_READ')")
     public ResponseEntity<LocationDTO> getLocationById(@PathVariable Long id) {
         Location location = locationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Location", "id", id));
 
-        // --- ZMIANA: Użycie mappera ---
         return ResponseEntity.ok(mapper.toDTO(location));
     }
 
-    /**
-     * Pobierz lokalizację po unikalnym kodzie.
-     */
     @GetMapping("/code/{code}")
     @PreAuthorize("hasAuthority('LOCATION_READ')")
     public ResponseEntity<LocationDTO> getLocationByCode(@PathVariable String code) {
         Location location = locationRepository.findByCodeIgnoreCase(code)
                 .orElseThrow(() -> new ResourceNotFoundException("Location", "code", code));
 
-        // --- ZMIANA: Użycie mappera ---
         return ResponseEntity.ok(mapper.toDTO(location));
     }
 
-    /**
-     * Pobierz lokalizację po unikalnym kodzie QR.
-     */
     @GetMapping("/qrcode/{qrCode}")
     @PreAuthorize("hasAuthority('LOCATION_READ')")
     public ResponseEntity<LocationDTO> getLocationByQrCode(@PathVariable String qrCode) {
         Location location = locationRepository.findByQrCode(qrCode)
                 .orElseThrow(() -> new ResourceNotFoundException("Location", "qrCode", qrCode));
 
-        // --- ZMIANA: Użycie mappera ---
         return ResponseEntity.ok(mapper.toDTO(location));
     }
 
-    /**
-     * Pobierz wszystkie lokalizacje dla danej strefy.
-     */
     @GetMapping("/zone/{zoneId}")
     @PreAuthorize("hasAuthority('LOCATION_READ')")
     public ResponseEntity<List<LocationDTO>> getLocationsByZone(@PathVariable Long zoneId) {
         List<Location> locations = locationRepository.findByZoneId(zoneId);
 
-        // --- ZMIANA: Użycie mappera ---
         List<LocationDTO> locationDTOs = locations.stream()
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(locationDTOs);
     }
 
-    /**
-     * Wyszukaj lokalizacje po kodzie, nazwie lub opisie.
-     */
     @GetMapping("/search")
     @PreAuthorize("hasAuthority('LOCATION_READ')")
     public ResponseEntity<List<LocationDTO>> searchLocations(@RequestParam String query) {
         List<Location> locations = locationRepository.searchLocations(query);
 
-        // --- ZMIANA: Użycie mappera ---
         List<LocationDTO> locationDTOs = locations.stream()
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(locationDTOs);
     }
 
-    /**
-     * Pobierz tylko aktywne lokalizacje.
-     */
     @GetMapping("/active")
     @PreAuthorize("hasAuthority('LOCATION_READ')")
     public ResponseEntity<List<LocationDTO>> getActiveLocations() {
         List<Location> locations = locationRepository.findByActiveTrue();
 
-        // --- ZMIANA: Użycie mappera ---
         List<LocationDTO> locationDTOs = locations.stream()
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(locationDTOs);
     }
 
-    /**
-     * Dodaj nową lokalizację.
-     */
     @PostMapping
     @PreAuthorize("hasAuthority('LOCATION_WRITE')")
     public ResponseEntity<LocationDTO> createLocation(@Valid @RequestBody CreateLocationRequest request) {
         if (locationRepository.existsByCode(request.getCode())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build(); // Kod już istnieje
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
         if (request.getQrCode() != null && !request.getQrCode().isEmpty() && locationRepository.existsByQrCode(request.getQrCode())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build(); // QR kod już istnieje
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 
         Zone zone = zoneRepository.findById(request.getZoneId())
@@ -178,9 +140,9 @@ public class LocationController {
         location.setAisle(request.getAisle());
         location.setRack(request.getRack());
         location.setShelf(request.getShelf());
-        location.setBin(request.getBin()); // Używamy 'bin' z encji
-        location.setCapacityVolume(request.getCapacityVolume()); // Używamy 'capacityVolume' z encji
-        location.setCapacityWeight(request.getCapacityWeight()); // Używamy 'capacityWeight' z encji
+        location.setBin(request.getBin());
+        location.setCapacityVolume(request.getCapacityVolume());
+        location.setCapacityWeight(request.getCapacityWeight());
         location.setCapacityItems(request.getCapacityItems());
         location.setTemperatureControlled(request.getTemperatureControlled() != null ? request.getTemperatureControlled() : false);
         location.setTemperatureMin(request.getTemperatureMin());
@@ -196,20 +158,16 @@ public class LocationController {
         location.setReceivable(request.getReceivable() != null ? request.getReceivable() : true);
         location.setQrCode(request.getQrCode());
         location.setBarcode(request.getBarcode());
-        location.setxCoordinate(request.getXCoordinate()); // Używamy 'xCoordinate' z encji
-        location.setyCoordinate(request.GetYCoordinate()); // Używamy 'yCoordinate' z encji
-        location.setzCoordinate(request.GetZCoordinate()); // Używamy 'zCoordinate' z encji
+        location.setxCoordinate(request.getXCoordinate());
+        location.setyCoordinate(request.GetYCoordinate());
+        location.setzCoordinate(request.GetZCoordinate());
 
 
         Location savedLocation = locationRepository.save(location);
 
-        // --- ZMIANA: Użycie mappera ---
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toDTO(savedLocation));
     }
 
-    /**
-     * Aktualizuj istniejącą lokalizację.
-     */
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('LOCATION_WRITE')")
     public ResponseEntity<LocationDTO> updateLocation(@PathVariable Long id,
@@ -217,15 +175,13 @@ public class LocationController {
         Location location = locationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Location", "id", id));
 
-        // Sprawdzenie unikalności QR kodu, jeśli jest zmieniany
         if (request.getQrCode() != null && !request.getQrCode().equals(location.getQrCode())) {
             if (!request.getQrCode().isEmpty() && locationRepository.existsByQrCodeAndIdNot(request.getQrCode(), id)) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).build(); // QR kod już istnieje
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
             }
             location.setQrCode(request.getQrCode());
         }
 
-        // Aktualizacja pól, jeśli zostały podane w żądaniu
         if (request.getName() != null) location.setName(request.getName());
         if (request.getDescription() != null) location.setDescription(request.getDescription());
         if (request.getType() != null) location.setType(request.getType());
@@ -253,7 +209,6 @@ public class LocationController {
         if (request.getYCoordinate() != null) location.setyCoordinate(request.getYCoordinate());
         if (request.getZCoordinate() != null) location.setzCoordinate(request.getZCoordinate());
 
-        // Aktualizacja strefy
         if (request.getZoneId() != null) {
             Zone zone = zoneRepository.findById(request.getZoneId())
                     .orElseThrow(() -> new ResourceNotFoundException("Zone", "id", request.getZoneId()));
@@ -262,36 +217,27 @@ public class LocationController {
 
         Location updatedLocation = locationRepository.save(location);
 
-        // --- ZMIANA: Użycie mappera ---
         return ResponseEntity.ok(mapper.toDTO(updatedLocation));
     }
 
-    /**
-     * Usuń lokalizację (soft delete).
-     */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('LOCATION_DELETE')")
     public ResponseEntity<Void> deleteLocation(@PathVariable Long id) {
         Location location = locationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Location", "id", id));
 
-        // Walidacja: nie usuwaj (nawet soft), jeśli lokalizacja nie jest pusta
-        // Sprawdzamy getInventoryItems() z encji Location.java
         if (location.getInventoryItems() != null && !location.getInventoryItems().isEmpty()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .header("X-Error-Reason", "Location is not empty")
                     .build();
         }
 
-        location.setActive(false); // Soft delete
+        location.setActive(false);
         locationRepository.save(location);
 
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Aktywuj/dezaktywuj lokalizację.
-     */
     @PatchMapping("/{id}/toggle-active")
     @PreAuthorize("hasAuthority('LOCATION_WRITE')")
     public ResponseEntity<LocationDTO> toggleLocationActive(@PathVariable Long id) {
@@ -301,13 +247,9 @@ public class LocationController {
         location.setActive(!location.getActive());
         Location updatedLocation = locationRepository.save(location);
 
-        // --- ZMIANA: Użycie mappera ---
         return ResponseEntity.ok(mapper.toDTO(updatedLocation));
     }
 
-
-    // --- WEWNĘTRZNE KLASY ŻĄDAŃ (REQUEST DTOs) ---
-    // (Pozostają bez zmian, ich pola MUSZĄ odpowiadać encji Location.java)
 
     public static class CreateLocationRequest {
         @NotBlank(message = "Kod lokalizacji jest wymagany")
@@ -334,11 +276,9 @@ public class LocationController {
         @Size(max = 10)
         private String shelf;
 
-        // Pole z encji Location.java
         @Size(max = 10)
         private String bin;
 
-        // Pola z encji Location.java
         private BigDecimal capacityVolume;
         private BigDecimal capacityWeight;
         private Integer capacityItems;
@@ -361,12 +301,10 @@ public class LocationController {
         @Size(max = 50)
         private String barcode;
 
-        // Pola z encji Location.java
         private BigDecimal xCoordinate;
         private BigDecimal yCoordinate;
         private BigDecimal zCoordinate;
 
-        // Gettery i Settery
         public String getCode() { return code; }
         public void setCode(String code) { this.code = code; }
         public String getName() { return name; }
@@ -383,8 +321,8 @@ public class LocationController {
         public void setRack(String rack) { this.rack = rack; }
         public String getShelf() { return shelf; }
         public void setShelf(String shelf) { this.shelf = shelf; }
-        public String getBin() { return bin; } // Getter dla 'bin'
-        public void setBin(String bin) { this.bin = bin; } // Setter dla 'bin'
+        public String getBin() { return bin; }
+        public void setBin(String bin) { this.bin = bin; }
         public BigDecimal getCapacityVolume() { return capacityVolume; }
         public void setCapacityVolume(BigDecimal capacityVolume) { this.capacityVolume = capacityVolume; }
         public BigDecimal getCapacityWeight() { return capacityWeight; }
@@ -441,9 +379,9 @@ public class LocationController {
         @Size(max = 10)
         private String shelf;
         @Size(max = 10)
-        private String bin; // Pole z encji Location.java
-        private BigDecimal capacityVolume; // Pole z encji Location.java
-        private BigDecimal capacityWeight; // Pole z encji Location.java
+        private String bin;
+        private BigDecimal capacityVolume;
+        private BigDecimal capacityWeight;
         private Integer capacityItems;
         private Boolean temperatureControlled;
         private Integer temperatureMin;
@@ -461,12 +399,11 @@ public class LocationController {
         private String qrCode;
         @Size(max = 50)
         private String barcode;
-        private BigDecimal xCoordinate; // Pole z encji Location.java
-        private BigDecimal yCoordinate; // Pole z encji Location.java
-        private BigDecimal zCoordinate; // Pole z encji Location.java
+        private BigDecimal xCoordinate;
+        private BigDecimal yCoordinate;
+        private BigDecimal zCoordinate;
 
 
-        // Gettery i Settery
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
         public String getDescription() { return description; }

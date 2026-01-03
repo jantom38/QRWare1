@@ -45,8 +45,8 @@ fun QRGeneratorScreen(
 
     // Inicjalizacja stanu formularza
     val defaultType = initialType?.let {
-        try { QRCodeType.valueOf(it) } catch(e: Exception) { QRCodeType.CUSTOM }
-    } ?: QRCodeType.CUSTOM
+        try { QRCodeType.valueOf(it) } catch(e: Exception) { QRCodeType.PRODUCT }
+    } ?: QRCodeType.PRODUCT
 
     var selectedType by remember { mutableStateOf(defaultType) }
 

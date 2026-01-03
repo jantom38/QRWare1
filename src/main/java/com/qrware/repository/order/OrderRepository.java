@@ -26,12 +26,10 @@ public interface OrderRepository extends BaseRepository<Order> {
            "WHERE o.id = :id")
     Optional<Order> findByIdWithDetails(@Param("id") Long id);
 
-    // Basic finders
     Optional<Order> findByOrderNumber(String orderNumber);
     
     boolean existsByOrderNumber(String orderNumber);
 
-    // Status-based queries
     List<Order> findByStatus(OrderStatus status);
     
     List<Order> findByStatusIn(List<OrderStatus> statuses);
@@ -39,12 +37,10 @@ public interface OrderRepository extends BaseRepository<Order> {
     @Query("SELECT o FROM Order o WHERE o.status IN :activeStatuses")
     List<Order> findActiveOrders(@Param("activeStatuses") List<OrderStatus> activeStatuses);
 
-    // Type-based queries
     List<Order> findByType(OrderType type);
     
     Page<Order> findByType(OrderType type, Pageable pageable);
 
-    // User-based queries
     List<Order> findByCreatedBy(User createdBy);
     
     List<Order> findByAssignedTo(User assignedTo);
@@ -54,13 +50,11 @@ public interface OrderRepository extends BaseRepository<Order> {
     @Query("SELECT o FROM Order o WHERE o.assignedTo = :user AND o.status IN :statuses")
     List<Order> findByAssignedToAndStatusIn(@Param("user") User user, @Param("statuses") List<OrderStatus> statuses);
 
-    // Priority-based queries
     List<Order> findByPriority(OrderPriority priority);
     
     @Query("SELECT o FROM Order o WHERE o.priority IN ('URGENT', 'CRITICAL') AND o.status IN :activeStatuses")
     List<Order> findHighPriorityActiveOrders(@Param("activeStatuses") List<OrderStatus> activeStatuses);
 
-    // Date-based queries
     @Query("SELECT o FROM Order o WHERE o.expectedDate <= :date AND o.status IN :activeStatuses")
     List<Order> findOverdueOrders(@Param("date") LocalDateTime date, @Param("activeStatuses") List<OrderStatus> activeStatuses);
     
@@ -72,7 +66,6 @@ public interface OrderRepository extends BaseRepository<Order> {
     List<Order> findOrdersCreatedBetween(@Param("startDate") LocalDateTime startDate, 
                                          @Param("endDate") LocalDateTime endDate);
 
-    // Complex queries
     @Query("SELECT o FROM Order o WHERE " +
            "(:type IS NULL OR o.type = :type) AND " +
            "(:status IS NULL OR o.status = :status) AND " +
@@ -86,7 +79,6 @@ public interface OrderRepository extends BaseRepository<Order> {
                                      @Param("orderNumber") String orderNumber,
                                      Pageable pageable);
 
-    // Statistics queries
     @Query("SELECT COUNT(o) FROM Order o WHERE o.status = :status")
     Long countByStatus(@Param("status") OrderStatus status);
     
@@ -99,7 +91,6 @@ public interface OrderRepository extends BaseRepository<Order> {
     @Query("SELECT COUNT(o) FROM Order o WHERE o.assignedTo = :user AND o.status IN :activeStatuses")
     Long countActiveOrdersByUser(@Param("user") User user, @Param("activeStatuses") List<OrderStatus> activeStatuses);
 
-    // Performance queries
     @Query("SELECT AVG(TIMESTAMPDIFF(HOUR, o.createdAt, o.completedAt)) " +
            "FROM Order o WHERE o.completedAt IS NOT NULL AND o.type = :type")
     Double getAverageCompletionTimeHours(@Param("type") OrderType type);
@@ -109,7 +100,6 @@ public interface OrderRepository extends BaseRepository<Order> {
            "TIMESTAMPDIFF(HOUR, o.startedAt, CURRENT_TIMESTAMP) > :hours")
     List<Order> findOrdersInProgressLongerThan(@Param("hours") int hours);
 
-    // Search queries
     @Query("SELECT DISTINCT o FROM Order o LEFT JOIN o.orderItems oi LEFT JOIN oi.product p WHERE " +
            "LOWER(o.orderNumber) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
            "LOWER(o.description) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
@@ -118,16 +108,13 @@ public interface OrderRepository extends BaseRepository<Order> {
            "LOWER(p.sku) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     Page<Order> searchOrders(@Param("searchTerm") String searchTerm, Pageable pageable);
 
-    // External reference
     Optional<Order> findByExternalReference(String externalReference);
     
     List<Order> findByExternalReferenceIsNotNull();
 
-    // Recent orders
     @Query("SELECT o FROM Order o WHERE o.createdAt >= :since ORDER BY o.createdAt DESC")
     List<Order> findRecentOrders(@Param("since") LocalDateTime since);
     
-    // User workload
     @Query("SELECT o.assignedTo, COUNT(o) FROM Order o WHERE o.status IN :activeStatuses " +
            "GROUP BY o.assignedTo HAVING o.assignedTo IS NOT NULL ORDER BY COUNT(o) DESC")
     List<Object[]> getUserWorkload(@Param("activeStatuses") List<OrderStatus> activeStatuses);

@@ -106,7 +106,6 @@ public class OrderItem extends BaseEntity {
     @Column(name = "fulfillment_notes", length = 500)
     private String fulfillmentNotes;
 
-    // Constructors
     public OrderItem() {}
 
     public OrderItem(Order order, Integer lineNumber, Product product, Integer requestedQuantity) {
@@ -117,7 +116,6 @@ public class OrderItem extends BaseEntity {
         this.status = OrderItemStatus.PENDING;
     }
 
-    // Business methods
     public boolean isCompleted() {
         return status == OrderItemStatus.COMPLETED;
     }
@@ -196,7 +194,6 @@ public class OrderItem extends BaseEntity {
         return qrCodeData != null && !qrCodeData.trim().isEmpty();
     }
 
-    // Getters and Setters
     public Order getOrder() { return order; }
     public void setOrder(Order order) { this.order = order; }
 

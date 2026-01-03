@@ -24,10 +24,8 @@ public class QRCodeDTO {
     private String generationReason;
     private String imagePath;
 
-    // Constructors
     public QRCodeDTO() {}
 
-    // Gettery i settery
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     

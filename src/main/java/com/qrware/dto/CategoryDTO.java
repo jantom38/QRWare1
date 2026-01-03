@@ -18,10 +18,8 @@ public class CategoryDTO {
     private Integer level;
     private String fullPath;
 
-    // Constructors
     public CategoryDTO() {}
 
-    // Gettery i settery
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     

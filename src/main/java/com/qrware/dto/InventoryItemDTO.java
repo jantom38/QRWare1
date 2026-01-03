@@ -34,10 +34,8 @@ public class InventoryItemDTO {
     private Boolean hold;
     private String holdReason;
 
-    // Constructors
     public InventoryItemDTO() {}
 
-    // Gettery i settery
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     

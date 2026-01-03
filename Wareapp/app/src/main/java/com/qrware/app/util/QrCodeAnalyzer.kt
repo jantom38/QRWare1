@@ -8,17 +8,13 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 
-class BarcodeAnalyzer(
-    private val onBarcodeDetected: (String) -> Unit
+class QrCodeAnalyzer(
+    private val onQrCodeDetected: (String) -> Unit
 ) : ImageAnalysis.Analyzer {
 
     private val scanner = BarcodeScanning.getClient(
         BarcodeScannerOptions.Builder()
-            .setBarcodeFormats(
-                Barcode.FORMAT_QR_CODE,
-                Barcode.FORMAT_CODE_128,
-                Barcode.FORMAT_EAN_13
-            )
+            .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
             .build()
     )
 
@@ -30,9 +26,9 @@ class BarcodeAnalyzer(
 
             scanner.process(image)
                 .addOnSuccessListener { barcodes ->
-                    for (barcode in barcodes) {
-                        barcode.rawValue?.let { code ->
-                            onBarcodeDetected(code)
+                    for (qr in barcodes) {
+                        qr.rawValue?.let { code ->
+                            onQrCodeDetected(code)
                         }
                     }
                 }

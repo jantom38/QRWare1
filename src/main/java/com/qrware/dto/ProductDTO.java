@@ -28,10 +28,8 @@ public class ProductDTO {
     private String model;
     private String version;
 
-    // Constructors
     public ProductDTO() {}
 
-    // Gettery i settery
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     

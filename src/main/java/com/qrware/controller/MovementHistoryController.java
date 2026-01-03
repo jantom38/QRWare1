@@ -24,8 +24,6 @@ public class MovementHistoryController {
     @Autowired
     private DTOMapper dtoMapper;
 
-    // --- PODSTAWOWE POBIERANIE DANYCH ---
-
     @GetMapping("/{id}")
     public ResponseEntity<MovementHistoryDTO> getById(@PathVariable Long id) {
         MovementHistory movement = movementHistoryService.getMovementById(id);
@@ -48,20 +46,14 @@ public class MovementHistoryController {
                 .collect(Collectors.toList()));
     }
 
-    // --- PUNKT, W KTÓRYM WYSTĄPIŁ BŁĄD ---
-
     @GetMapping("/by-order/{orderReference}")
     public ResponseEntity<List<MovementHistoryDTO>> getByOrderReference(@PathVariable String orderReference) {
-        // LINIA 59: Poprawiona metoda z getMovementHistoryByOrderReference (nieistniejącej)
-        // na getMovementsByReferenceNumber (istniejącą)
         List<MovementHistory> movements = movementHistoryService.getMovementsByReferenceNumber(orderReference);
 
         return ResponseEntity.ok(movements.stream()
                 .map(dtoMapper::toMovementHistoryDTO)
                 .collect(Collectors.toList()));
     }
-
-    // ----------------------------------------
 
     @GetMapping("/by-location/{locationId}")
     public ResponseEntity<List<MovementHistoryDTO>> getByLocation(@PathVariable Long locationId) {
@@ -86,8 +78,6 @@ public class MovementHistoryController {
                 .map(dtoMapper::toMovementHistoryDTO)
                 .collect(Collectors.toList()));
     }
-
-    // --- OPERACJE WYSZUKIWANIA I FILTROWANIA ---
 
     @GetMapping("/search")
     public ResponseEntity<List<MovementHistoryDTO>> search(
@@ -118,9 +108,6 @@ public class MovementHistoryController {
                 .map(dtoMapper::toMovementHistoryDTO)
                 .collect(Collectors.toList()));
     }
-
-
-    // --- ZARZĄDZANIE I STATYSTYKI ---
 
     @GetMapping("/pending-approval")
     public ResponseEntity<List<MovementHistoryDTO>> getPendingApproval() {

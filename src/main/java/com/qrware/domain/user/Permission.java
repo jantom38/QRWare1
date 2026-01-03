@@ -8,9 +8,6 @@ import jakarta.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Permission entity for fine-grained access control
- */
 @Entity
 @Table(name = "permissions", indexes = {
     @Index(name = "idx_permission_name", columnList = "name"),
@@ -43,7 +40,6 @@ public class Permission extends BaseEntity {
     @ManyToMany(mappedBy = "permissions")
     private Set<Role> roles = new HashSet<>();
 
-    // Constructors
     public Permission() {}
 
     public Permission(String name, String description, String resource, String action) {
@@ -53,7 +49,6 @@ public class Permission extends BaseEntity {
         this.action = action;
     }
 
-    // Business methods
     public String getFullPermission() {
         return resource + ":" + action;
     }
@@ -62,7 +57,6 @@ public class Permission extends BaseEntity {
         return this.resource.equals(resource) && this.action.equals(action);
     }
 
-    // Getters and Setters
     public String getName() {
         return name;
     }

@@ -126,3 +126,12 @@ data class QRInventoryVerificationResult(
     val qrCodeData: QRCodeData?,
     val message: String
 )
+
+data class InventoryAlertDTO(
+    val type: String, // "LOW_STOCK" lub "EXPIRED"
+    val severity: String, // "WARNING", "CRITICAL"
+    val sku: String,
+    val productName: String,
+    val message: String,
+    val entityId: Long
+)

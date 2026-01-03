@@ -10,9 +10,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-/**
- * Base entity class providing common audit fields for all domain entities
- */
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity {
@@ -40,10 +37,8 @@ public abstract class BaseEntity {
     @Version
     private Long version;
 
-    // Constructors
     public BaseEntity() {}
 
-    // Pre-persist and pre-update callbacks
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {
@@ -57,7 +52,6 @@ public abstract class BaseEntity {
         updatedAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -106,12 +100,10 @@ public abstract class BaseEntity {
         this.version = version;
     }
 
-    // Business methods
     public boolean isNew() {
         return id == null;
     }
 
-    // Equals and HashCode based on ID for JPA entities
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

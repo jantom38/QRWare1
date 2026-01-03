@@ -51,7 +51,6 @@ public class OrderStatusHistory extends BaseEntity {
     @Column(name = "system_generated")
     private Boolean systemGenerated = false;
 
-    // Constructors
     public OrderStatusHistory() {}
 
     public OrderStatusHistory(Order order, OrderStatus oldStatus, OrderStatus newStatus, User changedBy) {
@@ -68,7 +67,6 @@ public class OrderStatusHistory extends BaseEntity {
         this.reason = reason;
     }
 
-    // Factory methods
     public static OrderStatusHistory createSystemChange(Order order, OrderStatus oldStatus, 
                                                        OrderStatus newStatus, User systemUser, String reason) {
         OrderStatusHistory history = new OrderStatusHistory(order, oldStatus, newStatus, systemUser, reason);
@@ -83,13 +81,11 @@ public class OrderStatusHistory extends BaseEntity {
         return history;
     }
 
-    // Business methods
     public boolean isStatusUpgrade() {
         if (oldStatus == null) {
-            return true; // Initial status
+            return true;
         }
         
-        // Define status progression
         return getStatusLevel(newStatus) > getStatusLevel(oldStatus);
     }
 
@@ -115,7 +111,7 @@ public class OrderStatusHistory extends BaseEntity {
             case IN_PROGRESS: return 3;
             case PARTIALLY_COMPLETED: return 4;
             case COMPLETED: return 5;
-            case ON_HOLD: return 2; // Same as assigned
+            case ON_HOLD: return 2;
             case CANCELLED: return 0;
             case FAILED: return 0;
             default: return 0;
@@ -129,7 +125,6 @@ public class OrderStatusHistory extends BaseEntity {
         return "Status zmieniony z " + oldStatus.getDisplayName() + " na " + newStatus.getDisplayName();
     }
 
-    // Getters and Setters
     public Order getOrder() { return order; }
     public void setOrder(Order order) { this.order = order; }
 

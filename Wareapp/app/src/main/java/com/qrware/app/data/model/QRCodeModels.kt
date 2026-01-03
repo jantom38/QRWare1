@@ -24,10 +24,7 @@ data class QRCodeData(
 
 enum class QRCodeType {
     PRODUCT,
-    LOCATION,
-    INVENTORY_ITEM,
-    SHIPMENT,
-    CUSTOM
+    INVENTORY_ITEM
 }
 
 enum class ErrorCorrectionLevel {

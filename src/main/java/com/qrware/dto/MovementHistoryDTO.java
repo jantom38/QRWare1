@@ -4,9 +4,6 @@ import com.qrware.domain.inventory.InventoryStatus;
 
 import java.math.BigDecimal;
 
-/**
- * DTO for MovementHistory entity
- */
 public class MovementHistoryDTO {
     private Long id;
     private InventoryItemDTO inventoryItem;
@@ -39,10 +36,8 @@ public class MovementHistoryDTO {
     private String createdAt;
     private String updatedAt;
 
-    // Constructors
     public MovementHistoryDTO() {}
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }

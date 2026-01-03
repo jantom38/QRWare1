@@ -31,7 +31,7 @@ import androidx.navigation.NavController
 import com.qrware.app.data.model.QRCodeType
 import com.qrware.app.di.AppContainer
 import com.qrware.app.ui.viewmodel.QRCodeViewModel
-import com.qrware.app.util.BarcodeAnalyzer
+import com.qrware.app.util.QrCodeAnalyzer
 import java.util.concurrent.Executors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,11 +67,9 @@ fun QRScanScreen(
         }
     }
 
-    // === LOGIKA NAWIGACJI PO SKANOWANIU (POPRAWIONA) ===
     LaunchedEffect(scanResult) {
         scanResult?.let { result ->
             if (result.success && result.entityId != null) {
-                // Definiujemy trasę docelową
                 val route = when (result.type) {
                     QRCodeType.PRODUCT -> "product_details/${result.entityId}"
                     QRCodeType.INVENTORY_ITEM -> "inventory_details/${result.entityId}"
@@ -80,17 +78,11 @@ fun QRScanScreen(
 
                 if (route != null) {
                     navController.navigate(route) {
-                        // === KLUCZOWA POPRAWKA ===
-                        // Usuwamy ekran skanera (obecny ekran) ze stosu nawigacji.
-                        // Dzięki temu po kliknięciu "Wstecz" w szczegółach,
-                        // użytkownik wróci do ekranu PRZED skanerem (np. Menu/Lista),
-                        // a nie z powrotem do kamery (co powodowało pętlę).
-                        popUpTo(navController.currentBackStackEntry?.destination?.route ?: return@navigate) {
+                       popUpTo(navController.currentBackStackEntry?.destination?.route ?: return@navigate) {
                             inclusive = true
                         }
                     }
                 }
-                // Czyścimy wynik, aby nie nawigować ponownie przy ewentualnym powrocie
                 viewModel.clearScanResult()
             }
         }
@@ -134,7 +126,7 @@ fun QRScanScreen(
                                 .also { analysis ->
                                     analysis.setAnalyzer(
                                         Executors.newSingleThreadExecutor(),
-                                        BarcodeAnalyzer { rawScannedContent ->
+                                        QrCodeAnalyzer { rawScannedContent ->
 
                                             // Sprawdzamy stan UI, aby nie skanować wielokrotnie
                                             if (!uiState.isScanning && !uiState.isLoading) {
@@ -174,7 +166,6 @@ fun QRScanScreen(
                     modifier = Modifier.fillMaxSize()
                 )
 
-                // Nakładka (Overlay)
                 Box(
                     modifier = Modifier
                         .align(Alignment.Center)
@@ -193,7 +184,6 @@ fun QRScanScreen(
                 )
 
             } else {
-                // Brak uprawnień
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -208,7 +198,6 @@ fun QRScanScreen(
                 }
             }
 
-            // Loader
             if (uiState.isScanning || uiState.isLoading) {
                 Box(
                     modifier = Modifier
@@ -224,7 +213,6 @@ fun QRScanScreen(
                 }
             }
 
-            // Błędy
             uiState.error?.let { error ->
                 AlertDialog(
                     onDismissRequest = { viewModel.clearMessages() },

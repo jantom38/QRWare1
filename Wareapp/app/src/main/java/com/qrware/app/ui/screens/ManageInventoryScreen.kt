@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Search // Dodano
+import androidx.compose.material.icons.filled.Warning // Dodano
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -66,6 +67,54 @@ fun ManageInventoryScreen(
             delay(3000)
             viewModel.clearMessages()
         }
+    }
+
+    // --- ALERTY ---
+    if (uiState.alerts.isNotEmpty()) {
+        AlertDialog(
+            onDismissRequest = { viewModel.clearAlerts() },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Warning, contentDescription = null, tint = MaterialTheme.colorScheme.error)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Uwaga! Problemy magazynowe")
+                }
+            },
+            text = {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.heightIn(max = 300.dp)
+                ) {
+                    items(uiState.alerts) { alert ->
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (alert.severity == "CRITICAL")
+                                    MaterialTheme.colorScheme.errorContainer
+                                else
+                                    MaterialTheme.colorScheme.tertiaryContainer
+                            )
+                        ) {
+                            Column(modifier = Modifier.padding(8.dp)) {
+                                Text(
+                                    text = alert.productName,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = alert.message,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = { viewModel.clearAlerts() }) {
+                    Text("Zrozumiałem")
+                }
+            }
+        )
     }
 
     Scaffold(

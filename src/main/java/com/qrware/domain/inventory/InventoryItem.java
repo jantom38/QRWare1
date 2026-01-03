@@ -246,7 +246,6 @@ public class InventoryItem extends BaseEntity {
         return BigDecimal.ZERO;
     }
 
-    // Getters and Setters
     public Product getProduct() { return product; }
     public void setProduct(Product product) { this.product = product; }
     public Location getLocation() { return location; }

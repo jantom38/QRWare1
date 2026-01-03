@@ -17,7 +17,7 @@ import java.util.List;
         @Index(name = "idx_order_number", columnList = "orderNumber"),
         @Index(name = "idx_order_status", columnList = "status"),
         @Index(name = "idx_order_type", columnList = "type"),
-        @Index(name = "idx_order_creator", columnList = "creator_id"), // Zmieniona nazwa indeksu
+        @Index(name = "idx_order_creator", columnList = "creator_id"),
         @Index(name = "idx_order_assigned_to", columnList = "assignedTo"),
         @Index(name = "idx_order_expected_date", columnList = "expectedDate"),
         @Index(name = "idx_order_priority", columnList = "priority")
@@ -48,7 +48,6 @@ public class Order extends BaseEntity {
     @Column(length = 500)
     private String description;
 
-    // --- POPRAWKA: Zmiana nazwy pola i kolumny, aby uniknąć konfliktu z BaseEntity ---
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)
     @NotNull
@@ -105,18 +104,16 @@ public class Order extends BaseEntity {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderStatusHistory> statusHistory = new ArrayList<>();
 
-    // Constructors
     public Order() {}
 
     public Order(String orderNumber, OrderType type, User creator) {
         this.orderNumber = orderNumber;
         this.type = type;
-        this.creator = creator; // Przypisanie do nowego pola
+        this.creator = creator;
         this.status = OrderStatus.CREATED;
         this.priority = OrderPriority.NORMAL;
     }
 
-    // Business methods
     public boolean canBeStarted() {
         return status == OrderStatus.CREATED || status == OrderStatus.ASSIGNED;
     }
@@ -202,7 +199,6 @@ public class Order extends BaseEntity {
         return priority == OrderPriority.HIGH || priority == OrderPriority.URGENT;
     }
 
-    // Getters and Setters
     public String getOrderNumber() { return orderNumber; }
     public void setOrderNumber(String orderNumber) { this.orderNumber = orderNumber; }
 
@@ -218,7 +214,6 @@ public class Order extends BaseEntity {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
-    // Nazwa metody 'getCreatorUser' zachowana dla kompatybilności, ale zwraca pole 'creator'
     public User getCreatorUser() { return creator; }
     public void setCreatorUser(User creator) { this.creator = creator; }
 

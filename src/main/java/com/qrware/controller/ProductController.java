@@ -3,6 +3,7 @@ package com.qrware.controller;
 import com.qrware.domain.inventory.InventoryItem;
 import com.qrware.domain.product.Product;
 import com.qrware.domain.product.Category;
+import com.qrware.dto.LowStockReportDTO;
 import com.qrware.repository.product.ProductRepository;
 import com.qrware.repository.product.CategoryRepository;
 import com.qrware.exception.ResourceNotFoundException;
@@ -104,13 +105,19 @@ public class ProductController {
         return ResponseEntity.ok(productDTOs);
     }
 
+    @GetMapping("/low-stock")
+    @PreAuthorize("hasAuthority('PRODUCT_READ')")
+    public ResponseEntity<List<LowStockReportDTO>> getLowStockProducts() {
+        List<LowStockReportDTO> lowStockProducts = productRepository.findLowStockProducts();
+        return ResponseEntity.ok(lowStockProducts);
+    }
+
     @PostMapping
     @PreAuthorize("hasAuthority('PRODUCT_WRITE')")
     public ResponseEntity<ProductDTO> createProduct(@Valid @RequestBody CreateProductRequest request) {
         if (productRepository.existsBySku(request.getSku())) {
             return ResponseEntity.badRequest().build();
         }
-        //InventoryItem state = new InventoryItem();
         Product product = new Product();
         product.setSku(request.getSku());
         product.setName(request.getName());
@@ -133,7 +140,6 @@ public class ProductController {
         product.setSupplier(request.getSupplier());
         product.setStorageConditions(request.getStorageConditions());
         product.setBarcode(request.getBarcode());
-        //state.setProduct(request.get);
         if (request.getCategoryId() != null) {
             Optional<Category> category = categoryRepository.findById(request.getCategoryId());
             category.ifPresent(product::setCategory);
@@ -214,10 +220,6 @@ public class ProductController {
         return ResponseEntity.ok(convertToDTO(updatedProduct));
     }
 
-
-    /**
-     * Konwertuje encję Product na ProductDTO.
-     */
     private ProductDTO convertToDTO(Product product) {
         if (product == null) {
             return null;
@@ -262,20 +264,12 @@ public class ProductController {
         );
     }
 
-
-
-    /**
-     * DTO dla Kategorii, pasujące do ProductDTO.kt
-     */
     public record CategoryDTO(
             Long id,
             String name
     ) {
     }
 
-    /**
-     * DTO dla Produktu, pasujące do ProductDTO.kt
-     */
     public record ProductDTO(
             Long id,
             String sku,
@@ -303,8 +297,6 @@ public class ProductController {
     ) {
     }
 
-
-
     public static class CreateProductRequest {
         private String sku;
         private String name;
@@ -329,7 +321,6 @@ public class ProductController {
         private String barcode;
         private Long categoryId;
 
-        // Gettery i settery
         public String getSku() { return sku; }
         public void setSku(String sku) { this.sku = sku; }
         public String getName() { return name; }
@@ -399,7 +390,6 @@ public class ProductController {
         private String barcode;
         private Long categoryId;
 
-        // Gettery i settery
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
         public String getDescription() { return description; }

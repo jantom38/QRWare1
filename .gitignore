@@ -1,0 +1,35 @@
+# Maven
+target/
+*.class
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Gradle (Android)
+.gradle/
+build/
+app/build/
+shared/build/
+local.properties
+
+# Android Studio
+.navigation/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Database
+*.db
+*.trace.db
+*.mv.db

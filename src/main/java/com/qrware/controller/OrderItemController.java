@@ -402,7 +402,7 @@ public class OrderItemController {
         @Size(max = 200)
         private String qrCodeData;
         
-        private Long orderId; // Optional: for context-aware scanning
+        private Long orderId;
 
         public String getQrCodeData() { return qrCodeData; }
         public void setQrCodeData(String qrCodeData) { this.qrCodeData = qrCodeData; }

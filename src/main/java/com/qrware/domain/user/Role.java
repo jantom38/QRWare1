@@ -8,9 +8,6 @@ import jakarta.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Role entity for role-based access control
- */
 @Entity
 @Table(name = "roles", indexes = {
     @Index(name = "idx_role_name", columnList = "name")
@@ -40,7 +37,6 @@ public class Role extends BaseEntity {
     @ManyToMany(mappedBy = "roles")
     private Set<User> users = new HashSet<>();
 
-    // Constructors
     public Role() {}
 
     public Role(String name, String description) {
@@ -48,7 +44,6 @@ public class Role extends BaseEntity {
         this.description = description;
     }
 
-    // Business methods
     public void addPermission(Permission permission) {
         this.permissions.add(permission);
         permission.getRoles().add(this);
@@ -64,7 +59,6 @@ public class Role extends BaseEntity {
             .anyMatch(permission -> permission.getName().equals(permissionName));
     }
 
-    // Getters and Setters
     public String getName() {
         return name;
     }

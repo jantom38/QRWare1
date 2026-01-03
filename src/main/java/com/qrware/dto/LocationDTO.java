@@ -20,10 +20,8 @@ public class LocationDTO {
     private BigDecimal zCoordinate;
     private Boolean active;
 
-    // Constructors
     public LocationDTO() {}
 
-    // Gettery i settery
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     

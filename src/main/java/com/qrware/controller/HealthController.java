@@ -11,9 +11,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Health Controller for system status and diagnostics
- */
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -28,9 +25,6 @@ public class HealthController {
     @Value("${app.version:1.0.0}")
     private String version;
 
-    /**
-     * Basic health check endpoint
-     */
     @GetMapping("/health")
     public ResponseEntity<?> health() {
         Map<String, Object> response = new HashMap<>();
@@ -43,9 +37,6 @@ public class HealthController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Detailed status endpoint
-     */
     @GetMapping("/status")
     public ResponseEntity<?> status() {
         Map<String, Object> response = new HashMap<>();
@@ -54,7 +45,6 @@ public class HealthController {
         response.put("timestamp", LocalDateTime.now());
         response.put("uptime", getUptime());
         
-        // System information
         Map<String, Object> system = new HashMap<>();
         system.put("javaVersion", System.getProperty("java.version"));
         system.put("javaVendor", System.getProperty("java.vendor"));
@@ -63,7 +53,6 @@ public class HealthController {
         system.put("springProfile", System.getProperty("spring.profiles.active", "default"));
         response.put("system", system);
         
-        // Memory information
         Runtime runtime = Runtime.getRuntime();
         Map<String, Object> memory = new HashMap<>();
         memory.put("totalMemory", formatBytes(runtime.totalMemory()));
@@ -72,16 +61,12 @@ public class HealthController {
         memory.put("maxMemory", formatBytes(runtime.maxMemory()));
         response.put("memory", memory);
         
-        // Database status
         response.put("database", getDatabaseStatus());
         
         response.put("status", "UP");
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Database connectivity check
-     */
     @GetMapping("/health/database")
     public ResponseEntity<?> databaseHealth() {
         Map<String, Object> response = new HashMap<>();
@@ -97,9 +82,6 @@ public class HealthController {
         }
     }
 
-    /**
-     * Simple ping endpoint
-     */
     @GetMapping("/ping")
     public ResponseEntity<?> ping() {
         Map<String, Object> response = new HashMap<>();
@@ -109,15 +91,12 @@ public class HealthController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Version information
-     */
     @GetMapping("/version")
     public ResponseEntity<?> version() {
         Map<String, Object> response = new HashMap<>();
         response.put("application", applicationName);
         response.put("version", version);
-        response.put("buildTime", "2024-01-01T00:00:00"); // TODO: Get from build
+        response.put("buildTime", "2024-01-01T00:00:00");
         response.put("javaVersion", System.getProperty("java.version"));
         response.put("springBootVersion", getSpringBootVersion());
         response.put("timestamp", LocalDateTime.now());
@@ -125,9 +104,6 @@ public class HealthController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Environment information (non-sensitive)
-     */
     @GetMapping("/environment")
     public ResponseEntity<?> environment() {
         Map<String, Object> response = new HashMap<>();
@@ -138,7 +114,6 @@ public class HealthController {
         response.put("timeZone", System.getProperty("user.timezone"));
         response.put("encoding", System.getProperty("file.encoding"));
         
-        // Server information
         Map<String, Object> server = new HashMap<>();
         server.put("port", System.getProperty("server.port", "8080"));
         server.put("contextPath", System.getProperty("server.servlet.context-path", "/"));
@@ -147,19 +122,13 @@ public class HealthController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Readiness check (for Kubernetes/Docker)
-     */
     @GetMapping("/ready")
     public ResponseEntity<?> ready() {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
         
-        // Check database connectivity
         Map<String, Object> dbStatus = getDatabaseStatus();
         boolean dbReady = "UP".equals(dbStatus.get("status"));
-        
-        // Add more readiness checks here (Redis, external APIs, etc.)
         
         if (dbReady) {
             response.put("status", "READY");
@@ -174,9 +143,6 @@ public class HealthController {
         }
     }
 
-    /**
-     * Liveness check (for Kubernetes/Docker)
-     */
     @GetMapping("/live")
     public ResponseEntity<?> live() {
         Map<String, Object> response = new HashMap<>();
@@ -188,15 +154,11 @@ public class HealthController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Get database status
-     */
     private Map<String, Object> getDatabaseStatus() {
         Map<String, Object> dbStatus = new HashMap<>();
         
         try (Connection connection = dataSource.getConnection()) {
-            // Test database connectivity
-            boolean isValid = connection.isValid(5); // 5 second timeout
+            boolean isValid = connection.isValid(5);
             
             dbStatus.put("status", isValid ? "UP" : "DOWN");
             dbStatus.put("url", connection.getMetaData().getURL());
@@ -220,9 +182,6 @@ public class HealthController {
         return dbStatus;
     }
 
-    /**
-     * Get application uptime
-     */
     private String getUptime() {
         long uptime = java.lang.management.ManagementFactory.getRuntimeMXBean().getUptime();
         long seconds = uptime / 1000;
@@ -234,9 +193,6 @@ public class HealthController {
             days, hours % 24, minutes % 60, seconds % 60);
     }
 
-    /**
-     * Format bytes to human readable format
-     */
     private String formatBytes(long bytes) {
         if (bytes < 1024) return bytes + " B";
         int exp = (int) (Math.log(bytes) / Math.log(1024));
@@ -244,9 +200,6 @@ public class HealthController {
         return String.format("%.1f %sB", bytes / Math.pow(1024, exp), pre);
     }
 
-    /**
-     * Get Spring Boot version
-     */
     private String getSpringBootVersion() {
         try {
             Package pkg = org.springframework.boot.SpringBootVersion.class.getPackage();

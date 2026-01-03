@@ -34,9 +34,6 @@ public class ZoneController {
     @Autowired
     private DTOMapper mapper;
 
-    /**
-     * Pobierz wszystkie strefy z paginacją, z opcjonalnym filtrem 'active'.
-     */
     @GetMapping
     @PreAuthorize("hasAuthority('ZONE_READ')")
     public ResponseEntity<Page<ZoneDTO>> getAllZones(
@@ -48,10 +45,6 @@ public class ZoneController {
         if (active == null) {
             zonesPage = zoneRepository.findAll(pageable);
         } else {
-            // Zakładamy, że BaseRepository (lub ZoneRepository) dostarcza tę metodę,
-            // analogicznie do LocationController.
-            // Jeśli nie, trzeba by ją dodać do ZoneRepository:
-            // Page<Zone> findByActive(Boolean active, Pageable pageable);
             zonesPage = zoneRepository.findByActive(active, pageable);
         }
 
@@ -59,9 +52,6 @@ public class ZoneController {
         return ResponseEntity.ok(zonesDTOPage);
     }
 
-    /**
-     * Pobierz strefę po ID.
-     */
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('ZONE_READ')")
     public ResponseEntity<ZoneDTO> getZoneById(@PathVariable Long id) {
@@ -70,9 +60,6 @@ public class ZoneController {
         return ResponseEntity.ok(mapper.toDTO(zone));
     }
 
-    /**
-     * Pobierz strefę po unikalnym kodzie.
-     */
     @GetMapping("/code/{code}")
     @PreAuthorize("hasAuthority('ZONE_READ')")
     public ResponseEntity<ZoneDTO> getZoneByCode(@PathVariable String code) {
@@ -81,9 +68,6 @@ public class ZoneController {
         return ResponseEntity.ok(mapper.toDTO(zone));
     }
 
-    /**
-     * Pobierz strefę po unikalnej nazwie.
-     */
     @GetMapping("/name/{name}")
     @PreAuthorize("hasAuthority('ZONE_READ')")
     public ResponseEntity<ZoneDTO> getZoneByName(@PathVariable String name) {
@@ -92,9 +76,6 @@ public class ZoneController {
         return ResponseEntity.ok(mapper.toDTO(zone));
     }
 
-    /**
-     * Pobierz wszystkie strefy danego typu.
-     */
     @GetMapping("/type/{type}")
     @PreAuthorize("hasAuthority('ZONE_READ')")
     public ResponseEntity<List<ZoneDTO>> getZonesByType(@PathVariable ZoneType type) {
@@ -105,9 +86,6 @@ public class ZoneController {
         return ResponseEntity.ok(zoneDTOs);
     }
 
-    /**
-     * Wyszukaj strefy po kodzie, nazwie lub opisie.
-     */
     @GetMapping("/search")
     @PreAuthorize("hasAuthority('ZONE_READ')")
     public ResponseEntity<List<ZoneDTO>> searchZones(@RequestParam String query) {
@@ -118,9 +96,6 @@ public class ZoneController {
         return ResponseEntity.ok(zoneDTOs);
     }
 
-    /**
-     * Pobierz tylko aktywne strefy.
-     */
     @GetMapping("/active")
     @PreAuthorize("hasAuthority('ZONE_READ')")
     public ResponseEntity<List<ZoneDTO>> getActiveZones() {
@@ -131,9 +106,6 @@ public class ZoneController {
         return ResponseEntity.ok(zoneDTOs);
     }
 
-    /**
-     * Dodaj nową strefę.
-     */
     @PostMapping
     @PreAuthorize("hasAuthority('ZONE_WRITE')")
     public ResponseEntity<ZoneDTO> createZone(@Valid @RequestBody CreateZoneRequest request) {
@@ -154,7 +126,6 @@ public class ZoneController {
         zone.setDescription(request.getDescription());
         zone.setType(request.getType());
 
-        // Ustawienie wartości domyślnych z encji, jeśli request ich nie podał
         zone.setActive(request.getActive() != null ? request.getActive() : true);
         zone.setTemperatureControlled(request.getTemperatureControlled() != null ? request.getTemperatureControlled() : false);
         zone.setTemperatureMin(request.getTemperatureMin());
@@ -174,9 +145,6 @@ public class ZoneController {
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toDTO(savedZone));
     }
 
-    /**
-     * Aktualizuj istniejącą strefę.
-     */
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('ZONE_WRITE')")
     public ResponseEntity<ZoneDTO> updateZone(@PathVariable Long id,
@@ -184,7 +152,6 @@ public class ZoneController {
         Zone zone = zoneRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Zone", "id", id));
 
-        // Sprawdzenie unikalności nazwy, jeśli jest zmieniana
         if (request.getName() != null && !request.getName().equals(zone.getName())) {
             if (zoneRepository.existsByNameAndIdNot(request.getName(), id)) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -194,7 +161,6 @@ public class ZoneController {
             zone.setName(request.getName());
         }
 
-        // Sprawdzenie unikalności kodu, jeśli jest zmieniany
         if (request.getCode() != null && !request.getCode().equals(zone.getCode())) {
             if (zoneRepository.existsByCodeAndIdNot(request.getCode(), id)) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -204,7 +170,6 @@ public class ZoneController {
             zone.setCode(request.getCode());
         }
 
-        // Aktualizacja pól, jeśli zostały podane w żądaniu
         if (request.getDescription() != null) zone.setDescription(request.getDescription());
         if (request.getType() != null) zone.setType(request.getType());
         if (request.getActive() != null) zone.setActive(request.getActive());
@@ -226,32 +191,24 @@ public class ZoneController {
         return ResponseEntity.ok(mapper.toDTO(updatedZone));
     }
 
-    /**
-     * Usuń strefę (soft delete).
-     */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ZONE_DELETE')")
     public ResponseEntity<Void> deleteZone(@PathVariable Long id) {
         Zone zone = zoneRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Zone", "id", id));
 
-        // Walidacja: nie usuwaj (nawet soft), jeśli strefa nie jest pusta
-        // Używamy metody biznesowej z encji Zone.java
         if (!zone.canBeDeleted()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .header("X-Error-Reason", "Zone contains locations and cannot be deleted")
                     .build();
         }
 
-        zone.setActive(false); // Soft delete
+        zone.setActive(false);
         zoneRepository.save(zone);
 
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Aktywuj/dezaktywuj strefę.
-     */
     @PatchMapping("/{id}/toggle-active")
     @PreAuthorize("hasAuthority('ZONE_WRITE')")
     public ResponseEntity<ZoneDTO> toggleZoneActive(@PathVariable Long id) {
@@ -264,9 +221,6 @@ public class ZoneController {
         return ResponseEntity.ok(mapper.toDTO(updatedZone));
     }
 
-
-    // --- WEWNĘTRZNE KLASY ŻĄDAŃ (REQUEST DTOs) ---
-    // (Pola muszą odpowiadać encji Zone.java)
 
     public static class CreateZoneRequest {
         @NotBlank(message = "Nazwa strefy jest wymagana")
@@ -309,7 +263,6 @@ public class ZoneController {
         @Size(max = 7)
         private String color;
 
-        // Gettery i Settery
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
         public String getCode() { return code; }
@@ -385,7 +338,6 @@ public class ZoneController {
         @Size(max = 7)
         private String color;
 
-        // Gettery i Settery
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
         public String getCode() { return code; }

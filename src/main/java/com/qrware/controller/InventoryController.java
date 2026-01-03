@@ -11,6 +11,9 @@ import com.qrware.exception.ResourceNotFoundException;
 // --- NOWE IMPORTY ---
 import com.qrware.dto.DTOMapper;
 import com.qrware.dto.InventoryItemDTO;
+import com.qrware.dto.InventoryAlertDTO;
+import com.qrware.dto.LowStockReportDTO;
+import java.util.ArrayList;
 // --- ---
 
 import org.slf4j.Logger;
@@ -144,7 +147,51 @@ public class InventoryController {
         return ResponseEntity.ok(dtos);
     }
 
+    @GetMapping("/alerts")
+    @PreAuthorize("hasAuthority('INVENTORY_READ')")
+    public ResponseEntity<List<InventoryAlertDTO>> getInventoryAlerts() {
+        logger.info("GET /api/inventory/alerts");
+        
+        List<InventoryAlertDTO> alerts = new ArrayList<>();
 
+        // 1. Sprawdź niskie stany magazynowe
+        List<LowStockReportDTO> lowStockProducts = productRepository.findLowStockProducts();
+        for (LowStockReportDTO product : lowStockProducts) {
+            String severity = "WARNING";
+            String message = "Niski stan magazynowy. Obecnie: " + product.getCurrentStock();
+            
+            if (product.getStatus().equals("CRITICAL")) {
+                severity = "CRITICAL";
+                message = "KRYTYCZNIE niski stan magazynowy! Poniżej minimum (" + product.getMinimumStock() + ").";
+            } else if (product.getReorderPoint() != null) {
+                message += ". Punkt zamawiania: " + product.getReorderPoint();
+            }
+
+            alerts.add(new InventoryAlertDTO(
+                "LOW_STOCK",
+                severity,
+                product.getSku(),
+                product.getName(),
+                message,
+                product.getProductId()
+            ));
+        }
+
+        // 2. Sprawdź przeterminowane towary
+        List<InventoryItem> expiredItems = inventoryRepository.findExpiredItems();
+        for (InventoryItem item : expiredItems) {
+            alerts.add(new InventoryAlertDTO(
+                "EXPIRED",
+                "CRITICAL",
+                item.getProduct().getSku(),
+                item.getProduct().getName(),
+                "Towar przeterminowany! Data ważności: " + item.getExpiryDate() + ". Ilość: " + item.getQuantity() + ". Lokalizacja: " + item.getLocation().getCode(),
+                item.getId()
+            ));
+        }
+
+        return ResponseEntity.ok(alerts);
+    }
 
     @PostMapping
     @PreAuthorize("hasAuthority('INVENTORY_WRITE')")

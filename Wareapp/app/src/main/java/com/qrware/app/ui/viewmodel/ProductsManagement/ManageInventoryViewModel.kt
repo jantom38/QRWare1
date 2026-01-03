@@ -19,6 +19,7 @@ class ManageInventoryViewModel(
 
     init {
         loadInventoryItems()
+        loadAlerts()
     }
 
     fun loadInventoryItems(page: Int = 0, size: Int = 20) {
@@ -39,6 +40,22 @@ class ManageInventoryViewModel(
                 )
             }
         }
+    }
+
+    fun loadAlerts() {
+        viewModelScope.launch {
+            try {
+                val alerts = inventoryRepository.getInventoryAlerts()
+                _uiState.value = _uiState.value.copy(alerts = alerts)
+            } catch (e: Exception) {
+                // Ignorujemy błędy alertów, żeby nie blokować głównego widoku
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun clearAlerts() {
+        _uiState.value = _uiState.value.copy(alerts = emptyList())
     }
 
     fun searchInventory(query: String) {
@@ -159,6 +176,7 @@ class ManageInventoryViewModel(
 data class InventoryUiState(
     val isLoading: Boolean = false,
     val inventoryItems: List<InventoryItemDTO> = emptyList(),
+    val alerts: List<InventoryAlertDTO> = emptyList(),
     val error: String? = null,
     val successMessage: String? = null,
     val currentPage: Int = 0,

@@ -10,9 +10,6 @@ import jakarta.validation.constraints.Min;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Zone entity representing logical areas within the warehouse
- */
 @Entity
 @Table(name = "zones", indexes = {
     @Index(name = "idx_zone_name", columnList = "name"),
@@ -91,7 +88,6 @@ public class Zone extends BaseEntity {
     @JsonIgnore
     private List<Location> locations = new ArrayList<>();
 
-    // Constructors
     public Zone() {}
 
     public Zone(String name, String code, ZoneType type) {
@@ -100,7 +96,6 @@ public class Zone extends BaseEntity {
         this.type = type;
     }
 
-    // Business methods
     public boolean hasEnvironmentalControls() {
         return temperatureControlled || humidityControlled;
     }
@@ -189,7 +184,6 @@ public class Zone extends BaseEntity {
         return locations.isEmpty();
     }
 
-    // Getters and Setters
     public String getName() {
         return name;
     }

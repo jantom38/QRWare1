@@ -18,7 +18,6 @@ interface AuthService {
 
 interface ApiService {
 
-    // --- UŻYTKOWNICY ---
     @GET("api/users")
     suspend fun getAllUsers(
         @Query("page") page: Int = 0,
@@ -49,7 +48,6 @@ interface ApiService {
     @DELETE("api/users/{id}")
     suspend fun deleteUser(@Path("id") userId: Long): ApiResponse<Unit>
 
-    // --- ROLE I UPRAWNIENIA ---
     @GET("api/roles")
     suspend fun getAllRoles(): ApiResponse<List<RoleResponse>>
 
@@ -81,7 +79,6 @@ interface ApiService {
     suspend fun deletePermission(@Path("id") permissionId: Long): ApiResponse<Unit>
 
 
-    // --- INVENTORY ---
     @GET("api/inventory")
     suspend fun getAllInventoryItems(
         @Query("page") page: Int = 0,
@@ -122,8 +119,10 @@ interface ApiService {
     @GET("api/inventory/qr/{qrCode}")
     suspend fun getInventoryByQRCode(@Path("qrCode") qrCode: String): InventoryItemDTO
 
+    @GET("api/inventory/alerts")
+    suspend fun getInventoryAlerts(): List<InventoryAlertDTO>
 
-    // --- PRODUCTS ---
+
     @GET("api/products")
     suspend fun getAllProducts(
         @Query("page") page: Int = 0,
@@ -160,7 +159,6 @@ interface ApiService {
     suspend fun toggleProductActive(@Path("id") productId: Long): ProductDTO
 
 
-    // --- CATEGORIES ---
     @GET("api/categories")
     suspend fun getAllCategories(): ApiResponse<List<CategoryDTO>>
 
@@ -237,7 +235,6 @@ interface ApiService {
     suspend fun getQRStats(): QRStatsResponse
 
 
-    // --- LOCATIONS ---
     @GET("api/locations")
     suspend fun getAllLocations(
         @Query("page") page: Int = 0,
@@ -270,7 +267,6 @@ interface ApiService {
     suspend fun toggleLocationActive(@Path("id") locationId: Long): LocationDTO
 
 
-    // --- ZONES (STREFY) - TO NAPRAWIA BLAD NotImplementedError ---
     @GET("api/zones")
     suspend fun getZones(
         @Query("page") page: Int = 0,
@@ -294,7 +290,6 @@ interface ApiService {
     suspend fun toggleZoneActive(@Path("id") id: Long): ZoneDTO
 }
 
-// Interfejsy dla TestService i HealthService bez zmian
 interface TestService {
     @GET("/api/test/public")
     suspend fun getPublicEndpoint(): Response<Map<String, Any>>

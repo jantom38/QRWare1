@@ -297,17 +297,17 @@ public class DataInitializer implements CommandLineRunner {
             orderRepository.save(order1);
             orderItemRepository.save(new OrderItem(order1, 1, product1, 50));
         } catch (Exception e) {
-            logger.error("❌ Error creating sample orders: {}", e.getMessage(), e);
+            logger.error("Error creating sample orders: {}", e.getMessage(), e);
         }
     }
 
     private void createTestOrderForAdmin() {
         if (orderRepository.existsByOrderNumber("TEST-ADMIN-ORDER")) {
-            logger.info("📦 Test order for admin already exists, skipping.");
+            logger.info("Test order for admin already exists, skipping.");
             return;
         }
 
-        logger.info("🚀 Creating a special test order for the admin user...");
+        logger.info("Creating a special test order for the admin user...");
 
         try {
             User admin = userRepository.findByUsername("admin").orElseThrow(() -> new RuntimeException("Admin user not found."));
@@ -324,8 +324,7 @@ public class DataInitializer implements CommandLineRunner {
             testInventoryItem.setReservedQuantity(0);
             testInventoryItem.setStatus(InventoryStatus.AVAILABLE);
             testInventoryItem.setReceivedDate(LocalDate.now());
-            // QR code will be set manually
-            testInventoryItem.setQrCode("TO_BE_GENERATED"); 
+            testInventoryItem.setQrCode("TO_BE_GENERATED");
             inventoryItemRepository.save(testInventoryItem);
             
             Order testOrder = new Order("TEST-ADMIN-ORDER", OrderType.PICK, admin);
@@ -342,11 +341,11 @@ public class DataInitializer implements CommandLineRunner {
             testOrder.updateProgress();
             orderRepository.save(testOrder);
 
-            logger.info("✅ Successfully created test order 'TEST-ADMIN-ORDER' for user 'admin'.");
-            logger.info("   - MANUAL ACTION REQUIRED: Generate a QR code for InventoryItem with ID: {}", testInventoryItem.getId());
+            logger.info("Successfully created test order 'TEST-ADMIN-ORDER' for user 'admin'.");
+            logger.info("MANUAL ACTION REQUIRED: Generate a QR code for InventoryItem with ID: {}", testInventoryItem.getId());
 
         } catch (Exception e) {
-            logger.error("❌ Failed to create the special test order for admin: {}", e.getMessage(), e);
+            logger.error("Failed to create the special test order for admin: {}", e.getMessage(), e);
         }
     }
 }

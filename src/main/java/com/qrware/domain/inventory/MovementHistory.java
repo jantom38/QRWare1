@@ -9,9 +9,6 @@ import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * MovementHistory entity tracking all inventory movements and changes
- */
 @Entity
 @Table(name = "movement_history", indexes = {
     @Index(name = "idx_movement_inventory_item", columnList = "inventory_item_id"),
@@ -120,7 +117,6 @@ public class MovementHistory extends BaseEntity {
     @Column(name = "volume", precision = 10, scale = 3)
     private BigDecimal volume;
 
-    // Constructors
     public MovementHistory() {
         this.movementDate = LocalDateTime.now();
     }
@@ -132,7 +128,6 @@ public class MovementHistory extends BaseEntity {
         this.reason = reason;
     }
 
-    // Business methods
     public boolean isQuantityChange() {
         return quantityChanged != null && quantityChanged != 0;
     }
@@ -207,7 +202,6 @@ public class MovementHistory extends BaseEntity {
         return movementDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
-    // Getters and Setters
     public InventoryItem getInventoryItem() {
         return inventoryItem;
     }

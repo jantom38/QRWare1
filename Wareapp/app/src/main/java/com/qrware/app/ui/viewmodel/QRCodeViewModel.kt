@@ -137,7 +137,7 @@ class QRCodeViewModel(
                 _scanResult.value = QRScanResult(
                     code = code,
                     data = "",
-                    type = QRCodeType.CUSTOM, // Domyślny typ przy błędzie
+                    type = QRCodeType.PRODUCT, // Domyślny typ przy błędzie
                     entityType = null,
                     entityId = null,
                     success = false,

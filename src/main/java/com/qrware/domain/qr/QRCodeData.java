@@ -7,9 +7,6 @@ import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 
-/**
- * QRCodeData entity for managing QR codes in the system
- */
 @Entity
 @Table(name = "qr_codes", indexes = {
     @Index(name = "idx_qr_code", columnList = "code"),
@@ -86,7 +83,6 @@ public class QRCodeData extends BaseEntity {
     @Column(name = "custom_data", columnDefinition = "TEXT")
     private String customData;
 
-    // Constructors
     public QRCodeData() {}
 
     public QRCodeData(String code, QRCodeType type, String entityType, Long entityId) {
@@ -96,7 +92,6 @@ public class QRCodeData extends BaseEntity {
         this.entityId = entityId;
     }
 
-    // Business methods
     public boolean isExpired() {
         return expiresAt != null && expiresAt.isBefore(LocalDateTime.now());
     }
@@ -161,7 +156,6 @@ public class QRCodeData extends BaseEntity {
     }
 
     public void updateMetadata(String key, String value) {
-        // Simple key-value metadata storage (could be improved with JSON)
         if (metadata == null) {
             metadata = key + "=" + value;
         } else {
@@ -184,7 +178,6 @@ public class QRCodeData extends BaseEntity {
         return null;
     }
 
-    // Getters and Setters
     public String getCode() {
         return code;
     }

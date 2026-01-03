@@ -11,9 +11,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Category entity for organizing products in hierarchical structure
- */
 @Entity
 @Table(name = "categories", indexes = {
     @Index(name = "idx_category_name", columnList = "name"),
@@ -79,7 +76,6 @@ public class Category extends BaseEntity {
     @Column(name = "storage_humidity_max")
     private Integer storageHumidityMax;
 
-    // Constructors
     public Category() {}
 
     public Category(String name, String code) {
@@ -93,7 +89,6 @@ public class Category extends BaseEntity {
         this.parent = parent;
     }
 
-    // Business methods
     public boolean isRootCategory() {
         return parent == null;
     }
@@ -171,7 +166,6 @@ public class Category extends BaseEntity {
                storageHumidityMin != null || storageHumidityMax != null;
     }
 
-    // Getters and Setters
     public String getName() {
         return name;
     }

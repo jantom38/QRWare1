@@ -11,7 +11,7 @@ set PORT=%2
 if "%PROFILE%"=="" set PROFILE=dev
 if "%PORT%"=="" set PORT=8080
 
-set MAVEN_OPTS=-Xmx1024m -Xms512m
+set MAVEN_OPTS=-Xmx512m -Xms256m
 
 echo.
 echo 🚀 Starting QRWare Warehouse Management System

@@ -1,11 +1,9 @@
 package com.qrware.domain.inventory;
 
-/**
- * Enumeration defining different inventory item statuses
- */
 public enum InventoryStatus {
     
     AVAILABLE("Available", "Item is available for use"),
+    UNAVAILABLE("Unavailable", "Item is unavailable for general use"),
     RESERVED("Reserved", "Item is reserved for orders"),
     ON_HOLD("On Hold", "Item is temporarily unavailable"),
     QUARANTINE("Quarantine", "Item is in quarantine for quality inspection"),
@@ -46,7 +44,7 @@ public enum InventoryStatus {
     }
 
     public boolean isUnavailable() {
-        return this == ON_HOLD || this == QUARANTINE || this == DAMAGED || 
+        return this == UNAVAILABLE || this == ON_HOLD || this == QUARANTINE || this == DAMAGED || 
                this == EXPIRED || this == RECALLED || this == DISPOSED || this == LOST;
     }
 
@@ -70,7 +68,7 @@ public enum InventoryStatus {
 
     public boolean canBeMoved() {
         return this == AVAILABLE || this == RESERVED || this == ALLOCATED || 
-               this == ON_HOLD || this == COUNTED;
+               this == ON_HOLD || this == COUNTED || this == UNAVAILABLE;
     }
 
     public boolean canBeAdjusted() {

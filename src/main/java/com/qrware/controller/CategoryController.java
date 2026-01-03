@@ -37,7 +37,6 @@ public class CategoryController {
         List<CategoryDTO> categoryDTOs = categories.stream()
                 .map(dtoMapper::toDTO)
                 .collect(Collectors.toList());
-        // ZMIANA: Opakowanie w ApiResponse.success()
         return ResponseEntity.ok(ApiResponse.success(categoryDTOs));
     }
 
@@ -48,83 +47,63 @@ public class CategoryController {
         List<CategoryDTO> categoryDTOs = categories.stream()
                 .map(dtoMapper::toDTO)
                 .collect(Collectors.toList());
-        // ZMIANA: Opakowanie w ApiResponse.success()
         return ResponseEntity.ok(ApiResponse.success(categoryDTOs));
     }
 
-    // Pobierz kategorię po ID
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
-    // ZMIANA: Zwraca opakowaną odpowiedź
     public ResponseEntity<ApiResponse<CategoryDTO>> getCategoryById(@PathVariable Long id) {
         Optional<Category> category = categoryRepository.findById(id);
         if (category.isPresent()) {
-            // ZMIANA: Opakowanie w ApiResponse.success()
             return ResponseEntity.ok(ApiResponse.success(dtoMapper.toDTO(category.get())));
         }
         throw new ResourceNotFoundException("Category", "id", id);
     }
 
-    // Pobierz kategorię po kodzie
     @GetMapping("/code/{code}")
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
-    // ZMIANA: Zwraca opakowaną odpowiedź
     public ResponseEntity<ApiResponse<CategoryDTO>> getCategoryByCode(@PathVariable String code) {
         Optional<Category> category = categoryRepository.findByCode(code);
         if (category.isPresent()) {
-            // ZMIANA: Opakowanie w ApiResponse.success()
             return ResponseEntity.ok(ApiResponse.success(dtoMapper.toDTO(category.get())));
         }
         throw new ResourceNotFoundException("Category", "code", code);
     }
 
-    // Wyszukaj kategorie po nazwie
     @GetMapping("/search")
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
-    // ZMIANA: Zwraca opakowaną odpowiedź
     public ResponseEntity<ApiResponse<List<CategoryDTO>>> searchCategories(@RequestParam String query) {
         List<Category> categories = categoryRepository.findByNameContainingIgnoreCase(query);
         List<CategoryDTO> categoryDTOs = categories.stream()
                 .map(dtoMapper::toDTO)
                 .collect(Collectors.toList());
-        // ZMIANA: Opakowanie w ApiResponse.success()
         return ResponseEntity.ok(ApiResponse.success(categoryDTOs));
     }
 
-    // Pobierz kategorie główne (bez rodzica)
     @GetMapping("/root")
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
-    // ZMIANA: Zwraca opakowaną odpowiedź
     public ResponseEntity<ApiResponse<List<CategoryDTO>>> getRootCategories() {
         List<Category> categories = categoryRepository.findByParentIsNull();
         List<CategoryDTO> categoryDTOs = categories.stream()
                 .map(dtoMapper::toDTO)
                 .collect(Collectors.toList());
-        // ZMIANA: Opakowanie w ApiResponse.success()
         return ResponseEntity.ok(ApiResponse.success(categoryDTOs));
     }
 
-    // Pobierz podkategorie
     @GetMapping("/{id}/children")
     @PreAuthorize("hasAuthority('PRODUCT_READ')")
-    // ZMIANA: Zwraca opakowaną odpowiedź
     public ResponseEntity<ApiResponse<List<CategoryDTO>>> getChildCategories(@PathVariable Long id) {
         List<Category> categories = categoryRepository.findByParentId(id);
         List<CategoryDTO> categoryDTOs = categories.stream()
                 .map(dtoMapper::toDTO)
                 .collect(Collectors.toList());
-        // ZMIANA: Opakowanie w ApiResponse.success()
         return ResponseEntity.ok(ApiResponse.success(categoryDTOs));
     }
 
-    // Dodaj nową kategorię
     @PostMapping
     @PreAuthorize("hasAuthority('PRODUCT_WRITE')")
-    // ZMIANA: Zwraca opakowaną odpowiedź
     public ResponseEntity<ApiResponse<CategoryDTO>> createCategory(@Valid @RequestBody CreateCategoryRequest request) {
-        // Sprawdź czy kod już istnieje
         if (categoryRepository.existsByCode(request.getCode())) {
-            // ZMIANA: Zwróć błąd w formacie ApiResponse
             return ResponseEntity.badRequest().body(ApiResponse.error("Kategoria o tym kodzie już istnieje"));
         }
 
@@ -142,7 +121,6 @@ public class CategoryController {
         category.setStorageHumidityMin(request.getStorageHumidityMin());
         category.setStorageHumidityMax(request.getStorageHumidityMax());
 
-        // Ustaw rodzica jeśli podany
         if (request.getParentId() != null) {
             Optional<Category> parent = categoryRepository.findById(request.getParentId());
             if (parent.isPresent()) {
@@ -151,14 +129,11 @@ public class CategoryController {
         }
 
         Category savedCategory = categoryRepository.save(category);
-        // ZMIANA: Opakowanie w ApiResponse.success()
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(dtoMapper.toDTO(savedCategory)));
     }
 
-    // Aktualizuj kategorię
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('PRODUCT_WRITE')")
-    // ZMIANA: Zwraca opakowaną odpowiedź
     public ResponseEntity<ApiResponse<CategoryDTO>> updateCategory(@PathVariable Long id,
                                                                    @Valid @RequestBody UpdateCategoryRequest request) {
         Optional<Category> existingCategory = categoryRepository.findById(id);
@@ -180,7 +155,6 @@ public class CategoryController {
         if (request.getStorageHumidityMin() != null) category.setStorageHumidityMin(request.getStorageHumidityMin());
         if (request.getStorageHumidityMax() != null) category.setStorageHumidityMax(request.getStorageHumidityMax());
 
-        // Aktualizuj rodzica jeśli podany
         if (request.getParentId() != null) {
             Optional<Category> parent = categoryRepository.findById(request.getParentId());
             if (parent.isPresent()) {
@@ -191,14 +165,11 @@ public class CategoryController {
         }
 
         Category updatedCategory = categoryRepository.save(category);
-        // ZMIANA: Opakowanie w ApiResponse.success()
         return ResponseEntity.ok(ApiResponse.success(dtoMapper.toDTO(updatedCategory)));
     }
 
-    // Usuń kategorię (soft delete)
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('PRODUCT_DELETE')")
-    // ZMIANA: Zwraca ApiResponse<Unit> (reprezentowane przez 'null' lub 'Void')
     public ResponseEntity<ApiResponse<Void>> deleteCategory(@PathVariable Long id) {
         Optional<Category> existingCategory = categoryRepository.findById(id);
         if (!existingCategory.isPresent()) {
@@ -206,17 +177,14 @@ public class CategoryController {
         }
 
         Category category = existingCategory.get();
-        category.setActive(false); // Soft delete
+        category.setActive(false);
         categoryRepository.save(category);
 
-        // ZMIANA: Zwróć sukces z pustymi danymi (musi zwrócić obiekt JSON)
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
-    // Aktywuj/dezaktywuj kategorię
     @PatchMapping("/{id}/toggle-active")
     @PreAuthorize("hasAuthority('PRODUCT_WRITE')")
-    // ZMIANA: Zwraca opakowaną odpowiedź
     public ResponseEntity<ApiResponse<CategoryDTO>> toggleCategoryActive(@PathVariable Long id) {
         Optional<Category> existingCategory = categoryRepository.findById(id);
         if (!existingCategory.isPresent()) {
@@ -227,11 +195,9 @@ public class CategoryController {
         category.setActive(!category.getActive());
         Category updatedCategory = categoryRepository.save(category);
 
-        // ZMIANA: Opakowanie w ApiResponse.success()
         return ResponseEntity.ok(ApiResponse.success(dtoMapper.toDTO(updatedCategory)));
     }
 
-    // DTOs (pozostają bez zmian)
     public static class CreateCategoryRequest {
         private String code;
         private String name;
@@ -247,7 +213,6 @@ public class CategoryController {
         private Integer storageHumidityMin;
         private Integer storageHumidityMax;
 
-        // Gettery i settery
         public String getCode() { return code; }
         public void setCode(String code) { this.code = code; }
         public String getName() { return name; }
@@ -291,7 +256,6 @@ public class CategoryController {
         private Integer storageHumidityMin;
         private Integer storageHumidityMax;
 
-        // Gettery i settery
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
         public String getDescription() { return description; }

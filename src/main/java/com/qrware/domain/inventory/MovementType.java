@@ -1,8 +1,5 @@
 package com.qrware.domain.inventory;
 
-/**
- * Enumeration defining different types of inventory movements
- */
 public enum MovementType {
     
     RECEIPT("Receipt", "Item received into inventory"),
@@ -46,7 +43,6 @@ public enum MovementType {
     LOAN("Loan", "Item loaned out"),
     LOAN_RETURN("Loan Return", "Loaned item returned"),
     
-    // Order-related movements
     ORDER_RECEIPT("Order Receipt", "Item received via order"),
     ORDER_ISSUE("Order Issue", "Item issued via order"),
     ORDER_PICK("Order Pick", "Item picked for order fulfillment"),

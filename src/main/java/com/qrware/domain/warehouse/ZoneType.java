@@ -1,8 +1,5 @@
 package com.qrware.domain.warehouse;
 
-/**
- * Enumeration defining different types of warehouse zones
- */
 public enum ZoneType {
     
     STORAGE("Storage", "General storage zone"),

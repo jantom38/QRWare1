@@ -9,9 +9,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Product entity representing items in the warehouse
- */
 @Entity
 @Table(name = "products", indexes = {
     @Index(name = "idx_product_sku", columnList = "sku"),
@@ -112,7 +109,6 @@ public class Product extends BaseEntity {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<InventoryItem> inventoryItems = new ArrayList<>();
 
-    // Constructors
     public Product() {}
 
     public Product(String sku, String name, Category category, String unitOfMeasure) {
@@ -122,7 +118,6 @@ public class Product extends BaseEntity {
         this.unitOfMeasure = unitOfMeasure;
     }
 
-    // Business methods
     public boolean requiresSpecialHandling() {
         return perishable || hazardous || fragile;
     }
@@ -149,7 +144,6 @@ public class Product extends BaseEntity {
         return null;
     }
 
-    // Getters and Setters
     public String getSku() {
         return sku;
     }

@@ -21,9 +21,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Serwis do zarządzania użytkownikami, rolami i uprawnieniami przez administratora.
- */
+
 @Service
 @Transactional
 public class UserService {
@@ -42,20 +40,14 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // --- Zarządzanie Użytkownikami ---
 
-    /**
-     * Pobiera stronę z listą wszystkich użytkowników.
-     */
     @Transactional(readOnly = true)
     public Page<User> getAllUsers(Pageable pageable) {
         logger.debug("Pobieranie listy użytkowników, strona: {}, rozmiar: {}", pageable.getPageNumber(), pageable.getPageSize());
         return userRepository.findAll(pageable);
     }
 
-    /**
-     * Wyszukuje użytkowników na podstawie zapytania.
-     */
+
     @Transactional(readOnly = true)
     public Page<User> searchUsers(String query, Pageable pageable) {
         if (query == null || query.trim().isEmpty()) {
@@ -65,19 +57,14 @@ public class UserService {
         return userRepository.searchUsers(query.trim(), pageable);
     }
 
-    /**
-     * Znajduje użytkownika po ID.
-     */
+
     @Transactional(readOnly = true)
     public User getUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
     }
 
-    /**
-     * Tworzy nowego użytkownika (przez administratora).
-     * UWAGA: Uwzględnia pola active i emailVerified z DTO.
-     */
+
     public User createUser(User newUser, Set<String> roleNames, String rawPassword) {
         if (userRepository.existsByUsername(newUser.getUsername())) {
             throw new IllegalArgumentException("Username jest już zajęty: " + newUser.getUsername());
@@ -89,7 +76,6 @@ public class UserService {
         newUser.setPassword(passwordEncoder.encode(rawPassword));
         newUser.setRoles(findRolesByName(roleNames));
 
-        // Zastosowanie wartości z DTO (jeśli nie jest nullem), w przeciwnym razie użycie domyślnej z encji User
         if (newUser.getActive() == null) {
             newUser.setActive(true);
         }
@@ -102,19 +88,14 @@ public class UserService {
         return savedUser;
     }
 
-    /**
-     * Aktualizuje istniejącego użytkownika.
-     * UWAGA: Uwzględnia pola active i emailVerified.
-     */
+
     public User updateUser(Long id, User userDetails, Set<String> roleNames) {
         User user = getUserById(id);
 
-        // Sprawdzenie unikalności emaila, jeśli jest zmieniany
         if (!user.getEmail().equals(userDetails.getEmail()) && userRepository.existsByEmail(userDetails.getEmail())) {
             throw new IllegalArgumentException("Email jest już zajęty: " + userDetails.getEmail());
         }
 
-        // Aktualizacja pól
         user.setEmail(userDetails.getEmail());
         user.setFirstName(userDetails.getFirstName());
         user.setLastName(userDetails.getLastName());
@@ -128,14 +109,11 @@ public class UserService {
         return updatedUser;
     }
 
-    /**
-     * Usuwa użytkownika.
-     */
+
     public void deleteUser(Long id) {
         User user = getUserById(id);
 
-        // Zabezpieczenie przed usunięciem samego siebie lub krytycznego konta
-        // (Wymaga SecurityUtils, ale dla uproszczenia pomijamy)
+
         if (user.getUsername().equals("admin")) {
             throw new IllegalArgumentException("Nie można usunąć domyślnego konta administratora.");
         }
@@ -144,9 +122,7 @@ public class UserService {
         logger.info("Usunięto użytkownika (przez admina): id={}", id);
     }
 
-    /**
-     * Blokuje konto użytkownika.
-     */
+
     public void lockUser(Long id) {
         User user = getUserById(id);
         user.lockAccount(99999); // Blokada na bardzo długi czas (ręczne odblokowanie)
@@ -154,9 +130,7 @@ public class UserService {
         logger.warn("Ręcznie zablokowano konto użytkownika (przez admina): {}", user.getUsername());
     }
 
-    /**
-     * Odblokowuje konto użytkownika.
-     */
+
     public void unlockUser(Long id) {
         User user = getUserById(id);
         user.unlockAccount();
@@ -164,9 +138,7 @@ public class UserService {
         logger.info("Ręcznie odblokowano konto użytkownika (przez admina): {}", user.getUsername());
     }
 
-    /**
-     * Ustawia nowe hasło dla użytkownika (przez administratora).
-     */
+
     public void adminResetPassword(Long id, String newPassword) {
         User user = getUserById(id);
         user.setPassword(passwordEncoder.encode(newPassword));
@@ -175,7 +147,6 @@ public class UserService {
     }
 
 
-    // --- Zarządzanie Rolami ---
 
     @Transactional(readOnly = true)
     public List<Role> getAllRoles() {
@@ -188,16 +159,12 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("Role", "id", id));
     }
 
-    /**
-     * Tworzy nową rolę.
-     * UWAGA: Uwzględnia pole active z DTO.
-     */
+
     public Role createRole(Role newRole, Set<String> permissionNames) {
         if (roleRepository.existsByName(newRole.getName())) {
             throw new IllegalArgumentException("Rola o nazwie " + newRole.getName() + " już istnieje.");
         }
 
-        // Ustawienie aktywności z DTO (jeśli jest, w przeciwnym razie domyślna z encji)
         if (newRole.getActive() == null) {
             newRole.setActive(true);
         }
@@ -208,14 +175,10 @@ public class UserService {
         return savedRole;
     }
 
-    /**
-     * Aktualizuje rolę.
-     * UWAGA: Uwzględnia pole active.
-     */
+
     public Role updateRole(Long id, Role roleDetails, Set<String> permissionNames) {
         Role role = getRoleById(id);
 
-        // Sprawdzenie, czy administrator nie próbuje zmienić nazwy na istniejącą
         if (!role.getName().equalsIgnoreCase(roleDetails.getName()) && roleRepository.existsByName(roleDetails.getName())) {
             throw new IllegalArgumentException("Rola o nazwie " + roleDetails.getName() + " już istnieje.");
         }
@@ -232,12 +195,11 @@ public class UserService {
 
     public void deleteRole(Long id) {
         Role role = getRoleById(id);
-        // TODO: Dodać walidację - nie usuwaj ról, które są przypisane do użytkowników
+
         if (role.getName().equals("ADMIN") || role.getName().equals("USER")) {
             throw new IllegalArgumentException("Nie można usunąć podstawowych ról systemowych.");
         }
 
-        // Usuń powiązania z użytkownikami przed usunięciem roli
         for (User user : role.getUsers()) {
             user.getRoles().remove(role);
             userRepository.save(user);
@@ -247,31 +209,25 @@ public class UserService {
         logger.info("Usunięto rolę: id={}", id);
     }
 
-    // --- Zarządzanie Uprawnieniami ---
 
     @Transactional(readOnly = true)
     public List<Permission> getAllPermissions() {
         return permissionRepository.findAll();
     }
 
-    /**
-     * Znajduje uprawnienie po ID.
-     */
+
     @Transactional(readOnly = true)
     public Permission getPermissionById(Long id) {
         return permissionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Permission", "id", id));
     }
 
-    /**
-     * Tworzy nowe uprawnienie.
-     */
+
     public Permission createPermission(Permission newPermission) {
         if (permissionRepository.existsByName(newPermission.getName())) {
             throw new IllegalArgumentException("Uprawnienie o nazwie " + newPermission.getName() + " już istnieje.");
         }
 
-        // Zastosowanie wartości z DTO
         if (newPermission.getActive() == null) {
             newPermission.setActive(true);
         }
@@ -281,13 +237,10 @@ public class UserService {
         return savedPermission;
     }
 
-    /**
-     * Aktualizuje istniejące uprawnienie.
-     */
+
     public Permission updatePermission(Long id, Permission permissionDetails) {
         Permission permission = getPermissionById(id);
 
-        // Walidacja nazwy, resource i action (jako że definiują unikalność)
         if (!permission.getName().equalsIgnoreCase(permissionDetails.getName()) && permissionRepository.existsByName(permissionDetails.getName())) {
             throw new IllegalArgumentException("Uprawnienie o nazwie " + permissionDetails.getName() + " już istnieje.");
         }
@@ -303,13 +256,10 @@ public class UserService {
         return updatedPermission;
     }
 
-    /**
-     * Usuwa uprawnienie.
-     */
+
     public void deletePermission(Long id) {
         Permission permission = getPermissionById(id);
 
-        // Opcjonalnie: sprawdzenie, czy uprawnienie jest używane przez role
         if (!permission.getRoles().isEmpty()) {
             throw new IllegalArgumentException("Nie można usunąć uprawnienia, jest przypisane do ról: " + permission.getRoles().stream().map(Role::getName).collect(Collectors.joining(", ")));
         }
@@ -319,7 +269,6 @@ public class UserService {
     }
 
 
-    // --- Metody pomocnicze ---
 
     private Set<Role> findRolesByName(Set<String> roleNames) {
         return roleNames.stream()

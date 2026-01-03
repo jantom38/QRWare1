@@ -15,9 +15,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * User entity representing system users with role-based access control
- */
 @Entity
 @Table(name = "users", indexes = {
     @Index(name = "idx_user_username", columnList = "username"),
@@ -77,7 +74,6 @@ public class User extends BaseEntity implements UserDetails {
     )
     private Set<Role> roles = new HashSet<>();
 
-    // Constructors
     public User() {}
 
     public User(String username, String email, String password, String firstName, String lastName) {
@@ -88,7 +84,6 @@ public class User extends BaseEntity implements UserDetails {
         this.lastName = lastName;
     }
 
-    // UserDetails implementation
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
@@ -117,7 +112,6 @@ public class User extends BaseEntity implements UserDetails {
         return active && emailVerified;
     }
 
-    // Business methods
     public void lockAccount(int minutes) {
         this.lockedUntil = LocalDateTime.now().plusMinutes(minutes);
     }
@@ -153,7 +147,6 @@ public class User extends BaseEntity implements UserDetails {
             .anyMatch(permission -> permission.getName().equals(permissionName));
     }
 
-    // Getters and Setters
     public String getUsername() {
         return username;
     }

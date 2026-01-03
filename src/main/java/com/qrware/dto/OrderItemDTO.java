@@ -9,21 +9,17 @@ public class OrderItemDTO {
     private Long id;
     private Integer lineNumber;
     
-    // Order information
     private Long orderId;
     private String orderNumber;
     
-    // Product information
     private Long productId;
     private String productName;
     private String productSku;
     private String productDescription;
     
-    // Inventory information
     private Long inventoryItemId;
     private String inventoryItemCode;
     
-    // Location information
     private Long sourceLocationId;
     private String sourceLocationName;
     private String sourceLocationCode;
@@ -31,33 +27,27 @@ public class OrderItemDTO {
     private String destinationLocationName;
     private String destinationLocationCode;
     
-    // Quantities
     private Integer requestedQuantity;
     private Integer completedQuantity;
     private Integer remainingQuantity;
     
-    // Pricing
     private BigDecimal unitPrice;
     private BigDecimal totalValue;
     
-    // Status and tracking
     private OrderItemStatus status;
     private String notes;
     private String batchNumber;
     private String serialNumber;
     private String qrCodeData;
     
-    // Dates
     private LocalDateTime expiryDate;
     private LocalDateTime pickedAt;
     private LocalDateTime completedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
-    // Additional information
     private String completionNotes;
     
-    // Calculated fields
     private Double completionPercentage;
     private Boolean isCompleted;
     private Boolean isPartiallyCompleted;
@@ -68,7 +58,6 @@ public class OrderItemDTO {
     private String actualSourceQrCode;
     private String fulfillmentNotes;
 
-    // Constructors
     public OrderItemDTO() {}
 
     public OrderItemDTO(Long id, Integer lineNumber, String productName, 
@@ -80,7 +69,6 @@ public class OrderItemDTO {
         this.status = status;
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

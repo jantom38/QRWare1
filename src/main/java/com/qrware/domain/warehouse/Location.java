@@ -13,9 +13,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Location entity representing physical locations in the warehouse
- */
 @Entity
 @Table(name = "locations", indexes = {
     @Index(name = "idx_location_code", columnList = "code"),
@@ -132,7 +129,6 @@ public class Location extends BaseEntity {
     @JsonIgnore
     private List<InventoryItem> inventoryItems = new ArrayList<>();
 
-    // Constructors
     public Location() {}
 
     public Location(String code, String name, Zone zone, LocationType type) {
@@ -142,7 +138,6 @@ public class Location extends BaseEntity {
         this.type = type;
     }
 
-    // Business methods
     public String getFullAddress() {
         StringBuilder address = new StringBuilder();
         if (aisle != null) address.append("A").append(aisle);
@@ -252,7 +247,6 @@ public class Location extends BaseEntity {
         return minOk && maxOk;
     }
 
-    // Getters and Setters
     public String getCode() {
         return code;
     }

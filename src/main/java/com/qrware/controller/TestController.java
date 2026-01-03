@@ -9,17 +9,11 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.HashMap;
 
-/**
- * Test Controller for verifying system functionality
- */
 @RestController
 @RequestMapping("/api/test")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class TestController {
 
-    /**
-     * Public endpoint - no authentication required
-     */
     @GetMapping("/public")
     public ResponseEntity<?> publicEndpoint() {
         Map<String, Object> response = new HashMap<>();
@@ -31,9 +25,6 @@ public class TestController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Protected endpoint - authentication required
-     */
     @GetMapping("/protected")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> protectedEndpoint() {
@@ -49,9 +40,6 @@ public class TestController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Admin only endpoint
-     */
     @GetMapping("/admin")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> adminEndpoint() {
@@ -66,9 +54,6 @@ public class TestController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Warehouse worker endpoint
-     */
     @GetMapping("/warehouse")
     @PreAuthorize("hasAnyRole('WAREHOUSE_WORKER', 'WAREHOUSE_MANAGER', 'ADMIN')")
     public ResponseEntity<?> warehouseEndpoint() {
@@ -84,9 +69,6 @@ public class TestController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Manager endpoint
-     */
     @GetMapping("/manager")
     @PreAuthorize("hasAnyRole('WAREHOUSE_MANAGER', 'ADMIN')")
     public ResponseEntity<?> managerEndpoint() {
@@ -101,9 +83,6 @@ public class TestController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Test JWT token info
-     */
     @GetMapping("/token-info")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> tokenInfo() {
@@ -125,9 +104,6 @@ public class TestController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Test role permissions
-     */
     @GetMapping("/permissions")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> testPermissions() {
@@ -136,7 +112,6 @@ public class TestController {
         response.put("timestamp", LocalDateTime.now());
         response.put("user", SecurityUtils.getCurrentUsername().orElse("unknown"));
         
-        // Test various role checks
         Map<String, Boolean> roleChecks = new HashMap<>();
         roleChecks.put("hasRoleUser", SecurityUtils.hasRole("USER"));
         roleChecks.put("hasRoleWarehouseWorker", SecurityUtils.hasRole("WAREHOUSE_WORKER"));
@@ -144,7 +119,6 @@ public class TestController {
         roleChecks.put("hasRoleAdmin", SecurityUtils.hasRole("ADMIN"));
         response.put("roleChecks", roleChecks);
         
-        // Test capability checks
         Map<String, Boolean> capabilityChecks = new HashMap<>();
         capabilityChecks.put("isAdmin", SecurityUtils.isAdmin());
         capabilityChecks.put("isWarehouseManager", SecurityUtils.isWarehouseManager());
@@ -161,9 +135,6 @@ public class TestController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Test CORS
-     */
     @GetMapping("/cors")
     public ResponseEntity<?> testCors() {
         Map<String, Object> response = new HashMap<>();
@@ -176,9 +147,6 @@ public class TestController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Test POST endpoint
-     */
     @PostMapping("/echo")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> echo(@RequestBody Map<String, Object> payload) {
@@ -192,26 +160,17 @@ public class TestController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Test error handling
-     */
     @GetMapping("/error")
     public ResponseEntity<?> testError() {
         throw new RuntimeException("Test error for error handling verification");
     }
 
-    /**
-     * Test unauthorized access
-     */
     @GetMapping("/unauthorized")
     @PreAuthorize("hasRole('NONEXISTENT_ROLE')")
     public ResponseEntity<?> testUnauthorized() {
         return ResponseEntity.ok("This should never be reached");
     }
 
-    /**
-     * System information
-     */
     @GetMapping("/system-info")
     public ResponseEntity<?> systemInfo() {
         Map<String, Object> response = new HashMap<>();

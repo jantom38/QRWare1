@@ -470,6 +470,7 @@ fun AppNavigation(appContainer: AppContainer) {
                     navController.popBackStack()
                 }
             }
+
         }
     }
 }

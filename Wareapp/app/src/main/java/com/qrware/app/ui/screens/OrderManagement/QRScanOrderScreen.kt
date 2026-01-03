@@ -35,7 +35,7 @@ import com.qrware.app.data.repository.OrderItemRepository
 import com.qrware.app.data.repository.OrderRepository
 import com.qrware.app.ui.viewmodel.OrderManagement.QRScanOrderViewModel
 import com.qrware.app.ui.viewmodel.OrderManagement.QRScanOrderViewModelFactory
-import com.qrware.app.util.BarcodeAnalyzer
+import com.qrware.app.util.QrCodeAnalyzer
 import java.util.concurrent.Executors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -178,8 +178,8 @@ fun QRScannerView(
                 .setTargetResolution(Size(1280, 720))
                 .build()
                 .also {
-                    it.setAnalyzer(cameraExecutor, BarcodeAnalyzer { barcode ->
-                        onQRCodeScanned(barcode)
+                    it.setAnalyzer(cameraExecutor, QrCodeAnalyzer { qrCode ->
+                        onQRCodeScanned(qrCode)
                     })
                 }
 

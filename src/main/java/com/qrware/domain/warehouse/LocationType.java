@@ -1,8 +1,5 @@
 package com.qrware.domain.warehouse;
 
-/**
- * Enumeration defining different types of warehouse locations
- */
 public enum LocationType {
     
     SHELF("Shelf", "Standard shelf storage"),

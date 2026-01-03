@@ -20,17 +20,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant; // ZMIANA: Potrzebne do timestampu
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Kontroler do zarządzania Użytkownikami, Rolami i Uprawnieniami.
- * Dostępny tylko dla administratorów.
- */
 @RestController
 @RequestMapping("/api")
 @PreAuthorize("hasAuthority('ADMIN_FULL')")
@@ -42,56 +38,42 @@ public class UserManagementController {
     @Autowired
     private UserService userService;
 
-    // ZMIANA: Definicja generycznej klasy odpowiedzi, pasującej do ApiResponse.kt w Androidzie
     public static class GlobalApiResponse<T> {
         private final boolean success;
         private final String message;
         private final T data;
         private final String timestamp;
 
-        // Konstruktor dla sukcesu (z danymi)
         public GlobalApiResponse(boolean success, String message, T data) {
             this.success = success;
             this.message = message;
             this.data = data;
-            this.timestamp = Instant.now().toString(); // Automatycznie dodaje timestamp
+            this.timestamp = Instant.now().toString();
         }
 
-        // Konstruktor dla błędu (bez danych)
         public GlobalApiResponse(boolean success, String message) {
             this(success, message, null);
         }
 
-        // Gettery są niezbędne dla Jacksona (serializacja JSON)
         public boolean isSuccess() { return success; }
         public String getMessage() { return message; }
         public T getData() { return data; }
         public String getTimestamp() { return timestamp; }
     }
 
-    // ZMIANA: Metoda pomocnicza zwraca nowy typ GlobalApiResponse
     private <T> ResponseEntity<GlobalApiResponse<T>> buildSuccessResponse(T data, String message, HttpStatus status) {
         return ResponseEntity.status(status).body(
-                new GlobalApiResponse<>(true, message, data) // success = true
+                new GlobalApiResponse<>(true, message, data)
         );
     }
 
-    // ZMIANA: Metoda pomocnicza zwraca nowy typ GlobalApiResponse
     private ResponseEntity<GlobalApiResponse<Object>> buildErrorResponse(String message, HttpStatus status) {
         logger.warn("Błąd zarządzania użytkownikami: {} (Status: {})", message, status);
         return ResponseEntity.status(status).body(
-                new GlobalApiResponse<>(false, message) // success = false
+                new GlobalApiResponse<>(false, message)
         );
     }
 
-    // =================================================================================================================
-    // DTOs (Data Transfer Objects) - Bez zmian
-    // =================================================================================================================
-
-    /**
-     * DTO: Odpowiedź ze szczegółowymi danymi użytkownika dla administratora.
-     * UWAGA: Dodano active, emailVerified.
-     */
     public static class AdminUserResponse {
         private Long id;
         private String username;
@@ -99,8 +81,8 @@ public class UserManagementController {
         private String firstName;
         private String lastName;
         private String phone;
-        private Boolean active; // DODANE
-        private Boolean emailVerified; // DODANE
+        private Boolean active;
+        private Boolean emailVerified;
         private LocalDateTime lastLogin;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
@@ -125,7 +107,6 @@ public class UserManagementController {
             this.permissions = user.getAuthorities().stream().map(Object::toString).collect(Collectors.toSet());
         }
 
-        // Gettery (usunięto z poprzedniej wersji, dodaję z powrotem dla kompletności DTO)
         public Long getId() { return id; }
         public String getUsername() { return username; }
         public String getEmail() { return email; }
@@ -142,10 +123,6 @@ public class UserManagementController {
         public Set<String> getPermissions() { return permissions; }
     }
 
-    /**
-     * DTO: Żądanie utworzenia użytkownika przez administratora.
-     * UWAGA: Dodano active i emailVerified.
-     */
     public static class AdminCreateUserRequest {
         @NotBlank @Size(min = 3, max = 50) private String username;
         @NotBlank @jakarta.validation.constraints.Email private String email;
@@ -155,10 +132,9 @@ public class UserManagementController {
         private String phone;
         @jakarta.validation.constraints.NotEmpty private Set<String> roles;
 
-        private Boolean active; // DODANE
-        private Boolean emailVerified; // DODANE
+        private Boolean active;
+        private Boolean emailVerified;
 
-        // Gettery
         public String getUsername() { return username; }
         public String getEmail() { return email; }
         public String getPassword() { return password; }
@@ -170,20 +146,15 @@ public class UserManagementController {
         public Boolean getEmailVerified() { return emailVerified; }
     }
 
-    /**
-     * DTO: Żądanie aktualizacji użytkownika przez administratora.
-     * UWAGA: Dodano emailVerified.
-     */
     public static class UpdateUserRequest {
         @jakarta.validation.constraints.Email private String email;
         private String firstName;
         private String lastName;
         private String phone;
         @jakarta.validation.constraints.NotNull private Boolean active;
-        @jakarta.validation.constraints.NotNull private Boolean emailVerified; // DODANE
+        @jakarta.validation.constraints.NotNull private Boolean emailVerified;
         @jakarta.validation.constraints.NotEmpty private Set<String> roles;
 
-        // Gettery
         public String getEmail() { return email; }
         public String getFirstName() { return firstName; }
         public String getLastName() { return lastName; }
@@ -193,36 +164,28 @@ public class UserManagementController {
         public Boolean getEmailVerified() { return emailVerified; }
     }
 
-    /**
-     * DTO: Żądanie resetu hasła przez administratora.
-     */
     public static class AdminResetPasswordRequest {
         @NotBlank @Size(min = 8, max = 100) private String newPassword;
         public String getNewPassword() { return newPassword; }
     }
 
-    /**
-     * DTO: Odpowiedź dla Roli.
-     * UWAGA: Dodano active.
-     */
     public static class RoleResponse {
         private Long id;
         private String name;
         private String description;
-        private Boolean active; // DODANE
+        private Boolean active;
         private List<String> permissions;
 
         public RoleResponse(Role role) {
             this.id = role.getId();
             this.name = role.getName();
             this.description = role.getDescription();
-            this.active = role.getActive(); // DODANE
+            this.active = role.getActive();
             this.permissions = role.getPermissions().stream()
                     .map(Permission::getName)
                     .sorted()
                     .collect(Collectors.toList());
         }
-        // Gettery
         public Long getId() { return id; }
         public String getName() { return name; }
         public String getDescription() { return description; }
@@ -230,34 +193,25 @@ public class UserManagementController {
         public List<String> getPermissions() { return permissions; }
     }
 
-    /**
-     * DTO: Żądanie utworzenia/aktualizacji Roli.
-     * UWAGA: Dodano active.
-     */
     public static class RoleRequest {
         @NotBlank @Size(max = 50) private String name;
         @Size(max = 255) private String description;
         private Set<String> permissions;
-        @jakarta.validation.constraints.NotNull private Boolean active; // DODANE
+        @jakarta.validation.constraints.NotNull private Boolean active;
 
-        // Gettery
         public String getName() { return name; }
         public String getDescription() { return description; }
         public Set<String> getPermissions() { return permissions; }
         public Boolean getActive() { return active; }
     }
 
-    /**
-     * DTO: Odpowiedź dla Uprawnienia.
-     * UWAGA: Dodano active.
-     */
     public static class PermissionResponse {
         private Long id;
         private String name;
         private String description;
         private String resource;
         private String action;
-        private Boolean active; // DODANE
+        private Boolean active;
 
         public PermissionResponse(Permission permission) {
             this.id = permission.getId();
@@ -265,9 +219,8 @@ public class UserManagementController {
             this.description = permission.getDescription();
             this.resource = permission.getResource();
             this.action = permission.getAction();
-            this.active = permission.getActive(); // DODANE
+            this.active = permission.getActive();
         }
-        // Gettery
         public Long getId() { return id; }
         public String getName() { return name; }
         public String getDescription() { return description; }
@@ -276,19 +229,14 @@ public class UserManagementController {
         public Boolean getActive() { return active; }
     }
 
-    /**
-     * DTO: Żądanie utworzenia/aktualizacji Uprawnienia.
-     * UWAGA: Nowe DTO.
-     */
     public static class PermissionRequest {
         private Long id;
         @NotBlank @Size(max = 100) private String name;
         @Size(max = 255) private String description;
         @NotBlank @Size(max = 50) private String resource;
         @NotBlank @Size(max = 20) private String action;
-        @jakarta.validation.constraints.NotNull private Boolean active; // DODANE
+        @jakarta.validation.constraints.NotNull private Boolean active;
 
-        // Gettery
         public Long getId() { return id; }
         public String getName() { return name; }
         public String getDescription() { return description; }
@@ -297,14 +245,6 @@ public class UserManagementController {
         public Boolean getActive() { return active; }
     }
 
-
-    // --- ENDPOINTY UŻYTKOWNIKÓW ---
-    // ZMIANA: Typy zwracane przez endpointy (ResponseEntity<?>) pozostają bez zmian,
-    // ponieważ GlobalApiResponse pasuje do ?, ale metody pomocnicze (build...Response) zostały zmienione.
-
-    /**
-     * Pobiera listę wszystkich użytkowników (stronicowanie).
-     */
     @GetMapping("/users")
     public ResponseEntity<?> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
@@ -316,9 +256,8 @@ public class UserManagementController {
                 sortOrder = Sort.by(sort[0]).descending();
             }
             Pageable pageable = PageRequest.of(page, size, sortOrder);
-            Page<User> userPage = userService.getAllUsers(pageable); // Zgodne z UserService
+            Page<User> userPage = userService.getAllUsers(pageable);
 
-            // Mapowanie na DTO
             Page<AdminUserResponse> responsePage = userPage.map(AdminUserResponse::new);
 
             return buildSuccessResponse(responsePage, "Pobrano listę użytkowników", HttpStatus.OK);
@@ -327,9 +266,6 @@ public class UserManagementController {
         }
     }
 
-    /**
-     * Wyszukuje użytkowników na podstawie zapytania.
-     */
     @GetMapping("/users/search")
     public ResponseEntity<?> searchUsers(
             @RequestParam("query") String query,
@@ -344,7 +280,6 @@ public class UserManagementController {
             Pageable pageable = PageRequest.of(page, size, sortOrder);
             Page<User> userPage = userService.searchUsers(query, pageable);
 
-            // Mapowanie na DTO
             Page<AdminUserResponse> responsePage = userPage.map(AdminUserResponse::new);
 
             return buildSuccessResponse(responsePage, "Znaleziono użytkowników dla zapytania: " + query, HttpStatus.OK);
@@ -353,13 +288,9 @@ public class UserManagementController {
         }
     }
 
-    /**
-     * Tworzy nowego użytkownika (przez administratora).
-     */
     @PostMapping("/users")
     public ResponseEntity<?> createUser(@Valid @RequestBody AdminCreateUserRequest createRequest) {
         try {
-            // Walidacja hasła
             if (createRequest.getPassword() == null || createRequest.getPassword().length() < 8) {
                 return buildErrorResponse("Hasło musi mieć co najmniej 8 znaków", HttpStatus.BAD_REQUEST);
             }
@@ -370,10 +301,10 @@ public class UserManagementController {
             newUser.setFirstName(createRequest.getFirstName());
             newUser.setLastName(createRequest.getLastName());
             newUser.setPhone(createRequest.getPhone());
-            newUser.setActive(createRequest.getActive()); // Ustawienie pola z DTO
-            newUser.setEmailVerified(createRequest.getEmailVerified()); // Ustawienie pola z DTO
+            newUser.setActive(createRequest.getActive());
+            newUser.setEmailVerified(createRequest.getEmailVerified());
 
-            User savedUser = userService.createUser(newUser, createRequest.getRoles(), createRequest.getPassword()); // Zgodne z UserService
+            User savedUser = userService.createUser(newUser, createRequest.getRoles(), createRequest.getPassword());
             return buildSuccessResponse(new AdminUserResponse(savedUser), "Utworzono użytkownika", HttpStatus.CREATED);
 
         } catch (IllegalArgumentException ex) {
@@ -383,13 +314,10 @@ public class UserManagementController {
         }
     }
 
-    /**
-     * Pobiera szczegóły konkretnego użytkownika.
-     */
     @GetMapping("/users/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         try {
-            User user = userService.getUserById(id); // Zgodne z UserService
+            User user = userService.getUserById(id);
             return buildSuccessResponse(new AdminUserResponse(user), "Pobrano użytkownika", HttpStatus.OK);
         } catch (ResourceNotFoundException ex) {
             return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
@@ -398,9 +326,6 @@ public class UserManagementController {
         }
     }
 
-    /**
-     * Aktualizuje dane użytkownika.
-     */
     @PutMapping("/users/{id}")
     public ResponseEntity<?> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest updateRequest) {
         try {
@@ -410,9 +335,9 @@ public class UserManagementController {
             userDetails.setLastName(updateRequest.getLastName());
             userDetails.setPhone(updateRequest.getPhone());
             userDetails.setActive(updateRequest.getActive());
-            userDetails.setEmailVerified(updateRequest.getEmailVerified()); // Ustawienie pola z DTO
+            userDetails.setEmailVerified(updateRequest.getEmailVerified());
 
-            User updatedUser = userService.updateUser(id, userDetails, updateRequest.getRoles()); // Zgodne z UserService
+            User updatedUser = userService.updateUser(id, userDetails, updateRequest.getRoles());
             return buildSuccessResponse(new AdminUserResponse(updatedUser), "Zaktualizowano użytkownika", HttpStatus.OK);
 
         } catch (ResourceNotFoundException ex) {
@@ -424,13 +349,10 @@ public class UserManagementController {
         }
     }
 
-    /**
-     * Usuwa użytkownika.
-     */
     @DeleteMapping("/users/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         try {
-            userService.deleteUser(id); // Zgodne z UserService
+            userService.deleteUser(id);
             return buildSuccessResponse(null, "Usunięto użytkownika", HttpStatus.OK);
         } catch (ResourceNotFoundException ex) {
             return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
@@ -441,13 +363,10 @@ public class UserManagementController {
         }
     }
 
-    /**
-     * Resetuje hasło użytkownika (przez administratora).
-     */
     @PostMapping("/users/{id}/reset-password")
     public ResponseEntity<?> adminResetPassword(@PathVariable Long id, @Valid @RequestBody AdminResetPasswordRequest request) {
         try {
-            userService.adminResetPassword(id, request.getNewPassword()); // Zgodne z UserService
+            userService.adminResetPassword(id, request.getNewPassword());
             return buildSuccessResponse(null, "Hasło zostało zresetowane", HttpStatus.OK);
         } catch (ResourceNotFoundException ex) {
             return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
@@ -456,10 +375,7 @@ public class UserManagementController {
         }
     }
 
-    /**
-     * Zmienia hasło użytkownika (używając nowej nazwy z poprzedniego kroku, ale zostawiam starszą /reset-password, ponieważ występuje w pliku).
-     */
-    @PatchMapping("/users/{id}/password") // Dodany alternatywny endpoint zgodny z REST
+    @PatchMapping("/users/{id}/password")
     public ResponseEntity<?> changePassword(@PathVariable Long id, @RequestBody Map<String, String> request) {
         try {
             String newPassword = request.get("newPassword");
@@ -475,14 +391,10 @@ public class UserManagementController {
         }
     }
 
-
-    /**
-     * Blokuje konto użytkownika.
-     */
     @PostMapping("/users/{id}/lock")
     public ResponseEntity<?> lockUser(@PathVariable Long id) {
         try {
-            userService.lockUser(id); // Zgodne z UserService
+            userService.lockUser(id);
             return buildSuccessResponse(null, "Konto użytkownika zablokowane", HttpStatus.OK);
         } catch (ResourceNotFoundException ex) {
             return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
@@ -491,13 +403,10 @@ public class UserManagementController {
         }
     }
 
-    /**
-     * Odblokowuje konto użytkownika.
-     */
     @PostMapping("/users/{id}/unlock")
     public ResponseEntity<?> unlockUser(@PathVariable Long id) {
         try {
-            userService.unlockUser(id); // Zgodne z UserService
+            userService.unlockUser(id);
             return buildSuccessResponse(null, "Konto użytkownika odblokowane", HttpStatus.OK);
         } catch (ResourceNotFoundException ex) {
             return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
@@ -506,15 +415,10 @@ public class UserManagementController {
         }
     }
 
-    // --- ENDPOINTY RÓL ---
-
-    /**
-     * Pobiera listę wszystkich ról.
-     */
     @GetMapping("/roles")
     public ResponseEntity<?> getAllRoles() {
         try {
-            List<RoleResponse> roles = userService.getAllRoles().stream() // Zgodne z UserService
+            List<RoleResponse> roles = userService.getAllRoles().stream()
                     .map(RoleResponse::new)
                     .collect(Collectors.toList());
             return buildSuccessResponse(roles, "Pobrano role", HttpStatus.OK);
@@ -523,13 +427,10 @@ public class UserManagementController {
         }
     }
 
-    /**
-     * Pobiera szczegóły roli.
-     */
     @GetMapping("/roles/{id}")
     public ResponseEntity<?> getRoleById(@PathVariable Long id) {
         try {
-            Role role = userService.getRoleById(id); // Zgodne z UserService
+            Role role = userService.getRoleById(id);
             return buildSuccessResponse(new RoleResponse(role), "Pobrano rolę", HttpStatus.OK);
         } catch (ResourceNotFoundException ex) {
             return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
@@ -538,16 +439,13 @@ public class UserManagementController {
         }
     }
 
-    /**
-     * Tworzy nową rolę.
-     */
     @PostMapping("/roles")
     public ResponseEntity<?> createRole(@Valid @RequestBody RoleRequest roleRequest) {
         try {
             Role newRole = new Role(roleRequest.getName(), roleRequest.getDescription());
-            newRole.setActive(roleRequest.getActive()); // Ustawienie pola z DTO
+            newRole.setActive(roleRequest.getActive());
 
-            Role savedRole = userService.createRole(newRole, roleRequest.getPermissions()); // Zgodne z UserService
+            Role savedRole = userService.createRole(newRole, roleRequest.getPermissions());
             return buildSuccessResponse(new RoleResponse(savedRole), "Utworzono rolę", HttpStatus.CREATED);
         } catch (IllegalArgumentException ex) {
             return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
@@ -556,16 +454,13 @@ public class UserManagementController {
         }
     }
 
-    /**
-     * Aktualizuje rolę (opis, aktywność i uprawnienia).
-     */
     @PutMapping("/roles/{id}")
     public ResponseEntity<?> updateRole(@PathVariable Long id, @Valid @RequestBody RoleRequest roleRequest) {
         try {
             Role roleDetails = new Role(roleRequest.getName(), roleRequest.getDescription());
-            roleDetails.setActive(roleRequest.getActive()); // Ustawienie pola z DTO
+            roleDetails.setActive(roleRequest.getActive());
 
-            Role updatedRole = userService.updateRole(id, roleDetails, roleRequest.getPermissions()); // Zgodne z UserService
+            Role updatedRole = userService.updateRole(id, roleDetails, roleRequest.getPermissions());
             return buildSuccessResponse(new RoleResponse(updatedRole), "Zaktualizowano rolę", HttpStatus.OK);
         } catch (ResourceNotFoundException ex) {
             return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
@@ -576,13 +471,10 @@ public class UserManagementController {
         }
     }
 
-    /**
-     * Usuwa rolę.
-     */
     @DeleteMapping("/roles/{id}")
     public ResponseEntity<?> deleteRole(@PathVariable Long id) {
         try {
-            userService.deleteRole(id); // Zgodne z UserService
+            userService.deleteRole(id);
             return buildSuccessResponse(null, "Usunięto rolę", HttpStatus.OK);
         } catch (ResourceNotFoundException ex) {
             return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
@@ -593,15 +485,10 @@ public class UserManagementController {
         }
     }
 
-    // --- ENDPOINTY UPRAWNIEŃ ---
-
-    /**
-     * Pobiera listę wszystkich dostępnych uprawnień.
-     */
     @GetMapping("/permissions")
     public ResponseEntity<?> getAllPermissions() {
         try {
-            List<PermissionResponse> permissions = userService.getAllPermissions().stream() // Zgodne z UserService
+            List<PermissionResponse> permissions = userService.getAllPermissions().stream()
                     .map(PermissionResponse::new)
                     .collect(Collectors.toList());
             return buildSuccessResponse(permissions, "Pobrano uprawnienia", HttpStatus.OK);
@@ -610,9 +497,6 @@ public class UserManagementController {
         }
     }
 
-    /**
-     * Pobiera szczegóły uprawnienia.
-     */
     @GetMapping("/permissions/{id}")
     public ResponseEntity<?> getPermissionById(@PathVariable Long id) {
         try {
@@ -625,9 +509,6 @@ public class UserManagementController {
         }
     }
 
-    /**
-     * Tworzy nowe uprawnienie.
-     */
     @PostMapping("/permissions")
     public ResponseEntity<?> createPermission(@Valid @RequestBody PermissionRequest request) {
         try {
@@ -637,7 +518,7 @@ public class UserManagementController {
                     request.getResource(),
                     request.getAction()
             );
-            newPermission.setActive(request.getActive()); // Ustawienie pola z DTO
+            newPermission.setActive(request.getActive());
 
             Permission savedPermission = userService.createPermission(newPermission);
 
@@ -659,7 +540,7 @@ public class UserManagementController {
                     request.getResource(),
                     request.getAction()
             );
-            permissionDetails.setActive(request.getActive()); // Ustawienie pola z DTO
+            permissionDetails.setActive(request.getActive());
 
             Permission updatedPermission = userService.updatePermission(id, permissionDetails);
 
@@ -673,9 +554,6 @@ public class UserManagementController {
         }
     }
 
-    /**
-     * Usuwa uprawnienie.
-     */
     @DeleteMapping("/permissions/{id}")
     public ResponseEntity<?> deletePermission(@PathVariable Long id) {
         try {

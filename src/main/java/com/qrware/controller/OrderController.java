@@ -81,7 +81,6 @@ public class OrderController {
                     .body(ApiResponse.error("Access denied to this order"));
             }
             
-            // Force initialization of lazy-loaded collections
             Hibernate.initialize(order.getOrderItems());
             order.getOrderItems().forEach(item -> {
                 Hibernate.initialize(item.getInventoryItem());
@@ -351,8 +350,6 @@ public class OrderController {
         }
     }
 
-    // === REQUEST/RESPONSE DTOs ===
-
     public static class CreateOrderRequest {
         @Size(max = 50)
         private String orderNumber;
@@ -369,7 +366,6 @@ public class OrderController {
         private LocalDateTime expectedDate;
         private OrderPriority priority = OrderPriority.NORMAL;
 
-        // Getters and setters
         public String getOrderNumber() { return orderNumber; }
         public void setOrderNumber(String orderNumber) { this.orderNumber = orderNumber; }
 
@@ -387,8 +383,6 @@ public class OrderController {
 
         public Long getDestinationLocationId() { return destinationLocationId; }
         public void setDestinationLocationId(Long destinationLocationId) { this.destinationLocationId = destinationLocationId; }
-
-
 
         public LocalDateTime getExpectedDate() { return expectedDate; }
         public void setExpectedDate(LocalDateTime expectedDate) { this.expectedDate = expectedDate; }

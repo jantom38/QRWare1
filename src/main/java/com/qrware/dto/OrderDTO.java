@@ -16,7 +16,6 @@ public class OrderDTO {
     private OrderPriority priority;
     private String description;
     
-    // User information
     private Long createdById;
     private String createdByUsername;
     private String createdByFullName;
@@ -24,7 +23,6 @@ public class OrderDTO {
     private String assignedToUsername;
     private String assignedToFullName;
     
-    // Location information
     private Long sourceLocationId;
     private String sourceLocationName;
     private String sourceLocationCode;
@@ -32,7 +30,6 @@ public class OrderDTO {
     private String destinationLocationName;
     private String destinationLocationCode;
     
-    // Dates
     private LocalDateTime expectedDate;
     private LocalDateTime startedAt;
     private LocalDateTime completedAt;
@@ -40,7 +37,6 @@ public class OrderDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
-    // Additional information
     private String cancellationReason;
     private Integer totalItems;
     private Integer completedItems;
@@ -48,10 +44,8 @@ public class OrderDTO {
     private String notes;
     private String externalReference;
     
-    // Order items
     private List<OrderItemDTO> orderItems;
     
-    // Calculated fields
     private Double completionPercentage;
     private Boolean isOverdue;
     private Boolean isHighPriority;
@@ -60,7 +54,6 @@ public class OrderDTO {
     private Boolean canBeCancelled;
     private Boolean isActive;
 
-    // Constructors
     public OrderDTO() {}
 
     public OrderDTO(Long id, String orderNumber, OrderType type, OrderStatus status) {
@@ -70,7 +63,6 @@ public class OrderDTO {
         this.status = status;
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

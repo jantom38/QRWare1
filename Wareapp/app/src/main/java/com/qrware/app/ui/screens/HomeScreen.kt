@@ -53,6 +53,10 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
                             text = "Zarządzaj Kategoriami", 
                             onClick = { navController.navigate("manage_categories") }
                         )
+                        MenuButton(
+                            text = "Niskie Stany Magazynowe",
+                            onClick = { navController.navigate("low_stock") }
+                        )
                     }
 
                     if (hasPermission("INVENTORY_READ") || hasPermission("INVENTORY_WRITE")) {

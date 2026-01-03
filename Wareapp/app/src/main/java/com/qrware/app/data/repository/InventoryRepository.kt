@@ -60,4 +60,8 @@ class InventoryRepository @Inject constructor(
     suspend fun issueStock(itemId: Long, request: QuantityUpdateRequest): InventoryItemDTO {
         return apiService.issueStock(itemId, request)
     }
+
+    suspend fun getInventoryAlerts(): List<InventoryAlertDTO> {
+        return apiService.getInventoryAlerts()
+    }
 }
