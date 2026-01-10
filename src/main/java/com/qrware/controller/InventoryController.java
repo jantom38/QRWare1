@@ -154,7 +154,7 @@ public class InventoryController {
         
         List<InventoryAlertDTO> alerts = new ArrayList<>();
 
-        // 1. Sprawdź niskie stany magazynowe
+
         List<LowStockReportDTO> lowStockProducts = productRepository.findLowStockProducts();
         for (LowStockReportDTO product : lowStockProducts) {
             String severity = "WARNING";
@@ -177,7 +177,7 @@ public class InventoryController {
             ));
         }
 
-        // 2. Sprawdź przeterminowane towary
+
         List<InventoryItem> expiredItems = inventoryRepository.findExpiredItems();
         for (InventoryItem item : expiredItems) {
             alerts.add(new InventoryAlertDTO(
@@ -232,6 +232,11 @@ public class InventoryController {
         item.setHoldReason(request.getHoldReason());
 
         InventoryItem savedItem = inventoryRepository.save(item);
+        
+        if (savedItem == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+        
         logger.info("Utworzono nową pozycję z ID: {}", savedItem.getId());
 
 
@@ -269,6 +274,10 @@ public class InventoryController {
         if (request.getHoldReason() != null) item.setHoldReason(request.getHoldReason());
 
         InventoryItem updatedItem = inventoryRepository.save(item);
+        
+        if (updatedItem == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
 
         InventoryItem reloadedItem = inventoryRepository.findById(updatedItem.getId()).orElse(updatedItem);
         return ResponseEntity.ok(dtoMapper.toDTO(reloadedItem));
@@ -298,6 +307,10 @@ public class InventoryController {
         item.setQuantity(newQuantity);
 
         InventoryItem updatedItem = inventoryRepository.save(item);
+        
+        if (updatedItem == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
 
         // Create movement history record
         try {
@@ -351,6 +364,10 @@ public class InventoryController {
 
         item.setQuantity(newQuantity);
         InventoryItem updatedItem = inventoryRepository.save(item);
+        
+        if (updatedItem == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
 
         // Create movement history record
         try {

@@ -1,0 +1,149 @@
+@startuml Sequence Diagram - Realizacja kompletacji (PICK)
+
+!theme plain
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+
+title Diagram Sekwencji - UC-W03: Realizacja zlecenia kompletacji (PICK)
+
+actor "Magazynier" as Worker
+participant "Aplikacja\nAndroid" as App
+participant "API\nBackend" as API
+database "Baza\nDanych" as DB
+participant "Serwis\nZlecen" as OrderService
+participant "Serwis\nInwentarza" as InventoryService
+participant "Serwis\nHistorii" as HistoryService
+
+== Pobranie zlecenia ==
+Worker -> App : Wybiera "Moje zlecenia"
+activate App
+App -> API : GET /api/orders/assigned/{userId}
+activate API
+API -> DB : findByAssignedTo(userId)
+DB --> API : List<Order>
+API --> App : OrderDTO[]
+deactivate API
+App --> Worker : Lista zlecen
+deactivate App
+
+== Rozpoczecie kompletacji ==
+Worker -> App : Wybiera zlecenie PICK
+activate App
+App -> API : GET /api/orders/{orderId}
+activate API
+API -> DB : findById(orderId)
+DB --> API : Order + OrderItems
+API --> App : OrderDTO (szczegoly)
+deactivate API
+App --> Worker : Szczegoly zlecenia\n(lista pozycji)
+deactivate App
+
+Worker -> App : Klikniecie "Rozpocznij"
+activate App
+App -> API : PUT /api/orders/{orderId}/status
+activate API
+API -> OrderService : updateStatus(IN_PROGRESS)
+activate OrderService
+OrderService -> DB : save(order)
+OrderService -> DB : save(OrderStatusHistory)
+OrderService --> API : OrderDTO
+deactivate OrderService
+API --> App : Potwierdzenie
+deactivate API
+App --> Worker : Status: IN_PROGRESS
+deactivate App
+
+== Petla: Kompletacja pozycji ==
+loop Dla kazdej pozycji zlecenia
+
+    Worker -> App : Przechodzi do lokalizacji
+    App --> Worker : Wyswietla:\nlokalizacja zrodlowa,\nprodukt, ilosc
+    
+    == Weryfikacja lokalizacji ==
+    Worker -> App : Skanuje QR lokalizacji
+    activate App
+    App -> App : QrCodeAnalyzer\ndekoduje kod
+    App -> API : GET /api/locations/{code}
+    activate API
+    API -> DB : findByCode(code)
+    DB --> API : Location
+    API --> App : LocationDTO
+    deactivate API
+    
+    alt Lokalizacja poprawna
+        App --> Worker : Lokalizacja potwierdzona ✓
+    else Lokalizacja niepoprawna
+        App --> Worker : BLAD: Zla lokalizacja!
+        Worker -> App : Przechodzi do\nwlasciwej lokalizacji
+    end
+    deactivate App
+    
+    == Weryfikacja produktu ==
+    Worker -> App : Skanuje QR produktu/stanu
+    activate App
+    App -> App : QrCodeAnalyzer\ndekoduje kod
+    App -> API : GET /api/inventory/{qrCode}
+    activate API
+    API -> DB : findByQrCode(qrCode)
+    DB --> API : InventoryItem
+    API --> App : InventoryItemDTO
+    deactivate API
+    
+    alt Produkt poprawny
+        App --> Worker : Produkt potwierdzony ✓\nDostepna ilosc: X
+    else Produkt niepoprawny
+        App --> Worker : BLAD: Zly produkt!
+    end
+    deactivate App
+    
+    == Potwierdzenie pobrania ==
+    Worker -> App : Wprowadza pobrana ilosc\ni potwierdza
+    activate App
+    App -> API : PUT /api/order-items/{itemId}/pick
+    activate API
+    
+    API -> OrderService : pickItem(itemId, quantity)
+    activate OrderService
+    
+    OrderService -> InventoryService : decreaseQuantity(inventoryId, qty)
+    activate InventoryService
+    InventoryService -> DB : update InventoryItem\n(quantity -= qty)
+    InventoryService --> OrderService : InventoryItem
+    deactivate InventoryService
+    
+    OrderService -> HistoryService : recordMovement(ORDER_PICK)
+    activate HistoryService
+    HistoryService -> DB : save(MovementHistory)
+    HistoryService --> OrderService : MovementHistory
+    deactivate HistoryService
+    
+    OrderService -> DB : update OrderItem\n(pickedQuantity, status)
+    OrderService --> API : OrderItemDTO
+    deactivate OrderService
+    
+    API --> App : Potwierdzenie\npobrania pozycji
+    deactivate API
+    App --> Worker : Pozycja skompletowana ✓\nPostep: X/Y
+    deactivate App
+    
+end
+
+== Zakonczenie zlecenia ==
+Worker -> App : Klikniecie "Zakoncz zlecenie"
+activate App
+App -> API : PUT /api/orders/{orderId}/complete
+activate API
+
+API -> OrderService : completeOrder(orderId)
+activate OrderService
+OrderService -> DB : update Order\n(status = COMPLETED,\ncompletedDate = now)
+OrderService -> DB : save(OrderStatusHistory)
+OrderService --> API : OrderDTO
+deactivate OrderService
+
+API --> App : Zlecenie zakonczone
+deactivate API
+App --> Worker : Sukces!\nZlecenie zrealizowane
+deactivate App
+
+@enduml

@@ -9,6 +9,8 @@ import com.qrware.dto.OrderItemDTO;
 import com.qrware.exception.ResourceNotFoundException;
 import com.qrware.service.OrderItemService;
 import com.qrware.service.OrderService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +35,8 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "*")
 public class OrderItemController {
 
+    private static final Logger logger = LoggerFactory.getLogger(OrderItemController.class);
+
     @Autowired
     private OrderService orderService;
 
@@ -45,14 +49,20 @@ public class OrderItemController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('ORDER_READ')")
     public ResponseEntity<ApiResponse<OrderItemDTO>> getOrderItemById(@PathVariable Long id) {
+        logger.info("GET /api/order-items/{} called", id);
         try {
             OrderItem orderItem = orderItemService.getOrderItemById(id);
+            if (orderItem == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error("Order item not found"));
+            }
             OrderItemDTO orderItemDTO = dtoMapper.toOrderItemDTO(orderItem);
             return ResponseEntity.ok(ApiResponse.success(orderItemDTO));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
+            logger.error("Failed to retrieve order item {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to retrieve order item: " + e.getMessage()));
         }
@@ -62,6 +72,7 @@ public class OrderItemController {
     @PreAuthorize("hasAuthority('ORDER_WRITE')")
     public ResponseEntity<ApiResponse<OrderItemDTO>> addOrderItem(@PathVariable Long orderId, 
                                                                 @Valid @RequestBody CreateOrderItemRequest request) {
+        logger.info("POST /api/order-items/order/{} called with request: {}", orderId, request);
         try {
             OrderItem orderItem = orderService.addOrderItem(
                 orderId,
@@ -74,6 +85,11 @@ public class OrderItemController {
                 request.getRequiresExactInventory()
             );
 
+            if (orderItem == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Failed to create order item"));
+            }
+
             OrderItemDTO orderItemDTO = dtoMapper.toOrderItemDTO(orderItem);
             return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(orderItemDTO, "Order item added successfully"));
@@ -81,6 +97,7 @@ public class OrderItemController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
+            logger.error("Failed to add order item to order {}", orderId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to add order item: " + e.getMessage()));
         }
@@ -89,8 +106,13 @@ public class OrderItemController {
     @PutMapping("/{id}/pick")
     @PreAuthorize("hasAuthority('ORDER_WRITE')")
     public ResponseEntity<ApiResponse<OrderItemDTO>> pickOrderItem(@PathVariable Long id) {
+        logger.info("PUT /api/order-items/{}/pick called", id);
         try {
             OrderItem orderItem = orderItemService.pickOrderItem(id);
+            if (orderItem == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Failed to pick order item"));
+            }
             OrderItemDTO orderItemDTO = dtoMapper.toOrderItemDTO(orderItem);
             return ResponseEntity.ok(ApiResponse.success(orderItemDTO, "Order item picked successfully"));
         } catch (ResourceNotFoundException e) {
@@ -100,6 +122,7 @@ public class OrderItemController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
+            logger.error("Failed to pick order item {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to pick order item: " + e.getMessage()));
         }
@@ -109,6 +132,7 @@ public class OrderItemController {
     @PreAuthorize("hasAuthority('ORDER_WRITE')")
     public ResponseEntity<ApiResponse<OrderItemDTO>> completeOrderItem(@PathVariable Long id,
                                                                      @Valid @RequestBody CompleteOrderItemRequest request) {
+        logger.info("PUT /api/order-items/{}/complete called with request: {}", id, request);
         try {
             OrderItem orderItem = orderService.completeOrderItem(
                 id, 
@@ -116,6 +140,11 @@ public class OrderItemController {
                 request.getCompletionNotes(),
                 request.getQrCodeData()
             );
+
+            if (orderItem == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Failed to complete order item"));
+            }
 
             OrderItemDTO orderItemDTO = dtoMapper.toOrderItemDTO(orderItem);
             return ResponseEntity.ok(ApiResponse.success(orderItemDTO, "Order item completed successfully"));
@@ -126,6 +155,7 @@ public class OrderItemController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
+            logger.error("Failed to complete order item {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to complete order item: " + e.getMessage()));
         }
@@ -135,8 +165,13 @@ public class OrderItemController {
     @PreAuthorize("hasAuthority('ORDER_WRITE')")
     public ResponseEntity<ApiResponse<OrderItemDTO>> cancelOrderItem(@PathVariable Long id,
                                                                    @Valid @RequestBody CancelOrderRequest request) {
+        logger.info("PUT /api/order-items/{}/cancel called", id);
         try {
             OrderItem orderItem = orderItemService.cancelOrderItem(id, request.getReason());
+            if (orderItem == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Failed to cancel order item"));
+            }
             OrderItemDTO orderItemDTO = dtoMapper.toOrderItemDTO(orderItem);
             return ResponseEntity.ok(ApiResponse.success(orderItemDTO, "Order item cancelled successfully"));
         } catch (ResourceNotFoundException e) {
@@ -146,6 +181,7 @@ public class OrderItemController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
+            logger.error("Failed to cancel order item {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to cancel order item: " + e.getMessage()));
         }
@@ -154,6 +190,7 @@ public class OrderItemController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ORDER_DELETE')")
     public ResponseEntity<ApiResponse<Void>> deleteOrderItem(@PathVariable Long id) {
+        logger.info("DELETE /api/order-items/{} called", id);
         try {
             orderItemService.deleteOrderItem(id);
             return ResponseEntity.ok(ApiResponse.success(null, "Order item deleted successfully"));
@@ -164,6 +201,7 @@ public class OrderItemController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
+            logger.error("Failed to delete order item {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to delete order item: " + e.getMessage()));
         }
@@ -172,6 +210,7 @@ public class OrderItemController {
     @PostMapping("/scan-qr")
     @PreAuthorize("hasAuthority('QR_SCAN')")
     public ResponseEntity<ApiResponse<Object>> processOrderItemScan(@Valid @RequestBody ScanQRRequest request) {
+        logger.info("POST /api/order-items/scan-qr called with request: {}", request);
         try {
             Optional<Object> resultOptional = orderService.processQRScan(request.getQrCodeData(), request.getOrderId());
 
@@ -193,6 +232,7 @@ public class OrderItemController {
                     .body(ApiResponse.error("No object found for QR code: " + request.getQrCodeData()));
             }
         } catch (Exception e) {
+            logger.error("Failed to process QR code scan", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to process QR code: " + e.getMessage()));
         }
@@ -201,6 +241,7 @@ public class OrderItemController {
     @PostMapping("/scan-generic")
     @PreAuthorize("hasAuthority('QR_SCAN')")
     public ResponseEntity<ApiResponse<Object>> scanQRCode(@Valid @RequestBody GenericScanRequest request) {
+        logger.info("POST /api/order-items/scan-generic called with request: {}", request);
         try {
             Optional<Object> resultOptional = orderService.processQRScan(request.getQrCodeData());
 
@@ -222,6 +263,7 @@ public class OrderItemController {
                     .body(ApiResponse.error("No object found for QR code: " + request.getQrCodeData()));
             }
         } catch (Exception e) {
+            logger.error("Failed to process generic QR scan", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to process QR code: " + e.getMessage()));
         }
@@ -230,6 +272,7 @@ public class OrderItemController {
     @GetMapping("/qr/{qrCodeData}")
     @PreAuthorize("hasAuthority('QR_SCAN')")
     public ResponseEntity<ApiResponse<OrderItemDTO>> getOrderItemByQR(@PathVariable String qrCodeData) {
+        logger.info("GET /api/order-items/qr/{} called", qrCodeData);
         try {
             Optional<OrderItem> orderItem = orderService.findOrderItemByQRCode(qrCodeData);
             if (orderItem.isPresent()) {
@@ -240,6 +283,7 @@ public class OrderItemController {
                     .body(ApiResponse.error("No order item found for QR code: " + qrCodeData));
             }
         } catch (Exception e) {
+            logger.error("Failed to find order item by QR code {}", qrCodeData, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to find order item by QR code: " + e.getMessage()));
         }
@@ -249,14 +293,20 @@ public class OrderItemController {
     @PreAuthorize("hasAuthority('ORDER_WRITE')")
     public ResponseEntity<ApiResponse<OrderItemDTO>> setBatchNumber(@PathVariable Long id,
                                                                   @Valid @RequestBody SetBatchRequest request) {
+        logger.info("PUT /api/order-items/{}/batch called", id);
         try {
             OrderItem orderItem = orderItemService.setBatchNumber(id, request.getBatchNumber());
+            if (orderItem == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Failed to set batch number"));
+            }
             OrderItemDTO orderItemDTO = dtoMapper.toOrderItemDTO(orderItem);
             return ResponseEntity.ok(ApiResponse.success(orderItemDTO, "Batch number set successfully"));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
+            logger.error("Failed to set batch number for order item {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to set batch number: " + e.getMessage()));
         }
@@ -266,14 +316,20 @@ public class OrderItemController {
     @PreAuthorize("hasAuthority('ORDER_WRITE')")
     public ResponseEntity<ApiResponse<OrderItemDTO>> setSerialNumber(@PathVariable Long id,
                                                                    @Valid @RequestBody SetSerialRequest request) {
+        logger.info("PUT /api/order-items/{}/serial called", id);
         try {
             OrderItem orderItem = orderItemService.setSerialNumber(id, request.getSerialNumber());
+            if (orderItem == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Failed to set serial number"));
+            }
             OrderItemDTO orderItemDTO = dtoMapper.toOrderItemDTO(orderItem);
             return ResponseEntity.ok(ApiResponse.success(orderItemDTO, "Serial number set successfully"));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
+            logger.error("Failed to set serial number for order item {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to set serial number: " + e.getMessage()));
         }
@@ -282,6 +338,7 @@ public class OrderItemController {
     @GetMapping("/active")
     @PreAuthorize("hasAuthority('ORDER_READ')")
     public ResponseEntity<ApiResponse<List<OrderItemDTO>>> getActiveOrderItems() {
+        logger.info("GET /api/order-items/active called");
         try {
             List<OrderItem> orderItems = orderItemService.getActiveOrderItems();
             List<OrderItemDTO> orderItemDTOs = orderItems.stream()
@@ -289,6 +346,7 @@ public class OrderItemController {
                 .collect(Collectors.toList());
             return ResponseEntity.ok(ApiResponse.success(orderItemDTOs));
         } catch (Exception e) {
+            logger.error("Failed to retrieve active order items", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to retrieve active order items: " + e.getMessage()));
         }
@@ -297,6 +355,7 @@ public class OrderItemController {
     @GetMapping("/pending-qr")
     @PreAuthorize("hasAuthority('QR_SCAN')")
     public ResponseEntity<ApiResponse<List<OrderItemDTO>>> getItemsRequiringQRScan() {
+        logger.info("GET /api/order-items/pending-qr called");
         try {
             List<OrderItem> orderItems = orderItemService.getItemsRequiringQRScan();
             List<OrderItemDTO> orderItemDTOs = orderItems.stream()
@@ -304,6 +363,7 @@ public class OrderItemController {
                 .collect(Collectors.toList());
             return ResponseEntity.ok(ApiResponse.success(orderItemDTOs));
         } catch (Exception e) {
+            logger.error("Failed to retrieve items requiring QR scan", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to retrieve items requiring QR scan: " + e.getMessage()));
         }
@@ -312,6 +372,7 @@ public class OrderItemController {
     @GetMapping("/partially-completed")
     @PreAuthorize("hasAuthority('ORDER_READ')")
     public ResponseEntity<ApiResponse<List<OrderItemDTO>>> getPartiallyCompletedItems() {
+        logger.info("GET /api/order-items/partially-completed called");
         try {
             List<OrderItem> orderItems = orderItemService.getPartiallyCompletedItems();
             List<OrderItemDTO> orderItemDTOs = orderItems.stream()
@@ -319,6 +380,7 @@ public class OrderItemController {
                 .collect(Collectors.toList());
             return ResponseEntity.ok(ApiResponse.success(orderItemDTOs));
         } catch (Exception e) {
+            logger.error("Failed to retrieve partially completed items", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to retrieve partially completed items: " + e.getMessage()));
         }
@@ -329,11 +391,13 @@ public class OrderItemController {
     public ResponseEntity<ApiResponse<Page<OrderItemDTO>>> searchOrderItems(
             @RequestParam String q,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        logger.info("GET /api/order-items/search called with query: {}", q);
         try {
             Page<OrderItem> orderItems = orderItemService.searchOrderItems(q, pageable);
             Page<OrderItemDTO> orderItemDTOs = orderItems.map(dtoMapper::toOrderItemDTO);
             return ResponseEntity.ok(ApiResponse.success(orderItemDTOs));
         } catch (Exception e) {
+            logger.error("Failed to search order items with query: {}", q, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to search order items: " + e.getMessage()));
         }
@@ -342,6 +406,7 @@ public class OrderItemController {
     @GetMapping("/statistics/status")
     @PreAuthorize("hasAuthority('ORDER_READ')")
     public ResponseEntity<ApiResponse<List<ItemStatusCountDTO>>> getOrderItemStatistics() {
+        logger.info("GET /api/order-items/statistics/status called");
         try {
             List<Object[]> statusCounts = orderItemService.getOrderItemCountByStatus();
             List<ItemStatusCountDTO> statistics = statusCounts.stream()
@@ -349,6 +414,7 @@ public class OrderItemController {
                 .collect(Collectors.toList());
             return ResponseEntity.ok(ApiResponse.success(statistics));
         } catch (Exception e) {
+            logger.error("Failed to retrieve order item statistics", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to retrieve order item statistics: " + e.getMessage()));
         }
@@ -385,6 +451,19 @@ public class OrderItemController {
         public void setNotes(String notes) { this.notes = notes; }
         public Boolean getRequiresExactInventory() { return requiresExactInventory; }
         public void setRequiresExactInventory(Boolean requiresExactInventory) { this.requiresExactInventory = requiresExactInventory; }
+        
+        @Override
+        public String toString() {
+            return "CreateOrderItemRequest{" +
+                    "productId=" + productId +
+                    ", requestedQuantity=" + requestedQuantity +
+                    ", sourceLocationId=" + sourceLocationId +
+                    ", destinationLocationId=" + destinationLocationId +
+                    ", unitPrice=" + unitPrice +
+                    ", notes='" + notes + '\'' +
+                    ", requiresExactInventory=" + requiresExactInventory +
+                    '}';
+        }
     }
 
     public static class CompleteOrderItemRequest {
@@ -404,6 +483,15 @@ public class OrderItemController {
         public void setCompletionNotes(String completionNotes) { this.completionNotes = completionNotes; }
         public String getQrCodeData() { return qrCodeData; }
         public void setQrCodeData(String qrCodeData) { this.qrCodeData = qrCodeData; }
+        
+        @Override
+        public String toString() {
+            return "CompleteOrderItemRequest{" +
+                    "completedQuantity=" + completedQuantity +
+                    ", completionNotes='" + completionNotes + '\'' +
+                    ", qrCodeData='" + qrCodeData + '\'' +
+                    '}';
+        }
     }
 
     public static class CancelOrderRequest {
@@ -426,6 +514,14 @@ public class OrderItemController {
         public void setQrCodeData(String qrCodeData) { this.qrCodeData = qrCodeData; }
         public Long getOrderId() { return orderId; }
         public void setOrderId(Long orderId) { this.orderId = orderId; }
+        
+        @Override
+        public String toString() {
+            return "ScanQRRequest{" +
+                    "qrCodeData='" + qrCodeData + '\'' +
+                    ", orderId=" + orderId +
+                    '}';
+        }
     }
 
     public static class GenericScanRequest {
@@ -435,6 +531,13 @@ public class OrderItemController {
 
         public String getQrCodeData() { return qrCodeData; }
         public void setQrCodeData(String qrCodeData) { this.qrCodeData = qrCodeData; }
+        
+        @Override
+        public String toString() {
+            return "GenericScanRequest{" +
+                    "qrCodeData='" + qrCodeData + '\'' +
+                    '}';
+        }
     }
 
     public static class SetBatchRequest {

@@ -1,0 +1,233 @@
+@startuml Component Diagram - Architektura QRWare
+
+!theme plain
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+
+title Diagram Komponentow - Architektura Systemu QRWare
+
+' ==================== WARSTWA PREZENTACJI ====================
+package "Warstwa Prezentacji" #LightYellow {
+    
+    package "Aplikacja Android (Kotlin)" {
+        [MainActivity] as Main
+        [AppNavigation] as Nav
+        
+        package "UI Screens" {
+            [LoginScreen] as Login
+            [HomeScreen] as Home
+            [QRScanScreen] as QRScan
+            [ManageOrdersScreen] as Orders
+            [ManageInventoryScreen] as Inventory
+            [ManageProductsScreen] as Products
+            [ManageLocationsScreen] as Locations
+            [ManageUsersScreen] as Users
+        }
+        
+        package "ViewModels" {
+            [LoginViewModel] as LoginVM
+            [HomeViewModel] as HomeVM
+            [QRCodeViewModel] as QRVM
+            [OrderViewModels] as OrderVM
+            [InventoryViewModels] as InvVM
+            [ProductViewModels] as ProdVM
+        }
+        
+        package "Data Layer" {
+            [ApiService] as ApiSvc
+            [Repositories] as Repos
+            [TokenManager] as Token
+            [AuthInterceptor] as AuthInt
+        }
+        
+        [QrCodeAnalyzer] as QRAnalyzer
+    }
+    
+    Main --> Nav
+    Nav --> Login
+    Nav --> Home
+    Nav --> QRScan
+    Nav --> Orders
+    Nav --> Inventory
+    
+    Login --> LoginVM
+    Home --> HomeVM
+    QRScan --> QRVM
+    QRScan --> QRAnalyzer
+    Orders --> OrderVM
+    Inventory --> InvVM
+    Products --> ProdVM
+    
+    LoginVM --> Repos
+    HomeVM --> Repos
+    QRVM --> Repos
+    OrderVM --> Repos
+    InvVM --> Repos
+    ProdVM --> Repos
+    
+    Repos --> ApiSvc
+    ApiSvc --> AuthInt
+    AuthInt --> Token
+}
+
+' ==================== WARSTWA API ====================
+package "Warstwa API (Spring Boot)" #LightBlue {
+    
+    package "Controllers" {
+        [AuthController] as AuthCtrl
+        [ProductController] as ProdCtrl
+        [CategoryController] as CatCtrl
+        [InventoryController] as InvCtrl
+        [OrderController] as OrderCtrl
+        [LocationController] as LocCtrl
+        [ZoneController] as ZoneCtrl
+        [QRCodeController] as QRCtrl
+        [UserManagementController] as UserCtrl
+        [MovementHistoryController] as MoveCtrl
+    }
+    
+    package "Security" {
+        [SecurityConfig] as SecConfig
+        [JwtTokenProvider] as JwtProvider
+        [JwtAuthenticationFilter] as JwtFilter
+        [CustomUserDetailsService] as UserDetails
+    }
+    
+    package "Services" {
+        [AuthenticationService] as AuthSvc
+        [OrderService] as OrderSvc
+        [OrderItemService] as ItemSvc
+        [MovementHistoryService] as MoveSvc
+        [QRCodeGenerationService] as QRGenSvc
+        [FileStorageService] as FileSvc
+        [UserService] as UserSvc
+    }
+    
+    AuthCtrl --> AuthSvc
+    ProdCtrl --> Repos
+    CatCtrl --> Repos
+    InvCtrl --> Repos
+    InvCtrl --> MoveSvc
+    OrderCtrl --> OrderSvc
+    OrderCtrl --> ItemSvc
+    LocCtrl --> Repos
+    ZoneCtrl --> Repos
+    QRCtrl --> QRGenSvc
+    UserCtrl --> UserSvc
+    MoveCtrl --> MoveSvc
+    
+    SecConfig --> JwtFilter
+    JwtFilter --> JwtProvider
+    JwtFilter --> UserDetails
+    AuthSvc --> JwtProvider
+    AuthSvc --> UserDetails
+    
+    QRGenSvc --> FileSvc
+}
+
+' ==================== WARSTWA PERSYSTENCJI ====================
+package "Warstwa Persystencji" #LightGreen {
+    
+    package "Repositories (Spring Data JPA)" {
+        [UserRepository] as UserRepo
+        [RoleRepository] as RoleRepo
+        [PermissionRepository] as PermRepo
+        [ProductRepository] as ProdRepo
+        [CategoryRepository] as CatRepo
+        [InventoryItemRepository] as InvRepo
+        [OrderRepository] as OrderRepo
+        [OrderItemRepository] as ItemRepo
+        [LocationRepository] as LocRepo
+        [ZoneRepository] as ZoneRepo
+        [MovementHistoryRepository] as MoveRepo
+        [QRCodeDataRepository] as QRRepo
+    }
+    
+    package "Domain Entities" {
+        [User] as UserEnt
+        [Role] as RoleEnt
+        [Permission] as PermEnt
+        [Product] as ProdEnt
+        [Category] as CatEnt
+        [InventoryItem] as InvEnt
+        [Order] as OrderEnt
+        [OrderItem] as ItemEnt
+        [Location] as LocEnt
+        [Zone] as ZoneEnt
+        [MovementHistory] as MoveEnt
+        [QRCodeData] as QREnt
+    }
+    
+    UserRepo --> UserEnt
+    RoleRepo --> RoleEnt
+    PermRepo --> PermEnt
+    ProdRepo --> ProdEnt
+    CatRepo --> CatEnt
+    InvRepo --> InvEnt
+    OrderRepo --> OrderEnt
+    ItemRepo --> ItemEnt
+    LocRepo --> LocEnt
+    ZoneRepo --> ZoneEnt
+    MoveRepo --> MoveEnt
+    QRRepo --> QREnt
+}
+
+' ==================== BAZA DANYCH ====================
+database "PostgreSQL" as DB #LightCoral {
+    [users]
+    [roles]
+    [permissions]
+    [products]
+    [categories]
+    [inventory_items]
+    [orders]
+    [order_items]
+    [locations]
+    [zones]
+    [movement_history]
+    [qr_codes]
+}
+
+' ==================== STORAGE ====================
+storage "File Storage" as Storage #LightPink {
+    [QR Code Images]
+}
+
+' ==================== POLACZENIA MIEDZY WARSTWAMI ====================
+ApiSvc ..> AuthCtrl : HTTP/REST
+ApiSvc ..> ProdCtrl : HTTP/REST
+ApiSvc ..> InvCtrl : HTTP/REST
+ApiSvc ..> OrderCtrl : HTTP/REST
+ApiSvc ..> QRCtrl : HTTP/REST
+
+UserRepo ..> DB
+RoleRepo ..> DB
+ProdRepo ..> DB
+CatRepo ..> DB
+InvRepo ..> DB
+OrderRepo ..> DB
+LocRepo ..> DB
+ZoneRepo ..> DB
+MoveRepo ..> DB
+QRRepo ..> DB
+
+FileSvc ..> Storage
+QRGenSvc ..> Storage
+
+' ==================== ZEWNETRZNE BIBLIOTEKI ====================
+note right of QRAnalyzer
+  Google ML Kit
+  lub ZXing
+end note
+
+note right of QRGenSvc
+  ZXing Library
+  (generowanie QR)
+end note
+
+note right of JwtProvider
+  io.jsonwebtoken
+  (JWT tokens)
+end note
+
+@enduml

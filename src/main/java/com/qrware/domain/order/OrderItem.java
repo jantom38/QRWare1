@@ -92,7 +92,7 @@ public class OrderItem extends BaseEntity {
     private String completionNotes;
 
     @Size(max = 200)
-    @Column(name = "qr_code_data", length = 200, unique = true)
+    @Column(name = "qr_code_data", length = 200)
     private String qrCodeData;
 
     @Column(name = "requires_exact_inventory", nullable = false)

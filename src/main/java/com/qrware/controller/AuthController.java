@@ -34,6 +34,15 @@ public class AuthController {
         try {
             AuthenticationResponse response = authenticationService.login(loginRequest);
             
+            if (response == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse<>(
+                        false,
+                        "Login failed: Invalid credentials",
+                        null
+                    ));
+            }
+
             logger.info("Successful login for user: {}", response.getUsername());
             
             return ResponseEntity.ok(new ApiResponse<>(
@@ -61,6 +70,15 @@ public class AuthController {
         try {
             AuthenticationResponse response = authenticationService.register(registerRequest);
             
+            if (response == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(
+                        false,
+                        "Registration failed",
+                        null
+                    ));
+            }
+
             logger.info("Successful registration for user: {}", response.getUsername());
             
             return ResponseEntity.status(HttpStatus.CREATED)
@@ -89,6 +107,15 @@ public class AuthController {
         try {
             AuthenticationResponse response = authenticationService.refreshToken(refreshRequest);
             
+            if (response == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse<>(
+                        false,
+                        "Token refresh failed",
+                        null
+                    ));
+            }
+
             logger.debug("Token refresh successful");
             
             return ResponseEntity.ok(new ApiResponse<>(

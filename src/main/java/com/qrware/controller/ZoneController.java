@@ -142,6 +142,13 @@ public class ZoneController {
         zone.setColor(request.getColor());
 
         Zone savedZone = zoneRepository.save(zone);
+        
+        if (savedZone == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .header("X-Error-Reason", "Failed to create zone")
+                    .build();
+        }
+
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toDTO(savedZone));
     }
 
@@ -188,6 +195,13 @@ public class ZoneController {
         if (request.getColor() != null) zone.setColor(request.getColor());
 
         Zone updatedZone = zoneRepository.save(zone);
+        
+        if (updatedZone == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .header("X-Error-Reason", "Failed to update zone")
+                    .build();
+        }
+
         return ResponseEntity.ok(mapper.toDTO(updatedZone));
     }
 
@@ -217,6 +231,12 @@ public class ZoneController {
 
         zone.setActive(!zone.getActive());
         Zone updatedZone = zoneRepository.save(zone);
+        
+        if (updatedZone == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .header("X-Error-Reason", "Failed to toggle zone active status")
+                    .build();
+        }
 
         return ResponseEntity.ok(mapper.toDTO(updatedZone));
     }

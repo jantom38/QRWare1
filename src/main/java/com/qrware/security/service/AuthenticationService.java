@@ -53,9 +53,7 @@ public class AuthenticationService {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
-    /**
-     * Authenticate user and generate JWT tokens
-     */
+
     public AuthenticationResponse login(LoginRequest loginRequest) {
         logger.info("Attempting login for user: {}", loginRequest.getUsernameOrEmail());
 

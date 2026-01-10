@@ -146,6 +146,11 @@ public class ProductController {
         }
 
         Product savedProduct = productRepository.save(product);
+        
+        if (savedProduct == null) {
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        }
+
         return ResponseEntity.status(HttpStatus.CREATED).body(convertToDTO(savedProduct));
     }
 
@@ -187,6 +192,11 @@ public class ProductController {
         }
 
         Product updatedProduct = productRepository.save(product);
+        
+        if (updatedProduct == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
         return ResponseEntity.ok(convertToDTO(updatedProduct));
     }
 
@@ -216,6 +226,10 @@ public class ProductController {
         Product product = existingProduct.get();
         product.setActive(!product.getActive());
         Product updatedProduct = productRepository.save(product);
+        
+        if (updatedProduct == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
 
         return ResponseEntity.ok(convertToDTO(updatedProduct));
     }

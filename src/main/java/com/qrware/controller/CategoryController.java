@@ -129,6 +129,12 @@ public class CategoryController {
         }
 
         Category savedCategory = categoryRepository.save(category);
+        
+        if (savedCategory == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Nie udało się utworzyć kategorii"));
+        }
+
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(dtoMapper.toDTO(savedCategory)));
     }
 
@@ -165,6 +171,12 @@ public class CategoryController {
         }
 
         Category updatedCategory = categoryRepository.save(category);
+        
+        if (updatedCategory == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Nie udało się zaktualizować kategorii"));
+        }
+
         return ResponseEntity.ok(ApiResponse.success(dtoMapper.toDTO(updatedCategory)));
     }
 
@@ -194,6 +206,11 @@ public class CategoryController {
         Category category = existingCategory.get();
         category.setActive(!category.getActive());
         Category updatedCategory = categoryRepository.save(category);
+        
+        if (updatedCategory == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Nie udało się zmienić statusu kategorii"));
+        }
 
         return ResponseEntity.ok(ApiResponse.success(dtoMapper.toDTO(updatedCategory)));
     }

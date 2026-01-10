@@ -167,13 +167,17 @@ public class QRCodeController {
 
                 savedQRCode = qrCodeRepository.save(qrCode);
             }
+            
+            if (savedQRCode == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
 
             if ("inventory_item".equalsIgnoreCase(request.getEntityType())) {
-                InventoryItem item = inventoryItemRepository.findById(request.getEntityId()).orElseThrow(() -> new ResourceNotFoundException("InventoryItem not found"));
+                InventoryItem item = inventoryItemRepository.findById(request.getEntityId()).orElseThrow(() -> new ResourceNotFoundException("InventoryItem", "id", request.getEntityId()));
                 item.setQrCode(savedQRCode.getCode());
                 inventoryItemRepository.save(item);
             } else if ("order_item".equalsIgnoreCase(request.getEntityType())) {
-                OrderItem item = orderItemRepository.findById(request.getEntityId()).orElseThrow(() -> new ResourceNotFoundException("OrderItem not found"));
+                OrderItem item = orderItemRepository.findById(request.getEntityId()).orElseThrow(() -> new ResourceNotFoundException("OrderItem", "id", request.getEntityId()));
                 item.setQrCodeData(savedQRCode.getCode());
                 orderItemRepository.save(item);
             }
@@ -181,6 +185,9 @@ public class QRCodeController {
             logger.info("QR Code generated successfully with ID: {}", savedQRCode.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(dtoMapper.toDTO(savedQRCode));
 
+        } catch (ResourceNotFoundException e) {
+            logger.error("Resource not found in /generate endpoint: {}", e.getMessage());
+            throw e;
         } catch (Exception e) {
             logger.error("CRITICAL ERROR in /generate endpoint: ", e);
             throw new RuntimeException("Błąd podczas generowania kodu QR: " + e.getMessage(), e);
@@ -204,6 +211,11 @@ public class QRCodeController {
         if (request.getExpiresAt() != null) qrCode.setExpiresAt(request.getExpiresAt());
 
         QRCodeData updatedQRCode = qrCodeRepository.save(qrCode);
+        
+        if (updatedQRCode == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
         return ResponseEntity.ok(dtoMapper.toDTO(updatedQRCode));
     }
 
@@ -234,6 +246,10 @@ public class QRCodeController {
         QRCodeData qrCode = existingQRCode.get();
         qrCode.setActive(!qrCode.getActive());
         QRCodeData updatedQRCode = qrCodeRepository.save(qrCode);
+        
+        if (updatedQRCode == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
 
         return ResponseEntity.ok(dtoMapper.toDTO(updatedQRCode));
     }
@@ -298,6 +314,11 @@ public class QRCodeController {
                     request.getGeneratedBy(),
                     request.getGenerationReason()
             );
+            
+            if (qrCode == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to generate QR code"));
+            }
 
             QRCodeDTO dto = dtoMapper.toDTO(qrCode);
 dto.setImagePath(fileStorageService.getFileUrl(qrCode.getImagePath()));

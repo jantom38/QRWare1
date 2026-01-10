@@ -4,7 +4,10 @@ package com.qrware.domain.qr;
 public enum QRCodeType {
     
     PRODUCT("Product", "QR code for product identification"),
-    INVENTORY_ITEM("Inventory Item", "QR code for specific inventory item");
+    INVENTORY_ITEM("Inventory Item", "QR code for specific inventory item"),
+    ZONE("Zone", "QR code for warehouse zone"),
+    ORDER("Order", "QR code for order identification"),
+    USER("User", "QR code for user identification");
 
     private final String displayName;
     private final String description;
@@ -23,15 +26,15 @@ public enum QRCodeType {
     }
 
     public boolean isPhysicalEntity() {
-        return true;
+        return this == PRODUCT || this == INVENTORY_ITEM || this == ZONE;
     }
 
     public boolean isTrackingEntity() {
-        return false;
+        return this == ORDER;
     }
 
     public boolean isPersonEntity() {
-        return false;
+        return this == USER;
     }
 
     public boolean isDocumentEntity() {
@@ -55,7 +58,7 @@ public enum QRCodeType {
     }
 
     public boolean isHighSecurity() {
-        return false;
+        return this == USER;
     }
 
     public boolean canHaveMultipleCodes() {
@@ -63,7 +66,7 @@ public enum QRCodeType {
     }
 
     public boolean shouldTrackUsage() {
-        return false;
+        return true;
     }
 
     public int getDefaultExpirationHours() {
@@ -74,6 +77,9 @@ public enum QRCodeType {
         return switch (this) {
             case PRODUCT -> "/products/";
             case INVENTORY_ITEM -> "/inventory/";
+            case ZONE -> "/zones/";
+            case ORDER -> "/orders/";
+            case USER -> "/users/";
         };
     }
 

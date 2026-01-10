@@ -305,6 +305,11 @@ public class UserManagementController {
             newUser.setEmailVerified(createRequest.getEmailVerified());
 
             User savedUser = userService.createUser(newUser, createRequest.getRoles(), createRequest.getPassword());
+            
+            if (savedUser == null) {
+                return buildErrorResponse("Nie udało się utworzyć użytkownika", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
             return buildSuccessResponse(new AdminUserResponse(savedUser), "Utworzono użytkownika", HttpStatus.CREATED);
 
         } catch (IllegalArgumentException ex) {
@@ -318,6 +323,9 @@ public class UserManagementController {
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         try {
             User user = userService.getUserById(id);
+            if (user == null) {
+                return buildErrorResponse("Użytkownik nie znaleziony", HttpStatus.NOT_FOUND);
+            }
             return buildSuccessResponse(new AdminUserResponse(user), "Pobrano użytkownika", HttpStatus.OK);
         } catch (ResourceNotFoundException ex) {
             return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
@@ -338,6 +346,11 @@ public class UserManagementController {
             userDetails.setEmailVerified(updateRequest.getEmailVerified());
 
             User updatedUser = userService.updateUser(id, userDetails, updateRequest.getRoles());
+            
+            if (updatedUser == null) {
+                return buildErrorResponse("Nie udało się zaktualizować użytkownika", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
             return buildSuccessResponse(new AdminUserResponse(updatedUser), "Zaktualizowano użytkownika", HttpStatus.OK);
 
         } catch (ResourceNotFoundException ex) {
@@ -431,6 +444,9 @@ public class UserManagementController {
     public ResponseEntity<?> getRoleById(@PathVariable Long id) {
         try {
             Role role = userService.getRoleById(id);
+            if (role == null) {
+                return buildErrorResponse("Rola nie znaleziona", HttpStatus.NOT_FOUND);
+            }
             return buildSuccessResponse(new RoleResponse(role), "Pobrano rolę", HttpStatus.OK);
         } catch (ResourceNotFoundException ex) {
             return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
@@ -446,6 +462,11 @@ public class UserManagementController {
             newRole.setActive(roleRequest.getActive());
 
             Role savedRole = userService.createRole(newRole, roleRequest.getPermissions());
+            
+            if (savedRole == null) {
+                return buildErrorResponse("Nie udało się utworzyć roli", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
             return buildSuccessResponse(new RoleResponse(savedRole), "Utworzono rolę", HttpStatus.CREATED);
         } catch (IllegalArgumentException ex) {
             return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
@@ -461,6 +482,11 @@ public class UserManagementController {
             roleDetails.setActive(roleRequest.getActive());
 
             Role updatedRole = userService.updateRole(id, roleDetails, roleRequest.getPermissions());
+            
+            if (updatedRole == null) {
+                return buildErrorResponse("Nie udało się zaktualizować roli", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
             return buildSuccessResponse(new RoleResponse(updatedRole), "Zaktualizowano rolę", HttpStatus.OK);
         } catch (ResourceNotFoundException ex) {
             return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
@@ -501,6 +527,9 @@ public class UserManagementController {
     public ResponseEntity<?> getPermissionById(@PathVariable Long id) {
         try {
             Permission permission = userService.getPermissionById(id);
+            if (permission == null) {
+                return buildErrorResponse("Uprawnienie nie znalezione", HttpStatus.NOT_FOUND);
+            }
             return buildSuccessResponse(new PermissionResponse(permission), "Pobrano uprawnienie", HttpStatus.OK);
         } catch (ResourceNotFoundException ex) {
             return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
@@ -521,6 +550,10 @@ public class UserManagementController {
             newPermission.setActive(request.getActive());
 
             Permission savedPermission = userService.createPermission(newPermission);
+            
+            if (savedPermission == null) {
+                return buildErrorResponse("Nie udało się utworzyć uprawnienia", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
 
             return buildSuccessResponse(new PermissionResponse(savedPermission), "Utworzono uprawnienie", HttpStatus.CREATED);
         } catch (IllegalArgumentException ex) {
@@ -543,6 +576,10 @@ public class UserManagementController {
             permissionDetails.setActive(request.getActive());
 
             Permission updatedPermission = userService.updatePermission(id, permissionDetails);
+            
+            if (updatedPermission == null) {
+                return buildErrorResponse("Nie udało się zaktualizować uprawnienia", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
 
             return buildSuccessResponse(new PermissionResponse(updatedPermission), "Zaktualizowano uprawnienie", HttpStatus.OK);
         } catch (ResourceNotFoundException ex) {

@@ -56,6 +56,7 @@ public class OrderController {
     @PreAuthorize("hasAuthority('ORDER_READ')")
     public ResponseEntity<ApiResponse<Page<OrderDTO>>> getAllOrders(
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        logger.info("GET /api/orders called");
         try {
             Page<Order> orders = orderService.getAllOrders(pageable);
             Page<OrderDTO> orderDTOs = orders.map(dtoMapper::toOrderDTO);
@@ -70,6 +71,7 @@ public class OrderController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('ORDER_READ')")
     public ResponseEntity<ApiResponse<OrderDTO>> getOrderById(@PathVariable Long id) {
+        logger.info("GET /api/orders/{} called", id);
         try {
             Order order = orderService.getOrderById(id);
             
@@ -95,6 +97,9 @@ public class OrderController {
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(e.getMessage()));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             logger.error("Failed to retrieve order {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -105,6 +110,7 @@ public class OrderController {
     @GetMapping("/number/{orderNumber}")
     @PreAuthorize("hasAuthority('ORDER_READ')")
     public ResponseEntity<ApiResponse<OrderDTO>> getOrderByNumber(@PathVariable String orderNumber) {
+        logger.info("GET /api/orders/number/{} called", orderNumber);
         try {
             Order order = orderService.getOrderByNumber(orderNumber);
             OrderDTO orderDTO = dtoMapper.toOrderDTO(order);
@@ -122,6 +128,7 @@ public class OrderController {
     @PostMapping
     @PreAuthorize("hasAuthority('ORDER_WRITE')")
     public ResponseEntity<ApiResponse<OrderDTO>> createOrder(@Valid @RequestBody CreateOrderRequest request) {
+        logger.info("POST /api/orders called with request: {}", request);
         try {
             User createdBy = SecurityUtils.getCurrentUser()
                 .orElseThrow(() -> new SecurityException("User not authenticated"));
@@ -147,12 +154,20 @@ public class OrderController {
                 request.getPriority()
             );
 
+            if (order == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Failed to create order"));
+            }
+
             OrderDTO orderDTO = dtoMapper.toOrderDTO(order);
             logger.info("Order {} created successfully", order.getOrderNumber());
             return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(orderDTO, "Order created successfully"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(e.getMessage()));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             logger.error("Failed to create order", e);
@@ -164,10 +179,17 @@ public class OrderController {
     @PutMapping("/{id}/start")
     @PreAuthorize("hasAuthority('ORDER_WRITE')")
     public ResponseEntity<ApiResponse<OrderDTO>> startOrder(@PathVariable Long id) {
+        logger.info("PUT /api/orders/{}/start called", id);
         try {
             User currentUser = SecurityUtils.getCurrentUser()
                 .orElseThrow(() -> new SecurityException("User not authenticated"));
             Order order = orderService.startOrder(id, currentUser);
+            
+            if (order == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Failed to start order"));
+            }
+
             OrderDTO orderDTO = dtoMapper.toOrderDTO(order);
             logger.info("Order {} started by user {}", id, currentUser.getUsername());
             return ResponseEntity.ok(ApiResponse.success(orderDTO, "Order started successfully"));
@@ -176,6 +198,9 @@ public class OrderController {
                 .body(ApiResponse.error(e.getMessage()));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(e.getMessage()));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             logger.error("Failed to start order {}", id, e);
@@ -187,10 +212,17 @@ public class OrderController {
     @PutMapping("/{id}/complete")
     @PreAuthorize("hasAuthority('ORDER_WRITE')")
     public ResponseEntity<ApiResponse<OrderDTO>> completeOrder(@PathVariable Long id) {
+        logger.info("PUT /api/orders/{}/complete called", id);
         try {
             User currentUser = SecurityUtils.getCurrentUser()
                 .orElseThrow(() -> new SecurityException("User not authenticated"));
             Order order = orderService.completeOrder(id, currentUser);
+            
+            if (order == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Failed to complete order"));
+            }
+
             OrderDTO orderDTO = dtoMapper.toOrderDTO(order);
             logger.info("Order {} completed by user {}", id, currentUser.getUsername());
             return ResponseEntity.ok(ApiResponse.success(orderDTO, "Order completed successfully"));
@@ -199,6 +231,9 @@ public class OrderController {
                 .body(ApiResponse.error(e.getMessage()));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(e.getMessage()));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             logger.error("Failed to complete order {}", id, e);
@@ -211,10 +246,17 @@ public class OrderController {
     @PreAuthorize("hasAuthority('ORDER_WRITE')")
     public ResponseEntity<ApiResponse<OrderDTO>> cancelOrder(@PathVariable Long id, 
                                                            @Valid @RequestBody CancelOrderRequest request) {
+        logger.info("PUT /api/orders/{}/cancel called", id);
         try {
             User currentUser = SecurityUtils.getCurrentUser()
                 .orElseThrow(() -> new SecurityException("User not authenticated"));
             Order order = orderService.cancelOrder(id, currentUser, request.getReason());
+            
+            if (order == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Failed to cancel order"));
+            }
+
             OrderDTO orderDTO = dtoMapper.toOrderDTO(order);
             logger.info("Order {} cancelled by user {}", id, currentUser.getUsername());
             return ResponseEntity.ok(ApiResponse.success(orderDTO, "Order cancelled successfully"));
@@ -223,6 +265,9 @@ public class OrderController {
                 .body(ApiResponse.error(e.getMessage()));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(e.getMessage()));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             logger.error("Failed to cancel order {}", id, e);
@@ -235,15 +280,25 @@ public class OrderController {
     @PreAuthorize("hasAuthority('ORDER_ASSIGN')")
     public ResponseEntity<ApiResponse<OrderDTO>> assignOrder(@PathVariable Long id,
                                                            @Valid @RequestBody AssignOrderRequest request) {
+        logger.info("PUT /api/orders/{}/assign called", id);
         try {
             User currentUser = SecurityUtils.getCurrentUser()
                 .orElseThrow(() -> new SecurityException("User not authenticated"));
             Order order = orderService.assignOrder(id, request.getAssignedToId(), currentUser);
+            
+            if (order == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Failed to assign order"));
+            }
+
             OrderDTO orderDTO = dtoMapper.toOrderDTO(order);
             logger.info("Order {} assigned to user {} by {}", id, request.getAssignedToId(), currentUser.getUsername());
             return ResponseEntity.ok(ApiResponse.success(orderDTO, "Order assigned successfully"));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(e.getMessage()));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             logger.error("Failed to assign order {}", id, e);
@@ -255,6 +310,7 @@ public class OrderController {
     @GetMapping("/active")
     @PreAuthorize("hasAuthority('ORDER_READ')")
     public ResponseEntity<ApiResponse<List<OrderDTO>>> getActiveOrders() {
+        logger.info("GET /api/orders/active called");
         try {
             List<Order> orders = orderService.getActiveOrders();
             List<OrderDTO> orderDTOs = orders.stream()
@@ -271,6 +327,7 @@ public class OrderController {
     @GetMapping("/my-orders")
     @PreAuthorize("hasAuthority('ORDER_READ')")
     public ResponseEntity<ApiResponse<List<OrderDTO>>> getMyOrders() {
+        logger.info("GET /api/orders/my-orders called");
         try {
             User currentUser = SecurityUtils.getCurrentUser()
                 .orElseThrow(() -> new SecurityException("User not authenticated"));
@@ -279,6 +336,9 @@ public class OrderController {
                 .map(dtoMapper::toOrderDTO)
                 .collect(Collectors.toList());
             return ResponseEntity.ok(ApiResponse.success(orderDTOs));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             logger.error("Failed to retrieve orders for user {}", SecurityUtils.getCurrentUsername(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -289,6 +349,7 @@ public class OrderController {
     @GetMapping("/overdue")
     @PreAuthorize("hasAuthority('ORDER_READ')")
     public ResponseEntity<ApiResponse<List<OrderDTO>>> getOverdueOrders() {
+        logger.info("GET /api/orders/overdue called");
         try {
             List<Order> orders = orderService.getOverdueOrders();
             List<OrderDTO> orderDTOs = orders.stream()
@@ -305,6 +366,7 @@ public class OrderController {
     @GetMapping("/high-priority")
     @PreAuthorize("hasAuthority('ORDER_READ')")
     public ResponseEntity<ApiResponse<List<OrderDTO>>> getHighPriorityOrders() {
+        logger.info("GET /api/orders/high-priority called");
         try {
             List<Order> orders = orderService.getHighPriorityOrders();
             List<OrderDTO> orderDTOs = orders.stream()
@@ -323,6 +385,7 @@ public class OrderController {
     public ResponseEntity<ApiResponse<Page<OrderDTO>>> searchOrders(
             @RequestParam String q,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        logger.info("GET /api/orders/search called with query: {}", q);
         try {
             Page<Order> orders = orderService.searchOrders(q, pageable);
             Page<OrderDTO> orderDTOs = orders.map(dtoMapper::toOrderDTO);
@@ -337,6 +400,7 @@ public class OrderController {
     @GetMapping("/statistics/status")
     @PreAuthorize("hasAuthority('ORDER_READ')")
     public ResponseEntity<ApiResponse<List<StatusCountDTO>>> getOrderStatistics() {
+        logger.info("GET /api/orders/statistics/status called");
         try {
             List<Object[]> statusCounts = orderService.getOrderCountByStatus();
             List<StatusCountDTO> statistics = statusCounts.stream()
@@ -389,6 +453,20 @@ public class OrderController {
 
         public OrderPriority getPriority() { return priority; }
         public void setPriority(OrderPriority priority) { this.priority = priority; }
+        
+        @Override
+        public String toString() {
+            return "CreateOrderRequest{" +
+                    "orderNumber='" + orderNumber + '\'' +
+                    ", type=" + type +
+                    ", description='" + description + '\'' +
+                    ", assignedToId=" + assignedToId +
+                    ", sourceLocationId=" + sourceLocationId +
+                    ", destinationLocationId=" + destinationLocationId +
+                    ", expectedDate=" + expectedDate +
+                    ", priority=" + priority +
+                    '}';
+        }
     }
 
     public static class CancelOrderRequest {

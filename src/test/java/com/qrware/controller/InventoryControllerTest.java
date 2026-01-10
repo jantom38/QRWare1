@@ -167,4 +167,25 @@ class InventoryControllerTest {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         verify(inventoryRepository, atLeastOnce()).save(any(InventoryItem.class));
     }
+
+    @Test
+    void createInventoryItem_ShouldReturnError_WhenSaveFails() {
+        InventoryController.CreateInventoryRequest request = new InventoryController.CreateInventoryRequest();
+        request.setProductId(1L);
+        request.setLocationId(2L);
+        request.setQuantity(100);
+
+        Product product = new Product();
+        product.setId(1L);
+        Location location = new Location();
+        location.setId(2L);
+
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(locationRepository.findById(2L)).thenReturn(Optional.of(location));
+        when(inventoryRepository.save(any(InventoryItem.class))).thenReturn(null);
+
+        ResponseEntity<InventoryItemDTO> response = inventoryController.createInventoryItem(request);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    }
 }

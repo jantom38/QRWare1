@@ -164,6 +164,10 @@ public class LocationController {
 
 
         Location savedLocation = locationRepository.save(location);
+        
+        if (savedLocation == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toDTO(savedLocation));
     }
@@ -216,6 +220,10 @@ public class LocationController {
         }
 
         Location updatedLocation = locationRepository.save(location);
+        
+        if (updatedLocation == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
 
         return ResponseEntity.ok(mapper.toDTO(updatedLocation));
     }
@@ -246,6 +254,10 @@ public class LocationController {
 
         location.setActive(!location.getActive());
         Location updatedLocation = locationRepository.save(location);
+        
+        if (updatedLocation == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
 
         return ResponseEntity.ok(mapper.toDTO(updatedLocation));
     }

@@ -1,0 +1,103 @@
+@startuml Use Case Diagram - QRWare
+
+!theme plain
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+skinparam usecase {
+    BackgroundColor<<admin>> LightBlue
+    BackgroundColor<<manager>> LightGreen
+    BackgroundColor<<worker>> LightYellow
+    BackgroundColor<<shared>> LightGray
+}
+
+title Diagram Przypadkow Uzycia - System QRWare
+
+' Aktorzy
+actor "Administrator" as Admin
+actor "Menadzer" as Manager
+actor "Magazynier" as Worker
+
+' System
+rectangle "System QRWare" {
+    
+    ' ========== MODUL ADMINISTRATORA ==========
+    package "Modul Administratora" {
+        usecase "UC-A01: Zarzadzanie\nproduktami (CRUD)" as UC_A01 <<admin>>
+        usecase "UC-A02: Zarzadzanie\nkategoriami" as UC_A02 <<admin>>
+        usecase "UC-A03: Definiowanie\nstref magazynowych" as UC_A03 <<admin>>
+        usecase "UC-A04: Definiowanie\nlokalizacji" as UC_A04 <<admin>>
+        usecase "UC-A05: Podglad historii\noperacji" as UC_A05 <<admin>>
+        usecase "UC-A06: Zarzadzanie\nrolami" as UC_A06 <<admin>>
+        usecase "UC-A07: Zarzadzanie\nuzytkownikami" as UC_A07 <<admin>>
+    }
+    
+    ' ========== MODUL MENADZERA ==========
+    package "Modul Menadzera" {
+        usecase "UC-M01: Tworzenie\nraportow" as UC_M01 <<manager>>
+        usecase "UC-M02: Zarzadzanie stanami\nmagazynowymi" as UC_M02 <<manager>>
+        usecase "UC-M03: Tworzenie\nzlecen" as UC_M03 <<manager>>
+        usecase "UC-M04: Monitorowanie\nstatusu zlecen" as UC_M04 <<manager>>
+        usecase "UC-M05: Generowanie\nkodow QR" as UC_M05 <<manager>>
+        usecase "UC-M06: Skanowanie\nkodow QR" as UC_M06 <<shared>>
+        usecase "UC-M07: Podglad procesow\nlogistycznych" as UC_M07 <<manager>>
+    }
+    
+    ' ========== MODUL MAGAZYNIERA ==========
+    package "Modul Magazyniera" {
+        usecase "UC-W01: Skanowanie kodow QR\n(identyfikacja)" as UC_W01 <<shared>>
+        usecase "UC-W02: Przeglad\nprzypisanych zlecen" as UC_W02 <<worker>>
+        usecase "UC-W03: Realizacja\nkompletacji (PICK)" as UC_W03 <<worker>>
+        usecase "UC-W04: Realizacja przyjecia\n(INBOUND)" as UC_W04 <<worker>>
+        usecase "UC-W05: Realizacja wydania\n(OUTBOUND)" as UC_W05 <<worker>>
+        usecase "UC-W06: Realizacja\nprzeniesienia (TRANSFER)" as UC_W06 <<worker>>
+        usecase "UC-W07: Nieprzewidziane\nprzyjecie/wydanie" as UC_W07 <<worker>>
+    }
+    
+    ' ========== WSPOLNE ==========
+    usecase "Logowanie do systemu" as UC_Login <<shared>>
+    usecase "Wylogowanie" as UC_Logout <<shared>>
+}
+
+' ========== RELACJE ADMINISTRATORA ==========
+Admin --> UC_A01
+Admin --> UC_A02
+Admin --> UC_A03
+Admin --> UC_A04
+Admin --> UC_A05
+Admin --> UC_A06
+Admin --> UC_A07
+Admin --> UC_Login
+Admin --> UC_Logout
+
+' ========== RELACJE MENADZERA ==========
+Manager --> UC_M01
+Manager --> UC_M02
+Manager --> UC_M03
+Manager --> UC_M04
+Manager --> UC_M05
+Manager --> UC_M06
+Manager --> UC_M07
+Manager --> UC_Login
+Manager --> UC_Logout
+
+' ========== RELACJE MAGAZYNIERA ==========
+Worker --> UC_W01
+Worker --> UC_W02
+Worker --> UC_W03
+Worker --> UC_W04
+Worker --> UC_W05
+Worker --> UC_W06
+Worker --> UC_W07
+Worker --> UC_Login
+Worker --> UC_Logout
+
+' ========== RELACJE INCLUDE/EXTEND ==========
+UC_A04 ..> UC_A03 : <<include>>\nwymaga strefy
+UC_M02 ..> UC_M05 : <<include>>\ngeneruje QR
+UC_W03 ..> UC_W01 : <<include>>\nskanowanie
+UC_W04 ..> UC_W01 : <<include>>\nskanowanie
+UC_W05 ..> UC_W01 : <<include>>\nskanowanie
+UC_W06 ..> UC_W01 : <<include>>\nskanowanie
+UC_W07 ..> UC_W01 : <<extend>>\nopcjonalne skanowanie
+
+@enduml

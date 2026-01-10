@@ -18,12 +18,11 @@ import org.springframework.http.ResponseEntity;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class UserManagementControllerTest {
@@ -40,7 +39,7 @@ class UserManagementControllerTest {
         user.setId(1L);
         user.setUsername("testuser");
         user.setRoles(new HashSet<>());
-        user.setAuthorities(new HashSet<>());
+
         
         Page<User> page = new PageImpl<>(List.of(user));
         when(userService.getAllUsers(any(Pageable.class))).thenReturn(page);
@@ -53,18 +52,12 @@ class UserManagementControllerTest {
     }
 
     @Test
-    void createUser_ShouldCreateAndReturnUser() {
-        UserManagementController.AdminCreateUserRequest request = new UserManagementController.AdminCreateUserRequest();
-    }
-
-    @Test
     void getUserById_ShouldReturnUser_WhenFound() {
         Long id = 1L;
         User user = new User();
         user.setId(id);
         user.setUsername("testuser");
         user.setRoles(new HashSet<>());
-        user.setAuthorities(new HashSet<>());
 
         when(userService.getUserById(id)).thenReturn(user);
 
@@ -98,6 +91,8 @@ class UserManagementControllerTest {
     @Test
     void createRole_ShouldCreateAndReturnRole() {
         UserManagementController.RoleRequest request = new UserManagementController.RoleRequest();
+        ReflectionTestUtils.setField(request, "name", "ROLE_TEST");
+        ReflectionTestUtils.setField(request, "active", true);
         
         Role role = new Role("ROLE_TEST", "Test Role");
         role.setId(1L);
@@ -108,5 +103,18 @@ class UserManagementControllerTest {
         ResponseEntity<?> response = userManagementController.createRole(request);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
+    }
+
+    @Test
+    void getUserById_ShouldReturnError_WhenServiceReturnsNull() {
+        Long id = 1L;
+        when(userService.getUserById(id)).thenReturn(null);
+
+        ResponseEntity<?> response = userManagementController.getUserById(id);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        UserManagementController.GlobalApiResponse<?> body = (UserManagementController.GlobalApiResponse<?>) response.getBody();
+        assertFalse(body.isSuccess());
+        assertEquals("Użytkownik nie znaleziony", body.getMessage());
     }
 }

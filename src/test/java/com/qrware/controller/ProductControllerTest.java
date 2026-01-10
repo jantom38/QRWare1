@@ -132,4 +132,19 @@ class ProductControllerTest {
         assertFalse(product.getActive());
         verify(productRepository).save(product);
     }
+
+    @Test
+    void createProduct_ShouldReturnNullBody_WhenSaveReturnsNull() {
+        ProductController.CreateProductRequest request = new ProductController.CreateProductRequest();
+        request.setSku("SKU-001");
+        request.setName("New Product");
+
+        when(productRepository.existsBySku("SKU-001")).thenReturn(false);
+        when(productRepository.save(any(Product.class))).thenReturn(null);
+
+        ResponseEntity<ProductController.ProductDTO> response = productController.createProduct(request);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNull(response.getBody());
+    }
 }

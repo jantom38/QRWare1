@@ -1,0 +1,172 @@
+@startuml Sequence Diagram - Przyjecie towaru (INBOUND)
+
+!theme plain
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+
+title Diagram Sekwencji - UC-W04: Realizacja przyjecia towaru (INBOUND)
+
+actor "Magazynier" as Worker
+participant "Aplikacja\nAndroid" as App
+participant "API\nBackend" as API
+database "Baza\nDanych" as DB
+participant "Serwis\nZlecen" as OrderService
+participant "Serwis\nInwentarza" as InventoryService
+participant "Serwis\nQR" as QRService
+participant "Serwis\nHistorii" as HistoryService
+
+== Pobranie zlecenia przyjecia ==
+Worker -> App : Wybiera zlecenie INBOUND
+activate App
+App -> API : GET /api/orders/{orderId}
+activate API
+API -> DB : findById(orderId)
+DB --> API : Order + OrderItems
+API --> App : OrderDTO
+deactivate API
+App --> Worker : Lista oczekiwanych\nproduktow
+deactivate App
+
+== Rozpoczecie przyjecia ==
+Worker -> App : Klikniecie "Rozpocznij"
+activate App
+App -> API : PUT /api/orders/{orderId}/status
+activate API
+API -> OrderService : updateStatus(IN_PROGRESS)
+activate OrderService
+OrderService -> DB : save(order, statusHistory)
+OrderService --> API : OrderDTO
+deactivate OrderService
+API --> App : Potwierdzenie
+deactivate API
+App --> Worker : Status: IN_PROGRESS
+deactivate App
+
+== Petla: Przyjecie pozycji ==
+loop Dla kazdej pozycji dostawy
+
+    App --> Worker : Wyswietla:\nprodukt, oczekiwana ilosc
+    
+    == Weryfikacja produktu ==
+    Worker -> App : Skanuje kod kreskowy\nlub QR produktu
+    activate App
+    App -> API : GET /api/products/barcode/{code}
+    activate API
+    API -> DB : findByBarcode(code)
+    DB --> API : Product
+    API --> App : ProductDTO
+    deactivate API
+    
+    alt Produkt zgodny z zleceniem
+        App --> Worker : Produkt potwierdzony ✓
+    else Produkt nieoczekiwany
+        App --> Worker : UWAGA: Produkt\nspoza zlecenia
+        Worker -> App : Decyzja: przyjac/odrzucic
+    end
+    deactivate App
+    
+    == Wprowadzenie danych ==
+    Worker -> App : Wprowadza:\n- ilosc rzeczywista\n- nr partii (opcja)\n- data waznosci (opcja)
+    
+    == Wybor lokalizacji docelowej ==
+    Worker -> App : Skanuje QR lokalizacji\ndocelowej
+    activate App
+    App -> API : GET /api/locations/{code}
+    activate API
+    API -> DB : findByCode(code)
+    DB --> API : Location
+    API --> App : LocationDTO
+    deactivate API
+    
+    alt Lokalizacja dostepna
+        App --> Worker : Lokalizacja: [kod]\nWolna pojemnosc: X
+    else Lokalizacja pelna
+        App --> Worker : UWAGA: Lokalizacja pelna
+        Worker -> App : Wybiera inna lokalizacje
+    end
+    deactivate App
+    
+    == Utworzenie stanu magazynowego ==
+    Worker -> App : Potwierdza przyjecie pozycji
+    activate App
+    App -> API : POST /api/inventory
+    activate API
+    
+    API -> InventoryService : createInventoryItem(data)
+    activate InventoryService
+    
+    InventoryService -> DB : save(InventoryItem)
+    note right: quantity, batchNumber,\nexpirationDate, status=AVAILABLE
+    
+    InventoryService -> QRService : generateQRCode(inventoryId)
+    activate QRService
+    QRService -> QRService : Generowanie obrazu QR
+    QRService -> DB : save(QRCodeData)
+    QRService --> InventoryService : QRCodeData (imagePath)
+    deactivate QRService
+    
+    InventoryService -> DB : update InventoryItem\n(qrCode = path)
+    
+    InventoryService --> API : InventoryItemDTO
+    deactivate InventoryService
+    
+    API -> HistoryService : recordMovement(ORDER_RECEIPT)
+    activate HistoryService
+    HistoryService -> DB : save(MovementHistory)
+    HistoryService --> API : MovementHistory
+    deactivate HistoryService
+    
+    API -> OrderService : updateOrderItem(itemId, qty, COMPLETED)
+    activate OrderService
+    OrderService -> DB : update OrderItem
+    OrderService --> API : OrderItemDTO
+    deactivate OrderService
+    
+    API --> App : InventoryItemDTO\n+ QR Code URL
+    deactivate API
+    
+    App --> Worker : Pozycja przyjeta ✓\nKod QR wygenerowany\n[Podglad/Drukuj]
+    deactivate App
+    
+    == Opcjonalny wydruk etykiety ==
+    opt Drukowanie etykiety QR
+        Worker -> App : Klikniecie "Drukuj etykiete"
+        App -> App : Wyslanie do drukarki
+        App --> Worker : Etykieta wydrukowana
+        Worker -> Worker : Nakleja etykiete\nna towar
+    end
+    
+end
+
+== Obsluga rozbieznosci ==
+alt Ilosc rzeczywista != oczekiwana
+    Worker -> App : Wprowadza powod rozbieznosci
+    activate App
+    App -> API : POST /api/orders/{orderId}/discrepancy
+    activate API
+    API -> DB : save(DiscrepancyReport)
+    API --> App : Potwierdzenie
+    deactivate API
+    App --> Worker : Rozbieznosc zgloszona
+    deactivate App
+end
+
+== Zakonczenie przyjecia ==
+Worker -> App : Klikniecie "Zakoncz przyjecie"
+activate App
+App -> API : PUT /api/orders/{orderId}/complete
+activate API
+
+API -> OrderService : completeOrder(orderId)
+activate OrderService
+OrderService -> DB : update Order\n(status=COMPLETED)
+OrderService -> DB : save(OrderStatusHistory)
+OrderService --> API : OrderDTO
+deactivate OrderService
+
+API --> App : Zlecenie zakonczone
+deactivate API
+App --> Worker : Przyjecie zakonczone ✓\nPrzyjeto: X produktow\nWygenerowano: Y kodow QR
+deactivate App
+
+@enduml

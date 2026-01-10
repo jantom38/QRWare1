@@ -12,6 +12,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Collections;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -28,11 +30,18 @@ class AuthControllerTest {
     @Test
     void login_ShouldReturnOk_WhenLoginSuccessful() {
         LoginRequest request = new LoginRequest();
-        request.setUsernameOrEmail("testuser");
+        request.setUsernameOrEmail("user");
         request.setPassword("password");
 
         AuthenticationResponse authResponse = new AuthenticationResponse(
-            "token", "refresh", "testuser", 1L, null
+            "token",
+            "refresh",
+            3600L,
+            1L,
+            "testuser",
+            "test@example.com",
+            "Test User",
+            Collections.singletonList("USER")
         );
 
         when(authenticationService.login(any(LoginRequest.class))).thenReturn(authResponse);
@@ -68,7 +77,14 @@ class AuthControllerTest {
         request.setPassword("password");
 
         AuthenticationResponse authResponse = new AuthenticationResponse(
-            "token", "refresh", "newuser", 1L, null
+            "token",           // accessToken
+            "refresh",         // refreshToken
+            3600L,             // expiresIn
+            1L,                // userId
+            "newuser",         // username
+            "new@example.com", // email
+            "New User",        // fullName
+            Collections.singletonList("USER") // roles
         );
 
         when(authenticationService.register(any(RegisterRequest.class))).thenReturn(authResponse);
@@ -93,5 +109,116 @@ class AuthControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         AuthController.ApiResponse<?> body = (AuthController.ApiResponse<?>) response.getBody();
         assertFalse(body.isSuccess());
+    }
+
+    @Test
+    void login_ShouldReturnUnauthorized_WhenServiceReturnsNull() {
+        LoginRequest request = new LoginRequest();
+        request.setUsernameOrEmail("user");
+        request.setPassword("password");
+
+        when(authenticationService.login(any(LoginRequest.class))).thenReturn(null);
+
+        ResponseEntity<?> response = authController.login(request);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        AuthController.ApiResponse<?> body = (AuthController.ApiResponse<?>) response.getBody();
+        assertFalse(body.isSuccess());
+        assertEquals("Login failed: Invalid credentials", body.getMessage());
+    }
+
+    // ==================== REFRESH TOKEN TESTS ====================
+
+    @Test
+    void refreshToken_ShouldReturnOk_WhenTokenValid() {
+        AuthenticationService.RefreshTokenRequest request = new AuthenticationService.RefreshTokenRequest();
+        request.setRefreshToken("valid-refresh-token");
+
+        AuthenticationResponse authResponse = new AuthenticationResponse(
+            "new-token",
+            "new-refresh",
+            3600L,
+            1L,
+            "testuser",
+            "test@example.com",
+            "Test User",
+            Collections.singletonList("USER")
+        );
+
+        when(authenticationService.refreshToken(any(AuthenticationService.RefreshTokenRequest.class))).thenReturn(authResponse);
+
+        ResponseEntity<?> response = authController.refreshToken(request);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        AuthController.ApiResponse<?> body = (AuthController.ApiResponse<?>) response.getBody();
+        assertTrue(body.isSuccess());
+        assertEquals("Token refreshed successfully", body.getMessage());
+    }
+
+    @Test
+    void refreshToken_ShouldReturnUnauthorized_WhenTokenExpired() {
+        AuthenticationService.RefreshTokenRequest request = new AuthenticationService.RefreshTokenRequest();
+        request.setRefreshToken("expired-token");
+
+        when(authenticationService.refreshToken(any(AuthenticationService.RefreshTokenRequest.class)))
+            .thenThrow(new RuntimeException("Token expired"));
+
+        ResponseEntity<?> response = authController.refreshToken(request);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        AuthController.ApiResponse<?> body = (AuthController.ApiResponse<?>) response.getBody();
+        assertFalse(body.isSuccess());
+    }
+
+    @Test
+    void refreshToken_ShouldReturnUnauthorized_WhenServiceReturnsNull() {
+        AuthenticationService.RefreshTokenRequest request = new AuthenticationService.RefreshTokenRequest();
+        request.setRefreshToken("invalid-token");
+
+        when(authenticationService.refreshToken(any(AuthenticationService.RefreshTokenRequest.class))).thenReturn(null);
+
+        ResponseEntity<?> response = authController.refreshToken(request);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        AuthController.ApiResponse<?> body = (AuthController.ApiResponse<?>) response.getBody();
+        assertFalse(body.isSuccess());
+        assertEquals("Token refresh failed", body.getMessage());
+    }
+
+    // ==================== REGISTER EDGE CASES ====================
+
+    @Test
+    void register_ShouldReturnBadRequest_WhenServiceReturnsNull() {
+        RegisterRequest request = new RegisterRequest();
+        request.setUsername("newuser");
+        request.setEmail("new@example.com");
+        request.setPassword("password");
+
+        when(authenticationService.register(any(RegisterRequest.class))).thenReturn(null);
+
+        ResponseEntity<?> response = authController.register(request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        AuthController.ApiResponse<?> body = (AuthController.ApiResponse<?>) response.getBody();
+        assertFalse(body.isSuccess());
+        assertEquals("Registration failed", body.getMessage());
+    }
+
+    @Test
+    void register_ShouldReturnBadRequest_WhenEmailAlreadyExists() {
+        RegisterRequest request = new RegisterRequest();
+        request.setUsername("newuser");
+        request.setEmail("existing@example.com");
+        request.setPassword("password");
+
+        when(authenticationService.register(any(RegisterRequest.class)))
+            .thenThrow(new RuntimeException("Email already registered"));
+
+        ResponseEntity<?> response = authController.register(request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        AuthController.ApiResponse<?> body = (AuthController.ApiResponse<?>) response.getBody();
+        assertFalse(body.isSuccess());
+        assertTrue(body.getMessage().contains("Email already registered"));
     }
 }
