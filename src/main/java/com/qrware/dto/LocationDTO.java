@@ -1,5 +1,6 @@
 package com.qrware.dto;
 
+import com.qrware.domain.warehouse.LocationType;
 import java.math.BigDecimal;
 
 public class LocationDTO {
@@ -8,17 +9,31 @@ public class LocationDTO {
     private String name;
     private String description;
     private ZoneDTO zone;
+    private LocationType type;
     private String aisle;
     private String rack;
     private String shelf;
-    private String position;
-    private BigDecimal maxWeight;
-    private BigDecimal maxVolume;
+    private String bin;
+    private BigDecimal capacityVolume;
+    private BigDecimal capacityWeight;
+    private Integer capacityItems;
+    private Boolean temperatureControlled;
+    private Integer temperatureMin;
+    private Integer temperatureMax;
+    private Boolean humidityControlled;
+    private Integer humidityMin;
+    private Integer humidityMax;
+    private Boolean hazardousMaterials;
+    private Boolean fragileItems;
+    private Integer securityLevel;
+    private Boolean active;
+    private Boolean pickable;
+    private Boolean receivable;
+    private String qrCode;
     private String barcode;
     private BigDecimal xCoordinate;
     private BigDecimal yCoordinate;
     private BigDecimal zCoordinate;
-    private Boolean active;
 
     public LocationDTO() {}
 
@@ -34,11 +49,11 @@ public class LocationDTO {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
-    public Boolean getActive() { return active; }
-    public void setActive(Boolean active) { this.active = active; }
-    
     public ZoneDTO getZone() { return zone; }
     public void setZone(ZoneDTO zone) { this.zone = zone; }
+    
+    public LocationType getType() { return type; }
+    public void setType(LocationType type) { this.type = type; }
     
     public String getAisle() { return aisle; }
     public void setAisle(String aisle) { this.aisle = aisle; }
@@ -49,14 +64,56 @@ public class LocationDTO {
     public String getShelf() { return shelf; }
     public void setShelf(String shelf) { this.shelf = shelf; }
     
-    public String getPosition() { return position; }
-    public void setPosition(String position) { this.position = position; }
+    public String getBin() { return bin; }
+    public void setBin(String bin) { this.bin = bin; }
     
-    public BigDecimal getMaxWeight() { return maxWeight; }
-    public void setMaxWeight(BigDecimal maxWeight) { this.maxWeight = maxWeight; }
+    public BigDecimal getCapacityVolume() { return capacityVolume; }
+    public void setCapacityVolume(BigDecimal capacityVolume) { this.capacityVolume = capacityVolume; }
     
-    public BigDecimal getMaxVolume() { return maxVolume; }
-    public void setMaxVolume(BigDecimal maxVolume) { this.maxVolume = maxVolume; }
+    public BigDecimal getCapacityWeight() { return capacityWeight; }
+    public void setCapacityWeight(BigDecimal capacityWeight) { this.capacityWeight = capacityWeight; }
+    
+    public Integer getCapacityItems() { return capacityItems; }
+    public void setCapacityItems(Integer capacityItems) { this.capacityItems = capacityItems; }
+    
+    public Boolean getTemperatureControlled() { return temperatureControlled; }
+    public void setTemperatureControlled(Boolean temperatureControlled) { this.temperatureControlled = temperatureControlled; }
+    
+    public Integer getTemperatureMin() { return temperatureMin; }
+    public void setTemperatureMin(Integer temperatureMin) { this.temperatureMin = temperatureMin; }
+    
+    public Integer getTemperatureMax() { return temperatureMax; }
+    public void setTemperatureMax(Integer temperatureMax) { this.temperatureMax = temperatureMax; }
+    
+    public Boolean getHumidityControlled() { return humidityControlled; }
+    public void setHumidityControlled(Boolean humidityControlled) { this.humidityControlled = humidityControlled; }
+    
+    public Integer getHumidityMin() { return humidityMin; }
+    public void setHumidityMin(Integer humidityMin) { this.humidityMin = humidityMin; }
+    
+    public Integer getHumidityMax() { return humidityMax; }
+    public void setHumidityMax(Integer humidityMax) { this.humidityMax = humidityMax; }
+    
+    public Boolean getHazardousMaterials() { return hazardousMaterials; }
+    public void setHazardousMaterials(Boolean hazardousMaterials) { this.hazardousMaterials = hazardousMaterials; }
+    
+    public Boolean getFragileItems() { return fragileItems; }
+    public void setFragileItems(Boolean fragileItems) { this.fragileItems = fragileItems; }
+    
+    public Integer getSecurityLevel() { return securityLevel; }
+    public void setSecurityLevel(Integer securityLevel) { this.securityLevel = securityLevel; }
+    
+    public Boolean getActive() { return active; }
+    public void setActive(Boolean active) { this.active = active; }
+    
+    public Boolean getPickable() { return pickable; }
+    public void setPickable(Boolean pickable) { this.pickable = pickable; }
+    
+    public Boolean getReceivable() { return receivable; }
+    public void setReceivable(Boolean receivable) { this.receivable = receivable; }
+    
+    public String getQrCode() { return qrCode; }
+    public void setQrCode(String qrCode) { this.qrCode = qrCode; }
     
     public String getBarcode() { return barcode; }
     public void setBarcode(String barcode) { this.barcode = barcode; }

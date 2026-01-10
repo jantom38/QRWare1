@@ -1,9 +1,5 @@
 package com.qrware.app.data.model
 
-/**
- * Konwersja enuma ZoneType na Kotlin.
- * Używa tego samego stylu (właściwości z `get()`) co działający LocationType.
- */
 enum class ZoneType(
     val displayName: String,
     val description: String
@@ -32,9 +28,8 @@ enum class ZoneType(
     OVERFLOW("Overflow", "Overflow storage zone"),
     SEASONAL("Seasonal", "Seasonal items storage zone"),
     HIGH_VALUE("High Value", "High value items storage zone"),
-    AUTOMATED("Automated", "Automated storage and retrieval zone"); // <-- TEN ŚREDNIK JEST KLUCZOWY
+    AUTOMATED("Automated", "Automated storage and retrieval zone");
 
-    // Właściwości pomocnicze w stylu z LocationType.kt
     val isStorageZone: Boolean
         get() = this in setOf(STORAGE, COLD_STORAGE, FREEZER, BULK, FAST_MOVING, SLOW_MOVING, OVERFLOW, SEASONAL, HIGH_VALUE, AUTOMATED)
 

@@ -3,16 +3,6 @@ package com.qrware.app.data.dto
 import com.qrware.app.data.model.LocationType
 import java.math.BigDecimal
 
-/**
- * DTO dla Strefy. Zakładamy prostą strukturę.
- * Upewnij się, że ten plik lub definicja istnieje.
- */
-
-
-/**
- * PEŁNA WERSJA DTO Lokalizacji,
- * zgodna ze wszystkimi polami z LocationController.java
- */
 data class LocationDTO(
     val id: Long,
     val code: String,

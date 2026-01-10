@@ -1,6 +1,8 @@
 package com.qrware.app.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,11 +21,13 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
     }
 
     Scaffold { paddingValues ->
+        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(16.dp)
+                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             userState.let { user ->
@@ -32,11 +36,9 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
                     
                     Spacer(modifier = Modifier.height(16.dp))
                     
-                    // Funkcje pomocnicze do sprawdzania uprawnień
                     fun hasPermission(permission: String) = user.permissions.contains(permission)
                     fun hasRole(role: String) = user.roles.contains(role)
 
-                    // Kafelki na podstawie uprawnień
                     if (hasRole("ADMIN") || hasPermission("ADMIN_FULL")) {
                         MenuButton(
                             text = "Zarządzanie Użytkownikami",
@@ -52,10 +54,6 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
                         MenuButton(
                             text = "Zarządzaj Kategoriami", 
                             onClick = { navController.navigate("manage_categories") }
-                        )
-                        MenuButton(
-                            text = "Niskie Stany Magazynowe",
-                            onClick = { navController.navigate("low_stock") }
                         )
                     }
 
@@ -115,19 +113,16 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
                         )
                     }
 
-                    // Przycisk dostępny dla wszystkich użytkowników
                     MenuButton(
                         text = "Sprawdź Stan Systemu",
                         onClick = { navController.navigate("health") }
                     )
 
-                    // Przycisk wylogowania
                     Spacer(modifier = Modifier.height(16.dp))
                     OutlinedButton(
                         onClick = { 
                             viewModel.logout()
                             navController.navigate("login") {
-                                // Wyczyść stos nawigacji i ustaw login jako jedyny ekran
                                 popUpTo(navController.graph.startDestinationId) {
                                     inclusive = true
                                 }

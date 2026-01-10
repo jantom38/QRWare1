@@ -87,13 +87,16 @@ fun ManageZonesScreen(
                     )
                 } else {
                     LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        modifier = Modifier.fillMaxSize().imePadding(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(bottom = 24.dp)
                     ) {
                         items(uiState.zones) { zone ->
                             ZoneCard(
                                 zone = zone,
                                 onEdit = { navController.navigate("edit_zone/${zone.id}") },
-                                onDelete = { viewModel.deleteZone(zone.id!!) }
+                                onDelete = { viewModel.deleteZone(zone.id!!) },
+                                onToggleActive = { viewModel.toggleZoneActive(zone.id!!) }
                             )
                         }
                     }
@@ -107,7 +110,8 @@ fun ManageZonesScreen(
 fun ZoneCard(
     zone: ZoneDTO,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onToggleActive: () -> Unit
 ) {
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -130,9 +134,13 @@ fun ZoneCard(
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-                // Status aktywności
-                Badge(containerColor = if (zone.active) Color(0xFF4CAF50) else Color.Gray) {
-                    Text(if (zone.active) "Aktywna" else "Nieaktywna", color = Color.White)
+                Column(horizontalAlignment = Alignment.End) {
+                    Badge(containerColor = if (zone.active) Color(0xFF4CAF50) else Color.Gray) {
+                        Text(if (zone.active) "Aktywna" else "Nieaktywna", color = Color.White)
+                    }
+                    TextButton(onClick = onToggleActive) {
+                        Text(if (zone.active) "Dezaktywuj" else "Aktywuj")
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))

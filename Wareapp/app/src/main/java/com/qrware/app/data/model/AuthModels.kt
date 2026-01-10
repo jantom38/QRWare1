@@ -2,7 +2,6 @@ package com.qrware.app.data.model
 
 import com.google.gson.annotations.SerializedName
 
-// --- Request Bodies ---
 data class LoginRequest(
     val usernameOrEmail: String,
     val password: String
@@ -14,7 +13,6 @@ data class RegisterRequest(
     val password: String,
     var firstName: String,
     var lastName : String
-    // Dodaj inne pola, jeśli są wymagane
 )
 
 data class RefreshTokenRequest(val refreshToken: String)
@@ -24,10 +22,9 @@ data class ChangePasswordRequest(
     val newPassword: String
 )
 
-// --- Response Bodies ---
 data class AuthenticationResponse(
     val username: String,
-    @SerializedName("accessToken") // Ta linia mówi Gson, żeby szukał "accessToken" w JSON
+    @SerializedName("accessToken")
     val token: String,
     @SerializedName("refreshToken")
     val refreshToken: String?,

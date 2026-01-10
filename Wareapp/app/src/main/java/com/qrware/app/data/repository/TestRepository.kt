@@ -13,7 +13,6 @@ class TestRepository(private val testService: TestService) {
         return try {
             val response = apiCall()
             if (response.isSuccessful && response.body() != null) {
-                // Konwertuj mapę na ładnie sformatowany JSON
                 Result.success(gson.toJson(response.body()))
             } else {
                 Result.failure(Exception("Error: ${response.code()} ${response.message()}"))
@@ -24,7 +23,6 @@ class TestRepository(private val testService: TestService) {
     }
 
     suspend fun getPublicData(): Result<String> {
-        // Poprawiona linia
         return fetchAndFormatException { testService.getPublicEndpoint() }
     }
     suspend fun getProtectedData(): Result<String> {

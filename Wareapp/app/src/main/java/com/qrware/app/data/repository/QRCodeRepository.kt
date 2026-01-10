@@ -48,12 +48,6 @@ class QRCodeRepository @Inject constructor(
     suspend fun getQRStats(): QRStatsResponse =
         apiService.getQRStats()
 
-    // ==================== INVENTORY INTEGRATION ====================
-
-    /**
-     * Pobiera pozycję magazynową po QR kodzie.
-     * Pobiera DTO i konwertuje je na bezpieczny Model Domenowy.
-     */
     suspend fun getInventoryByQRCode(qrCode: String): Result<InventoryItem> {
         return try {
             val dto = apiService.getInventoryByQRCode(qrCode)
@@ -71,10 +65,6 @@ class QRCodeRepository @Inject constructor(
     }
 }
 
-// =====================================================================
-// FUNKCJE MAPUJĄCE (MAPPERS)
-// =====================================================================
-
 fun String?.toLocalDateOrNull(): LocalDate? {
     if (this.isNullOrEmpty()) return null
     return try {
@@ -84,7 +74,6 @@ fun String?.toLocalDateOrNull(): LocalDate? {
     }
 }
 
-// 1. InventoryItemDTO -> InventoryItem
 fun InventoryItemDTO.toDomainModel(): InventoryItem {
     return InventoryItem(
         id = this.id,
@@ -118,7 +107,6 @@ fun InventoryItemDTO.toDomainModel(): InventoryItem {
     )
 }
 
-// 2. ProductDTO -> Product
 fun ProductDTO.toDomain(): Product {
     return Product(
         id = this.id,
@@ -147,7 +135,6 @@ fun ProductDTO.toDomain(): Product {
     )
 }
 
-// 3. CategoryDTO -> Category
 fun CategoryDTO.toDomain(): Category {
     return Category(
         id = this.id,
@@ -169,7 +156,6 @@ fun CategoryDTO.toDomain(): Category {
     )
 }
 
-// 4. LocationDTO -> Location
 fun LocationDTO.toDomain(): Location {
     return Location(
         id = this.id,
@@ -180,13 +166,9 @@ fun LocationDTO.toDomain(): Location {
     )
 }
 
-// 5. ZoneDTO -> Zone
-// Dodano '?' przy 'this.id', aby obsłużyć Long?, oraz pełną ścieżkę do ZoneType
 fun ZoneDTO.toDomain(): Zone {
-    // Używamy bezpiecznego operatora dla ID, jeśli ZoneDTO ma nullable ID
     val safeId: Long = this.id ?: 0L
 
-    // Używamy pełnej ścieżki do ZoneType, aby uniknąć konfliktu nazw
     val safeType = this.type ?: com.qrware.app.data.model.ZoneType.STORAGE
 
     return Zone(
@@ -198,11 +180,9 @@ fun ZoneDTO.toDomain(): Zone {
     )
 }
 
-// --- Funkcje pomocnicze ---
-
 fun createDummyCategory(): Category {
     return Category(
-        id = 0L, // POPRAWKA: Użyto 0L (Long), a nie 0 (Int)
+        id = 0L,
         name = "Bez Kategorii",
         description = null,
         code = "UNCATEGORIZED",

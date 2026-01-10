@@ -1,5 +1,6 @@
 package com.qrware.app.ui.screens.LocationManagement
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -62,7 +63,7 @@ fun ManageLocationsScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    navController.navigate("add_location") // TRASA DO DODAWANIA
+                    navController.navigate("add_location")
                 }
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Dodaj nową lokalizację")
@@ -75,7 +76,6 @@ fun ManageLocationsScreen(
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp)
         ) {
-            // --- WYSZUKIWANIE ---
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { 
@@ -90,7 +90,6 @@ fun ManageLocationsScreen(
                 singleLine = true
             )
             
-            // --- FILTRY ---
             StatusFilterRow(
                 selectedFilter = uiState.activeFilter,
                 onFilterSelected = { activeStatus ->
@@ -98,9 +97,7 @@ fun ManageLocationsScreen(
                 },
                 modifier = Modifier.padding(vertical = 8.dp)
             )
-            // --- KONIEC FILTRÓW ---
 
-            // Komunikaty błędów/sukcesu
             uiState.error?.let { error ->
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
@@ -120,7 +117,6 @@ fun ManageLocationsScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Lista pozycji
             if (uiState.isLoading && uiState.locations.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
@@ -137,13 +133,15 @@ fun ManageLocationsScreen(
                                 viewModel.deleteLocation(location.id)
                             },
                             onEditItem = {
-                                navController.navigate("edit_location/${location.id}") // TRASA DO EDYCJI
+                                navController.navigate("edit_location/${location.id}")
+                            },
+                            onClick = {
+                                navController.navigate("location_details/${location.id}")
                             }
                         )
                     }
                 }
 
-                // Paginacja
                 if (uiState.totalPages > 1) {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 16.dp),
@@ -181,10 +179,13 @@ fun StatusFilterRow(
 fun LocationCard(
     location: LocationDTO,
     onDeleteItem: () -> Unit,
-    onEditItem: () -> Unit
+    onEditItem: () -> Unit,
+    onClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -193,7 +194,6 @@ fun LocationCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
-                // Kolumna z głównymi informacjami
                 Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
                         text = location.name,
@@ -206,7 +206,6 @@ fun LocationCard(
                         color = MaterialTheme.colorScheme.primary
                     )
 
-                    // Budowanie ścieżki
                     val locationPath = listOfNotNull(
                         location.aisle?.let { "Al: $it" },
                         location.rack?.let { "Reg: $it" },
@@ -230,9 +229,7 @@ fun LocationCard(
                         )
                     }
                 }
-                // Kolumna ze statusem i strefą
                 Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    // Status Aktywności
                     Badge(
                         containerColor = if (location.active) MaterialTheme.colorScheme.primaryContainer
                         else MaterialTheme.colorScheme.errorContainer
@@ -242,18 +239,16 @@ fun LocationCard(
                             modifier = Modifier.padding(horizontal = 4.dp)
                         )
                     }
-                    // Strefa
                     Badge(containerColor = MaterialTheme.colorScheme.secondaryContainer) {
                         Text(
                             text = location.zone.name,
                             modifier = Modifier.padding(horizontal = 4.dp)
                         )
                     }
-                    // Typ
                     location.type?.let { locationType ->
                         Badge(containerColor = MaterialTheme.colorScheme.tertiaryContainer) {
                             Text(
-                                text = locationType.displayName, // Teraz jest bezpieczne
+                                text = locationType.displayName,
                                 modifier = Modifier.padding(horizontal = 4.dp),
                                 style = MaterialTheme.typography.labelSmall
                             )
@@ -264,7 +259,6 @@ fun LocationCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Przyciski Akcji
             Row(
                 horizontalArrangement = Arrangement.End,
                 modifier = Modifier.fillMaxWidth()

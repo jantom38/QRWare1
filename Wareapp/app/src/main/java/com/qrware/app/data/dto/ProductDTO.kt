@@ -2,9 +2,6 @@ package com.qrware.app.data.dto
 
 import java.math.BigDecimal
 
-/**
- * Kompletny model Produktu, pasujący do DTO z serwera.
- */
 data class ProductDTO(
     val id: Long,
     val sku: String,

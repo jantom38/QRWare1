@@ -31,7 +31,6 @@ class ManageZonesViewModel(private val zoneRepository: ZoneRepository) : ViewMod
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                // Pobieramy wszystkie strefy (strona 0, rozmiar 1000 - uproszczenie)
                 val response = zoneRepository.getZones(0, 1000)
                 _uiState.update {
                     it.copy(
@@ -53,11 +52,24 @@ class ManageZonesViewModel(private val zoneRepository: ZoneRepository) : ViewMod
             try {
                 zoneRepository.deleteZone(zoneId)
                 _uiState.update { it.copy(successMessage = "Strefa została usunięta") }
-                loadZones() // Odśwież listę
+                loadZones()
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(isLoading = false, error = "Nie można usunąć strefy: ${e.message}")
                 }
+            }
+        }
+    }
+
+    fun toggleZoneActive(zoneId: Long) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            try {
+                zoneRepository.toggleZoneActive(zoneId)
+                _uiState.update { it.copy(successMessage = "Zmieniono status strefy") }
+                loadZones()
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isLoading = false, error = "Nie można zmienić statusu strefy: ${e.message}") }
             }
         }
     }

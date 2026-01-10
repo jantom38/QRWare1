@@ -33,14 +33,12 @@ fun AddInventoryScreen(
     )
     val uiState by viewModel.uiState.collectAsState()
 
-    // Jeśli mamy preset produktu, załaduj jego dane
     LaunchedEffect(presetProductId) {
         presetProductId?.let { productId ->
             viewModel.loadProductData(productId)
         }
     }
 
-    // Obsługa komunikatów
     LaunchedEffect(uiState.error, uiState.successMessage) {
         if (uiState.error != null || uiState.successMessage != null) {
             kotlinx.coroutines.delay(3000)
@@ -48,7 +46,6 @@ fun AddInventoryScreen(
         }
     }
 
-    // Powrót po sukcesie
     LaunchedEffect(uiState.successMessage) {
         if (uiState.successMessage != null) {
             kotlinx.coroutines.delay(2000)
@@ -56,7 +53,6 @@ fun AddInventoryScreen(
         }
     }
 
-    // Stany dla pól formularza
     var productId by remember { mutableStateOf(presetProductId?.toString() ?: "") }
     var selectedLocation by remember { mutableStateOf<LocationDTO?>(null) }
     var quantity by remember { mutableStateOf("") }
@@ -101,10 +97,11 @@ fun AddInventoryScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .padding(16.dp)
+                .imePadding(),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(bottom = 24.dp)
         ) {
-            // Komunikaty błędów/sukcesu
             uiState.error?.let { error ->
                 item {
                     Card(
@@ -135,7 +132,6 @@ fun AddInventoryScreen(
                 }
             }
 
-            // Informacje o produkcie (jeśli preset)
             uiState.presetProduct?.let { product ->
                 item {
                     Card(
@@ -153,7 +149,6 @@ fun AddInventoryScreen(
                 }
             }
 
-            // ID Produktu (readonly jeśli preset)
             item {
                 OutlinedTextField(
                     value = productId,
@@ -168,7 +163,6 @@ fun AddInventoryScreen(
                 )
             }
 
-            // Wybór Lokalizacji
             item {
                 var expanded by remember { mutableStateOf(false) }
                 ExposedDropdownMenuBox(
@@ -214,7 +208,6 @@ fun AddInventoryScreen(
                                                     color = MaterialTheme.colorScheme.outline
                                                 )
                                             }
-                                            // Dodatkowe informacje o lokalizacji
                                             Text(
                                                 text = "Strefa: ${location.zone?.name ?: "Brak"} | Typ: ${location.type?.name ?: "Standardowa"}",
                                                 style = MaterialTheme.typography.bodySmall,
@@ -240,7 +233,6 @@ fun AddInventoryScreen(
                 }
             }
 
-            // Ilości
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -269,7 +261,6 @@ fun AddInventoryScreen(
                 }
             }
 
-            // Status dropdown
             item {
                 var expanded by remember { mutableStateOf(false) }
                 ExposedDropdownMenuBox(
@@ -301,7 +292,6 @@ fun AddInventoryScreen(
                 }
             }
 
-            // Identyfikatory
             item {
                 Text("Identyfikatory", style = MaterialTheme.typography.titleMedium)
             }
@@ -338,7 +328,6 @@ fun AddInventoryScreen(
                 }
             }
 
-            // Daty
             item {
                 Text("Daty", style = MaterialTheme.typography.titleMedium)
             }
@@ -375,7 +364,6 @@ fun AddInventoryScreen(
                 )
             }
 
-            // Finanse
             item {
                 Text("Informacje finansowe", style = MaterialTheme.typography.titleMedium)
             }
@@ -415,7 +403,6 @@ fun AddInventoryScreen(
                 )
             }
 
-            // Warunki
             item {
                 Text("Warunki przechowywania", style = MaterialTheme.typography.titleMedium)
             }
@@ -458,7 +445,6 @@ fun AddInventoryScreen(
                 }
             }
 
-            // Blokady
             item {
                 Text("Blokady i ograniczenia", style = MaterialTheme.typography.titleMedium)
             }
@@ -507,7 +493,6 @@ fun AddInventoryScreen(
                 }
             }
 
-            // Notatki
             item {
                 OutlinedTextField(
                     value = notes,
@@ -519,7 +504,6 @@ fun AddInventoryScreen(
                 )
             }
 
-            // Przycisk zapisz
             item {
                 Button(
                     onClick = {

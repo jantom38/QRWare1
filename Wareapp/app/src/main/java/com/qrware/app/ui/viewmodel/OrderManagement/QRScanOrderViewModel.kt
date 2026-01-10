@@ -76,7 +76,7 @@ class QRScanOrderViewModel(
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                scannedItem = item, // Zawsze ustawiaj to, co zostało zeskanowane
+                                scannedItem = item,
                                 successMessage = if (item is OrderItemDTO) "Znaleziono: ${item.productName}" else null
                             )
                         }

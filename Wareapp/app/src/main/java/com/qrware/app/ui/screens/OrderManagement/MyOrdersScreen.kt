@@ -25,12 +25,10 @@ fun MyOrdersScreen(
     navController: NavController,
     orderRepository: OrderRepository
 ) {
-    // Tworzymy ViewModel przy użyciu fabryki
     val viewModel: MyOrdersViewModel = viewModel(
         factory = MyOrdersViewModelFactory(orderRepository)
     )
 
-    // Obserwujemy stan UI z ViewModelu
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
@@ -114,10 +112,8 @@ fun MyOrdersScreen(
                                 onOrderClick = {
                                     navController.navigate("order_details/${order.id}")
                                 },
-                                // Te akcje nie są zaimplementowane w VM dla listy,
-                                // ale można je łatwo dodać w przyszłości
-                                onStartOrder = { /* Opcjonalnie dodać w VM */ },
-                                onCompleteOrder = { /* Opcjonalnie dodać w VM */ }
+                                onStartOrder = { },
+                                onCompleteOrder = { }
                             )
                         }
                     }
@@ -207,7 +203,6 @@ fun OrderCard(
     }
 }
 
-// Funkcje pomocnicze PriorityChip i StatusChip (takie same jak były)
 @Composable
 fun PriorityChip(priority: OrderPriority) {
     val (color, text) = when (priority) {

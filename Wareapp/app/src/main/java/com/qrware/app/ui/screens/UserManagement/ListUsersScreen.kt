@@ -1,4 +1,3 @@
-// Ścieżka: app/src/main/java/com/qrware/app/ui/screens/UserManagement/ListUsersScreen.kt
 package com.qrware.app.ui.screens.UserManagement
 
 import androidx.compose.foundation.layout.*
@@ -8,6 +7,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.LockReset
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
@@ -38,9 +38,6 @@ fun ListUsersScreen(
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
 
-    // ZMIANA: Odśwież listę, gdy ekran staje się widoczny
-    // (np. po powrocie z ekranu dodawania/edycji)
-    // Używamy 'true' jako klucza, aby wykonało się raz przy wejściu
     LaunchedEffect(true) {
         viewModel.refreshList()
     }
@@ -76,25 +73,20 @@ fun ListUsersScreen(
             contentAlignment = Alignment.Center
         ) {
             when {
-                // 1. Stan ładowania
                 uiState.isLoading && uiState.users.isEmpty() -> {
                     CircularProgressIndicator()
                 }
 
-                // 2. Stan błędu
-                uiState.error != null && uiState.users.isEmpty() -> { // Pokaż błąd tylko jeśli lista jest pusta
+                uiState.error != null && uiState.users.isEmpty() -> {
                     ErrorState(message = uiState.error!!)
                 }
 
-                // 3. Lista jest pusta
                 uiState.users.isEmpty() -> {
                     Text("Brak użytkowników do wyświetlenia.")
                 }
 
-                // 4. Stan sukcesu - wyświetlamy listę
                 else -> {
                     Column(modifier = Modifier.fillMaxSize()) {
-                        // Pole wyszukiwania
                         OutlinedTextField(
                             value = uiState.searchQuery,
                             onValueChange = { viewModel.searchUsers(it) },
@@ -118,18 +110,17 @@ fun ListUsersScreen(
                                 UserListItem(
                                     user = user,
                                     onClick = {
-                                        // ZMIANA: Nawigacja do ekranu edycji użytkownika
-                                        // TODO: Zastąp "admin_edit_user" właściwą ścieżką
                                         navController.navigate("admin_edit_user/${user.id}")
                                     },
-                                    // ZMIANA: Przekazanie akcji usuwania
                                     onDeleteClick = {
                                         viewModel.requestDeleteUser(user)
+                                    },
+                                    onResetPasswordClick = {
+                                        viewModel.requestPasswordReset(user.email)
                                     }
                                 )
                             }
 
-                            // Wskaźnik ładowania "więcej" na dole
                             if (uiState.isLoading && uiState.users.isNotEmpty()) {
                                 item {
                                     Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
@@ -140,11 +131,10 @@ fun ListUsersScreen(
                         }
                     }
 
-                    // Logika "Infinite Scroll"
                     LaunchedEffect(listState) {
                         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
                             .filter { index ->
-                                index != null && index >= uiState.users.size - 5 // Załaduj, gdy zostało 5 elementów do końca
+                                index != null && index >= uiState.users.size - 5
                             }
                             .collect {
                                 viewModel.loadNextPage()
@@ -153,7 +143,6 @@ fun ListUsersScreen(
                 }
             }
 
-            // ZMIANA: Wyświetlanie okna dialogowego potwierdzenia usunięcia
             if (uiState.showDeleteDialog) {
                 DeleteConfirmationDialog(
                     userName = uiState.userToDelete?.username ?: "użytkownika",
@@ -162,7 +151,6 @@ fun ListUsersScreen(
                 )
             }
 
-            // ZMIANA: Mały SnackBar dla błędów (gdy lista nie jest pusta)
             if (uiState.error != null && uiState.users.isNotEmpty()) {
                 SnackbarHost(
                     hostState = remember { SnackbarHostState() }
@@ -177,20 +165,33 @@ fun ListUsersScreen(
                     modifier = Modifier.align(Alignment.BottomCenter)
                 )
             }
+            
+            if (uiState.successMessage != null) {
+                SnackbarHost(
+                    hostState = remember { SnackbarHostState() }
+                        .apply {
+                            LaunchedEffect(uiState.successMessage) {
+                                showSnackbar(
+                                    message = uiState.successMessage!!,
+                                    duration = SnackbarDuration.Short
+                                )
+                                viewModel.clearSuccessMessage()
+                            }
+                        },
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                )
+            }
         }
     }
 }
 
-/**
- * ZMIANA: Komponent dla pojedynczego elementu na liście użytkowników
- * (dodano przycisk usuwania).
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun UserListItem(
     user: AdminUserResponse,
     onClick: () -> Unit,
-    onDeleteClick: () -> Unit // NOWY PARAMETR
+    onDeleteClick: () -> Unit,
+    onResetPasswordClick: () -> Unit
 ) {
     Card(
         onClick = onClick,
@@ -201,11 +202,10 @@ private fun UserListItem(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Wskaźnik statusu (aktywny / zablokowany)
             Icon(
-                imageVector = Icons.Default.Warning, // Zmień ikonę w zależności od statusu
+                imageVector = Icons.Default.Warning,
                 contentDescription = if (user.active && user.accountNonLocked) "Aktywny" else "Nieaktywny/Zablokowany",
-                tint = if (user.active && user.accountNonLocked) Color(0xFF4CAF50) else Color(0xFFF44336) // Lepsze kolory Green/Red
+                tint = if (user.active && user.accountNonLocked) Color(0xFF4CAF50) else Color(0xFFF44336)
             )
 
             Spacer(Modifier.width(16.dp))
@@ -228,7 +228,14 @@ private fun UserListItem(
             }
             Spacer(Modifier.width(8.dp))
 
-            // NOWY PRZYCISK: Usuwanie
+            IconButton(onClick = onResetPasswordClick) {
+                Icon(
+                    imageVector = Icons.Default.LockReset,
+                    contentDescription = "Resetuj hasło",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+
             IconButton(onClick = onDeleteClick) {
                 Icon(
                     imageVector = Icons.Default.Delete,
@@ -240,19 +247,28 @@ private fun UserListItem(
     }
 }
 
-/**
- * Komponent dla stanu błędu.
- */
 @Composable
 private fun ErrorState(message: String) {
-    // ... (bez zmian)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.padding(16.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.Warning,
+            contentDescription = "Błąd",
+            tint = MaterialTheme.colorScheme.error,
+            modifier = Modifier.size(64.dp)
+        )
+        Spacer(Modifier.height(16.dp))
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.error
+        )
+    }
 }
 
-
-// --- NOWY KOMPONENT ---
-/**
- * Okno dialogowe potwierdzające usunięcie użytkownika.
- */
 @Composable
 private fun DeleteConfirmationDialog(
     userName: String,

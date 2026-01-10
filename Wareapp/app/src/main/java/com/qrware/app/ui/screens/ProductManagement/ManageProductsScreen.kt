@@ -38,7 +38,6 @@ fun ManageProductsScreen(
     )
     val uiState by viewModel.uiState.collectAsState()
 
-    // Pobieranie informacji o użytkowniku dla uprawnień
     var userInfo by remember { mutableStateOf<com.qrware.app.data.model.UserInfoResponse?>(null) }
     
     LaunchedEffect(Unit) {
@@ -47,7 +46,6 @@ fun ManageProductsScreen(
             .onFailure { userInfo = null }
     }
 
-    // Funkcje pomocnicze do sprawdzania uprawnień
     fun hasPermission(permission: String): Boolean {
         return userInfo?.permissions?.contains(permission) == true
     }
@@ -56,7 +54,6 @@ fun ManageProductsScreen(
         return userInfo?.roles?.contains(role) == true
     }
 
-    // Stan lokalny dla pola tekstowego wyszukiwarki
     var searchQuery by remember { mutableStateOf("") }
 
     LaunchedEffect(uiState.error, uiState.successMessage) {
@@ -77,7 +74,6 @@ fun ManageProductsScreen(
                 },
                 actions = {
                     IconButton(onClick = {
-                        // Resetujemy wyszukiwanie przy odświeżaniu
                         searchQuery = ""
                         viewModel.loadProducts()
                     }) {
@@ -87,7 +83,6 @@ fun ManageProductsScreen(
             )
         },
         floatingActionButton = {
-            // Przycisk dodawania tylko dla użytkowników z uprawnieniem PRODUCT_WRITE
             if (hasPermission("PRODUCT_WRITE") || hasRole("ADMIN")) {
                 FloatingActionButton(
                     onClick = {
@@ -105,7 +100,6 @@ fun ManageProductsScreen(
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp)
         ) {
-            // --- WYSZUKIWARKA ---
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { query ->
@@ -114,14 +108,14 @@ fun ManageProductsScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp), // Odstęp od góry
+                    .padding(top = 8.dp),
                 placeholder = { Text("Szukaj produktu po nazwie...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
                         IconButton(onClick = {
                             searchQuery = ""
-                            viewModel.searchProducts("") // Przywraca listę domyślną
+                            viewModel.searchProducts("")
                         }) {
                             Icon(Icons.Default.Clear, contentDescription = "Wyczyść")
                         }
@@ -130,7 +124,6 @@ fun ManageProductsScreen(
                 singleLine = true
             )
 
-            // --- FILTRY ---
             if (searchQuery.isEmpty()) {
                 StatusFilterRow(
                     selectedFilter = uiState.activeFilter,
@@ -143,7 +136,6 @@ fun ManageProductsScreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            // Komunikaty błędów/sukcesu
             uiState.error?.let { error ->
                 Card(
                     modifier = Modifier
@@ -176,7 +168,6 @@ fun ManageProductsScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Lista pozycji
             if (uiState.isLoading) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -211,7 +202,6 @@ fun ManageProductsScreen(
                     }
                 }
 
-                // Paginacja
                 if (uiState.totalPages > 1 && searchQuery.isEmpty()) {
                     Row(
                         modifier = Modifier
@@ -242,7 +232,6 @@ fun ManageProductsScreen(
     }
 }
 
-// --- FILTRY ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatusFilterRow(
@@ -289,7 +278,7 @@ fun ProductCard(
     onAddToInventory: (() -> Unit)? = null
 ) {
     Card(
-        onClick = onCardClick, // --- NOWOŚĆ: Przypisanie akcji ---
+        onClick = onCardClick,
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -338,7 +327,6 @@ fun ProductCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Przyciski akcji - tylko te z uprawnieniami
             Row(
                 horizontalArrangement = Arrangement.End,
                 modifier = Modifier.fillMaxWidth()

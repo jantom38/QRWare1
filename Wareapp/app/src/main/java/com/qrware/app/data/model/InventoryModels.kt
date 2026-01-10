@@ -60,8 +60,6 @@ data class Zone(
     val type: ZoneType
 )
 
-
-
 data class CreateInventoryRequest(
     val productId: Long,
     val locationId: Long,
@@ -117,8 +115,6 @@ data class QuantityUpdateRequest(
     val reason: String? = null
 )
 
-// Usunięto typealias - używamy istniejącego InventoryItem
-
 data class QRInventoryVerificationResult(
     val qrCodeExists: Boolean,
     val inventoryExists: Boolean,
@@ -128,8 +124,8 @@ data class QRInventoryVerificationResult(
 )
 
 data class InventoryAlertDTO(
-    val type: String, // "LOW_STOCK" lub "EXPIRED"
-    val severity: String, // "WARNING", "CRITICAL"
+    val type: String,
+    val severity: String,
     val sku: String,
     val productName: String,
     val message: String,

@@ -44,7 +44,7 @@ fun EditLocationScreen(
         LocationForm(
             modifier = Modifier.padding(paddingValues),
             uiState = uiState,
-            isEditMode = true, // Blokuje pole KOD
+            isEditMode = true,
             onSave = { viewModel.updateLocation() },
             onCodeChange = viewModel::onCodeChange,
             onNameChange = viewModel::onNameChange,

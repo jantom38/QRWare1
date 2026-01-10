@@ -40,7 +40,6 @@ fun InventoryDetailsScreen(
     var showQuantityDialog by remember { mutableStateOf(false) }
     var isReceiving by remember { mutableStateOf(true) }
 
-    // Auto-clear messages after 3 seconds
     LaunchedEffect(uiState.error, uiState.successMessage) {
         if (uiState.error != null || uiState.successMessage != null) {
             delay(3000)
@@ -115,7 +114,6 @@ fun InventoryDetailsScreen(
                 }
             }
 
-            // Quantity Dialog
             if (showQuantityDialog) {
                 QuantityDialog(
                     isReceiving = isReceiving,
@@ -131,7 +129,6 @@ fun InventoryDetailsScreen(
                 )
             }
 
-            // Loading overlay during updates
             if (uiState.isUpdating) {
                 Box(
                     modifier = Modifier
@@ -171,7 +168,6 @@ fun InventoryDetailsContent(
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        // Success message
         if (successMessage != null) {
             Card(
                 colors = CardDefaults.cardColors(
@@ -188,7 +184,6 @@ fun InventoryDetailsContent(
             Spacer(modifier = Modifier.height(16.dp))
         }
 
-        // Main product info card
         Card(
             modifier = Modifier.fillMaxWidth(),
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
@@ -216,7 +211,6 @@ fun InventoryDetailsContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Quantity and status info
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -295,7 +289,6 @@ fun InventoryDetailsContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Location info
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
@@ -315,12 +308,10 @@ fun InventoryDetailsContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Additional details
         InventoryAdditionalDetails(inventoryItem = inventoryItem)
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Action buttons
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -439,7 +430,6 @@ fun InventoryAdditionalDetails(inventoryItem: InventoryItemDTO) {
                 }
             }
 
-            // Warnings
             if (inventoryItem.quarantine == true) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Card(

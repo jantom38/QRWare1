@@ -51,7 +51,6 @@ fun FiltersDialog(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                // Movement Type Filter
                 Text(
                     text = "Typ ruchu",
                     style = MaterialTheme.typography.titleMedium,
@@ -72,7 +71,6 @@ fun FiltersDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Movement type categories
                 val movementTypeCategories = listOf(
                     "Przyjęcia" to MovementType.getInboundTypes(),
                     "Wydania" to MovementType.getOutboundTypes(),
@@ -109,7 +107,6 @@ fun FiltersDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Date Range Filter
                 Text(
                     text = "Zakres dat",
                     style = MaterialTheme.typography.titleMedium,
@@ -159,7 +156,6 @@ fun FiltersDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Approval Status Filter
                 Text(
                     text = "Status zatwierdzenia",
                     style = MaterialTheme.typography.titleMedium,
@@ -186,7 +182,6 @@ fun FiltersDialog(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Action Buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -211,7 +206,6 @@ fun FiltersDialog(
         }
     }
 
-    // Date Picker Dialog
     if (showDatePicker) {
         val datePickerState = rememberDatePickerState()
         
@@ -358,7 +352,6 @@ fun ApprovalDialog(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                // Movement details
                 Card(
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant
@@ -446,8 +439,6 @@ fun FlowRow(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     content: @Composable () -> Unit
 ) {
-    // Simple implementation - for a proper FlowRow, you might want to use
-    // accompanist-flowlayout or implement a custom layout
     Column(modifier = modifier) {
         content()
     }

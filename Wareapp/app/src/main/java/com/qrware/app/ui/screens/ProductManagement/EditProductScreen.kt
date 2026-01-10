@@ -31,20 +31,18 @@ fun EditProductScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Nawiguj wstecz po udanej aktualizacji
     LaunchedEffect(uiState.updateSuccess) {
         if (uiState.updateSuccess) {
             snackbarHostState.showSnackbar("Produkt zaktualizowany pomyślnie!")
-            delay(1000) // Daj użytkownikowi chwilę na przeczytanie
+            delay(1000)
             navController.popBackStack()
         }
     }
 
-    // Pokaż błędy
     LaunchedEffect(uiState.error) {
         if (uiState.error != null) {
             snackbarHostState.showSnackbar(uiState.error!!)
-            viewModel.clearError() // Wyczyść błąd po pokazaniu
+            viewModel.clearError()
         }
     }
 
@@ -62,7 +60,6 @@ fun EditProductScreen(
         }
     ) { paddingValues ->
         if (uiState.isLoading && uiState.product == null) {
-            // Ładowanie początkowe
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -70,7 +67,6 @@ fun EditProductScreen(
                 CircularProgressIndicator()
             }
         } else if (uiState.product != null) {
-            // Formularz
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -93,7 +89,6 @@ fun EditProductScreen(
                     label = { Text("SKU*") },
                     modifier = Modifier.fillMaxWidth(),
                     isError = uiState.sku.isBlank()
-                    // Rozważ ustawienie enabled = false, jeśli SKU nie powinno być edytowalne
                 )
 
                 OutlinedTextField(
@@ -211,7 +206,6 @@ fun EditProductScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Właściwości produktu
                 Text("Właściwości produktu", style = MaterialTheme.typography.titleMedium)
 
                 Row(
@@ -250,7 +244,6 @@ fun EditProductScreen(
                     Switch(checked = uiState.fragile, onCheckedChange = viewModel::onFragileChange)
                 }
 
-                // TODO: Dodać pole wyboru kategorii (np. DropdownMenu)
                 Text(
                     text = "Kategoria ID: ${uiState.categoryId ?: "Brak"}",
                     style = MaterialTheme.typography.bodySmall,
@@ -276,7 +269,6 @@ fun EditProductScreen(
                 }
             }
         } else if (uiState.error != null && !uiState.isLoading) {
-            // Błąd ładowania
             Box(
                 modifier = Modifier.fillMaxSize().padding(16.dp),
                 contentAlignment = Alignment.Center

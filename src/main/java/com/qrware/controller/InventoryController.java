@@ -34,7 +34,7 @@ import java.util.stream.Collectors; // Import dla stream().map()
 
 @RestController
 @RequestMapping("/api/inventory")
-@CrossOrigin(origins = {"http://localhost:3000", "http://10.0.2.2:8080"})
+@CrossOrigin(origins = "*")
 public class InventoryController {
 
     private static final Logger logger = LoggerFactory.getLogger(InventoryController.class);

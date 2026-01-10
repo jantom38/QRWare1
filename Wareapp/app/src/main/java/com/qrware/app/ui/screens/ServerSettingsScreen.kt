@@ -40,7 +40,6 @@ fun ServerSettingsScreen(
                     }
                 },
                 actions = {
-                    // Przycisk resetowania do domyślnych
                     IconButton(
                         onClick = {
                             serverConfigManager.resetToDefaults()
@@ -64,7 +63,6 @@ fun ServerSettingsScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Aktualny URL serwera
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -88,7 +86,6 @@ fun ServerSettingsScreen(
                 }
             }
 
-            // Adres IP serwera
             OutlinedTextField(
                 value = serverIp,
                 onValueChange = { serverIp = it },
@@ -98,7 +95,6 @@ fun ServerSettingsScreen(
                 singleLine = true
             )
 
-            // Port serwera
             OutlinedTextField(
                 value = serverPort,
                 onValueChange = { serverPort = it },
@@ -108,7 +104,6 @@ fun ServerSettingsScreen(
                 singleLine = true
             )
 
-            // HTTPS switch
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -131,7 +126,6 @@ fun ServerSettingsScreen(
                 )
             }
 
-            // Popularne IP dla deweloperów
             Card(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -164,7 +158,6 @@ fun ServerSettingsScreen(
                 }
             }
 
-            // Przycisk zapisu
             Button(
                 onClick = {
                     serverConfigManager.setServerIp(serverIp.trim())
@@ -181,7 +174,6 @@ fun ServerSettingsScreen(
                 Text("Zapisz i zastosuj")
             }
 
-            // Informacja o ponownym uruchomieniu
             if (serverConfigManager.isCustomConfig()) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -197,7 +189,6 @@ fun ServerSettingsScreen(
                 }
             }
 
-            // Komunikat sukcesu
             if (showSuccessMessage) {
                 LaunchedEffect(Unit) {
                     kotlinx.coroutines.delay(3000)

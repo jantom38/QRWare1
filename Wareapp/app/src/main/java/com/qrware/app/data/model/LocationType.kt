@@ -1,9 +1,5 @@
 package com.qrware.app.data.model
 
-/**
- * Enumeration defining different types of warehouse locations
- * Wersja kliencka (Kotlin) na podstawie enum z serwera.
- */
 enum class LocationType(
     val displayName: String,
     val description: String
@@ -32,7 +28,6 @@ enum class LocationType(
     OFFICE("Office", "Office space"),
     VIRTUAL("Virtual", "Virtual location for tracking");
 
-    // Właściwości pomocnicze (bardziej idiomatyczne w Kotlin niż metody)
     val isStorageType: Boolean
         get() = this in setOf(SHELF, RACK, FLOOR, PALLET, BIN, CAGE, BULK, OVERFLOW)
 

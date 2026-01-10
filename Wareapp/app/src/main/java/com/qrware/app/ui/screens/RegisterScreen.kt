@@ -20,17 +20,14 @@ fun RegisterScreen(navController: NavController, viewModel: RegisterViewModel) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    // Pola formularza
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var firstName by remember { mutableStateOf("") } // <-- ADD STATE
-    var lastName by remember { mutableStateOf("") }  // <-- ADD STATE
-    // Reakcja na pomyślną rejestrację
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
     LaunchedEffect(uiState.registrationSuccess) {
         if (uiState.registrationSuccess) {
             Toast.makeText(context, "Rejestracja pomyślna! Możesz się teraz zalogować.", Toast.LENGTH_LONG).show()
-            // Wracamy do ekranu logowania i czyścimy stos nawigacji
             navController.navigate("login") {
                 popUpTo("login") { inclusive = true }
             }
@@ -76,7 +73,6 @@ fun RegisterScreen(navController: NavController, viewModel: RegisterViewModel) {
             )
         }
 
-        // Przycisk do powrotu na ekran logowania
         TextButton(onClick = { navController.popBackStack() }) {
             Text("Masz już konto? Zaloguj się")
         }

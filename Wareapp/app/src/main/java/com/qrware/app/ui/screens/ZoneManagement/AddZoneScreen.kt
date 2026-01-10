@@ -17,7 +17,6 @@ fun AddZoneScreen(
     navController: NavController,
     appContainer: AppContainer
 ) {
-    // Zakładam, że w AppContainer masz fabrykę: addZoneViewModelFactory
     val viewModel: AddZoneViewModel = viewModel(
         factory = appContainer.addZoneViewModelFactory
     )

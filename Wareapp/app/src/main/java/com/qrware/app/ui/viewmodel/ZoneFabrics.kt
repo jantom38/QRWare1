@@ -4,10 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.qrware.app.data.repository.ZoneRepository
 
-/**
- * Fabryka dla AddZoneViewModel.
- * Nie wymaga parametrów dynamicznych, więc może być stałym polem w AppContainer.
- */
 class AddZoneViewModelFactory(
     private val zoneRepository: ZoneRepository
 ) : ViewModelProvider.Factory {
@@ -20,10 +16,6 @@ class AddZoneViewModelFactory(
     }
 }
 
-/**
- * Fabryka dla EditZoneViewModel.
- * Wymaga parametru 'zoneId', więc musi być tworzona dynamicznie (np. przez funkcję w AppContainer).
- */
 class EditZoneViewModelFactory(
     private val zoneRepository: ZoneRepository,
     private val zoneId: Long

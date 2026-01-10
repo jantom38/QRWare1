@@ -1,9 +1,6 @@
-// Ścieżka: app/src/main/java/com/qrware/app/data/model/RolePermissionModels.kt
 package com.qrware.app.data.model
 
 import com.google.gson.annotations.SerializedName
-
-// --- MODELE DLA RÓL ---
 
 data class RoleResponse(
     @SerializedName("id")
@@ -35,8 +32,6 @@ data class RoleRequest(
     @SerializedName("active")
     val active: Boolean
 )
-
-// --- MODELE DLA UPRAWNIEŃ ---
 
 data class PermissionResponse(
     @SerializedName("id")

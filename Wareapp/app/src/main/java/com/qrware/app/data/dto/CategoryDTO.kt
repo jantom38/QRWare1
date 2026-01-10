@@ -1,8 +1,5 @@
 package com.qrware.app.data.dto
 
-/**
- * Kompletny model Kategorii, pasujący do DTO z serwera.
- */
 data class CategoryDTO(
     val id: Long,
     val name: String,

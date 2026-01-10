@@ -57,4 +57,30 @@ class AuthRepository(private val authService: AuthService) {
             Result.failure(e)
         }
     }
+
+    suspend fun changePassword(request: ChangePasswordRequest): Result<Unit> {
+        return try {
+            val response = authService.changePassword(request)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Zmiana hasła nieudana: ${response.code()} - ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun requestPasswordReset(email: String): Result<Unit> {
+        return try {
+            val response = authService.requestPasswordReset(mapOf("email" to email))
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Żądanie resetu hasła nieudane: ${response.code()} - ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

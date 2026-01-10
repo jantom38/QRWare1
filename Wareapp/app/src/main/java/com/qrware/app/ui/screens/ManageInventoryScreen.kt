@@ -8,13 +8,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Clear // Dodano
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material.icons.filled.Search // Dodano
-import androidx.compose.material.icons.filled.Warning // Dodano
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -41,7 +41,6 @@ fun ManageInventoryScreen(
     )
     val uiState by viewModel.uiState.collectAsState()
 
-    // Pobieranie informacji o użytkowniku dla uprawnień
     var userInfo by remember { mutableStateOf<com.qrware.app.data.model.UserInfoResponse?>(null) }
     
     LaunchedEffect(Unit) {
@@ -50,7 +49,6 @@ fun ManageInventoryScreen(
             .onFailure { userInfo = null }
     }
 
-    // Funkcje pomocnicze do sprawdzania uprawnień
     fun hasPermission(permission: String): Boolean {
         return userInfo?.permissions?.contains(permission) == true
     }
@@ -59,7 +57,6 @@ fun ManageInventoryScreen(
         return userInfo?.roles?.contains(role) == true
     }
 
-    // Stan lokalny dla pola tekstowego wyszukiwarki
     var searchQuery by remember { mutableStateOf("") }
 
     LaunchedEffect(uiState.error, uiState.successMessage) {
@@ -69,7 +66,6 @@ fun ManageInventoryScreen(
         }
     }
 
-    // --- ALERTY ---
     if (uiState.alerts.isNotEmpty()) {
         AlertDialog(
             onDismissRequest = { viewModel.clearAlerts() },
@@ -128,7 +124,7 @@ fun ManageInventoryScreen(
                 },
                 actions = {
                     IconButton(onClick = {
-                        searchQuery = "" // Reset pola wyszukiwania
+                        searchQuery = ""
                         viewModel.loadInventoryItems()
                     }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Odśwież")
@@ -143,7 +139,6 @@ fun ManageInventoryScreen(
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp)
         ) {
-            // --- WYSZUKIWARKA ---
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { query ->
@@ -159,7 +154,7 @@ fun ManageInventoryScreen(
                     if (searchQuery.isNotEmpty()) {
                         IconButton(onClick = {
                             searchQuery = ""
-                            viewModel.searchInventory("") // Przywraca domyślną listę
+                            viewModel.searchInventory("")
                         }) {
                             Icon(Icons.Default.Clear, contentDescription = "Wyczyść")
                         }
@@ -170,8 +165,6 @@ fun ManageInventoryScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // --- FILTRY STATUSU ---
-            // Pokazujemy tylko, gdy NIE trwa wyszukiwanie
             if (searchQuery.isEmpty()) {
                 StatusFilterRow(
                     onStatusSelected = { status ->
@@ -187,7 +180,6 @@ fun ManageInventoryScreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            // Komunikaty błędów/sukcesu
             uiState.error?.let { error ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -216,7 +208,6 @@ fun ManageInventoryScreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            // Lista pozycji
             if (uiState.isLoading) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -251,8 +242,6 @@ fun ManageInventoryScreen(
                     }
                 }
 
-                // Paginacja
-                // Pokazujemy tylko gdy stron > 1 ORAZ nie trwa wyszukiwanie
                 if (uiState.totalPages > 1 && searchQuery.isEmpty()) {
                     Row(
                         modifier = Modifier
@@ -364,7 +353,6 @@ fun InventoryItemCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Dodatkowe informacje
             if (item.serialNumber != null) {
                 Text(
                     text = "S/N: ${item.serialNumber}",
@@ -451,7 +439,6 @@ fun InventoryItemCard(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 if (onReceiveStock != null && onIssueStock != null) {
-                    // Oba przyciski - używamy weight
                     Button(
                         onClick = {
                             isReceiving = true
@@ -476,7 +463,6 @@ fun InventoryItemCard(
                         Text("Wydaj")
                     }
                 } else {
-                    // Tylko jeden przycisk lub żaden - bez weight
                     if (onReceiveStock != null) {
                         Button(
                             onClick = {
@@ -573,7 +559,6 @@ fun QuantityDialog(
                         val qty = quantity.toInt()
                         onConfirm(qty, reason.takeIf { it.isNotBlank() })
                     } catch (e: NumberFormatException) {
-                        // Obsługa błędu
                     }
                 },
                 enabled = quantity.isNotBlank() && quantity.toIntOrNull() != null

@@ -14,8 +14,8 @@ import kotlinx.coroutines.launch
 
 data class ManageOrdersUiState(
     val isLoading: Boolean = false,
-    val allOrders: List<OrderDTO> = emptyList(), // Pełna lista pobrana z API
-    val visibleOrders: List<OrderDTO> = emptyList(), // Lista po przefiltrowaniu (do wyświetlenia)
+    val allOrders: List<OrderDTO> = emptyList(),
+    val visibleOrders: List<OrderDTO> = emptyList(),
     val selectedFilter: OrderStatus? = null,
     val error: String? = null,
     val successMessage: String? = null
@@ -72,8 +72,6 @@ class ManageOrdersViewModel(
         }
     }
 
-    // --- AKCJE NA ZAMÓWIENIACH ---
-
     fun startOrder(orderId: Long) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
@@ -105,7 +103,6 @@ class ManageOrdersViewModel(
     fun cancelOrder(orderId: Long) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            // Zakładamy, że powód jest wymagany, tutaj wpisujemy domyślny lub można rozbudować UI o dialog
             orderRepository.cancelOrder(orderId, reason = "Anulowane przez administratora")
                 .onSuccess { updatedOrder ->
                     updateOrderInList(updatedOrder)
@@ -117,7 +114,6 @@ class ManageOrdersViewModel(
         }
     }
 
-    // Pomocnicza funkcja do aktualizacji pojedynczego elementu na liście bez przeładowywania całości
     private fun updateOrderInList(updatedOrder: OrderDTO) {
         _uiState.update { state ->
             val newAllOrders = state.allOrders.map {

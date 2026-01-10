@@ -78,6 +78,23 @@ class OrderRepository(private val apiService: OrderApiService) {
         }
     }
 
+    suspend fun updateOrder(id: Long, request: UpdateOrderRequest): Result<OrderDTO> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = apiService.updateOrder(id, request)
+                if (response.isSuccessful) {
+                    response.body()?.data?.let { order ->
+                        Result.success(order)
+                    } ?: Result.failure(Exception("Failed to update order"))
+                } else {
+                    Result.failure(Exception("Failed to update order: ${response.message()}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
     suspend fun startOrder(id: Long): Result<OrderDTO> {
         return withContext(Dispatchers.IO) {
             try {

@@ -96,7 +96,6 @@ data class UpdateProductRequest(
     val categoryId: Long? = null
 )
 
-// Category requests
 data class CreateCategoryRequest(
     val code: String,
     val name: String,

@@ -2,11 +2,7 @@ package com.qrware.app.data.dto
 
 import com.qrware.app.data.model.InventoryStatus
 import java.math.BigDecimal
-// Usunięto import java.time.LocalDate, ponieważ nie jest już potrzebny
 
-/**
- * Kompletny model pozycji magazynowej, pasujący do DTO z serwera.
- */
 data class InventoryItemDTO(
     val id: Long,
     val product: ProductDTO,

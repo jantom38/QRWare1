@@ -24,8 +24,8 @@ import com.qrware.app.data.model.GenerateQRRequest
 import com.qrware.app.data.model.QRCodeType
 import com.qrware.app.di.AppContainer
 import com.qrware.app.ui.viewmodel.QRCodeViewModel
+import com.qrware.app.data.remote.NetworkModule
 
-// Pomocnicza klasa dla dynamicznych pól
 data class CustomField(
     var key: String = "",
     var value: String = ""
@@ -43,24 +43,20 @@ fun QRGeneratorScreen(
     val uiState by viewModel.uiState.collectAsState()
     val generatedQRCode by viewModel.generatedQRCode.collectAsState()
 
-    // Inicjalizacja stanu formularza
     val defaultType = initialType?.let {
         try { QRCodeType.valueOf(it) } catch(e: Exception) { QRCodeType.PRODUCT }
     } ?: QRCodeType.PRODUCT
 
     var selectedType by remember { mutableStateOf(defaultType) }
 
-    // Główne dane (np. nazwa produktu)
     var mainDataName by remember { mutableStateOf("") }
 
-    // Dynamiczna lista pól dodatkowych
     val customFields = remember { mutableStateListOf<CustomField>() }
 
     var entityType by remember { mutableStateOf(initialType ?: "") }
     var entityId by remember { mutableStateOf(initialEntityId?.toString() ?: "") }
     var description by remember { mutableStateOf("") }
 
-    // Automatyczne uzupełnianie danych jeśli przekazano parametry
     LaunchedEffect(initialType, initialEntityId) {
         if (initialType != null && initialEntityId != null) {
             mainDataName = "$initialType #$initialEntityId"
@@ -68,12 +64,10 @@ fun QRGeneratorScreen(
         }
     }
 
-    // Czyść stan przy wyjściu z ekranu
     DisposableEffect(Unit) {
         onDispose { viewModel.clearGeneratedQRCode() }
     }
 
-    // === PROSTE COFANIE ===
     val handleBackNavigation = {
         navController.popBackStack()
     }
@@ -83,7 +77,6 @@ fun QRGeneratorScreen(
             TopAppBar(
                 title = { Text("Generator QR") },
                 navigationIcon = {
-                    // Używamy naszej nowej funkcji powrotu
                     IconButton(onClick = { handleBackNavigation() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Wróć")
                     }
@@ -99,7 +92,6 @@ fun QRGeneratorScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // === WIDOK SUKCESU (WYGENEROWANY OBRAZ) ===
             if (generatedQRCode != null) {
                 Card(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
@@ -120,8 +112,8 @@ fun QRGeneratorScreen(
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // UWAGA: Zmień IP na właściwe dla Twojego środowiska
-                        val imageUrl = "http://192.168.0.178:8080/api/qr-codes/image/${generatedQRCode!!.imagePath}"
+                        val baseUrl = NetworkModule.getBaseUrl()
+                        val imageUrl = "$baseUrl/api/qr-codes/image/${generatedQRCode!!.imagePath}"
 
                         AsyncImage(
                             model = imageUrl,
@@ -151,8 +143,6 @@ fun QRGeneratorScreen(
                         Button(
                             onClick = {
                                 viewModel.clearGeneratedQRCode()
-                                // Opcjonalnie: wyczyść pola po sukcesie
-                                // customFields.clear()
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -160,7 +150,6 @@ fun QRGeneratorScreen(
                         }
 
                         OutlinedButton(
-                            // Używamy naszej nowej funkcji powrotu również tutaj
                             onClick = { handleBackNavigation() },
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -169,7 +158,6 @@ fun QRGeneratorScreen(
                     }
                 }
             }
-            // === WIDOK FORMULARZA ===
             else {
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(
@@ -178,7 +166,6 @@ fun QRGeneratorScreen(
                     ) {
                         Text("Konfiguracja Kodu QR", style = MaterialTheme.typography.titleMedium)
 
-                        // 1. Wybór typu
                         var expanded by remember { mutableStateOf(false) }
                         ExposedDropdownMenuBox(
                             expanded = expanded,
@@ -208,7 +195,6 @@ fun QRGeneratorScreen(
                             }
                         }
 
-                        // 2. Główna nazwa / identyfikator
                         OutlinedTextField(
                             value = mainDataName,
                             onValueChange = { mainDataName = it },
@@ -219,7 +205,6 @@ fun QRGeneratorScreen(
 
                         Divider(modifier = Modifier.padding(vertical = 8.dp))
 
-                        // 3. Dynamiczne Pola (Custom Fields)
                         Text(
                             "Dodatkowe dane (w kodzie QR)",
                             style = MaterialTheme.typography.labelLarge,
@@ -276,7 +261,6 @@ fun QRGeneratorScreen(
 
                         Divider(modifier = Modifier.padding(vertical = 8.dp))
 
-                        // 4. Powiązania systemowe (opcjonalne)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             OutlinedTextField(
                                 value = entityType,
@@ -300,7 +284,6 @@ fun QRGeneratorScreen(
                             modifier = Modifier.fillMaxWidth()
                         )
 
-                        // Wyświetlanie błędu
                         if (uiState.error != null) {
                             Text(
                                 text = uiState.error!!,
@@ -309,19 +292,14 @@ fun QRGeneratorScreen(
                             )
                         }
 
-                        // Przycisk Generuj
                         Button(
                             onClick = {
-                                // === LOGIKA SKLEJANIA DANYCH ===
                                 val dataBuilder = StringBuilder()
 
-                                // 1. Dodaj główną nazwę
                                 if (mainDataName.isNotBlank()) {
                                     dataBuilder.append(mainDataName)
                                 }
 
-                                // 2. Dodaj pola niestandardowe w formacie "Klucz:Wartość"
-                                // Oddzielone średnikami
                                 customFields.forEach { field ->
                                     if (field.key.isNotBlank() && field.value.isNotBlank()) {
                                         if (dataBuilder.isNotEmpty()) dataBuilder.append(";")
@@ -332,9 +310,9 @@ fun QRGeneratorScreen(
                                 val finalData = dataBuilder.toString()
 
                                 val request = GenerateQRRequest(
-                                    code = "", // Puste -> Backend generuje ID
+                                    code = "",
                                     type = selectedType,
-                                    data = finalData, // Tutaj wysyłamy nasz sklejony ciąg
+                                    data = finalData,
                                     entityType = entityType.ifBlank { null },
                                     entityId = entityId.toLongOrNull(),
                                     generationReason = description.ifBlank { null },

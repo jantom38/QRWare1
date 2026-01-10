@@ -14,7 +14,8 @@ spring:
 
   # Database Configuration
   datasource:
-    url: jdbc:postgresql://localhost:5432/qrware_db
+    # Dodano ?currentSchema=public aby wymusić użycie schematu public
+    url: jdbc:postgresql://localhost:5432/qrware_db?currentSchema=public
     username: qrware_user
     password: qrware_password
     driver-class-name: org.postgresql.Driver
@@ -27,21 +28,23 @@ spring:
 
   # JPA Configuration
   jpa:
+    # Zmieniono na update - bezpieczniejsze. Jeśli baza jest pusta, update też utworzy tabele.
     hibernate:
-      ddl-auto: validate
-    show-sql: false
+      ddl-auto: update
+    show-sql: true
     properties:
       hibernate:
-        format_sql: false
-        use_sql_comments: false
+        format_sql: true
         jdbc:
           batch_size: 20
         order_inserts: true
         order_updates: true
+        # Opcjonalnie można wymusić domyślny schemat tutaj
+        default_schema: public
 
   # Flyway Migration
   flyway:
-    enabled: true
+    enabled: false
     locations: classpath:db/migration
     baseline-on-migrate: true
 
@@ -99,7 +102,7 @@ logging:
   level:
     com.qrware: INFO
     org.springframework.security: WARN
-    org.hibernate.SQL: WARN
+    org.hibernate.SQL: WARN # Ograniczono logowanie SQL, żeby nie śmiecić
     org.hibernate.type.descriptor.sql.BasicBinder: WARN
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
@@ -146,13 +149,13 @@ spring:
       on-profile: prod
 
   jpa:
-    show-sql: false
+    show-sql: true
 
   security:
-    require-ssl: true
+    require-ssl: false
 
 logging:
   level:
-    com.qrware: WARN
+    com.qrware: INFO
     org.springframework.security: WARN
-    org.hibernate.SQL: WARN
+    org.hibernate.SQL: INFO

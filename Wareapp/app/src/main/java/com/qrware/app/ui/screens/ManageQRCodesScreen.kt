@@ -39,7 +39,6 @@ fun ManageQRCodesScreen(
     val uiState by viewModel.uiState.collectAsState()
     val stats by viewModel.stats.collectAsState()
 
-    // Dialog edycji nadal lokalnie, ale dodawanie przez nowy ekran
     var showEditDialog by remember { mutableStateOf(false) }
     var selectedQRCode by remember { mutableStateOf<QRCodeData?>(null) }
 
@@ -50,7 +49,6 @@ fun ManageQRCodesScreen(
         }
     }
 
-    // Automatyczne przekierowanie jeśli weszliśmy z zamiarem dodania
     LaunchedEffect(initialType, initialEntityId) {
         if (initialType != null && initialEntityId != null) {
             navController.navigate("qr_generate?type=$initialType&id=$initialEntityId")
@@ -70,7 +68,6 @@ fun ManageQRCodesScreen(
                     IconButton(onClick = { viewModel.loadQRCodes() }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Odśwież")
                     }
-                    // NAWIGACJA DO NOWEGO EKRANU GENERATORA
                     IconButton(onClick = {
                         navController.navigate("qr_generate")
                     }) {
@@ -86,7 +83,6 @@ fun ManageQRCodesScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // Statystyki
             stats?.let { statsData ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -113,7 +109,6 @@ fun ManageQRCodesScreen(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            // Filtry (uproszczone dla czytelności)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = { viewModel.loadQRCodes() }, modifier = Modifier.weight(1f)) {
                     Text("Wszystkie")
@@ -125,7 +120,6 @@ fun ManageQRCodesScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Lista kodów QR
             if (uiState.isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
@@ -147,7 +141,6 @@ fun ManageQRCodesScreen(
                     }
                 }
 
-                // Paginacja
                 if (uiState.totalPages > 1) {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
@@ -171,7 +164,6 @@ fun ManageQRCodesScreen(
         }
     }
 
-    // Dialog edycji (pozostawiony lokalnie)
     if (showEditDialog && selectedQRCode != null) {
         EditQRCodeDialog(
             qrCode = selectedQRCode!!,
@@ -187,8 +179,6 @@ fun ManageQRCodesScreen(
         )
     }
 }
-
-// --- Komponenty pomocnicze (pozostawione bez zmian) ---
 
 @Composable
 fun StatItem(label: String, value: String) {

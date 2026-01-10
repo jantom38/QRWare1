@@ -2,9 +2,6 @@ package com.qrware.app.data.dto
 
 import com.qrware.app.data.model.ZoneType
 
-/**
- * Odpowiednik klasy wewnętrznej CreateZoneRequest z ZoneController.java
- */
 data class CreateZoneRequest(
     val name: String,
     val code: String,
@@ -26,9 +23,6 @@ data class CreateZoneRequest(
     val color: String? = null
 )
 
-/**
- * Odpowiednik klasy wewnętrznej UpdateZoneRequest z ZoneController.java
- */
 data class UpdateZoneRequest(
     val name: String?,
     val code: String?,

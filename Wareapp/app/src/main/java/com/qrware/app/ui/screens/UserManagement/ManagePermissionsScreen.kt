@@ -1,4 +1,3 @@
-// Ścieżka: app/src/main/java/com/qrware/app/ui/screens/UserManagement/ManagePermissionsScreen.kt
 package com.qrware.app.ui.screens.UserManagement
 
 import androidx.compose.foundation.layout.*
@@ -33,7 +32,7 @@ import com.qrware.app.ui.viewmodel.UserManagament.PermissionDialogState
 @Composable
 fun ManagePermissionsScreen(
     navController: NavController,
-    viewModel: ManagePermissionsViewModel // Wstrzykiwany
+    viewModel: ManagePermissionsViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -72,7 +71,6 @@ fun ManagePermissionsScreen(
                 }
                 else -> {
                     Column(modifier = Modifier.fillMaxSize()) {
-                        // Pole wyszukiwania
                         OutlinedTextField(
                             value = uiState.searchQuery,
                             onValueChange = { viewModel.searchPermissions(it) },
@@ -104,7 +102,6 @@ fun ManagePermissionsScreen(
             }
         }
 
-        // --- Obsługa Okien Dialogowych ---
         val dialogState = uiState.showDialog
         if (dialogState != PermissionDialogState.None) {
             val permToEdit = (dialogState as? PermissionDialogState.Edit)?.permission
@@ -196,6 +193,7 @@ private fun PermissionEditDialog(
             Column(
                 modifier = Modifier
                     .padding(16.dp)
+                    .imePadding()
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(
@@ -252,9 +250,6 @@ private fun PermissionEditDialog(
         }
     }
 }
-
-// --- Komponenty pomocnicze (współdzielone) ---
-// (Można je wydzielić do wspólnego pliku, jeśli są używane w wielu miejscach)
 
 @Composable
 private fun FormSwitchRow(

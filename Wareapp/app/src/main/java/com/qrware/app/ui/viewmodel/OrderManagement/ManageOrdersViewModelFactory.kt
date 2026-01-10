@@ -1,8 +1,9 @@
-package com.qrware.app.ui.viewmodel
+package com.qrware.app.ui.viewmodel.OrderManagement
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.qrware.app.data.repository.OrderRepository
+import com.qrware.app.ui.viewmodel.ManageOrdersViewModel
 
 class ManageOrdersViewModelFactory(
     private val orderRepository: OrderRepository

@@ -51,7 +51,6 @@ fun MovementHistoryScreen(
     var showApprovalDialog by remember { mutableStateOf(false) }
     var selectedMovementForApproval by remember { mutableStateOf<MovementHistoryDTO?>(null) }
 
-    // Auto-clear messages after 3 seconds
     LaunchedEffect(uiState.error, uiState.successMessage) {
         if (uiState.error != null || uiState.successMessage != null) {
             delay(3000)
@@ -59,7 +58,6 @@ fun MovementHistoryScreen(
         }
     }
 
-    // Load specific data based on provided IDs
     LaunchedEffect(itemId, productId, locationId) {
         when {
             itemId != null -> {
@@ -119,7 +117,6 @@ fun MovementHistoryScreen(
                 .padding(paddingValues)
         ) {
             Column {
-                // View selector (only show if not viewing specific item/location/product)
                 if (itemId == null && productId == null && locationId == null) {
                     ViewSelector(
                         currentView = uiState.currentView,
@@ -137,7 +134,6 @@ fun MovementHistoryScreen(
                     )
                 }
 
-                // Active filters indicator
                 if (uiState.selectedMovementType != null || 
                     uiState.selectedStartDate != null || 
                     uiState.selectedEndDate != null ||
@@ -150,7 +146,6 @@ fun MovementHistoryScreen(
                     )
                 }
 
-                // Success/Error messages
                 uiState.successMessage?.let { message ->
                     Card(
                         colors = CardDefaults.cardColors(
@@ -185,7 +180,6 @@ fun MovementHistoryScreen(
                     }
                 }
 
-                // Content
                 when {
                     uiState.isLoading -> {
                         Box(
@@ -241,7 +235,6 @@ fun MovementHistoryScreen(
                                         }
                                     } else null,
                                     onViewDetails = {
-                                        // Navigate to movement details if needed
                                     }
                                 )
                             }
@@ -250,7 +243,6 @@ fun MovementHistoryScreen(
                 }
             }
 
-            // Loading overlay for processing
             if (uiState.isProcessing) {
                 Box(
                     modifier = Modifier
@@ -273,7 +265,6 @@ fun MovementHistoryScreen(
         }
     }
 
-    // Dialogs
     if (showFiltersDialog) {
         FiltersDialog(
             uiState = uiState,
@@ -407,7 +398,6 @@ fun MovementHistoryCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Header with movement type and date
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -446,7 +436,6 @@ fun MovementHistoryCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Product and quantity information
             Text(
                 text = movement.inventoryItem.product.name,
                 style = MaterialTheme.typography.bodyLarge,
@@ -481,7 +470,6 @@ fun MovementHistoryCard(
                 }
             }
 
-            // Location information
             if (movement.isLocationChange() && movement.fromLocation != null && movement.toLocation != null) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
@@ -496,7 +484,6 @@ fun MovementHistoryCard(
                 )
             }
 
-            // Reason
             movement.reason?.let { reason ->
                 if (reason.isNotBlank()) {
                     Spacer(modifier = Modifier.height(4.dp))
@@ -509,7 +496,6 @@ fun MovementHistoryCard(
                 }
             }
 
-            // Footer with date and user
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),

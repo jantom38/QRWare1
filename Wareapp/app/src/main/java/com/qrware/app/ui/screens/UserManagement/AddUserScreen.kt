@@ -31,12 +31,11 @@ fun AddUserScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    // Efekt do obsługi nawigacji powrotnej po sukcesie
     LaunchedEffect(uiState.createSuccess) {
         if (uiState.createSuccess) {
             Toast.makeText(context, "Utworzono użytkownika", Toast.LENGTH_SHORT).show()
-            viewModel.onCreateSuccessConsumed() // Zresetuj flagę
-            navController.popBackStack() // Wróć do listy
+            viewModel.onCreateSuccessConsumed()
+            navController.popBackStack()
         }
     }
 
@@ -82,7 +81,6 @@ private fun AddUserForm(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // ----- Pola tekstowe -----
         OutlinedTextField(
             value = formState.username,
             onValueChange = viewModel::onUsernameChange,
@@ -151,7 +149,6 @@ private fun AddUserForm(
             readOnly = uiState.isSaving
         )
 
-        // ----- Przełączniki (Switches) -----
         FormSwitchRow(
             text = "Konto aktywne",
             checked = formState.active,
@@ -168,7 +165,6 @@ private fun AddUserForm(
 
         Spacer(Modifier.height(16.dp))
 
-        // ----- Przycisk Zapisu i Błędy -----
         if (uiState.error != null) {
             Text(
                 text = uiState.error,

@@ -14,6 +14,10 @@ interface AuthService {
     suspend fun logout(): Response<ApiResponse<Unit>>
     @POST("/api/auth/register")
     suspend fun register(@Body request: RegisterRequest): Response<ApiResponse<AuthenticationResponse>>
+    @POST("/api/auth/change-password")
+    suspend fun changePassword(@Body request: ChangePasswordRequest): Response<ApiResponse<Unit>>
+    @POST("/api/auth/forgot-password")
+    suspend fun requestPasswordReset(@Body request: Map<String, String>): Response<ApiResponse<Unit>>
 }
 
 interface ApiService {

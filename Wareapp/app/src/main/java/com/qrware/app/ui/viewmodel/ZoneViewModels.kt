@@ -13,8 +13,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-// --- STAN UI FORMULARZA ---
-
 data class ZoneFormUiState(
     val code: String = "",
     val name: String = "",
@@ -22,7 +20,6 @@ data class ZoneFormUiState(
     val type: ZoneType = ZoneType.STORAGE,
     val active: Boolean = true,
 
-    // Warunki środowiskowe
     val temperatureControlled: Boolean = false,
     val temperatureMin: String = "",
     val temperatureMax: String = "",
@@ -30,13 +27,11 @@ data class ZoneFormUiState(
     val humidityMin: String = "",
     val humidityMax: String = "",
 
-    // Właściwości
     val securityLevel: String = "1",
     val hazardousMaterials: Boolean = false,
     val fragileItems: Boolean = false,
     val pickingPriority: String = "5",
 
-    // Info zarządcze
     val manager: String = "",
     val contactInfo: String = "",
     val color: String = "#FFFFFF",
@@ -46,13 +41,10 @@ data class ZoneFormUiState(
     val success: Boolean = false
 )
 
-// --- VIEWMODEL: ADD ZONE ---
-
 class AddZoneViewModel(private val zoneRepository: ZoneRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(ZoneFormUiState())
     val uiState: StateFlow<ZoneFormUiState> = _uiState.asStateFlow()
 
-    // Handlery zmian pól
     fun onCodeChange(v: String) = _uiState.update { it.copy(code = v) }
     fun onNameChange(v: String) = _uiState.update { it.copy(name = v) }
     fun onDescriptionChange(v: String) = _uiState.update { it.copy(description = v) }
@@ -119,8 +111,6 @@ class AddZoneViewModel(private val zoneRepository: ZoneRepository) : ViewModel()
     }
 }
 
-// --- VIEWMODEL: EDIT ZONE ---
-
 class EditZoneViewModel(
     private val zoneRepository: ZoneRepository,
     private val zoneId: Long
@@ -132,9 +122,7 @@ class EditZoneViewModel(
         loadZone()
     }
 
-    // Te same handlery co w AddZoneViewModel (można by wydzielić bazowy ViewModel, ale duplikacja jest bezpieczniejsza dla Compose)
     fun onNameChange(v: String) = _uiState.update { it.copy(name = v) }
-    // Code zazwyczaj jest zablokowany przy edycji, ale handler może zostać
     fun onCodeChange(v: String) = _uiState.update { it.copy(code = v) }
     fun onDescriptionChange(v: String) = _uiState.update { it.copy(description = v) }
     fun onTypeSelected(v: ZoneType) = _uiState.update { it.copy(type = v) }
@@ -192,7 +180,7 @@ class EditZoneViewModel(
             try {
                 val request = UpdateZoneRequest(
                     name = _uiState.value.name,
-                    code = _uiState.value.code, // Backend decyduje czy pozwala zmienić kod
+                    code = _uiState.value.code,
                     description = _uiState.value.description.ifBlank { null },
                     type = _uiState.value.type,
                     active = _uiState.value.active,

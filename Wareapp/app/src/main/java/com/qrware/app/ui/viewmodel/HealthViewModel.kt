@@ -37,7 +37,6 @@ class HealthViewModel(private val healthRepository: HealthRepository) : ViewMode
     }
 }
 
-// Factory dla ViewModel
 class HealthViewModelFactory(
     private val healthRepository: HealthRepository
 ) : ViewModelProvider.Factory {

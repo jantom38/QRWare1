@@ -20,12 +20,12 @@ import kotlinx.coroutines.delay
 @Composable
 fun AddProductScreen(
     navController: NavController,
-    viewModel: AddProductViewModel
+    viewModel: AddProductViewModel,
+    categoryViewModel: com.qrware.app.ui.viewmodel.ProductsManagement.CategoryViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Stany dla pól formularza
     var sku by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -43,13 +43,26 @@ fun AddProductScreen(
     var supplier by remember { mutableStateOf("") }
     var storageConditions by remember { mutableStateOf("") }
     var barcode by remember { mutableStateOf("") }
-    var categoryId by remember { mutableStateOf("") }
+    val categoryUiState by categoryViewModel.uiState.collectAsState()
+    var categoryDropdownExpanded by remember { mutableStateOf(false) }
+    var selectedCategory by remember { mutableStateOf<com.qrware.app.data.dto.CategoryDTO?>(null) }
     var active by remember { mutableStateOf(true) }
     var perishable by remember { mutableStateOf(false) }
     var hazardous by remember { mutableStateOf(false) }
     var fragile by remember { mutableStateOf(false) }
 
-    // Obsługa komunikatów (błąd lub sukces)
+    LaunchedEffect(Unit) {
+        // Preferuj aktywne kategorie w dropdownie
+        categoryViewModel.loadActiveCategories()
+    }
+
+    LaunchedEffect(categoryUiState.error) {
+        categoryUiState.error?.let {
+            snackbarHostState.showSnackbar(it, duration = SnackbarDuration.Long)
+            categoryViewModel.clearMessages()
+        }
+    }
+
     LaunchedEffect(uiState.error, uiState.successMessage) {
         uiState.error?.let {
             snackbarHostState.showSnackbar(it, duration = SnackbarDuration.Long)
@@ -57,9 +70,9 @@ fun AddProductScreen(
         }
         uiState.successMessage?.let {
             snackbarHostState.showSnackbar(it, duration = SnackbarDuration.Short)
-            delay(1500) // Daj czas na przeczytanie
+            delay(1500)
             viewModel.clearMessages()
-            navController.popBackStack() // Wróć do ekranu listy
+            navController.popBackStack()
         }
     }
 
@@ -252,7 +265,6 @@ fun AddProductScreen(
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
             )
 
-            // Checkboxy dla właściwości produktu
             Text("Właściwości produktu", style = MaterialTheme.typography.titleMedium)
             
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
@@ -275,16 +287,48 @@ fun AddProductScreen(
                 Text("Kruchy", modifier = Modifier.padding(start = 8.dp))
             }
 
-            OutlinedTextField(
-                value = categoryId,
-                onValueChange = { categoryId = it },
-                label = { Text("ID Kategorii (np. 1)") },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
+            ExposedDropdownMenuBox(
+                expanded = categoryDropdownExpanded,
+                onExpandedChange = { categoryDropdownExpanded = !categoryDropdownExpanded }
+            ) {
+                OutlinedTextField(
+                    value = selectedCategory?.name ?: "",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Kategoria") },
+                    placeholder = { Text("Brak kategorii") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(),
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = categoryDropdownExpanded) }
                 )
-            )
+
+                ExposedDropdownMenu(
+                    expanded = categoryDropdownExpanded,
+                    onDismissRequest = { categoryDropdownExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Brak kategorii") },
+                        onClick = {
+                            selectedCategory = null
+                            categoryDropdownExpanded = false
+                        }
+                    )
+                    categoryUiState.categories.forEach { category ->
+                        DropdownMenuItem(
+                            text = { Text(category.name) },
+                            onClick = {
+                                selectedCategory = category
+                                categoryDropdownExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            if (categoryUiState.isLoading) {
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -299,7 +343,7 @@ fun AddProductScreen(
                     val minStockInt = minimumStock.toIntOrNull()
                     val maxStockInt = maximumStock.toIntOrNull()
                     val reorderPointInt = reorderPoint.toIntOrNull()
-                    val catIdLong = categoryId.toLongOrNull()
+                    val catIdLong = selectedCategory?.id
                     
                     viewModel.createProduct(
                         sku = sku,
@@ -327,7 +371,6 @@ fun AddProductScreen(
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
-                // Przycisk jest nieaktywny, jeśli trwa ładowanie lub brakuje wymaganych pól
                 enabled = !uiState.isLoading && sku.isNotBlank() && name.isNotBlank()
             ) {
                 if (uiState.isLoading) {

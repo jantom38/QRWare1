@@ -22,7 +22,6 @@ fun ZoneForm(
     isEditMode: Boolean = false,
     onSave: () -> Unit,
 
-    // Handlery
     onCodeChange: (String) -> Unit,
     onNameChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
@@ -51,10 +50,11 @@ fun ZoneForm(
     LazyColumn(
         modifier = modifier
             .padding(horizontal = 16.dp)
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+            .fillMaxSize()
+            .imePadding(),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        contentPadding = PaddingValues(bottom = 24.dp)
     ) {
-        // --- GŁÓWNE ---
         item { FormSectionHeader("Informacje podstawowe") }
 
         item {
@@ -63,7 +63,7 @@ fun ZoneForm(
                 onValueChange = onCodeChange,
                 label = { Text("Kod Strefy*") },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !isEditMode, // Kod zazwyczaj stały
+                enabled = !isEditMode,
                 isError = uiState.code.isBlank()
             )
         }
@@ -77,7 +77,6 @@ fun ZoneForm(
             )
         }
 
-        // Dropdown dla Typu (ZoneType)
         item {
             ExposedDropdownMenuBox(
                 expanded = typeExpanded,
@@ -123,7 +122,6 @@ fun ZoneForm(
             )
         }
 
-        // --- USTAWIENIA I BEZPIECZEŃSTWO ---
         item { FormSectionHeader("Ustawienia Operacyjne") }
         item { FormSwitchRow(uiState.active, onActiveChange, "Aktywna") }
         item { FormSwitchRow(uiState.hazardousMaterials, onHazardousChange, "Materiały niebezpieczne (Hazmat)") }
@@ -136,7 +134,6 @@ fun ZoneForm(
             }
         }
 
-        // --- WARUNKI ŚRODOWISKOWE ---
         item { FormSectionHeader("Warunki Środowiskowe") }
         item { FormSwitchRow(uiState.temperatureControlled, onTempControlledChange, "Kontrola Temperatury") }
         if (uiState.temperatureControlled) {
@@ -158,13 +155,11 @@ fun ZoneForm(
             }
         }
 
-        // --- ZARZĄDZANIE ---
         item { FormSectionHeader("Dane Kontaktowe") }
         item { FormTextField(Modifier.fillMaxWidth(), uiState.manager, onManagerChange, "Kierownik Strefy") }
         item { FormTextField(Modifier.fillMaxWidth(), uiState.contactInfo, onContactInfoChange, "Kontakt") }
         item { FormTextField(Modifier.fillMaxWidth(), uiState.color, onColorChange, "Kolor (HEX)") }
 
-        // --- PRZYCISKI ---
         item {
             Spacer(Modifier.height(16.dp))
             uiState.error?.let {

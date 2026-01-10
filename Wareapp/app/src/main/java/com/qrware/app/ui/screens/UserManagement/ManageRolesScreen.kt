@@ -1,4 +1,3 @@
-// Ścieżka: app/src/main/java/com/qrware/app/ui/screens/UserManagement/ManageRolesScreen.kt
 package com.qrware.app.ui.screens.UserManagement
 
 import androidx.compose.foundation.clickable
@@ -35,7 +34,7 @@ import com.qrware.app.ui.viewmodel.UserManagament.ManageRolesViewModel
 @Composable
 fun ManageRolesScreen(
     navController: NavController,
-    viewModel: ManageRolesViewModel // ViewModel wstrzykiwany z nawigacji
+    viewModel: ManageRolesViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -74,7 +73,6 @@ fun ManageRolesScreen(
                 }
                 else -> {
                     Column(modifier = Modifier.fillMaxSize()) {
-                        // Pole wyszukiwania
                         OutlinedTextField(
                             value = uiState.searchQuery,
                             onValueChange = { viewModel.searchRoles(it) },
@@ -106,13 +104,11 @@ fun ManageRolesScreen(
             }
         }
 
-        // --- Obsługa Okien Dialogowych ---
         val dialogState = uiState.showDialog
         if (dialogState != DialogState.None) {
             val roleToEdit = (dialogState as? DialogState.Edit)?.role
 
             if (dialogState is DialogState.Delete) {
-                // Użyj dialogu z ListUsersScreen (jeśli jest publiczny) lub stwórz nowy
                 DeleteConfirmationDialog(
                     userName = "rolę ${dialogState.role.name}",
                     onConfirm = { viewModel.deleteRole(dialogState.role) },
@@ -202,6 +198,7 @@ private fun RoleEditDialog(
             Column(
                 modifier = Modifier
                     .padding(16.dp)
+                    .imePadding()
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(
@@ -235,10 +232,9 @@ private fun RoleEditDialog(
                 Spacer(Modifier.height(16.dp))
                 Text("Uprawnienia:", style = MaterialTheme.typography.titleMedium)
 
-                // Lista uprawnień do wyboru
                 Column(modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 200.dp) // Ogranicz wysokość, aby można było przewijać
+                    .heightIn(max = 200.dp)
                     .verticalScroll(rememberScrollState())
                 ) {
                     allPermissions.sortedBy { it.name }.forEach { permission ->
@@ -272,7 +268,7 @@ private fun RoleEditDialog(
                     Button(
                         onClick = {
                             val request = RoleRequest(
-                                name = name.uppercase(), // Role zwykle są wielkimi literami
+                                name = name.uppercase(),
                                 description = description.ifBlank { null },
                                 permissions = selectedPermissions.value,
                                 active = active
@@ -320,7 +316,6 @@ private fun PermissionCheckboxRow(
     }
 }
 
-// Skopiowane z AddUserScreen.kt dla spójności
 @Composable
 private fun FormSwitchRow(
     text: String,
@@ -342,7 +337,6 @@ private fun FormSwitchRow(
     }
 }
 
-// Skopiowane z ListUsersScreen.kt
 @Composable
 private fun DeleteConfirmationDialog(
     userName: String,
@@ -369,7 +363,6 @@ private fun DeleteConfirmationDialog(
     )
 }
 
-// Skopiowane z EditUserScreen.kt
 @Composable
 private fun ErrorState(message: String) {
     Column(

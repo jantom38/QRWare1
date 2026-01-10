@@ -27,7 +27,6 @@ fun ProductDetailsScreen(
     appContainer: AppContainer,
     productId: Long
 ) {
-    // Inicjalizacja ViewModelu przy użyciu fabryki
     val viewModel: ProductDetailsViewModel = viewModel(
         factory = com.qrware.app.ui.viewmodel.ProductsManagement.ProductDetailsViewModelFactory(
             appContainer.productRepository,
@@ -52,7 +51,6 @@ fun ProductDetailsScreen(
                     }
                 },
                 actions = {
-                    // Przycisk edycji
                     if (uiState.product != null) {
                         IconButton(onClick = {
                             navController.navigate("edit_product/$productId")
@@ -103,7 +101,6 @@ fun ProductDetailsScreen(
                             .padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // --- GŁÓWNA KARTA (Cena, SKU, Kategoria) ---
                         Card(
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                             modifier = Modifier.fillMaxWidth()
@@ -148,7 +145,6 @@ fun ProductDetailsScreen(
                             }
                         }
 
-                        // --- OPIS ---
                         if (!product.description.isNullOrBlank()) {
                             SectionHeader("Opis")
                             Text(
@@ -158,9 +154,7 @@ fun ProductDetailsScreen(
                             HorizontalDivider()
                         }
 
-                        // --- USTAWIENIA MAGAZYNOWE (Bez ilości stockQuantity) ---
                         SectionHeader("Ustawienia Magazynowe")
-                        // Pokazujemy tylko Min/Max/Punkt zamawiania, które są w ProductDTO
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             InfoItem("Min. zapas", "${product.minimumStock ?: "-"}")
                             InfoItem("Max. zapas", "${product.maximumStock ?: "-"}")
@@ -174,7 +168,6 @@ fun ProductDetailsScreen(
                         )
                         HorizontalDivider()
 
-                        // --- DANE FIZYCZNE ---
                         SectionHeader("Wymiary i Waga")
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             InfoItem("Waga", "${product.weight ?: "-"} kg")
@@ -184,7 +177,6 @@ fun ProductDetailsScreen(
                         }
                         HorizontalDivider()
 
-                        // --- CECHY I WŁAŚCIWOŚCI ---
                         SectionHeader("Właściwości")
                         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             AttributeRow("Psujący się", product.perishable ?: false)
@@ -193,7 +185,6 @@ fun ProductDetailsScreen(
                         }
                         HorizontalDivider()
 
-                        // --- DODATKOWE INFO ---
                         SectionHeader("Informacje Dodatkowe")
                         DetailRow("Jednostka miary", product.unitOfMeasure ?: "-")
                         DetailRow("Producent", product.manufacturer ?: "-")
@@ -204,7 +195,6 @@ fun ProductDetailsScreen(
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // Przycisk dodania do magazynu
                         OutlinedButton(
                             onClick = { navController.navigate("add_inventory/PRODUCT/${product.id}") },
                             modifier = Modifier.fillMaxWidth()
@@ -219,8 +209,6 @@ fun ProductDetailsScreen(
         }
     }
 }
-
-// --- KOMPONENTY POMOCNICZE ---
 
 @Composable
 fun SectionHeader(title: String) {

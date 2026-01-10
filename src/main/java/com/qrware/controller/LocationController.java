@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/locations")
-@CrossOrigin(origins = {"http://localhost:3000", "http://10.0.2.2:8080"})
+@CrossOrigin(origins = "*")
 public class LocationController {
 
     @Autowired

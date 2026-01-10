@@ -31,12 +31,11 @@ fun EditUserScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    // Efekt do obsługi nawigacji powrotnej po sukcesie
     LaunchedEffect(uiState.updateSuccess) {
         if (uiState.updateSuccess) {
             Toast.makeText(context, "Zaktualizowano użytkownika", Toast.LENGTH_SHORT).show()
-            viewModel.onUpdateSuccessConsumed() // Zresetuj flagę
-            navController.popBackStack() // Wróć do listy
+            viewModel.onUpdateSuccessConsumed()
+            navController.popBackStack()
         }
     }
 
@@ -64,11 +63,9 @@ fun EditUserScreen(
                     CircularProgressIndicator()
                 }
                 uiState.error != null && uiState.user == null -> {
-                    // Poważny błąd - nie udało się pobrać usera
                     ErrorState(message = uiState.error!!)
                 }
                 else -> {
-                    // Wyświetl formularz
                     EditUserForm(
                         uiState = uiState,
                         viewModel = viewModel
@@ -94,7 +91,6 @@ private fun EditUserForm(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // ----- Pola tekstowe -----
         OutlinedTextField(
             value = formState.firstName,
             onValueChange = viewModel::onFirstNameChange,
@@ -141,7 +137,6 @@ private fun EditUserForm(
             readOnly = uiState.isSaving
         )
 
-        // ----- Przełączniki (Switches) -----
         FormSwitchRow(
             text = "Konto aktywne",
             checked = formState.active,
@@ -158,7 +153,6 @@ private fun EditUserForm(
 
         Spacer(Modifier.height(16.dp))
 
-        // ----- Przycisk Zapisu i Błędy -----
         if (uiState.error != null) {
             Text(
                 text = uiState.error,
@@ -206,9 +200,6 @@ private fun FormSwitchRow(
     }
 }
 
-/**
- * Prosty komponent błędu (skopiowany z ListUsersScreen).
- */
 @Composable
 private fun ErrorState(message: String) {
     Column(

@@ -27,6 +27,8 @@ import com.qrware.app.ui.viewmodel.ProductsManagement.ManageProductsViewModelFac
 import com.qrware.app.ui.viewmodel.UserManagament.ListUsersViewModelFactory
 import com.qrware.app.ui.viewmodel.UserManagament.ManagePermissionsViewModelFactory
 import com.qrware.app.ui.viewmodel.UserManagament.ManageRolesViewModelFactory
+import com.qrware.app.ui.viewmodel.UserManagament.ChangePasswordViewModelFactory
+import com.qrware.app.ui.viewmodel.UserManagament.ForgotPasswordViewModelFactory
 import retrofit2.Retrofit
 import okhttp3.OkHttpClient
 import com.qrware.app.data.repository.LocationRepository
@@ -34,7 +36,6 @@ import com.qrware.app.ui.viewmodel.AddLocationViewModelFactory
 import com.qrware.app.ui.viewmodel.EditLocationViewModelFactory
 import com.qrware.app.ui.viewmodel.ManageLocationsViewModelFactory
 
-// Importy dla Zone
 import com.qrware.app.ui.viewmodel.AddZoneViewModelFactory
 import com.qrware.app.ui.viewmodel.EditZoneViewModelFactory
 import com.qrware.app.ui.viewmodel.ManageZonesViewModelFactory
@@ -45,11 +46,9 @@ class AppContainer(context: Context) {
     val gson = Gson()
 
     init {
-        // Inicjalizuj NetworkModule z konfiguracją serwera
         NetworkModule.init(serverConfigManager)
     }
 
-    // Make these properties that recreate when configuration changes
     private var _okHttpClient: OkHttpClient? = null
     private var _retrofit: Retrofit? = null
     
@@ -69,7 +68,6 @@ class AppContainer(context: Context) {
             return _retrofit!!
         }
 
-    // Services - these will now be recreated when retrofit is recreated
     private var _authService: AuthService? = null
     private var _testService: TestService? = null
     private var _healthService: HealthService? = null
@@ -125,7 +123,6 @@ class AppContainer(context: Context) {
             return _orderApiService!!
         }
 
-    // Repositories
     val authRepository: AuthRepository by lazy { AuthRepository(authService) }
     val testRepository: TestRepository by lazy { TestRepository(testService) }
     val healthRepository: HealthRepository by lazy { HealthRepository(healthService) }
@@ -134,7 +131,6 @@ class AppContainer(context: Context) {
         LocationRepository(apiService)
     }
 
-    // --- REPOSITORIES ---
     val userManagementRepository by lazy {
         UserManagementRepository(apiService)
     }
@@ -171,8 +167,6 @@ class AppContainer(context: Context) {
         com.qrware.app.data.repository.OrderItemRepository(orderApiService, gson)
     }
 
-    // --- VIEWMODEL FACTORIES ---
-
     val addProductViewModelFactory by lazy {
         AddProductViewModelFactory(productRepository)
     }
@@ -181,7 +175,6 @@ class AppContainer(context: Context) {
         AddInventoryViewModelFactory(inventoryRepository, productRepository, locationRepository)
     }
 
-    // Fabryka dla ListUsersViewModel
     val listUsersViewModelFactory: ViewModelProvider.Factory by lazy {
         ListUsersViewModelFactory(userManagementRepository)
     }
@@ -194,6 +187,14 @@ class AppContainer(context: Context) {
 
     val managePermissionsViewModelFactory: ViewModelProvider.Factory by lazy {
         ManagePermissionsViewModelFactory(userManagementRepository)
+    }
+
+    val changePasswordViewModelFactory: ViewModelProvider.Factory by lazy {
+        ChangePasswordViewModelFactory(authRepository)
+    }
+
+    val forgotPasswordViewModelFactory: ViewModelProvider.Factory by lazy {
+        ForgotPasswordViewModelFactory(authRepository)
     }
 
     val ProductsViewModelFactory: ViewModelProvider.Factory by lazy {
@@ -219,8 +220,6 @@ class AppContainer(context: Context) {
         return EditProductViewModelFactory(productRepository, productId)
     }
 
-    // --- LOCATION FACTORIES ---
-
     val manageLocationsViewModelFactory: ViewModelProvider.Factory by lazy {
         ManageLocationsViewModelFactory(locationRepository)
     }
@@ -233,8 +232,6 @@ class AppContainer(context: Context) {
         return EditLocationViewModelFactory(locationRepository, locationId)
     }
 
-    // --- ZONE FACTORIES ---
-
     val addZoneViewModelFactory: ViewModelProvider.Factory by lazy {
         AddZoneViewModelFactory(zoneRepository)
     }
@@ -243,31 +240,21 @@ class AppContainer(context: Context) {
         return EditZoneViewModelFactory(zoneRepository, zoneId)
     }
 
-    // Fabryka dla listy stref (ManageZonesViewModel)
     val manageZonesViewModelFactory: ViewModelProvider.Factory by lazy {
         ManageZonesViewModelFactory(zoneRepository)
     }
 
-    // --- USER FACTORIES ---
-
-    // NOWA METODA: Fabryka dla EditUserViewModel
     fun createEditUserViewModelFactory(userId: Long): ViewModelProvider.Factory {
         return EditUserViewModelFactory(userManagementRepository, userId)
     }
 
-    // Fabryka dla InventoryDetailsViewModel
     fun createInventoryDetailsViewModelFactory(itemId: Long): ViewModelProvider.Factory {
         return InventoryDetailsViewModelFactory(inventoryRepository, itemId)
     }
 
-    /**
-     * Odświeża konfigurację sieci po zmianie ustawień serwera
-     */
     fun refreshNetworkConfig() {
-        // Reinicjalizuj NetworkModule z nową konfiguracją
         NetworkModule.init(serverConfigManager)
         
-        // Wyczyść wszystkie cached instancje żeby zostały odtworzone z nowym URL
         _okHttpClient = null
         _retrofit = null
         _authService = null

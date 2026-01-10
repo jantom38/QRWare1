@@ -6,8 +6,10 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockReset
 import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.PersonAdd // Ten import jest nadal potrzebny dla AdminTile, ale nieużywany w liście
+import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.*
@@ -19,13 +21,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
-// Definicje tras dla pod-ekranów
-// ZMIANA: Z 'private' na 'internal', aby ListUsersScreen miał dostęp
 internal object AdminRoutes {
     const val USER_LIST = "manage_users_list"
     const val ADD_USER = "manage_users_add"
     const val MANAGE_ROLES = "manage_roles"
     const val MANAGE_PERMISSIONS = "manage_permissions"
+    const val CHANGE_PASSWORD = "change_password"
+    const val FORGOT_PASSWORD = "forgot_password"
 }
 
 private data class AdminTile(
@@ -41,7 +43,9 @@ fun ManageUsersScreen(navController: NavController) {
     val tiles = listOf(
         AdminTile("Użytkownicy", Icons.Default.People, AdminRoutes.USER_LIST),
         AdminTile("Role", Icons.Default.Shield, AdminRoutes.MANAGE_ROLES),
-        AdminTile("Uprawnienia", Icons.Default.Security, AdminRoutes.MANAGE_PERMISSIONS)
+        AdminTile("Uprawnienia", Icons.Default.Security, AdminRoutes.MANAGE_PERMISSIONS),
+        AdminTile("Zmień Hasło", Icons.Default.Lock, AdminRoutes.CHANGE_PASSWORD),
+        AdminTile("Reset Hasła", Icons.Default.LockReset, AdminRoutes.FORGOT_PASSWORD)
     )
 
     Scaffold(

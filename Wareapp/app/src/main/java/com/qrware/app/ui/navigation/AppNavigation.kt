@@ -10,6 +10,7 @@ import com.qrware.app.di.AppContainer
 import com.qrware.app.ui.screens.*
 import com.qrware.app.ui.screens.LocationManagement.AddLocationScreen
 import com.qrware.app.ui.screens.LocationManagement.EditLocationScreen
+import com.qrware.app.ui.screens.LocationManagement.LocationDetailsScreen
 import com.qrware.app.ui.screens.LocationManagement.ManageLocationsScreen
 import com.qrware.app.ui.screens.ProductManagement.AddProductScreen
 import com.qrware.app.ui.screens.ProductManagement.EditProductScreen
@@ -19,25 +20,28 @@ import com.qrware.app.ui.screens.InventoryDetailsScreen
 import com.qrware.app.ui.screens.MovementHistoryScreen
 import com.qrware.app.ui.screens.UserManagement.AddUserScreen
 import com.qrware.app.ui.screens.UserManagement.AdminRoutes
+import com.qrware.app.ui.screens.UserManagement.ChangePasswordScreen
 import com.qrware.app.ui.screens.UserManagement.EditUserScreen
+import com.qrware.app.ui.screens.UserManagement.ForgotPasswordScreen
 import com.qrware.app.ui.screens.UserManagement.ListUsersScreen
 import com.qrware.app.ui.screens.UserManagement.ManagePermissionsScreen
 import com.qrware.app.ui.screens.UserManagement.ManageRolesScreen
 import com.qrware.app.ui.screens.UserManagement.ManageUsersScreen
-// --- IMPORTY STREF (ZONE) ---
 import com.qrware.app.ui.screens.ZoneManagement.AddZoneScreen
-import com.qrware.app.ui.screens.ZoneManagement.EditZoneScreen // <--- TEN IMPORT BYŁ POTRZEBNY
+import com.qrware.app.ui.screens.ZoneManagement.EditZoneScreen
 import com.qrware.app.ui.screens.ZoneManagement.ManageZonesScreen
 import com.qrware.app.ui.screens.OrderManagement.MyOrdersScreen
 import com.qrware.app.ui.screens.OrderManagement.OrderDetailsScreen
 import com.qrware.app.ui.screens.OrderManagement.QRScanOrderScreen
 import com.qrware.app.ui.screens.OrderManagement.ManageOrdersScreen
 import com.qrware.app.ui.screens.OrderManagement.CreateOrderScreen
-// ----------------------------
+import com.qrware.app.ui.screens.OrderManagement.EditOrderScreen
 import com.qrware.app.ui.viewmodel.*
 import com.qrware.app.ui.viewmodel.ProductsManagement.AddProductViewModel
 import com.qrware.app.ui.viewmodel.UserManagament.AddUserViewModel
+import com.qrware.app.ui.viewmodel.UserManagament.ChangePasswordViewModel
 import com.qrware.app.ui.viewmodel.UserManagament.EditUserViewModel
+import com.qrware.app.ui.viewmodel.UserManagament.ForgotPasswordViewModel
 import com.qrware.app.ui.viewmodel.UserManagament.ListUsersViewModel
 import com.qrware.app.ui.viewmodel.UserManagament.ListUsersViewModelFactory
 import com.qrware.app.ui.viewmodel.UserManagament.LoginViewModel
@@ -53,7 +57,6 @@ fun AppNavigation(appContainer: AppContainer) {
     val coroutineScope = rememberCoroutineScope()
     var startDestination by remember { mutableStateOf<String?>(null) }
 
-    // Sprawdź token, aby zdecydować o ekranie startowym
     LaunchedEffect(key1 = Unit) {
         coroutineScope.launch {
             val token = appContainer.tokenManager.getToken.first()
@@ -63,7 +66,6 @@ fun AppNavigation(appContainer: AppContainer) {
     if (startDestination != null) {
         NavHost(navController = navController, startDestination = startDestination!!) {
 
-            // --- LOGOWANIE I REJESTRACJA ---
             composable("login") {
                 val loginViewModel: LoginViewModel = viewModel(
                     factory = LoginViewModelFactory(
@@ -86,7 +88,6 @@ fun AppNavigation(appContainer: AppContainer) {
                 HomeScreen(navController = navController, viewModel = homeViewModel)
             }
 
-            // --- QR KODY ---
             composable(
                 route = "qr_generate?type={type}&id={id}",
                 arguments = listOf(
@@ -112,7 +113,6 @@ fun AppNavigation(appContainer: AppContainer) {
                 HealthCheckScreen(navController = navController, viewModel = healthViewModel)
             }
 
-            // --- ZARZĄDZANIE UŻYTKOWNIKAMI ---
             composable("manage_users") {
                 ManageUsersScreen(navController = navController)
             }
@@ -132,6 +132,24 @@ fun AppNavigation(appContainer: AppContainer) {
                 ManagePermissionsScreen(
                     navController = navController,
                     viewModel = viewModel(factory = appContainer.managePermissionsViewModelFactory)
+                )
+            }
+            composable(AdminRoutes.CHANGE_PASSWORD) {
+                val changePasswordViewModel: ChangePasswordViewModel = viewModel(
+                    factory = appContainer.changePasswordViewModelFactory
+                )
+                ChangePasswordScreen(
+                    navController = navController,
+                    viewModel = changePasswordViewModel
+                )
+            }
+            composable(AdminRoutes.FORGOT_PASSWORD) {
+                val forgotPasswordViewModel: ForgotPasswordViewModel = viewModel(
+                    factory = appContainer.forgotPasswordViewModelFactory
+                )
+                ForgotPasswordScreen(
+                    navController = navController,
+                    viewModel = forgotPasswordViewModel
                 )
             }
 
@@ -163,8 +181,6 @@ fun AppNavigation(appContainer: AppContainer) {
                 )
             }
 
-            // --- PRODUKTY I MAGAZYN ---
-
             composable("inventory") {
                 ManageInventoryScreen(navController = navController, appContainer = appContainer)
             }
@@ -177,9 +193,13 @@ fun AppNavigation(appContainer: AppContainer) {
                 val addProductViewModel: AddProductViewModel = viewModel(
                     factory = appContainer.addProductViewModelFactory
                 )
+                val categoryViewModel: com.qrware.app.ui.viewmodel.ProductsManagement.CategoryViewModel = viewModel(
+                    factory = appContainer.categoryViewModelFactory
+                )
                 AddProductScreen(
                     navController = navController,
-                    viewModel = addProductViewModel
+                    viewModel = addProductViewModel,
+                    categoryViewModel = categoryViewModel
                 )
             }
 
@@ -243,8 +263,6 @@ fun AppNavigation(appContainer: AppContainer) {
                 )
             }
 
-            // --- ZARZĄDZANIE STREFAMI (ZONES) ---
-
             composable("manage_zones") {
                 ManageZonesScreen(navController = navController, appContainer = appContainer)
             }
@@ -253,7 +271,6 @@ fun AppNavigation(appContainer: AppContainer) {
                 AddZoneScreen(navController = navController, appContainer = appContainer)
             }
 
-            // <--- TUTAJ DODAŁEM BRAKUJĄCĄ TRASĘ DO EDYCJI STREFY --->
             composable(
                 route = "edit_zone/{zoneId}",
                 arguments = listOf(navArgument("zoneId") { type = NavType.LongType })
@@ -265,7 +282,6 @@ fun AppNavigation(appContainer: AppContainer) {
                     navController.popBackStack()
                 }
             }
-            // --------------------------------------------------------
 
             composable(
                 route = "add_inventory/{type}/{id}",
@@ -282,8 +298,6 @@ fun AppNavigation(appContainer: AppContainer) {
                     presetProductId = if (entityType == "PRODUCT") entityId else null
                 )
             }
-
-            // --- LOKALIZACJE ---
 
             composable("manage_locations") {
                 ManageLocationsScreen(
@@ -315,7 +329,21 @@ fun AppNavigation(appContainer: AppContainer) {
                 }
             }
 
-            // --- SZCZEGÓŁY INVENTORY ---
+            composable(
+                route = "location_details/{locationId}",
+                arguments = listOf(navArgument("locationId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val locationId = backStackEntry.arguments?.getLong("locationId")
+                if (locationId != null) {
+                    LocationDetailsScreen(
+                        navController = navController,
+                        appContainer = appContainer,
+                        locationId = locationId
+                    )
+                } else {
+                    navController.popBackStack()
+                }
+            }
 
             composable(
                 route = "inventory_details/{itemId}",
@@ -332,8 +360,6 @@ fun AppNavigation(appContainer: AppContainer) {
                     navController.popBackStack()
                 }
             }
-
-            // --- HISTORIA RUCHÓW ---
 
             composable("movement_history") {
                 MovementHistoryScreen(
@@ -389,8 +415,6 @@ fun AppNavigation(appContainer: AppContainer) {
                     navController.popBackStack()
                 }
             }
-
-            // === ORDER ROUTES ===
             
             composable("my_orders") {
                 MyOrdersScreen(
@@ -428,7 +452,30 @@ fun AppNavigation(appContainer: AppContainer) {
                         orderId = orderId,
                         navController = navController,
                         orderRepository = appContainer.orderRepository,
-                        orderItemRepository = appContainer.orderItemRepository
+                        orderItemRepository = appContainer.orderItemRepository,
+                        inventoryRepository = appContainer.inventoryRepository,
+                        productRepository = appContainer.productRepository
+                    )
+                } else {
+                    navController.popBackStack()
+                }
+            }
+
+            composable(
+                route = "edit_order/{orderId}",
+                arguments = listOf(navArgument("orderId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val orderId = backStackEntry.arguments?.getLong("orderId")
+                if (orderId != null) {
+                    EditOrderScreen(
+                        orderId = orderId,
+                        navController = navController,
+                        orderRepository = appContainer.orderRepository,
+                        orderItemRepository = appContainer.orderItemRepository,
+                        inventoryRepository = appContainer.inventoryRepository,
+                        productRepository = appContainer.productRepository,
+                        userRepository = appContainer.userManagementRepository,
+                        locationRepository = appContainer.locationRepository
                     )
                 } else {
                     navController.popBackStack()
@@ -458,10 +505,8 @@ fun AppNavigation(appContainer: AppContainer) {
             ) { backStackEntry ->
                 val itemId = backStackEntry.arguments?.getLong("itemId")
                 if (itemId != null) {
-                    // For individual item scanning, we can reuse QRScanOrderScreen
-                    // or create a separate QRScanItemScreen if needed
                     QRScanOrderScreen(
-                        orderId = 0L, // Will be ignored for item-specific scanning
+                        orderId = 0L,
                         navController = navController,
                         orderRepository = appContainer.orderRepository,
                         orderItemRepository = appContainer.orderItemRepository

@@ -24,6 +24,12 @@ interface OrderApiService {
     @POST("api/orders")
     suspend fun createOrder(@Body request: CreateOrderRequest): Response<ApiResponse<OrderDTO>>
 
+    @PUT("api/orders/{id}")
+    suspend fun updateOrder(
+        @Path("id") id: Long,
+        @Body request: UpdateOrderRequest
+    ): Response<ApiResponse<OrderDTO>>
+
     @PUT("api/orders/{id}/start")
     suspend fun startOrder(@Path("id") id: Long): Response<ApiResponse<OrderDTO>>
 
@@ -89,6 +95,9 @@ interface OrderApiService {
         @Path("id") id: Long,
         @Body request: CancelOrderRequest
     ): Response<ApiResponse<OrderItemDTO>>
+
+    @DELETE("api/order-items/{id}")
+    suspend fun deleteOrderItem(@Path("id") id: Long): Response<ApiResponse<Void>>
 
     @POST("api/order-items/scan-qr")
     suspend fun scanQRCode(@Body request: ScanQRRequest): Response<ApiResponse<Any>>

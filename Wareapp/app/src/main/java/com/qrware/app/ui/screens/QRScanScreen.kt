@@ -118,7 +118,6 @@ fun QRScanScreen(
                                 it.setSurfaceProvider(previewView.surfaceProvider)
                             }
 
-                            // Konfiguracja analizy obrazu
                             val imageAnalysis = ImageAnalysis.Builder()
                                 .setTargetResolution(Size(1280, 720))
                                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
@@ -128,19 +127,16 @@ fun QRScanScreen(
                                         Executors.newSingleThreadExecutor(),
                                         QrCodeAnalyzer { rawScannedContent ->
 
-                                            // Sprawdzamy stan UI, aby nie skanować wielokrotnie
                                             if (!uiState.isScanning && !uiState.isLoading) {
 
                                                 val separator = "###"
 
-                                                // Parsowanie danych (hybrydowe QR)
                                                 val systemId = if (rawScannedContent.contains(separator)) {
                                                     rawScannedContent.split(separator)[0]
                                                 } else {
                                                     rawScannedContent
                                                 }
 
-                                                // Przekazujemy CZYSTE ID do ViewModelu
                                                 viewModel.scanQRCode(systemId)
                                             }
                                         }

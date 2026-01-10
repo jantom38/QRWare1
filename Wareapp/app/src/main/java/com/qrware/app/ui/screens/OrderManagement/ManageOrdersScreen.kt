@@ -17,7 +17,7 @@ import androidx.navigation.NavController
 import com.qrware.app.data.model.*
 import com.qrware.app.data.repository.OrderRepository
 import com.qrware.app.ui.viewmodel.ManageOrdersViewModel
-import com.qrware.app.ui.viewmodel.ManageOrdersViewModelFactory
+import com.qrware.app.ui.viewmodel.OrderManagement.ManageOrdersViewModelFactory
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,21 +26,16 @@ fun ManageOrdersScreen(
     navController: NavController,
     orderRepository: OrderRepository
 ) {
-    // Tworzenie ViewModelu
     val viewModel: ManageOrdersViewModel = viewModel(
         factory = ManageOrdersViewModelFactory(orderRepository)
     )
 
-    // Obserwowanie stanu
     val uiState by viewModel.uiState.collectAsState()
 
-    // Stan lokalny tylko dla dialogu (UI logic)
     var showFilterDialog by remember { mutableStateOf(false) }
 
-    // Obsługa komunikatów Snackbar (opcjonalnie)
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Efekt do wyświetlania wiadomości o sukcesie
     LaunchedEffect(uiState.successMessage) {
         uiState.successMessage?.let {
             snackbarHostState.showSnackbar(it)
@@ -60,7 +55,6 @@ fun ManageOrdersScreen(
                 },
                 actions = {
                     IconButton(onClick = { showFilterDialog = true }) {
-                        // Zmieniamy ikonę jeśli filtr jest aktywny
                         Icon(
                             Icons.Default.FilterList,
                             contentDescription = "Filtruj",
@@ -90,7 +84,6 @@ fun ManageOrdersScreen(
         ) {
             when {
                 uiState.isLoading && uiState.allOrders.isEmpty() -> {
-                    // Pokazujemy loader tylko jeśli nie mamy żadnych danych
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center)
                     )
@@ -160,7 +153,6 @@ fun ManageOrdersScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        // Filter chip info
                         if (uiState.selectedFilter != null) {
                             item {
                                 Row(
@@ -183,14 +175,11 @@ fun ManageOrdersScreen(
                             }
                         }
 
-                        // Summary cards - przekazujemy pełną listę, żeby statystyki były ogólne (lub visibleOrders jeśli mają zależeć od filtra)
                         item {
-                            // Tutaj decydujemy czy statystyki mają dotyczyć wszystkich czy przefiltrowanych. Zazwyczaj wszystkich.
                             OrderSummaryCards(orders = uiState.allOrders)
                             Spacer(modifier = Modifier.height(16.dp))
                         }
 
-                        // Orders list
                         items(uiState.visibleOrders) { order ->
                             ManageOrderCard(
                                 order = order,
@@ -215,7 +204,6 @@ fun ManageOrdersScreen(
                 }
             }
 
-            // Loader overlay dla operacji (start/stop), żeby nie blokować UI całkowicie, ale pokazać że coś się dzieje
             if (uiState.isLoading && uiState.allOrders.isNotEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -227,7 +215,6 @@ fun ManageOrdersScreen(
         }
     }
 
-    // Filter dialog
     if (showFilterDialog) {
         FilterOrdersDialog(
             onDismiss = { showFilterDialog = false },
@@ -325,7 +312,6 @@ fun ManageOrderCard(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            // Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -353,7 +339,6 @@ fun ManageOrderCard(
                 }
             }
 
-            // Assigned user
             if (!order.assignedToUsername.isNullOrEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
@@ -374,7 +359,6 @@ fun ManageOrderCard(
                 }
             }
 
-            // Progress
             if (order.totalItems != null && order.totalItems > 0) {
                 Spacer(modifier = Modifier.height(8.dp))
                 val progress = (order.completedItems ?: 0).toFloat() / order.totalItems.toFloat()
@@ -399,7 +383,6 @@ fun ManageOrderCard(
                 )
             }
 
-            // Action buttons
             Spacer(modifier = Modifier.height(12.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),

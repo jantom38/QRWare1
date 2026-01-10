@@ -89,17 +89,14 @@ class QRCodeViewModel(
     }
 
     fun scanQRCode(code: String) {
-        // Zapobiegamy wielokrotnym strzałom w tej samej chwili
         if (_uiState.value.isScanning) return
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isScanning = true, error = null)
 
             try {
-                // 1. Pobierz dane QR kodu
                 val qrData = qrCodeRepository.scanQRCode(code)
                 
-                // 2. Sprawdź czy istnieje stan magazynowy dla tego QR kodu
                 val inventoryVerification = verifyInventoryForQRCode(code, qrData)
 
                 _scanResult.value = QRScanResult(
@@ -116,7 +113,6 @@ class QRCodeViewModel(
                     successMessage = inventoryVerification.message
                 )
 
-                // Odświeżamy statystyki w tle
                 loadStats()
 
             } catch (e: Exception) {
@@ -137,7 +133,7 @@ class QRCodeViewModel(
                 _scanResult.value = QRScanResult(
                     code = code,
                     data = "",
-                    type = QRCodeType.PRODUCT, // Domyślny typ przy błędzie
+                    type = QRCodeType.PRODUCT,
                     entityType = null,
                     entityId = null,
                     success = false,
@@ -152,21 +148,16 @@ class QRCodeViewModel(
         }
     }
 
-    /**
-     * Weryfikuje czy istnieje stan magazynowy dla zeskanowanego QR kodu
-     */
     private suspend fun verifyInventoryForQRCode(
         qrCode: String,
         qrData: QRCodeData
     ): QRInventoryVerificationResult {
         return try {
-            // Spróbuj pobrać pozycję magazynową po QR kodzie
             val inventoryResult = qrCodeRepository.getInventoryByQRCode(qrCode)
             
             if (inventoryResult.isSuccess) {
                 val inventoryItem = inventoryResult.getOrNull()!!
                 
-                // Stan magazynowy istnieje
                 QRInventoryVerificationResult(
                     qrCodeExists = true,
                     inventoryExists = true,
@@ -178,7 +169,6 @@ class QRCodeViewModel(
                             "Lokalizacja: ${inventoryItem.location.name}"
                 )
             } else {
-                // QR kod istnieje, ale brak stanu magazynowego
                 QRInventoryVerificationResult(
                     qrCodeExists = true,
                     inventoryExists = false,
@@ -192,7 +182,6 @@ class QRCodeViewModel(
             when (e) {
                 is HttpException -> {
                     if (e.code() == 404) {
-                        // 404 oznacza brak stanu magazynowego dla tego QR
                         QRInventoryVerificationResult(
                             qrCodeExists = true,
                             inventoryExists = false,
@@ -202,7 +191,6 @@ class QRCodeViewModel(
                                     "Typ: ${qrData.type}"
                         )
                     } else {
-                        // Inny błąd HTTP
                         QRInventoryVerificationResult(
                             qrCodeExists = true,
                             inventoryExists = false,
@@ -213,7 +201,6 @@ class QRCodeViewModel(
                     }
                 }
                 else -> {
-                    // Błąd sieci lub inny
                     QRInventoryVerificationResult(
                         qrCodeExists = true,
                         inventoryExists = false,
@@ -226,14 +213,12 @@ class QRCodeViewModel(
         }
     }
 
-    // ZMODYFIKOWANA METODA GENEROWANIA
     fun generateQRCode(request: GenerateQRRequest) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
                 val response = qrCodeRepository.generateQRCode(request)
 
-                // Zapisz odpowiedź, aby ekran mógł wyświetlić obrazek
                 _generatedQRCode.value = response
 
                 loadQRCodes()
@@ -302,7 +287,6 @@ class QRCodeViewModel(
         }
     }
 
-    // NOWE: Czyści stan wygenerowanego kodu (przy wyjściu z ekranu generatora)
     fun clearGeneratedQRCode() {
         _generatedQRCode.value = null
         clearMessages()
@@ -314,7 +298,6 @@ class QRCodeViewModel(
                 val response = qrCodeRepository.getQRStats()
                 _stats.value = response
             } catch (e: Exception) {
-                // Ignoruj błędy statystyk
             }
         }
     }

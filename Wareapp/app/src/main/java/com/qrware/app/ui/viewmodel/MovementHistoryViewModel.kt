@@ -219,7 +219,6 @@ class MovementHistoryViewModel(
 
     fun searchMovements(keyword: String, searchIn: String = "reason") {
         if (keyword.isBlank()) {
-            // Reset filter to show all movements
             _uiState.value = _uiState.value.copy(
                 filteredMovements = _uiState.value.movements,
                 searchQuery = ""
@@ -236,7 +235,6 @@ class MovementHistoryViewModel(
                     filteredMovements = movements
                 )
             } catch (e: Exception) {
-                // Fallback to local filtering if API search fails
                 val filtered = _uiState.value.movements.filter { movement ->
                     when (searchIn) {
                         "reason" -> movement.reason?.contains(keyword, ignoreCase = true) == true
@@ -277,18 +275,16 @@ class MovementHistoryViewModel(
         val currentState = _uiState.value
         var filtered = currentState.movements
 
-        // Filter by movement type
         currentState.selectedMovementType?.let { type ->
             filtered = filtered.filter { it.movementType == type }
         }
 
-        // Filter by date range
         if (currentState.selectedStartDate != null || currentState.selectedEndDate != null) {
             filtered = filtered.filter { movement ->
                 val movementDate = try {
                     LocalDateTime.parse(movement.movementDate).toLocalDate()
                 } catch (e: Exception) {
-                    return@filter true // If parsing fails, include the item
+                    return@filter true
                 }
 
                 val afterStart = currentState.selectedStartDate?.let { movementDate >= it } ?: true
@@ -298,7 +294,6 @@ class MovementHistoryViewModel(
             }
         }
 
-        // Filter by approval status
         if (currentState.showPendingApprovalOnly) {
             filtered = filtered.filter { it.isApprovalPending() }
         }
@@ -312,7 +307,6 @@ class MovementHistoryViewModel(
             try {
                 val approvedMovement = repository.approveMovement(movementId, approverComment)
                 
-                // Update the movement in the lists
                 val updatedMovements = _uiState.value.movements.map { movement ->
                     if (movement.id == movementId) approvedMovement else movement
                 }
@@ -361,13 +355,10 @@ class MovementHistoryViewModel(
             MovementHistoryView.OUTBOUND -> loadOutboundMovements()
             MovementHistoryView.ADJUSTMENTS -> loadAdjustmentMovements()
             MovementHistoryView.ITEM_SPECIFIC -> {
-                // Would need to store the item ID to refresh
             }
             MovementHistoryView.LOCATION_SPECIFIC -> {
-                // Would need to store the location ID to refresh
             }
             MovementHistoryView.PRODUCT_SPECIFIC -> {
-                // Would need to store the product ID to refresh
             }
         }
     }

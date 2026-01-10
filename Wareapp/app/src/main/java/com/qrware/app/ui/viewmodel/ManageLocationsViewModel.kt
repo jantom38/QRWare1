@@ -18,8 +18,9 @@ data class LocationUiState(
     val successMessage: String? = null,
     val currentPage: Int = 0,
     val totalPages: Int = 1,
-    val activeFilter: Boolean? = true, // Domyślnie pokazuj aktywne
-    val searchQuery: String = ""
+    val activeFilter: Boolean? = true,
+    val searchQuery: String = "",
+    val selectedLocation: LocationDTO? = null
 )
 
 class ManageLocationsViewModel(private val repository: LocationRepository) : ViewModel() {
@@ -44,7 +45,6 @@ class ManageLocationsViewModel(private val repository: LocationRepository) : Vie
                         active = _uiState.value.activeFilter
                     )
                 } else {
-                    // Użyj wyszukiwania zamiast zwykłego listowania
                     repository.searchLocations(
                         query = _uiState.value.searchQuery,
                         page = _uiState.value.currentPage,
@@ -66,13 +66,28 @@ class ManageLocationsViewModel(private val repository: LocationRepository) : Vie
         }
     }
 
+    fun getLocationDetails(id: Long) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            try {
+                val location = repository.getLocationById(id)
+                _uiState.update { it.copy(isLoading = false, selectedLocation = location) }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isLoading = false, error = "Błąd pobierania szczegółów lokalizacji: ${e.message}") }
+            }
+        }
+    }
+
     fun deleteLocation(id: Long) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null, successMessage = null) }
             try {
                 repository.deleteLocation(id)
                 _uiState.update { it.copy(successMessage = "Lokalizacja usunięta (dezaktywowana)") }
-                loadLocations() // Odśwież listę
+                // Reload list if we are in list view
+                loadLocations()
+                // If we are in details view, we might want to update selectedLocation or navigate back.
+                // For now, just reloading list is enough for ManageLocationsScreen.
             } catch (e: Exception) {
                 _uiState.update { it.copy(isLoading = false, error = "Błąd usuwania: ${e.message}") }
             }
@@ -108,7 +123,6 @@ class ManageLocationsViewModel(private val repository: LocationRepository) : Vie
     }
 }
 
-// Fabryka
 class ManageLocationsViewModelFactory(
     private val repository: LocationRepository
 ) : ViewModelProvider.Factory {

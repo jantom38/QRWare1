@@ -84,17 +84,15 @@ fun AddLocationScreen(
     }
 }
 
-// Ten sam formularz będzie używany przez Add i Edit
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationForm(
     modifier: Modifier = Modifier,
     uiState: com.qrware.app.ui.viewmodel.LocationFormUiState,
-    isEditMode: Boolean = false, // Kod jest zablokowany w trybie edycji
+    isEditMode: Boolean = false,
     onSave: () -> Unit,
     onCodeChange: (String) -> Unit,
     onNameChange: (String) -> Unit,
-    // ... (wszystkie inne handlery) ...
     onDescriptionChange: (String) -> Unit,
     onZoneSelected: (ZoneDTO?) -> Unit,
     onTypeSelected: (LocationType) -> Unit,
@@ -132,7 +130,6 @@ fun LocationForm(
             .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        // --- SEKCJA GŁÓWNA ---
         item { FormSectionHeader("Informacje Główne") }
 
         item {
@@ -163,7 +160,6 @@ fun LocationForm(
             )
         }
 
-        // Dropdown dla Strefy (Zone)
         item {
             ExposedDropdownMenuBox(
                 expanded = zoneExpanded,
@@ -195,7 +191,6 @@ fun LocationForm(
             }
         }
 
-        // Dropdown dla Typu (Type)
         item {
             ExposedDropdownMenuBox(
                 expanded = typeExpanded,
@@ -226,7 +221,6 @@ fun LocationForm(
             }
         }
 
-        // --- SEKCJA ADRESOWA ---
         item { FormSectionHeader("Adres Magazynowy") }
         item {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -241,7 +235,6 @@ fun LocationForm(
             }
         }
 
-        // --- SEKCJA FLAG ---
         item { FormSectionHeader("Ustawienia") }
         item { FormSwitchRow(uiState.active, onActiveChange, "Aktywna") }
         item { FormSwitchRow(uiState.pickable, onPickableChange, "Możliwy pobór (Pickable)") }
@@ -249,7 +242,6 @@ fun LocationForm(
         item { FormSwitchRow(uiState.hazardousMaterials, onHazardousChange, "Materiały niebezpieczne") }
         item { FormSwitchRow(uiState.fragileItems, onFragileChange, "Materiały delikatne") }
 
-        // --- SEKCJA KONTROLI ŚRODOWISKA ---
         item { FormSectionHeader("Kontrola Środowiska") }
         item { FormSwitchRow(uiState.temperatureControlled, onTempControlledChange, "Kontrola Temperatury") }
         if (uiState.temperatureControlled) {
@@ -270,7 +262,6 @@ fun LocationForm(
             }
         }
 
-        // --- SEKCJA POJEMNOŚCI I KODÓW ---
         item { FormSectionHeader("Pojemność i Kody") }
         item { FormTextField(Modifier.fillMaxWidth(), uiState.capacityVolume, onCapacityVolumeChange, "Pojemność (m³)", KeyboardType.Decimal) }
         item { FormTextField(Modifier.fillMaxWidth(), uiState.capacityWeight, onCapacityWeightChange, "Nośność (kg)", KeyboardType.Decimal) }
@@ -279,7 +270,6 @@ fun LocationForm(
         item { FormTextField(Modifier.fillMaxWidth(), uiState.qrCode, onQrCodeChange, "Kod QR") }
         item { FormTextField(Modifier.fillMaxWidth(), uiState.barcode, onBarcodeChange, "Kod Kreskowy") }
 
-        // --- WSPÓŁRZĘDNE ---
         item { FormSectionHeader("Współrzędne") }
         item {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -289,7 +279,6 @@ fun LocationForm(
             }
         }
 
-        // --- ZAPISZ ---
         item {
             Spacer(Modifier.height(16.dp))
             uiState.error?.let {
@@ -308,7 +297,6 @@ fun LocationForm(
     }
 }
 
-// Helper composables do formularza
 @Composable
 fun FormSectionHeader(title: String) {
     Text(

@@ -1,4 +1,3 @@
-// Ścieżka: app/src/main/java/com/qrware/app/data/repository/UserManagementRepository.kt
 package com.qrware.app.data.repository
 
 import android.content.ContentValues.TAG
@@ -12,13 +11,12 @@ import com.qrware.app.data.model.RoleRequest
 import com.qrware.app.data.model.RoleResponse
 import com.qrware.app.data.model.UpdateUserRequest
 import com.qrware.app.data.remote.ApiService
+import com.qrware.app.data.remote.AuthService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
 
 class UserManagementRepository(private val apiService: ApiService) {
-
-    // --- Metody Użytkowników (istniejące) ---
 
     suspend fun getAllUsers(page: Int, size: Int): Result<PaginatedResponse<AdminUserResponse>> {
         return withContext(Dispatchers.IO) {
@@ -60,9 +58,6 @@ class UserManagementRepository(private val apiService: ApiService) {
         }
     }
 
-    /**
-     * Pobiera szczegóły użytkownika po ID.
-     */
     suspend fun getUserById(userId: Long): Result<AdminUserResponse> {
         return withContext(Dispatchers.IO) {
             try {
@@ -83,9 +78,6 @@ class UserManagementRepository(private val apiService: ApiService) {
         }
     }
 
-    /**
-     * Aktualizuje dane użytkownika.
-     */
     suspend fun updateUser(userId: Long, request: UpdateUserRequest): Result<AdminUserResponse> {
         return withContext(Dispatchers.IO) {
             try {
@@ -125,9 +117,6 @@ class UserManagementRepository(private val apiService: ApiService) {
         }
     }
 
-    /**
-     * Usuwa użytkownika.
-     */
     suspend fun deleteUser(userId: Long): Result<Unit> {
         return withContext(Dispatchers.IO) {
             try {
@@ -147,8 +136,6 @@ class UserManagementRepository(private val apiService: ApiService) {
             }
         }
     }
-
-    // --- NOWE METODY: Zarządzanie Rolami ---
 
     suspend fun getAllRoles(): Result<List<RoleResponse>> {
         return withContext(Dispatchers.IO) {
@@ -230,8 +217,6 @@ class UserManagementRepository(private val apiService: ApiService) {
         }
     }
 
-    // --- NOWE METODY: Zarządzanie Uprawnieniami ---
-
     suspend fun getAllPermissions(): Result<List<PermissionResponse>> {
         return withContext(Dispatchers.IO) {
             try {
@@ -310,5 +295,8 @@ class UserManagementRepository(private val apiService: ApiService) {
                 Result.failure(e)
             }
         }
+    }
+    suspend fun requestPasswordReset(email: String): Result<Unit> {
+        return Result.failure(Exception("Not implemented here. Use AuthRepository."))
     }
 }

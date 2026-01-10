@@ -86,7 +86,6 @@ fun ManageCategoriesScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // Pasek wyszukiwania
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { 
@@ -104,7 +103,6 @@ fun ManageCategoriesScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Filtry
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -130,7 +128,6 @@ fun ManageCategoriesScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Komunikaty błędów/sukcesu
             uiState.error?.let { error ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -159,7 +156,6 @@ fun ManageCategoriesScreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            // Lista kategorii
             if (uiState.isLoading) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -172,7 +168,6 @@ fun ManageCategoriesScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     if (showHierarchical) {
-                        // Widok hierarchiczny - tylko kategorie główne
                         val rootCategories = uiState.categories.filter { it.parent == null }
                         items(rootCategories) { category ->
                             HierarchicalCategoryCard(
@@ -204,7 +199,6 @@ fun ManageCategoriesScreen(
                             )
                         }
                     } else {
-                        // Widok listy - wszystkie kategorie
                         items(uiState.categories) { category ->
                             CategoryCard(
                                 category = category,
@@ -226,7 +220,6 @@ fun ManageCategoriesScreen(
         }
     }
 
-    // Dialog dodawania kategorii
     if (showAddDialog) {
         AddCategoryDialog(
             onDismiss = { 
@@ -234,7 +227,6 @@ fun ManageCategoriesScreen(
                 selectedParentCategory = null
             },
             onConfirm = { request ->
-                // Dodaj parentId jeśli jest ustawione
                 val finalRequest = if (selectedParentCategory != null) {
                     request.copy(parentId = selectedParentCategory!!.id)
                 } else {
@@ -248,7 +240,6 @@ fun ManageCategoriesScreen(
         )
     }
 
-    // Dialog edycji kategorii
     if (showEditDialog && selectedCategory != null) {
         EditCategoryDialog(
             category = selectedCategory!!,
@@ -750,7 +741,6 @@ fun HierarchicalCategoryCard(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.weight(1f)
                     ) {
-                        // Przycisk rozwijania jeśli ma dzieci
                         if (children.isNotEmpty()) {
                             IconButton(onClick = { onExpandToggle(category.id) }) {
                                 Icon(
@@ -813,7 +803,6 @@ fun HierarchicalCategoryCard(
                     }
                     
                     Row {
-                        // Przycisk dodawania podkategorii
                         IconButton(onClick = { onAddSubcategory(category) }) {
                             Icon(Icons.Default.Add, contentDescription = "Dodaj podkategorię")
                         }
@@ -841,7 +830,6 @@ fun HierarchicalCategoryCard(
             }
         }
         
-        // Renderowanie dzieci jeśli rozwinięte
         if (isExpanded && children.isNotEmpty()) {
             children.forEach { child ->
                 HierarchicalCategoryCard(

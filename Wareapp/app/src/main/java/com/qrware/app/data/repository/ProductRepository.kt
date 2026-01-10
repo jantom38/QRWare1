@@ -13,23 +13,18 @@ import javax.inject.Singleton
 class ProductRepository @Inject constructor(
     private val apiService: ApiService
 ) {
-    // Pobieranie wszystkich (zgodnie z poprawionym ApiService)
     suspend fun getAllProducts(
         page: Int = 0,
         size: Int = 20,
         sort: String = "id,asc",
-        active: Boolean? = null // <-- DODANA ZMIENNA
+        active: Boolean? = null
     ): PaginatedResponse<ProductDTO> {
-        // ZMIANA: Przekazujemy 'active' do apiService
         return apiService.getAllProducts(page, size, sort, active)
     }
 
-    // Tworzenie nowego produktu
     suspend fun createProduct(request: CreateProductRequest): ProductDTO {
         return apiService.createProduct(request)
     }
-
-    // --- UZUPEŁNIONE METODY (bez zmian) ---
 
     suspend fun getProductById(productId: Long): ProductDTO {
         return apiService.getProductById(productId)

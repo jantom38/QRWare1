@@ -101,6 +101,21 @@ class OrderItemRepository(
         }
     }
 
+    suspend fun deleteOrderItem(id: Long): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = apiService.deleteOrderItem(id)
+                if (response.isSuccessful) {
+                    Result.success(Unit)
+                } else {
+                    Result.failure(Exception("Failed to delete order item: ${response.message()}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
     // === QR CODE OPERATIONS ===
 
     suspend fun scanQRCode(qrCodeData: String, orderId: Long? = null): Result<Any> {

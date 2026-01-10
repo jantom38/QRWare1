@@ -103,6 +103,14 @@ public class OrderItemService {
         return orderItemRepository.save(orderItem);
     }
 
+    public void deleteOrderItem(Long orderItemId) {
+        OrderItem orderItem = getOrderItemById(orderItemId);
+        if (orderItem.getStatus() == OrderItemStatus.COMPLETED) {
+            throw new IllegalStateException("Cannot delete a completed order item.");
+        }
+        orderItemRepository.delete(orderItem);
+    }
+
     public OrderItem setBatchNumber(Long orderItemId, String batchNumber) {
         OrderItem orderItem = getOrderItemById(orderItemId);
         orderItem.setBatchNumber(batchNumber);

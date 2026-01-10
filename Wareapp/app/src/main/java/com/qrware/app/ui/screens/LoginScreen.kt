@@ -16,8 +16,8 @@ import com.qrware.app.ui.viewmodel.UserManagament.LoginViewModel
 @Composable
 fun LoginScreen(navController: NavController, viewModel: LoginViewModel) {
     val uiState by viewModel.uiState.collectAsState()
-    var username by remember { mutableStateOf("user") } // Przykładowe dane
-    var password by remember { mutableStateOf("password") } // Przykładowe dane
+    var username by remember { mutableStateOf("user") }
+    var password by remember { mutableStateOf("password") }
 
     LaunchedEffect(uiState.loginSuccess) {
         if (uiState.loginSuccess) {
@@ -28,7 +28,6 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel) {
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Przycisk ustawień w prawym górnym rogu
         IconButton(
             onClick = { navController.navigate("server_settings") },
             modifier = Modifier

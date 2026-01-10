@@ -151,6 +151,24 @@ public class OrderItemController {
         }
     }
 
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ORDER_DELETE')")
+    public ResponseEntity<ApiResponse<Void>> deleteOrderItem(@PathVariable Long id) {
+        try {
+            orderItemService.deleteOrderItem(id);
+            return ResponseEntity.ok(ApiResponse.success(null, "Order item deleted successfully"));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Failed to delete order item: " + e.getMessage()));
+        }
+    }
+
     @PostMapping("/scan-qr")
     @PreAuthorize("hasAuthority('QR_SCAN')")
     public ResponseEntity<ApiResponse<Object>> processOrderItemScan(@Valid @RequestBody ScanQRRequest request) {

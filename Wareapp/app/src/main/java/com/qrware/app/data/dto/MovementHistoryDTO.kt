@@ -10,7 +10,7 @@ data class MovementHistoryDTO(
     val id: Long,
     val inventoryItem: InventoryItemDTO,
     val movementType: MovementType?,
-    val movementDate: String, // ISO format: yyyy-MM-ddTHH:mm:ss
+    val movementDate: String,
     val quantityBefore: Int?,
     val quantityAfter: Int?,
     val quantityChanged: Int,
@@ -28,7 +28,7 @@ data class MovementHistoryDTO(
     val userName: String?,
     val approved: Boolean,
     val approvedBy: String?,
-    val approvedDate: String?, // ISO format
+    val approvedDate: String?,
     val batchId: String?,
     val systemGenerated: Boolean,
     val temperature: Int?,
@@ -80,7 +80,6 @@ data class MovementHistoryDTO(
 
         if (statusBefore != null && statusAfter != null && statusBefore != statusAfter) {
             description.append(" - Status: ")
-            // Używamy extension property zdefiniowanego na dole pliku
             description.append(statusBefore.displayName).append(" → ").append(statusAfter.displayName)
         }
 
@@ -111,17 +110,16 @@ data class MovementHistoryDTO(
         }
     }
 
-    // Zakładam, że masz zależność do Compose UI, jeśli nie - usuń ten import i metodę
     fun getQuantityChangeColor(): androidx.compose.ui.graphics.Color {
         return when {
-            quantityChanged > 0 -> androidx.compose.ui.graphics.Color(0xFF4CAF50) // Green
-            quantityChanged < 0 -> androidx.compose.ui.graphics.Color(0xFFF44336) // Red
-            else -> androidx.compose.ui.graphics.Color(0xFF9E9E9E) // Gray
+            quantityChanged > 0 -> androidx.compose.ui.graphics.Color(0xFF4CAF50)
+            quantityChanged < 0 -> androidx.compose.ui.graphics.Color(0xFFF44336)
+            else -> androidx.compose.ui.graphics.Color(0xFF9E9E9E)
         }
     }
 
     fun getMovementIcon(): String {
-        val type = movementType ?: return "\u25A0" // fallback icon
+        val type = movementType ?: return "\u25A0"
         return when (type) {
             MovementType.RECEIPT -> "📥"
             MovementType.ISSUE -> "📤"
@@ -161,7 +159,6 @@ data class MovementHistoryDTO(
     }
 }
 
-// Dodano rozszerzenie, aby obsłużyć brak pola displayName w InventoryModels.kt
 private val InventoryStatus.displayName: String
     get() = when (this) {
         InventoryStatus.AVAILABLE -> "Dostępne"

@@ -15,6 +15,7 @@ data class ListUsersUiState(
     val isLoading: Boolean = false,
     val users: List<AdminUserResponse> = emptyList(),
     val error: String? = null,
+    val successMessage: String? = null,
     val currentPage: Int = 0,
     val totalPages: Int = 0,
     val canLoadMore: Boolean = false,
@@ -138,6 +139,44 @@ class ListUsersViewModel(
                     }
                 }
         }
+    }
+
+    fun requestPasswordReset(email: String) {
+        // Tutaj powinna być logika wysyłania żądania resetu hasła.
+        // Ponieważ w UserManagementRepository nie ma metody requestPasswordReset,
+        // a jest ona w AuthRepository, musimy albo dodać ją do UserManagementRepository,
+        // albo wstrzyknąć AuthRepository do tego ViewModelu.
+        // Zakładając, że UserManagementRepository jest głównym repozytorium dla tego ekranu,
+        // dodam metodę do UserManagementRepository (która może delegować do ApiService).
+        // Ale ApiService ma requestPasswordReset w AuthService.
+        // W tym przypadku, dla uproszczenia, zakładam, że metoda requestPasswordReset w AuthRepository
+        // jest tą właściwą, ale ListUsersViewModel korzysta z UserManagementRepository.
+        // Najlepiej byłoby dodać metodę do UserManagementRepository, która wywołuje odpowiedni endpoint.
+        // Jednak endpoint /api/auth/forgot-password jest publiczny i przyjmuje email.
+        // Możemy go wywołać.
+
+        // UWAGA: W poprzednim kroku dodałem requestPasswordReset do AuthRepository.
+        // Ale ListUsersViewModel używa UserManagementRepository.
+        // Aby nie zmieniać konstruktora ViewModelu i fabryki (co wymagałoby zmian w AppContainer),
+        // dodam metodę do UserManagementRepository, która będzie wywoływać ten sam endpoint co AuthRepository,
+        // lub po prostu użyję ApiService jeśli tam jest ten endpoint (a jest w AuthService).
+        
+        // Ponieważ nie mam dostępu do AuthRepository tutaj, a nie chcę komplikować DI,
+        // dodam metodę do UserManagementRepository.
+        
+        viewModelScope.launch {
+             repository.requestPasswordReset(email)
+                .onSuccess {
+                    _uiState.update { it.copy(successMessage = "Wysłano żądanie resetu hasła na email: $email") }
+                }
+                .onFailure { exception ->
+                    _uiState.update { it.copy(error = "Błąd resetowania hasła: ${exception.message}") }
+                }
+        }
+    }
+
+    fun clearSuccessMessage() {
+        _uiState.update { it.copy(successMessage = null) }
     }
 }
 

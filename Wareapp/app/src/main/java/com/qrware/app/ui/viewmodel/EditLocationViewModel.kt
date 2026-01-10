@@ -65,7 +65,6 @@ class EditLocationViewModel(
 
     fun updateLocation() {
         val state = _uiState.value
-        // Walidacja (minimalna, można rozbudować)
         if (state.name.isBlank() || state.zoneId == null) {
             _uiState.update { it.copy(error = "Nazwa i Strefa są wymagane.") }
             return
@@ -114,7 +113,6 @@ class EditLocationViewModel(
     }
 }
 
-// Fabryka
 class EditLocationViewModelFactory(
     private val repository: LocationRepository,
     private val locationId: Long

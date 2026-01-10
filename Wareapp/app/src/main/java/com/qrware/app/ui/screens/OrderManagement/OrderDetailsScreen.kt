@@ -1,8 +1,10 @@
 package com.qrware.app.ui.screens.OrderManagement
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -11,9 +13,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.qrware.app.data.dto.InventoryItemDTO
+import com.qrware.app.data.dto.ProductDTO
 import com.qrware.app.data.model.*
 import com.qrware.app.data.repository.OrderItemRepository
 import com.qrware.app.data.repository.OrderRepository
@@ -26,19 +31,24 @@ fun OrderDetailsScreen(
     orderId: Long,
     navController: NavController,
     orderRepository: OrderRepository,
-    orderItemRepository: OrderItemRepository
+    orderItemRepository: OrderItemRepository,
+    inventoryRepository: com.qrware.app.data.repository.InventoryRepository,
+    productRepository: com.qrware.app.data.repository.ProductRepository
 ) {
-    // Inicjalizacja ViewModel z ID zamówienia
     val viewModel: OrderDetailsViewModel = viewModel(
-        factory = OrderDetailsViewModelFactory(orderRepository, orderItemRepository, orderId)
+        factory = OrderDetailsViewModelFactory(
+            orderRepository, 
+            orderItemRepository, 
+            inventoryRepository, 
+            productRepository,
+            orderId
+        )
     )
 
     val uiState by viewModel.uiState.collectAsState()
 
-    // Lokalne stany dla dialogów
     var showCompleteDialog by remember { mutableStateOf(false) }
     var selectedOrderItem by remember { mutableStateOf<OrderItemDTO?>(null) }
-    var showAddItemDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -52,7 +62,6 @@ fun OrderDetailsScreen(
                     }
                 },
                 actions = {
-                    // Obsługa przycisków akcji z ViewModel
                     val order = uiState.order
                     if (order?.canBeStarted == true) {
                         IconButton(
@@ -78,13 +87,18 @@ fun OrderDetailsScreen(
             )
         },
         floatingActionButton = {
-            if (uiState.order?.status == OrderStatus.IN_PROGRESS) {
-                FloatingActionButton(
-                    onClick = {
-                        navController.navigate("qr_scan_order/${orderId}")
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                if (uiState.order?.status == OrderStatus.IN_PROGRESS) {
+                    FloatingActionButton(
+                        onClick = {
+                            navController.navigate("qr_scan_order/${orderId}")
+                        }
+                    ) {
+                        Icon(Icons.Default.QrCodeScanner, contentDescription = "Skanuj QR")
                     }
-                ) {
-                    Icon(Icons.Default.QrCodeScanner, contentDescription = "Skanuj QR")
                 }
             }
         }
@@ -143,12 +157,12 @@ fun OrderDetailsScreen(
                         items(order.orderItems ?: emptyList()) { orderItem ->
                             OrderItemCard(
                                 orderItem = orderItem,
+                                inventoryRepository = inventoryRepository,
                                 onCompleteItem = { item ->
                                     selectedOrderItem = item
                                     showCompleteDialog = true
                                 },
                                 onScanQR = { item ->
-                                    // Tutaj można przejść do skanera z parametrem itemu, jeśli potrzeba
                                     navController.navigate("qr_scan_order/${order.id}")
                                 }
                             )
@@ -157,7 +171,6 @@ fun OrderDetailsScreen(
                 }
             }
 
-            // Overlay blokujący podczas operacji (opcjonalne)
             if (uiState.isOperationProcessing) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -187,11 +200,6 @@ fun OrderDetailsScreen(
     }
 }
 
-// Pozostałe komponenty UI (OrderHeaderCard, OrderProgressCard, OrderItemCard, CompleteOrderItemDialog)
-// pozostają bez większych zmian logicznych, służą tylko do wyświetlania danych.
-// Możesz je skopiować z poprzedniego pliku lub zostawić w oddzielnym pliku UI.
-// Dla kompletności dołączam je tutaj w skróconej wersji.
-
 @Composable
 fun OrderHeaderCard(order: OrderDTO) {
     Card(modifier = Modifier.fillMaxWidth()) {
@@ -211,7 +219,6 @@ fun OrderHeaderCard(order: OrderDTO) {
                     PriorityChip(priority = order.priority)
                 }
             }
-            // ... reszta pól (opis, user, data) ...
             if (!order.description.isNullOrEmpty()) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(text = order.description, style = MaterialTheme.typography.bodyMedium)
@@ -247,9 +254,28 @@ fun OrderProgressCard(order: OrderDTO) {
 @Composable
 fun OrderItemCard(
     orderItem: OrderItemDTO,
+    inventoryRepository: com.qrware.app.data.repository.InventoryRepository,
     onCompleteItem: (OrderItemDTO) -> Unit,
     onScanQR: (OrderItemDTO) -> Unit
 ) {
+    var inventoryItem by remember(orderItem.inventoryItemId) { mutableStateOf<com.qrware.app.data.dto.InventoryItemDTO?>(null) }
+    var isLoadingLocation by remember(orderItem.inventoryItemId) { mutableStateOf(false) }
+    var locationError by remember(orderItem.inventoryItemId) { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(orderItem.inventoryItemId) {
+        val inventoryItemId = orderItem.inventoryItemId
+        if (inventoryItemId == null) return@LaunchedEffect
+        isLoadingLocation = true
+        locationError = null
+        try {
+            inventoryItem = inventoryRepository.getInventoryItemById(inventoryItemId)
+        } catch (e: Exception) {
+            locationError = e.message
+        } finally {
+            isLoadingLocation = false
+        }
+    }
+
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -257,7 +283,6 @@ fun OrderItemCard(
                     Text(text = orderItem.productName, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
                     Text(text = "SKU: ${orderItem.productSku}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                // Status badge
                 Surface(
                     color = if(orderItem.status == OrderItemStatus.COMPLETED) Color(0xFF4CAF50).copy(0.1f) else Color.Gray.copy(0.1f),
                     shape = MaterialTheme.shapes.small
@@ -269,6 +294,41 @@ fun OrderItemCard(
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("Ilość: ${orderItem.requestedQuantity}")
                 Text("Zrealizowano: ${orderItem.completedQuantity}", fontWeight = FontWeight.Bold)
+            }
+
+            val resolvedLocation = inventoryItem?.location
+            if (resolvedLocation != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                val parts = listOfNotNull(
+                    resolvedLocation.aisle?.let { "Alejka: $it" },
+                    resolvedLocation.rack?.let { "Regał: $it" },
+                    resolvedLocation.shelf?.let { "Półka: $it" },
+                    resolvedLocation.bin?.let { "Bin: $it" },
+                    resolvedLocation.zone.name.takeIf { it.isNotBlank() }?.let { "Strefa: $it" }
+                )
+                val details = parts.joinToString(" | ")
+                Text(
+                    text = "Lokalizacja: ${resolvedLocation.code} (${resolvedLocation.name})" + if (details.isNotBlank()) "\n$details" else "",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else if (!orderItem.sourceLocationCode.isNullOrBlank() || !orderItem.sourceLocationName.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Lokalizacja: ${orderItem.sourceLocationCode ?: ""} ${orderItem.sourceLocationName ?: ""}".trim(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else if (isLoadingLocation) {
+                Spacer(modifier = Modifier.height(8.dp))
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            } else if (locationError != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Nie udało się pobrać lokalizacji",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
             }
 
             if (orderItem.canBeCompleted == true) {

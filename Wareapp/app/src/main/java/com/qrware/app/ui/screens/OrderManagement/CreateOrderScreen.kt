@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.qrware.app.data.dto.LocationDTO
 import com.qrware.app.data.dto.ProductDTO
+import com.qrware.app.data.dto.InventoryItemDTO
 import com.qrware.app.data.model.*
 import kotlinx.coroutines.launch
 
@@ -38,15 +39,12 @@ fun CreateOrderScreen(
     var notes by remember { mutableStateOf("") }
     var externalReference by remember { mutableStateOf("") }
 
-    // User and location selection
     var selectedAssignedUser by remember { mutableStateOf<AdminUserResponse?>(null) }
     var selectedSourceLocation by remember { mutableStateOf<LocationDTO?>(null) }
     var selectedDestinationLocation by remember { mutableStateOf<LocationDTO?>(null) }
 
-    // Order items
     var orderItems by remember { mutableStateOf<List<OrderItemRequest>>(emptyList()) }
     
-    // UI State
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var showUserDialog by remember { mutableStateOf(false) }
@@ -55,15 +53,14 @@ fun CreateOrderScreen(
     var showOrderTypeDialog by remember { mutableStateOf(false) }
     var showAddItemDialog by remember { mutableStateOf(false) }
 
-    // Data lists
     var users by remember { mutableStateOf<List<AdminUserResponse>>(emptyList()) }
     var locations by remember { mutableStateOf<List<LocationDTO>>(emptyList()) }
     var products by remember { mutableStateOf<List<ProductDTO>>(emptyList()) }
-    var availableInventory by remember { mutableStateOf<Map<Long, Int>>(emptyMap()) }
+    
+    var dialogInventory by remember { mutableStateOf<List<InventoryItemDTO>>(emptyList()) }
+    var isDialogInventoryLoading by remember { mutableStateOf(false) }
 
-    // Load initial data
     LaunchedEffect(Unit) {
-        // Load users, locations, and products
         userRepository.getAllUsers(page = 0, size = 100)
             .onSuccess { pagedResponse -> users = pagedResponse.content }
             .onFailure { errorMessage = "Błąd ładowania użytkowników: ${it.message}" }
@@ -83,22 +80,6 @@ fun CreateOrderScreen(
         }
     }
 
-    LaunchedEffect(selectedSourceLocation) {
-        selectedSourceLocation?.let { location ->
-            try {
-                val inventory = inventoryRepository.getInventoryByLocation(location.id)
-                availableInventory = inventory.groupBy { inventoryItem -> inventoryItem.product.id }
-                    .mapValues { (_, inventoryItems) -> inventoryItems.sumOf { inventoryItem -> inventoryItem.availableQuantity } }
-                android.util.Log.i("CreateOrderScreen", "Loaded inventory for location ${location.name}: ${availableInventory.size} products available")
-            } catch (e: Exception) {
-                android.util.Log.e("CreateOrderScreen", "Failed to load inventory for location ${location.name}", e)
-                errorMessage = "Nie udało się załadować inwentarza dla lokalizacji ${location.name}: ${e.message}"
-            }
-        } ?: run {
-            availableInventory = emptyMap()
-        }
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -111,7 +92,6 @@ fun CreateOrderScreen(
                 actions = {
                     TextButton(
                         onClick = {
-                            // Create order
                             if (selectedOrderType != null) {
                                 isLoading = true
                                 errorMessage = null
@@ -131,7 +111,6 @@ fun CreateOrderScreen(
                                     orderRepository.createOrder(request)
                                         .onSuccess { createdOrder ->
                                             android.util.Log.i("CreateOrderScreen", "Order created successfully: ${createdOrder.orderNumber}")
-                                            // Add order items if any
                                             if (orderItems.isNotEmpty()) {
                                                 try {
                                                     addOrderItems(
@@ -179,8 +158,10 @@ fun CreateOrderScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(16.dp)
+                .imePadding(),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(bottom = 24.dp)
         ) {
             if (errorMessage != null) {
                 item {
@@ -198,7 +179,6 @@ fun CreateOrderScreen(
                 }
             }
 
-            // Basic Information Section
             item {
                 Text(
                     text = "Podstawowe informacje",
@@ -242,7 +222,6 @@ fun CreateOrderScreen(
                     readOnly = true,
                     trailingIcon = {
                         IconButton(onClick = { 
-                            // Cycle through priorities
                             selectedPriority = when (selectedPriority) {
                                 OrderPriority.LOW -> OrderPriority.NORMAL
                                 OrderPriority.NORMAL -> OrderPriority.HIGH
@@ -267,7 +246,6 @@ fun CreateOrderScreen(
                 )
             }
 
-            // Assignment Section
             item {
                 Text(
                     text = "Przypisanie i lokalizacje",
@@ -302,7 +280,7 @@ fun CreateOrderScreen(
                 OutlinedTextField(
                     value = selectedSourceLocation?.name ?: "",
                     onValueChange = { },
-                    label = { Text("Lokalizacja źródłowa") },
+                    label = { Text("Lokalizacja źródłowa (domyślna)") },
                     modifier = Modifier.fillMaxWidth(),
                     readOnly = true,
                     trailingIcon = {
@@ -385,7 +363,6 @@ fun CreateOrderScreen(
                 )
             }
 
-            // Order Items Section
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -441,7 +418,6 @@ fun CreateOrderScreen(
         }
     }
 
-    // Dialogs
     if (showOrderTypeDialog) {
         OrderTypeDialog(
             onDismiss = { showOrderTypeDialog = false },
@@ -482,24 +458,41 @@ fun CreateOrderScreen(
     if (showAddItemDialog) {
         AddOrderItemDialog(
             products = products,
-            availableInventory = availableInventory,
-            sourceLocation = selectedSourceLocation,
-            onDismiss = { showAddItemDialog = false },
+            locations = locations,
+            inventory = dialogInventory,
+            isLoadingInventory = isDialogInventoryLoading,
+            onDismiss = { 
+                showAddItemDialog = false 
+                dialogInventory = emptyList()
+            },
             onItemAdded = { newItem ->
                 orderItems = orderItems + newItem
                 showAddItemDialog = false
+                dialogInventory = emptyList()
             },
-            onRefreshInventory = {
-                // Refresh inventory for selected source location
-                selectedSourceLocation?.let { location ->
-                    kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
-                        try {
-                            val inventory = inventoryRepository.getInventoryByLocation(location.id)
-                            availableInventory = inventory.groupBy { inventoryItem -> inventoryItem.product.id }
-                                .mapValues { (_, inventoryItems) -> inventoryItems.sumOf { inventoryItem -> inventoryItem.availableQuantity } }
-                        } catch (e: Exception) {
-                            android.util.Log.e("CreateOrderScreen", "Failed to load inventory", e)
-                        }
+            onFetchInventoryForProduct = { productId ->
+                isDialogInventoryLoading = true
+                kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
+                    try {
+                        dialogInventory = inventoryRepository.getInventoryByProduct(productId)
+                    } catch (e: Exception) {
+                        android.util.Log.e("CreateOrderScreen", "Failed to load inventory for product", e)
+                        dialogInventory = emptyList()
+                    } finally {
+                        isDialogInventoryLoading = false
+                    }
+                }
+            },
+            onFetchInventoryForLocation = { locationId ->
+                isDialogInventoryLoading = true
+                kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
+                    try {
+                        dialogInventory = inventoryRepository.getInventoryByLocation(locationId)
+                    } catch (e: Exception) {
+                        android.util.Log.e("CreateOrderScreen", "Failed to load inventory for location", e)
+                        dialogInventory = emptyList()
+                    } finally {
+                        isDialogInventoryLoading = false
                     }
                 }
             }
@@ -511,7 +504,6 @@ enum class LocationDialogType {
     SOURCE, DESTINATION
 }
 
-// Helper functions
 fun getPriorityDisplayName(priority: OrderPriority): String {
     return when (priority) {
         OrderPriority.LOW -> "Niski"
@@ -531,7 +523,6 @@ suspend fun addOrderItems(
     onComplete: () -> Unit
 ) {
     try {
-        // Przetwarzamy wszystkie pozycje sekwencyjnie dla lepszej kontroli błędów
         var successCount = 0
         var errorCount = 0
         
@@ -540,7 +531,7 @@ suspend fun addOrderItems(
                 productId = item.productId,
                 requestedQuantity = item.requestedQuantity,
                 notes = item.notes,
-                sourceLocationId = sourceLocationId,
+                sourceLocationId = item.sourceLocationId ?: sourceLocationId,
                 destinationLocationId = destinationLocationId,
                 requiresExactInventory = item.requiresExactInventory
             )
@@ -560,6 +551,6 @@ suspend fun addOrderItems(
         
     } catch (e: Exception) {
         android.util.Log.e("CreateOrderScreen", "Error adding order items", e)
-        onComplete() // Wywołujemy onComplete nawet w przypadku błędu, aby UI nie zostało zablokowane
+        onComplete()
     }
 }

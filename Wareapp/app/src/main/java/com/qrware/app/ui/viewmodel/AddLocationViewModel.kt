@@ -21,12 +21,9 @@ data class LocationFormUiState(
     val error: String? = null,
     val success: Boolean = false,
 
-    // Lista do dropdownów
-    //dodać funkcje do zones
     val zones: List<ZoneDTO> = emptyList(),
     val locationTypes: List<LocationType> = LocationType.values().toList(),
 
-    // Pola formularza
     val code: String = "",
     val name: String = "",
     val description: String = "",
@@ -73,15 +70,12 @@ open class LocationFormViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                // POPRAWKA 1: Przekaż FAKTYCZNE wartości Int, a nie typ Int.Companion
-                // Używamy dużej liczby 'size' (zgodnie z ApiService), aby pobrać wszystkie aktywne strefy
                 val paginatedResponse = repository.getActiveZones(page = 0, size = 1000)
 
-                // POPRAWKA 2: Wyciągnij listę 'content' z odpowiedzi
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        zones = paginatedResponse.content // Zaktualizuj stan listą stref
+                        zones = paginatedResponse.content
                     )
                 }
             } catch (e: Exception) {
@@ -90,7 +84,6 @@ open class LocationFormViewModel(
         }
     }
 
-    // Metody 'on...Change'
     fun onCodeChange(v: String) = _uiState.update { it.copy(code = v) }
     fun onNameChange(v: String) = _uiState.update { it.copy(name = v) }
     fun onDescriptionChange(v: String) = _uiState.update { it.copy(description = v) }
@@ -121,7 +114,6 @@ open class LocationFormViewModel(
     fun onYCoordinateChange(v: String) = _uiState.update { it.copy(yCoordinate = v) }
     fun onZCoordinateChange(v: String) = _uiState.update { it.copy(zCoordinate = v) }
 
-    // Helpery do konwersji
     protected fun String.toBigDecimalOrNull(): BigDecimal? = try { BigDecimal(this) } catch (e: Exception) { null }
     protected fun String.toIntOrNull(): Int? = try { this.toInt() } catch (e: Exception) { null }
 }
@@ -178,7 +170,6 @@ class AddLocationViewModel(repository: LocationRepository) : LocationFormViewMod
     }
 }
 
-// Fabryka
 class AddLocationViewModelFactory(
     private val repository: LocationRepository
 ) : ViewModelProvider.Factory {
