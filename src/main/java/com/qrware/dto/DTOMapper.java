@@ -108,8 +108,32 @@ public class DTOMapper {
         dto.setAisle(location.getAisle());
         dto.setRack(location.getRack());
         dto.setShelf(location.getShelf());
+        dto.setBin(location.getBin());
         dto.setBarcode(location.getBarcode());
         dto.setActive(location.getActive());
+        dto.setType(location.getType());
+        
+        dto.setCapacityVolume(location.getCapacityVolume());
+        dto.setCapacityWeight(location.getCapacityWeight());
+        dto.setCapacityItems(location.getCapacityItems());
+        
+        dto.setTemperatureControlled(location.getTemperatureControlled());
+        dto.setTemperatureMin(location.getTemperatureMin());
+        dto.setTemperatureMax(location.getTemperatureMax());
+        dto.setHumidityControlled(location.getHumidityControlled());
+        dto.setHumidityMin(location.getHumidityMin());
+        dto.setHumidityMax(location.getHumidityMax());
+        
+        dto.setHazardousMaterials(location.getHazardousMaterials());
+        dto.setFragileItems(location.getFragileItems());
+        dto.setSecurityLevel(location.getSecurityLevel());
+        dto.setPickable(location.getPickable());
+        dto.setReceivable(location.getReceivable());
+        
+        dto.setQrCode(location.getQrCode());
+        dto.setXCoordinate(location.getxCoordinate());
+        dto.setYCoordinate(location.getyCoordinate());
+        dto.setZCoordinate(location.getzCoordinate());
 
         dto.setZone(toDTO(location.getZone()));
 
