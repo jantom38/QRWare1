@@ -25,6 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
@@ -63,7 +64,7 @@ public class QRCodeController {
     @PreAuthorize("hasAuthority('QR_SCAN')")
     public ResponseEntity<Page<QRCodeDTO>> getAllQRCodes(Pageable pageable) {
         logger.info("Fetching all QR codes with pagination");
-        Page<QRCodeData> qrCodes = qrCodeRepository.findAll(pageable);
+        Page<QRCodeData> qrCodes = qrCodeRepository.findByActiveTrue(pageable);
         Page<QRCodeDTO> qrCodeDTOs = qrCodes.map(dtoMapper::toDTO);
         return ResponseEntity.ok(qrCodeDTOs);
     }
@@ -130,7 +131,7 @@ public class QRCodeController {
 
     @PostMapping("/generate")
     @PreAuthorize("hasAuthority('QR_GENERATE')")
-    public ResponseEntity<QRCodeDTO> generateQRCode(@Valid @RequestBody GenerateQRRequest request) {
+    public ResponseEntity<?> generateQRCode(@Valid @RequestBody GenerateQRRequest request) {
         logger.info("Received request to generate QR Code via generic endpoint. Data: {}", request.getData());
         try {
             QRCodeData savedQRCode;
@@ -145,7 +146,8 @@ public class QRCodeController {
                         request.getEntityType(),
                         request.getEntityId(),
                         request.getGeneratedBy() != null ? request.getGeneratedBy() : "API",
-                        request.getGenerationReason()
+                        request.getGenerationReason(),
+                        request.getSize()
                 );
             } else {
                 logger.info("Saving manually provided QR code: {}", request.getCode());
@@ -185,6 +187,10 @@ public class QRCodeController {
             logger.info("QR Code generated successfully with ID: {}", savedQRCode.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(dtoMapper.toDTO(savedQRCode));
 
+        } catch (DataIntegrityViolationException e) {
+            logger.error("Duplicate QR code error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "QR Code already exists", "details", e.getMessage()));
         } catch (ResourceNotFoundException e) {
             logger.error("Resource not found in /generate endpoint: {}", e.getMessage());
             throw e;
@@ -228,9 +234,19 @@ public class QRCodeController {
             throw new ResourceNotFoundException("QR Code", "id", id);
         }
 
+        // ZMIANA: Fizyczne usunięcie kodu QR
         QRCodeData qrCode = existingQRCode.get();
-        qrCode.setActive(false);
-        qrCodeRepository.save(qrCode);
+        
+        // Jeśli kod ma powiązany plik obrazu, usuń go
+        if (qrCode.getImagePath() != null) {
+            try {
+                fileStorageService.deleteQRCodeImage(qrCode.getImagePath());
+            } catch (Exception e) {
+                logger.warn("Failed to delete QR code image file: {}", e.getMessage());
+            }
+        }
+        
+        qrCodeRepository.delete(qrCode);
 
         return ResponseEntity.noContent().build();
     }
@@ -302,7 +318,7 @@ public class QRCodeController {
     }
 
     @PostMapping("/generate-with-image")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @PreAuthorize("hasAuthority('QR_GENERATE')")
     public ResponseEntity<?> generateQRCodeWithImage(@RequestBody @Valid GenerateQRImageRequest request) {
         logger.info("Request to generate QR with image for data: {}", request.getData());
         try {
@@ -312,7 +328,8 @@ public class QRCodeController {
                     request.getEntityType(),
                     request.getEntityId(),
                     request.getGeneratedBy(),
-                    request.getGenerationReason()
+                    request.getGenerationReason(),
+                    request.getSize()
             );
             
             if (qrCode == null) {
@@ -425,6 +442,7 @@ dto.setImagePath(fileStorageService.getFileUrl(qrCode.getImagePath()));
         private Long entityId;
         private String generatedBy;
         private String generationReason;
+        private Integer size;
 
         public String getData() { return data; }
         public void setData(String data) { this.data = data; }
@@ -438,5 +456,7 @@ dto.setImagePath(fileStorageService.getFileUrl(qrCode.getImagePath()));
         public void setGeneratedBy(String generatedBy) { this.generatedBy = generatedBy; }
         public String getGenerationReason() { return generationReason; }
         public void setGenerationReason(String generationReason) { this.generationReason = generationReason; }
+        public Integer getSize() { return size; }
+        public void setSize(Integer size) { this.size = size; }
     }
 }

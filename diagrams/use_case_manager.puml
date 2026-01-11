@@ -1,4 +1,6 @@
-@startuml Use Case - Modul Menadzera
+@startuml Use Case - Modul Menadzera - Pionowy
+
+top to bottom direction
 
 skinparam actorStyle awesome
 skinparam usecase {
@@ -10,31 +12,31 @@ skinparam rectangle {
     BorderColor DarkGreen
 }
 
-title Diagram Przypadkow Uzycia\nModul Menadzera
+title Diagram Przypadków Użycia\nModuł Menadżera
 
-actor "Menadzer" as Manager #LightGreen
+actor "Menadżer" as Manager #LightGreen
 
-rectangle "System QRWare - Modul Menadzera" {
+rectangle "System QRWare - Moduł Menadżera" {
     
-    package "Raportowanie" {
-        usecase "UC-M01: Tworzenie raportow\no stanach magazynowych" as UC_M01
-        usecase "UC-M07: Podglad procesow\nlogistycznych" as UC_M07
+    package "1. Raportowanie" {
+        usecase "UC-M01: Tworzenie raportów\no stanach magazynowych" as UC_M01
+        usecase "UC-M07: Podgląd procesów\nlogistycznych" as UC_M07
     }
     
-    package "Zarzadzanie Stanami" {
-        usecase "UC-M02: Tworzenie stanow\nmagazynowych" as UC_M02
-        usecase "UC-M05: Generowanie\nkodow QR" as UC_M05
+    package "2. Zarządzanie Stanami" {
+        usecase "UC-M02: Tworzenie stanów\nmagazynowych" as UC_M02
+        usecase "UC-M05: Generowanie\nkodów QR" as UC_M05
     }
     
-    package "Zarzadzanie Zleceniami" {
-        usecase "UC-M03: Tworzenie zlecen\nmagazynowych" as UC_M03
-        usecase "UC-M04: Monitorowanie\nstatusu zlecen" as UC_M04
+    package "3. Zarządzanie Zleceniami" {
+        usecase "UC-M03: Tworzenie zleceń\nmagazynowych" as UC_M03
+        usecase "UC-M04: Monitorowanie\nstatusu zleceń" as UC_M04
     }
     
-    package "Operacje QR" {
-        usecase "UC-M06: Skanowanie\nkodow QR" as UC_M06
+    package "4. Operacje QR" {
+        usecase "UC-M06: Skanowanie\nkodów QR" as UC_M06
     }
-    
+   
     usecase "Logowanie" as Login
     usecase "Wylogowanie" as Logout
 }
@@ -50,50 +52,15 @@ Manager --> UC_M07
 Manager --> Login
 Manager --> Logout
 
-' Relacje miedzy UC
-UC_M02 ..> UC_M05 : <<include>>\nauto-generowanie QR
-UC_M04 ..> UC_M03 : <<extend>>\nmonitorowanie po utworzeniu
+' Relacje logiczne
+UC_M02 ..> UC_M05 : <<include>>
 
-note right of UC_M01
-  **Typy raportow:**
-  - Stany magazynowe
-  - Niski stan (alerty)
-  - Przeplywy produktow
-  - Wartosc zapasow
-  - Produkty przeterminowane
-  --
-  **Eksport:** PDF, Excel
-end note
-
-note right of UC_M03
-  **Typy zlecen:**
-  - INBOUND (przyjecie)
-  - OUTBOUND (wydanie)
-  - TRANSFER (przeniesienie)
-  - PICK (kompletacja)
-  --
-  **Priorytety:**
-  LOW, NORMAL, HIGH, URGENT
-end note
-
-note bottom of UC_M04
-  **Statusy zlecen:**
-  - CREATED
-  - ASSIGNED
-  - IN_PROGRESS
-  - PARTIALLY_COMPLETED
-  - COMPLETED
-  - CANCELLED
-end note
-
-note right of UC_M05
-  **Typy kodow QR:**
-  - PRODUCT
-  - INVENTORY
-  - LOCATION
-  --
-  Format: PNG
-  Gotowe do wydruku
-end note
+' === SEKCJA LAYOUT (Wymuszanie pionu) ===
+' Łaczymy ostatni element grupy wyzszej z pierwszym elementem grupy nizszej
+UC_M01 -[hidden]-> UC_M02
+UC_M02 -[hidden]-> UC_M03
+UC_M03 -[hidden]-> UC_M06
+' Logowanie na sam dol
+UC_M06 -[hidden]-> Login
 
 @enduml

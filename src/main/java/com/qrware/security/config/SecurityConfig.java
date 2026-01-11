@@ -91,7 +91,7 @@ public class SecurityConfig {
             .requestMatchers("/api/locations/**").authenticated()
             .requestMatchers("/api/zone/**").authenticated()
             .requestMatchers(HttpMethod.GET, "/api/inventory/**").authenticated()
-            .requestMatchers("/api/qr/**").authenticated()
+            .requestMatchers("/api/qr-codes/**").authenticated() // ZMIANA: /api/qr/** -> /api/qr-codes/**
             .requestMatchers(HttpMethod.GET, "/api/movements/**").hasAnyRole("USER", "WAREHOUSE_MANAGER", "ADMIN")
             .requestMatchers("/api/audit/**").hasAnyRole("WAREHOUSE_MANAGER", "ADMIN")
             .requestMatchers("/api/reports/**").hasAnyRole("WAREHOUSE_MANAGER", "ADMIN")
@@ -117,6 +117,8 @@ public class SecurityConfig {
     private void configureExceptionHandling(org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer<HttpSecurity> exceptions) {
         exceptions
             .authenticationEntryPoint((request, response, authException) -> {
+                System.out.println("UNAUTHORIZED ACCESS ATTEMPT: " + request.getRequestURI());
+                System.out.println("Auth Exception: " + authException.getMessage());
                 response.setStatus(401);
                 response.setContentType("application/json");
                 response.getWriter().write("""
@@ -130,6 +132,8 @@ public class SecurityConfig {
                     """.formatted(java.time.Instant.now(), request.getRequestURI()));
             })
             .accessDeniedHandler((request, response, accessDeniedException) -> {
+                System.out.println("ACCESS DENIED: " + request.getRequestURI());
+                System.out.println("Access Denied Exception: " + accessDeniedException.getMessage());
                 response.setStatus(403);
                 response.setContentType("application/json");
                 response.getWriter().write("""

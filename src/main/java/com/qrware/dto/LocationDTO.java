@@ -9,6 +9,7 @@ public class LocationDTO {
     private String name;
     private String description;
     private ZoneDTO zone;
+    private Long zoneId; // Added zoneId field
     private LocationType type;
     private String aisle;
     private String rack;
@@ -50,7 +51,15 @@ public class LocationDTO {
     public void setDescription(String description) { this.description = description; }
 
     public ZoneDTO getZone() { return zone; }
-    public void setZone(ZoneDTO zone) { this.zone = zone; }
+    public void setZone(ZoneDTO zone) { 
+        this.zone = zone; 
+        if (zone != null) {
+            this.zoneId = zone.id();
+        }
+    }
+    
+    public Long getZoneId() { return zoneId; }
+    public void setZoneId(Long zoneId) { this.zoneId = zoneId; }
     
     public LocationType getType() { return type; }
     public void setType(LocationType type) { this.type = type; }

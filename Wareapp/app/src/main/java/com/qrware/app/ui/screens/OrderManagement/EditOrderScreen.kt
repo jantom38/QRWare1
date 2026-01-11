@@ -260,11 +260,17 @@ fun EditOrderScreen(
     }
 
     if (showAddItemDialog) {
+        // Find location objects if IDs are present in the order
+        val sourceLoc = uiState.order?.sourceLocationId?.let { id -> locations.find { it.id == id } }
+        val destLoc = uiState.order?.destinationLocationId?.let { id -> locations.find { it.id == id } }
+
         AddOrderItemDialog(
             products = products,
             locations = locations,
             inventory = dialogInventory,
             isLoadingInventory = isDialogInventoryLoading,
+            defaultSourceLocation = sourceLoc,
+            defaultDestinationLocation = destLoc,
             onDismiss = { 
                 showAddItemDialog = false 
                 dialogInventory = emptyList()

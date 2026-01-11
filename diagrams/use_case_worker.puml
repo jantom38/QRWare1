@@ -1,4 +1,6 @@
-@startuml Use Case - Modul Magazyniera
+@startuml Use Case - Modul Magazyniera - Pionowy
+
+top to bottom direction
 
 skinparam actorStyle awesome
 skinparam usecase {
@@ -10,26 +12,26 @@ skinparam rectangle {
     BorderColor DarkOrange
 }
 
-title Diagram Przypadkow Uzycia\nModul Magazyniera
+title Diagram Przypadków Użycia\nModuł Magazyniera
 
 actor "Magazynier" as Worker #LightYellow
 
-rectangle "System QRWare - Modul Magazyniera (Aplikacja Android)" {
+rectangle "System QRWare - Aplikacja Mobilna" {
     
-    package "Identyfikacja" {
-        usecase "UC-W01: Skanowanie kodow QR\n(identyfikacja produktu)" as UC_W01
+    package "1. Identyfikacja" {
+        usecase "UC-W01: Skanowanie kodów QR\n(identyfikacja)" as UC_W01
     }
     
-    package "Obsluga Zlecen" {
-        usecase "UC-W02: Przeglad\nprzypisanych zlecen" as UC_W02
+    package "2. Obsługa Zleceń" {
+        usecase "UC-W02: Przegląd\nprzypisanych zleceń" as UC_W02
         usecase "UC-W03: Realizacja\nkompletacji (PICK)" as UC_W03
-        usecase "UC-W04: Realizacja przyjecia\ntowaru (INBOUND)" as UC_W04
+        usecase "UC-W04: Realizacja przyjęcia\ntowaru (INBOUND)" as UC_W04
         usecase "UC-W05: Realizacja wydania\ntowaru (OUTBOUND)" as UC_W05
         usecase "UC-W06: Realizacja\nprzeniesienia (TRANSFER)" as UC_W06
     }
     
-    package "Operacje Specjalne" {
-        usecase "UC-W07: Nieprzewidziane\nprzyjecie/wydanie" as UC_W07
+    package "3. Operacje Specjalne" {
+        usecase "UC-W07: Nieprzewidziane\nprzyjęcie/wydanie" as UC_W07
     }
     
     usecase "Logowanie" as Login
@@ -47,51 +49,19 @@ Worker --> UC_W07
 Worker --> Login
 Worker --> Logout
 
-' Relacje miedzy UC - skanowanie jest czescia kazdej operacji
-UC_W03 ..> UC_W01 : <<include>>\nskanowanie lokalizacji\ni produktu
-UC_W04 ..> UC_W01 : <<include>>\nskanowanie przy przyjmowaniu
-UC_W05 ..> UC_W01 : <<include>>\nskanowanie przy wydawaniu
-UC_W06 ..> UC_W01 : <<include>>\nskanowanie zrodla i celu
-UC_W07 ..> UC_W01 : <<extend>>\nopcjonalne skanowanie
+' Relacje miedzy UC
+UC_W03 ..> UC_W01 : <<include>>
+UC_W04 ..> UC_W01 : <<include>>
+UC_W05 ..> UC_W01 : <<include>>
+UC_W06 ..> UC_W01 : <<include>>
+UC_W07 ..> UC_W01 : <<include>>
 
-' Relacja z lista zlecen
-UC_W03 ..> UC_W02 : <<extend>>\nwybor z listy
-UC_W04 ..> UC_W02 : <<extend>>\nwybor z listy
-UC_W05 ..> UC_W02 : <<extend>>\nwybor z listy
-UC_W06 ..> UC_W02 : <<extend>>\nwybor z listy
-
-note right of UC_W01
-  **Informacje po skanie:**
-  - Nazwa produktu
-  - SKU, nr partii
-  - Ilosc dostepna
-  - Ilosc zarezerwowana
-  - Lokalizacja
-  - Data waznosci
-  - Status
-end note
-
-note right of UC_W03
-  **Proces kompletacji:**
-  1. Wybor zlecenia
-  2. Przejscie do lokalizacji
-  3. Skan QR lokalizacji
-  4. Skan QR produktu
-  5. Potwierdzenie ilosci
-  6. Powtorz dla kazdej pozycji
-  7. Zakonczenie zlecenia
-end note
-
-note bottom of UC_W07
-  **Wymaga uzasadnienia:**
-  - Zwrot od klienta
-  - Uszkodzenie
-  - Utrata
-  - Nadwyzka dostawy
-  - Utylizacja
-  --
-  Moze wymagac
-  zatwierdzenia menadzera
-end note
+' === SEKCJA LAYOUT (Wymuszanie pionu) ===
+' Skanowanie na samej górze
+UC_W01 -[hidden]-> UC_W02
+' Zlecenia nad operacjami specjalnymi
+UC_W06 -[hidden]-> UC_W07
+' Logowanie na dole
+UC_W07 -[hidden]-> Login
 
 @enduml

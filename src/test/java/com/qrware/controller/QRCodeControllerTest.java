@@ -239,11 +239,12 @@ class QRCodeControllerTest {
         when(inventoryItemRepository.findById(1L)).thenReturn(Optional.of(inventoryItem));
         when(dtoMapper.toDTO(generatedQR)).thenReturn(dto);
 
-        ResponseEntity<QRCodeDTO> response = qrCodeController.generateQRCode(request);
+        ResponseEntity<?> response = qrCodeController.generateQRCode(request);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("AUTO-GEN-001", response.getBody().getCode());
+        assertTrue(response.getBody() instanceof QRCodeDTO);
+        assertEquals("AUTO-GEN-001", ((QRCodeDTO)response.getBody()).getCode());
     }
 
     @Test
@@ -266,7 +267,7 @@ class QRCodeControllerTest {
         when(qrCodeRepository.save(any(QRCodeData.class))).thenReturn(savedQR);
         when(dtoMapper.toDTO(savedQR)).thenReturn(dto);
 
-        ResponseEntity<QRCodeDTO> response = qrCodeController.generateQRCode(request);
+        ResponseEntity<?> response = qrCodeController.generateQRCode(request);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         verify(qrCodeRepository).save(any(QRCodeData.class));
@@ -283,7 +284,7 @@ class QRCodeControllerTest {
         when(qrCodeGenerationService.generateQRCodeSync(anyString(), any(), anyString(), any(), anyString(), any()))
             .thenReturn(null);
 
-        ResponseEntity<QRCodeDTO> response = qrCodeController.generateQRCode(request);
+        ResponseEntity<?> response = qrCodeController.generateQRCode(request);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     }

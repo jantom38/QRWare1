@@ -184,7 +184,7 @@ public interface ProductRepository extends BaseRepository<Product> {
            "LEFT JOIN p.inventoryItems i " +
            "WHERE p.active = true " +
            "GROUP BY p.id, p.sku, p.name, p.minimumStock, p.reorderPoint " +
-           "HAVING (COALESCE(SUM(i.quantity), 0) <= p.minimumStock) " +
+           "HAVING (p.minimumStock > 0 AND COALESCE(SUM(i.quantity), 0) <= p.minimumStock) " +
            "OR (p.reorderPoint IS NOT NULL AND COALESCE(SUM(i.quantity), 0) <= p.reorderPoint)")
     List<LowStockReportDTO> findLowStockProducts();
 }

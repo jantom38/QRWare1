@@ -83,6 +83,8 @@ public class FileStorageService {
             Path filePath = this.qrCodeStorageLocation.resolve(fileName).normalize();
             return Files.deleteIfExists(filePath);
         } catch (IOException ex) {
+            // Log the exception or handle it appropriately
+            System.err.println("Could not delete file: " + fileName + ". Error: " + ex.getMessage());
             return false;
         }
     }
@@ -142,6 +144,6 @@ public class FileStorageService {
      * Pobiera URL do pliku (dla API)
      */
     public String getFileUrl(String fileName) {
-        return "/api/qrcodes/image/" + fileName;
+        return "/api/qr-codes/image/" + fileName; // ZMIANA: Poprawiona ścieżka URL
     }
 }

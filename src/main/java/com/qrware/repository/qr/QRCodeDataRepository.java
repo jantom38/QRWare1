@@ -3,6 +3,8 @@ package com.qrware.repository.qr;
 import com.qrware.domain.qr.QRCodeData;
 import com.qrware.domain.qr.QRCodeType;
 import com.qrware.repository.BaseRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -33,6 +35,8 @@ public interface QRCodeDataRepository extends BaseRepository<QRCodeData> {
     List<QRCodeData> findByEntityId(Long entityId);
 
     List<QRCodeData> findByActiveTrue();
+    
+    Page<QRCodeData> findByActiveTrue(Pageable pageable);
 
     List<QRCodeData> findByActiveFalse();
 

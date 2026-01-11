@@ -212,11 +212,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Apply filter to all requests except static resources
         String path = request.getRequestURI();
         
+        // ZMIANA: Usunięto .png, .jpg, .jpeg z listy wykluczeń, aby filtr JWT działał dla obrazków QR
         return path.endsWith(".css") || 
                path.endsWith(".js") || 
-               path.endsWith(".png") || 
-               path.endsWith(".jpg") || 
-               path.endsWith(".jpeg") || 
+
                path.endsWith(".gif") || 
                path.endsWith(".ico") ||
                path.startsWith("/static/") ||

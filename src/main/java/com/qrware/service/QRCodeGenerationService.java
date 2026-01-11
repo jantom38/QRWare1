@@ -43,10 +43,12 @@ public class QRCodeGenerationService {
             String entityType,
             Long entityId,
             String generatedBy,
-            String generationReason) {
+            String generationReason,
+            Integer size) { // Added size parameter
 
         try {
             String systemId = generateUniqueCode();
+            int qrSize = (size != null && size > 0) ? size : 300;
 
             com.qrware.domain.qr.ErrorCorrectionLevel appEcLevel =
                     com.qrware.domain.qr.ErrorCorrectionLevel.H;
@@ -63,14 +65,14 @@ public class QRCodeGenerationService {
                 contentToEncode = systemId;
             }
 
-            byte[] qrImage = generateQRImage(contentToEncode, 300, 300, appEcLevel);
+            byte[] qrImage = generateQRImage(contentToEncode, qrSize, qrSize, appEcLevel);
 
             String fileName = fileStorageService.storeQRCodeImage(qrImage,
                     systemId + ".png");
 
             qrCodeData.setImagePath(fileName);
             qrCodeData.setFormat("PNG");
-            qrCodeData.setSize(300);
+            qrCodeData.setSize(qrSize);
             qrCodeData.setActive(true);
             qrCodeData = qrCodeRepository.save(qrCodeData);
 
@@ -88,10 +90,13 @@ public class QRCodeGenerationService {
             String entityType,
             Long entityId,
             String generatedBy,
-            String generationReason) {
+            String generationReason,
+            Integer size) { // Added size parameter
 
         try {
             String systemId = generateUniqueCode();
+            int qrSize = (size != null && size > 0) ? size : 300;
+            
             com.qrware.domain.qr.ErrorCorrectionLevel appEcLevel =
                     com.qrware.domain.qr.ErrorCorrectionLevel.H;
 
@@ -106,13 +111,13 @@ public class QRCodeGenerationService {
                 contentToEncode = systemId;
             }
 
-            byte[] qrImage = generateQRImage(contentToEncode, 300, 300, appEcLevel);
+            byte[] qrImage = generateQRImage(contentToEncode, qrSize, qrSize, appEcLevel);
             String fileName = fileStorageService.storeQRCodeImage(qrImage,
                     systemId + ".png");
 
             qrCodeData.setImagePath(fileName);
             qrCodeData.setFormat("PNG");
-            qrCodeData.setSize(300);
+            qrCodeData.setSize(qrSize);
             qrCodeData.setActive(true);
 
             return qrCodeRepository.save(qrCodeData);
@@ -120,6 +125,17 @@ public class QRCodeGenerationService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate QR code: " + e.getMessage(), e);
         }
+    }
+    
+    // Overloaded methods for backward compatibility if needed, though controller will be updated
+    public QRCodeData generateQRCodeSync(
+            String data,
+            QRCodeType type,
+            String entityType,
+            Long entityId,
+            String generatedBy,
+            String generationReason) {
+        return generateQRCodeSync(data, type, entityType, entityId, generatedBy, generationReason, 300);
     }
 
 

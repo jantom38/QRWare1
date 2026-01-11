@@ -276,6 +276,47 @@ public class OrderController {
         }
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ORDER_WRITE')")
+    public ResponseEntity<ApiResponse<OrderDTO>> updateOrder(@PathVariable Long id,
+                                                            @Valid @RequestBody UpdateOrderRequest request) {
+        logger.info("PUT /api/orders/{} called", id);
+        try {
+            User currentUser = SecurityUtils.getCurrentUser()
+                .orElseThrow(() -> new SecurityException("User not authenticated"));
+
+            User assignedTo = request.getAssignedToId() != null ?
+                userRepository.findById(request.getAssignedToId()).orElse(null) : null;
+            Location sourceLocation = request.getSourceLocationId() != null ?
+                locationRepository.findById(request.getSourceLocationId()).orElse(null) : null;
+            Location destinationLocation = request.getDestinationLocationId() != null ?
+                locationRepository.findById(request.getDestinationLocationId()).orElse(null) : null;
+
+            Order order = orderService.updateOrder(id,
+                request.getDescription(),
+                request.getPriority(),
+                assignedTo,
+                sourceLocation,
+                destinationLocation,
+                request.getExpectedDate(),
+                currentUser
+            );
+
+            OrderDTO dto = dtoMapper.toOrderDTO(order);
+            return ResponseEntity.ok(ApiResponse.success(dto, "Order updated successfully"));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage()));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(e.getMessage()));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Failed to update order {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Failed to update order: " + e.getMessage()));
+        }
+    }
+
     @PutMapping("/{id}/assign")
     @PreAuthorize("hasAuthority('ORDER_ASSIGN')")
     public ResponseEntity<ApiResponse<OrderDTO>> assignOrder(@PathVariable Long id,
@@ -467,6 +508,34 @@ public class OrderController {
                     ", priority=" + priority +
                     '}';
         }
+    }
+
+    public static class UpdateOrderRequest {
+        @Size(max = 500)
+        private String description;
+        private Long assignedToId;
+        private Long sourceLocationId;
+        private Long destinationLocationId;
+        private LocalDateTime expectedDate;
+        private OrderPriority priority;
+
+        public String getDescription() { return description; }
+        public void setDescription(String description) { this.description = description; }
+
+        public Long getAssignedToId() { return assignedToId; }
+        public void setAssignedToId(Long assignedToId) { this.assignedToId = assignedToId; }
+
+        public Long getSourceLocationId() { return sourceLocationId; }
+        public void setSourceLocationId(Long sourceLocationId) { this.sourceLocationId = sourceLocationId; }
+
+        public Long getDestinationLocationId() { return destinationLocationId; }
+        public void setDestinationLocationId(Long destinationLocationId) { this.destinationLocationId = destinationLocationId; }
+
+        public LocalDateTime getExpectedDate() { return expectedDate; }
+        public void setExpectedDate(LocalDateTime expectedDate) { this.expectedDate = expectedDate; }
+
+        public OrderPriority getPriority() { return priority; }
+        public void setPriority(OrderPriority priority) { this.priority = priority; }
     }
 
     public static class CancelOrderRequest {

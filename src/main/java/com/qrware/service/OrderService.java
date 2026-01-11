@@ -196,9 +196,27 @@ public class OrderService {
         }
 
         for (OrderItem item : order.getOrderItems()) {
-            if (item.getInventoryItem() != null && item.isCompleted()) {
-                InventoryItem inventoryItem = item.getInventoryItem();
-                inventoryItem.fulfillReservationAndDecreaseStock(item.getCompletedQuantity());
+            // Reload item to ensure we have the latest relationships (especially inventoryItem)
+            // This is crucial within the same transaction if the item was modified separately.
+            OrderItem freshItem = orderItemRepository.findById(item.getId()).orElse(item);
+
+            if (freshItem.getInventoryItem() != null && freshItem.isCompleted()) {
+                InventoryItem inventoryItem = freshItem.getInventoryItem();
+                // If item was reserved, we fulfill reservation.
+                // If item was NOT reserved (e.g. flexible pick), we just decrease stock.
+                if (freshItem.getRequiresExactInventory()) {
+                     inventoryItem.fulfillReservationAndDecreaseStock(freshItem.getCompletedQuantity());
+                } else {
+                     // For flexible items, we might not have reserved anything upfront, 
+                     // or we reserved it late during scanning.
+                     // Let's check if we have reservation to fulfill, otherwise just decrease quantity.
+                     if (inventoryItem.getReservedQuantity() >= freshItem.getCompletedQuantity()) {
+                         inventoryItem.fulfillReservationAndDecreaseStock(freshItem.getCompletedQuantity());
+                     } else {
+                         // Direct decrease without reservation fulfillment logic if not reserved
+                         inventoryItem.setQuantity(inventoryItem.getQuantity() - freshItem.getCompletedQuantity());
+                     }
+                }
                 inventoryItemRepository.save(inventoryItem);
             }
         }
@@ -237,6 +255,39 @@ public class OrderService {
         return order;
     }
 
+    public Order updateOrder(Long orderId,
+                             String description,
+                             OrderPriority priority,
+                             User assignedTo,
+                             Location sourceLocation,
+                             Location destinationLocation,
+                             LocalDateTime expectedDate,
+                             User updatedBy) {
+        Order order = getOrderById(orderId);
+
+        if (order.getStatus() == OrderStatus.COMPLETED || order.getStatus() == OrderStatus.CANCELLED) {
+            throw new IllegalStateException("Cannot edit order in status: " + order.getStatus());
+        }
+
+        if (description != null) {
+            order.setDescription(description);
+        }
+        if (priority != null) {
+            order.setPriority(priority);
+        }
+
+        order.setAssignedTo(assignedTo);
+        order.setSourceLocation(sourceLocation);
+        order.setDestinationLocation(destinationLocation);
+        order.setExpectedDate(expectedDate);
+
+        order = orderRepository.save(order);
+        // zapis historii jako „aktualizacja” (bez zmiany statusu)
+        createStatusHistory(order, order.getStatus(), order.getStatus(), updatedBy, "Order updated");
+
+        return order;
+    }
+
     public Order getOrderById(Long id) { return orderRepository.findByIdWithDetails(id).orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id)); }
     public Order getOrderByNumber(String orderNumber) { return orderRepository.findByOrderNumber(orderNumber).orElseThrow(() -> new ResourceNotFoundException("Order not found with number: " + orderNumber)); }
     public Page<Order> getAllOrders(Pageable pageable) { return orderRepository.findAll(pageable); }
@@ -245,7 +296,32 @@ public class OrderService {
     public Order startOrder(Long orderId, User user) { Order order = getOrderById(orderId); if (!order.canBeStarted()) { throw new IllegalStateException("Order cannot be started in current status: " + order.getStatus()); } OrderStatus oldStatus = order.getStatus(); order.start(user); orderRepository.save(order); createStatusHistory(order, oldStatus, order.getStatus(), user, "Order started"); return order; }
     public Order cancelOrder(Long orderId, User user, String reason) { Order order = getOrderById(orderId); if (!order.canBeCancelled()) { throw new IllegalStateException("Order cannot be cancelled in current status: " + order.getStatus()); } OrderStatus oldStatus = order.getStatus(); order.cancel(user, reason); orderRepository.save(order); createStatusHistory(order, oldStatus, order.getStatus(), user, reason); return order; }
     public Order assignOrder(Long orderId, Long userId, User assignedBy) { Order order = getOrderById(orderId); User assignee = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId)); OrderStatus oldStatus = order.getStatus(); order.assign(assignee); orderRepository.save(order); if (oldStatus != order.getStatus()) { createStatusHistory(order, oldStatus, order.getStatus(), assignedBy, "Order assigned to " + assignee.getUsername()); } return order; }
-    public OrderItem completeOrderItem(Long orderItemId, Integer completedQuantity, String completionNotes, String qrCodeData) { OrderItem orderItem = orderItemRepository.findById(orderItemId).orElseThrow(() -> new ResourceNotFoundException("Order item not found with id: " + orderItemId)); orderItem.complete(completedQuantity, completionNotes); if (qrCodeData != null) { orderItem.setQrCodeData(qrCodeData); } orderItemRepository.save(orderItem); updateOrderProgress(orderItem.getOrder()); return orderItem; }
+    
+    public OrderItem completeOrderItem(Long orderItemId, Integer completedQuantity, String completionNotes, String qrCodeData) { 
+        OrderItem orderItem = orderItemRepository.findById(orderItemId)
+            .orElseThrow(() -> new ResourceNotFoundException("Order item not found with id: " + orderItemId)); 
+        
+        orderItem.complete(completedQuantity, completionNotes); 
+        
+        if (qrCodeData != null) { 
+            orderItem.setQrCodeData(qrCodeData);
+            
+            // Jeśli nie mamy przypisanego InventoryItem, a podano kod QR, spróbujmy go znaleźć i przypisać
+            if (orderItem.getInventoryItem() == null) {
+                Optional<InventoryItem> inventoryItemOpt = inventoryItemRepository.findByQrCode(qrCodeData);
+                if (inventoryItemOpt.isPresent()) {
+                    orderItem.setInventoryItem(inventoryItemOpt.get());
+                } else {
+                     logger.warn("Completed OrderItem {} with QR code {} but no InventoryItem found.", orderItemId, qrCodeData);
+                }
+            }
+        } 
+        
+        orderItemRepository.save(orderItem); 
+        updateOrderProgress(orderItem.getOrder()); 
+        return orderItem; 
+    }
+
     private void createStatusHistory(Order order, OrderStatus oldStatus, OrderStatus newStatus, User changedBy, String reason) { statusHistoryRepository.save(new OrderStatusHistory(order, oldStatus, newStatus, changedBy, reason)); }
     private void updateOrderProgress(Order order) { order.updateProgress(); orderRepository.save(order); }
     private void createMovementHistoryForCompletedOrder(Order order) { MovementType movementType = getMovementTypeForOrder(order.getType()); for (OrderItem item : order.getOrderItems()) { if (item.isCompleted() && item.getInventoryItem() != null) { movementHistoryService.createSystemMovement(item.getInventoryItem().getId(), movementType, null, item.getCompletedQuantity(), item.getSourceLocation(), item.getDestinationLocation(), "Completed via order: " + order.getOrderNumber(), order.getOrderNumber()); } } }
@@ -258,4 +334,3 @@ public class OrderService {
     public Page<Order> searchOrders(String searchTerm, Pageable pageable) { return orderRepository.searchOrders(searchTerm, pageable); }
     public List<Object[]> getOrderCountByStatus() { return orderRepository.getOrderCountByStatus(); }
 }
-

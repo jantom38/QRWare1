@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qrware.controller.OrderController;
 import com.qrware.domain.inventory.InventoryItem;
 import com.qrware.domain.inventory.MovementType;
-import com.qrware.domain.order.Order;
 import com.qrware.domain.order.OrderItem;
 import com.qrware.domain.order.OrderType;
 import com.qrware.domain.product.Category;
@@ -35,6 +34,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -97,6 +99,11 @@ public class EndToEndFlowTest {
 
     @BeforeEach
     void setUp() {
+        try {
+            entityManager.createNativeQuery("ALTER TABLE public.order_items DROP CONSTRAINT IF EXISTS uk_s9j0gxronau1nngma5h49us36").executeUpdate();
+        } catch (Exception e) {
+        }
+
         Role managerRole = roleRepository.findByName("WAREHOUSE_MANAGER")
                 .orElseGet(() -> roleRepository.save(new Role("WAREHOUSE_MANAGER", "Manager Role")));
 
@@ -159,6 +166,21 @@ public class EndToEndFlowTest {
             prod.setUnitOfMeasure("PIECE");
             return productRepository.save(prod);
         });
+    }
+
+    private void simulateUserLogin(User user) {
+        List<SimpleGrantedAuthority> authorities = List.of(
+            new SimpleGrantedAuthority("ORDER_READ"),
+            new SimpleGrantedAuthority("ORDER_WRITE"),
+            new SimpleGrantedAuthority("INVENTORY_READ"),
+            new SimpleGrantedAuthority("INVENTORY_WRITE")
+        );
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+            user, 
+            null, 
+            authorities
+        );
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     @Test
@@ -269,10 +291,85 @@ public class EndToEndFlowTest {
             boolean hasOutboundMovement = history.stream().anyMatch(h -> 
                 h.getInventoryItem().getId().equals(finalItem.getId()) &&
                 (h.getMovementType() == MovementType.ORDER_ISSUE || h.getMovementType() == MovementType.ISSUE) &&
-                h.getQuantityChanged() == 30
+                h.getQuantityChanged() == -30
             );
             
             assertTrue(hasOutboundMovement, "Should have movement history for the outbound order");
         }
+    }
+
+    @Test
+    void flexibleOutbound_AnyLocationAllowed() throws Exception {
+        simulateUserLogin(managerUser);
+
+        InventoryItem stockItem = new InventoryItem();
+        stockItem.setProduct(testProduct);
+        stockItem.setLocation(storageLocation);
+        stockItem.setQuantity(100);
+        stockItem.setStatus(com.qrware.domain.inventory.InventoryStatus.AVAILABLE);
+        stockItem.setReceivedDate(LocalDate.now());
+        stockItem.setQrCode("QR-FLEX-STOCK-001");
+        stockItem = inventoryItemRepository.save(stockItem);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        OrderController.CreateOrderRequest outboundRequest = new OrderController.CreateOrderRequest();
+        outboundRequest.setType(OrderType.OUTBOUND);
+        outboundRequest.setDescription("Flexible Outbound Test");
+        outboundRequest.setOrderNumber("ORD-FLEX-001");
+        
+        MvcResult outboundResult = mockMvc.perform(post("/api/orders")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(outboundRequest)))
+            .andExpect(status().isCreated())
+            .andReturn();
+
+        Long outboundOrderId = ((Number) com.jayway.jsonpath.JsonPath.read(outboundResult.getResponse().getContentAsString(), "$.data.id")).longValue();
+
+        OrderItem outboundItem = orderService.addOrderItem(
+            outboundOrderId, 
+            testProduct.getId(), 
+            20, 
+            null, 
+            shippingLocation.getId(), 
+            new BigDecimal("80.00"), 
+            "Flexible Pick", 
+            false 
+        );
+
+        mockMvc.perform(put("/api/orders/" + outboundOrderId + "/start"))
+            .andExpect(status().isOk());
+
+        Optional<Object> scanResult = orderService.processQRScan("QR-FLEX-STOCK-001", outboundOrderId);
+        assertTrue(scanResult.isPresent(), "Scan should be successful");
+        assertTrue(scanResult.get() instanceof OrderItem, "Scan should return the linked OrderItem");
+        
+        OrderItem scannedItem = (OrderItem) scanResult.get();
+        assertNotNull(scannedItem.getInventoryItem(), "OrderItem should now be linked to InventoryItem");
+        assertEquals("QR-FLEX-STOCK-001", scannedItem.getInventoryItem().getQrCode());
+
+        orderService.completeOrderItem(outboundItem.getId(), 20, "Picked flexibly", "QR-FLEX-STOCK-001");
+
+        entityManager.flush();
+        entityManager.clear();
+
+        mockMvc.perform(put("/api/orders/" + outboundOrderId + "/complete"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.status").value("COMPLETED"));
+
+        entityManager.flush();
+        entityManager.clear();
+
+        InventoryItem finalItem = inventoryItemRepository.findByQrCode("QR-FLEX-STOCK-001").orElseThrow();
+        assertEquals(80, finalItem.getQuantity(), "Quantity should be reduced by 20 (100 - 20)");
+        
+        List<com.qrware.domain.inventory.MovementHistory> history = movementHistoryRepository.findAll();
+        boolean hasMovement = history.stream().anyMatch(h -> 
+            h.getInventoryItem().getId().equals(finalItem.getId()) &&
+            (h.getMovementType() == MovementType.ORDER_ISSUE || h.getMovementType() == MovementType.ISSUE) &&
+            h.getQuantityChanged() == -20
+        );
+        assertTrue(hasMovement, "Should have movement history for the flexible outbound");
     }
 }

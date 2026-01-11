@@ -29,7 +29,8 @@ data class OrderItemRequest(
     val requestedQuantity: Int,
     val notes: String? = null,
     val requiresExactInventory: Boolean = true,
-    val sourceLocationId: Long? = null
+    val sourceLocationId: Long? = null,
+    val destinationLocationId: Long? = null
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -247,21 +248,40 @@ fun AddOrderItemDialog(
     locations: List<LocationDTO>,
     inventory: List<InventoryItemDTO>,
     isLoadingInventory: Boolean,
+    defaultSourceLocation: LocationDTO? = null,
+    defaultDestinationLocation: LocationDTO? = null,
     onDismiss: () -> Unit,
     onItemAdded: (OrderItemRequest) -> Unit,
     onFetchInventoryForProduct: (Long) -> Unit,
     onFetchInventoryForLocation: (Long) -> Unit
 ) {
-    var selectedTab by remember { mutableIntStateOf(0) }
     var selectedProduct by remember { mutableStateOf<ProductDTO?>(null) }
-    var selectedLocation by remember { mutableStateOf<LocationDTO?>(null) }
     var selectedInventoryItem by remember { mutableStateOf<InventoryItemDTO?>(null) }
+    var requiresExactInventory by remember { mutableStateOf(false) }
     
     var quantity by remember { mutableStateOf("1") }
     var notes by remember { mutableStateOf("") }
-    var showProductDialog by remember { mutableStateOf(false) }
-    var showLocationDialog by remember { mutableStateOf(false) }
+    var showProductDialog by remember { mutableStateOf(true) } // Start with product selection
 
+    // If product is not selected, show product selection dialog
+    if (selectedProduct == null) {
+        if (showProductDialog) {
+            ProductSelectionDialog(
+                products = products,
+                onDismiss = onDismiss, // Dismissing product selection closes the whole dialog
+                onProductSelected = { product ->
+                    selectedProduct = product
+                    showProductDialog = false
+                    onFetchInventoryForProduct(product.id)
+                    selectedInventoryItem = null
+                    requiresExactInventory = false // Reset to default
+                }
+            )
+        }
+        return
+    }
+
+    // Main dialog content once product is selected
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier
@@ -281,27 +301,37 @@ fun AddOrderItemDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                TabRow(selectedTabIndex = selectedTab) {
-                    Tab(
-                        selected = selectedTab == 0,
-                        onClick = { 
-                            selectedTab = 0 
-                            selectedProduct = null
-                            selectedLocation = null
-                            selectedInventoryItem = null
-                        },
-                        text = { Text("Wg Produktu") }
-                    )
-                    Tab(
-                        selected = selectedTab == 1,
-                        onClick = { 
-                            selectedTab = 1
-                            selectedProduct = null
-                            selectedLocation = null
-                            selectedInventoryItem = null
-                        },
-                        text = { Text("Wg Lokalizacji") }
-                    )
+                // Selected Product Info
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text(
+                            text = "Wybrany produkt:",
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                        Text(
+                            text = selectedProduct!!.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "SKU: ${selectedProduct!!.sku}",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        TextButton(
+                            onClick = { 
+                                selectedProduct = null
+                                showProductDialog = true 
+                            },
+                            modifier = Modifier.align(Alignment.End)
+                        ) {
+                            Text("Zmień produkt")
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -311,170 +341,130 @@ fun AddOrderItemDialog(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     contentPadding = PaddingValues(bottom = 16.dp)
                 ) {
-                    // --- TAB 0: BY PRODUCT ---
-                    if (selectedTab == 0) {
-                        item {
-                            OutlinedTextField(
-                                value = selectedProduct?.name ?: "",
-                                onValueChange = { },
-                                label = { Text("Produkt *") },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { showProductDialog = true },
-                                readOnly = true,
-                                enabled = false,
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                                    disabledBorderColor = MaterialTheme.colorScheme.outline,
-                                    disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
-                                ),
-                                trailingIcon = {
-                                    IconButton(onClick = { showProductDialog = true }) {
-                                        Icon(Icons.Default.Search, contentDescription = "Wybierz")
-                                    }
-                                },
-                                isError = selectedProduct == null
+                    // Exact Inventory Toggle
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { requiresExactInventory = !requiresExactInventory },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(
+                                checked = requiresExactInventory,
+                                onCheckedChange = { requiresExactInventory = it }
                             )
-                        }
-
-                        if (selectedProduct != null) {
-                            if (isLoadingInventory) {
-                                item {
-                                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                                        CircularProgressIndicator()
-                                    }
-                                }
-                            } else if (inventory.isEmpty()) {
-                                item {
-                                    Text(
-                                        text = "Brak dostępnych stanów magazynowych dla tego produktu.",
-                                        color = MaterialTheme.colorScheme.error,
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                }
-                            } else {
-                                item {
-                                    Text("Wybierz lokalizację źródłową:", style = MaterialTheme.typography.titleSmall)
-                                }
-                                items(inventory) { item ->
-                                    InventoryItemSelectionCard(
-                                        item = item,
-                                        isSelected = selectedInventoryItem?.id == item.id,
-                                        onClick = { selectedInventoryItem = item }
-                                    )
-                                }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    text = "Wymagana dokładna lokalizacja",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                Text(
+                                    text = if (requiresExactInventory) 
+                                        "Musisz wybrać konkretną partię/lokalizację z listy poniżej" 
+                                    else 
+                                        "System automatycznie dobierze lokalizację",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
                         }
                     }
 
-                    // --- TAB 1: BY LOCATION ---
-                    if (selectedTab == 1) {
-                        item {
-                            OutlinedTextField(
-                                value = selectedLocation?.name ?: "",
-                                onValueChange = { },
-                                label = { Text("Lokalizacja *") },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { showLocationDialog = true },
-                                readOnly = true,
-                                enabled = false,
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                                    disabledBorderColor = MaterialTheme.colorScheme.outline,
-                                    disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
-                                ),
-                                trailingIcon = {
-                                    IconButton(onClick = { showLocationDialog = true }) {
-                                        Icon(Icons.Default.Place, contentDescription = "Wybierz")
-                                    }
-                                },
-                                isError = selectedLocation == null
-                            )
+                    // Inventory Selection (only if exact inventory required)
+                    if (requiresExactInventory) {
+                        if (isLoadingInventory) {
+                            item {
+                                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                                    CircularProgressIndicator()
+                                }
+                            }
+                        } else if (inventory.isEmpty()) {
+                            item {
+                                Text(
+                                    text = "Brak dostępnych stanów magazynowych dla tego produktu.",
+                                    color = MaterialTheme.colorScheme.error,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        } else {
+                            item {
+                                Text("Wybierz lokalizację źródłową:", style = MaterialTheme.typography.titleSmall)
+                            }
+                            items(inventory) { item ->
+                                InventoryItemSelectionCard(
+                                    item = item,
+                                    isSelected = selectedInventoryItem?.id == item.id,
+                                    onClick = { selectedInventoryItem = item }
+                                )
+                            }
                         }
-
-                        if (selectedLocation != null) {
-                            if (isLoadingInventory) {
-                                item {
-                                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                                        CircularProgressIndicator()
-                                    }
-                                }
-                            } else if (inventory.isEmpty()) {
-                                item {
-                                    Text(
-                                        text = "Brak produktów w tej lokalizacji.",
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                }
-                            } else {
-                                item {
-                                    Text("Wybierz produkt:", style = MaterialTheme.typography.titleSmall)
-                                }
-                                items(inventory) { item ->
-                                    InventoryProductSelectionCard(
-                                        item = item,
-                                        isSelected = selectedInventoryItem?.id == item.id,
-                                        onClick = { 
-                                            selectedInventoryItem = item
-                                            selectedProduct = item.product
-                                        }
-                                    )
-                                }
+                    } else {
+                        // If exact inventory is NOT required, we can still show default locations if they are set
+                        if (defaultSourceLocation != null) {
+                            item {
+                                Text(
+                                    text = "Domyślna lokalizacja źródłowa: ${defaultSourceLocation.name}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                        if (defaultDestinationLocation != null) {
+                            item {
+                                Text(
+                                    text = "Domyślna lokalizacja docelowa: ${defaultDestinationLocation.name}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
                             }
                         }
                     }
 
-                    // --- COMMON FIELDS ---
-                    if (selectedInventoryItem != null) {
-                        item {
-                            Divider()
-                        }
-                        item {
-                            Text(
-                                text = "Wybrano: ${selectedInventoryItem!!.product.name} z ${selectedInventoryItem!!.location.name}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "Dostępne: ${selectedInventoryItem!!.availableQuantity}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                    item {
+                        Divider()
+                    }
+
+                    // Quantity Input
+                    item {
+                        val maxQuantity = if (requiresExactInventory && selectedInventoryItem != null) {
+                            selectedInventoryItem!!.availableQuantity
+                        } else {
+                            Int.MAX_VALUE // Or total available across all locations if we had that info easily
                         }
 
-                        item {
-                            OutlinedTextField(
-                                value = quantity,
-                                onValueChange = {
-                                    if (it.all { char -> char.isDigit() }) {
-                                        quantity = it
-                                    }
-                                },
-                                label = { Text("Ilość *") },
-                                modifier = Modifier.fillMaxWidth(),
-                                keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.Number,
-                                    imeAction = ImeAction.Next
-                                ),
-                                singleLine = true,
-                                isError = quantity.toIntOrNull() == null || (quantity.toIntOrNull() ?: 0) <= 0 || (quantity.toIntOrNull() ?: 0) > selectedInventoryItem!!.availableQuantity
-                            )
-                        }
+                        OutlinedTextField(
+                            value = quantity,
+                            onValueChange = {
+                                if (it.all { char -> char.isDigit() }) {
+                                    quantity = it
+                                }
+                            },
+                            label = { Text("Ilość *") },
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Next
+                            ),
+                            singleLine = true,
+                            isError = quantity.toIntOrNull() == null || 
+                                     (quantity.toIntOrNull() ?: 0) <= 0 || 
+                                     (requiresExactInventory && selectedInventoryItem != null && (quantity.toIntOrNull() ?: 0) > maxQuantity),
+                            supportingText = if (requiresExactInventory && selectedInventoryItem != null) {
+                                { Text("Dostępne: $maxQuantity") }
+                            } else null
+                        )
+                    }
 
-                        item {
-                            OutlinedTextField(
-                                value = notes,
-                                onValueChange = { notes = it },
-                                label = { Text("Notatki (opcjonalnie)") },
-                                modifier = Modifier.fillMaxWidth(),
-                                maxLines = 3,
-                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
-                            )
-                        }
+                    item {
+                        OutlinedTextField(
+                            value = notes,
+                            onValueChange = { notes = it },
+                            label = { Text("Notatki (opcjonalnie)") },
+                            modifier = Modifier.fillMaxWidth(),
+                            maxLines = 3,
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
+                        )
                     }
                 }
 
@@ -494,57 +484,45 @@ fun AddOrderItemDialog(
                     Button(
                         onClick = {
                             val qty = quantity.toIntOrNull()
-                            val invItem = selectedInventoryItem
                             
-                            if (invItem != null && qty != null && qty > 0) {
+                            if (qty != null && qty > 0) {
+                                // Logic for source location:
+                                // 1. If exact inventory is required, use the selected inventory item's location.
+                                // 2. If exact inventory is NOT required, use the default source location (if provided).
+                                val sourceLocId = if (requiresExactInventory) {
+                                    selectedInventoryItem?.location?.id
+                                } else {
+                                    defaultSourceLocation?.id
+                                }
+
+                                // Logic for destination location:
+                                // Use default destination location if provided (regardless of exact inventory setting, 
+                                // unless we want to allow overriding it per item, but for now let's stick to defaults).
+                                val destLocId = defaultDestinationLocation?.id
+
                                 val orderItem = OrderItemRequest(
-                                    productId = invItem.product.id,
-                                    productName = invItem.product.name,
-                                    productSku = invItem.product.sku,
+                                    productId = selectedProduct!!.id,
+                                    productName = selectedProduct!!.name,
+                                    productSku = selectedProduct!!.sku,
                                     requestedQuantity = qty,
                                     notes = notes.takeIf { it.isNotBlank() },
-                                    requiresExactInventory = true,
-                                    sourceLocationId = invItem.location.id
+                                    requiresExactInventory = requiresExactInventory,
+                                    sourceLocationId = sourceLocId,
+                                    destinationLocationId = destLocId
                                 )
                                 onItemAdded(orderItem)
                             }
                         },
                         modifier = Modifier.weight(1f),
-                        enabled = selectedInventoryItem != null && 
-                                 (quantity.toIntOrNull() ?: 0) > 0 && 
-                                 (quantity.toIntOrNull() ?: 0) <= (selectedInventoryItem?.availableQuantity ?: 0)
+                        enabled = (quantity.toIntOrNull() ?: 0) > 0 && 
+                                 (!requiresExactInventory || selectedInventoryItem != null) &&
+                                 (!requiresExactInventory || (selectedInventoryItem != null && (quantity.toIntOrNull() ?: 0) <= selectedInventoryItem!!.availableQuantity))
                     ) {
                         Text("Dodaj")
                     }
                 }
             }
         }
-    }
-
-    if (showProductDialog) {
-        ProductSelectionDialog(
-            products = products,
-            onDismiss = { showProductDialog = false },
-            onProductSelected = { product ->
-                selectedProduct = product
-                showProductDialog = false
-                onFetchInventoryForProduct(product.id)
-                selectedInventoryItem = null
-            }
-        )
-    }
-
-    if (showLocationDialog) {
-        LocationSelectionDialog(
-            locations = locations,
-            onDismiss = { showLocationDialog = false },
-            onLocationSelected = { location ->
-                selectedLocation = location
-                showLocationDialog = false
-                onFetchInventoryForLocation(location.id)
-                selectedInventoryItem = null
-            }
-        )
     }
 }
 
@@ -786,6 +764,14 @@ fun OrderItemCard(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary
                 )
+                if (item.requiresExactInventory) {
+                     Text(
+                        text = "Wymagana dokładna lokalizacja",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
                 if (item.sourceLocationId != null) {
                     Text(
                         text = "Lokalizacja źródłowa ID: ${item.sourceLocationId}", // Ideally we would show name, but we only have ID here.

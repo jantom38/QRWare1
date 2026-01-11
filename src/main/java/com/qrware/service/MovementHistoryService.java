@@ -35,9 +35,6 @@ public class MovementHistoryService {
     @Autowired
     private DTOMapper dtoMapper;
 
-    /**
-     * Create a new movement history record
-     */
     public MovementHistory createMovementHistory(Long inventoryItemId, MovementType movementType,
                                                  Integer quantityBefore, Integer quantityAfter,
                                                  Location fromLocation, Location toLocation, String reason) {
@@ -50,28 +47,33 @@ public class MovementHistoryService {
         movement.setMovementDate(LocalDateTime.now());
         movement.setQuantityBefore(quantityBefore);
         movement.setQuantityAfter(quantityAfter);
-        movement.setQuantityChanged(quantityAfter != null && quantityBefore != null ?
-                quantityAfter - quantityBefore : 0);
+        
+        if (quantityBefore != null && quantityAfter != null) {
+            movement.setQuantityChanged(quantityAfter - quantityBefore);
+        } else if (quantityAfter != null) {
+            if (movementType.decreasesQuantity()) {
+                movement.setQuantityChanged(-quantityAfter);
+            } else {
+                movement.setQuantityChanged(quantityAfter);
+            }
+        } else {
+            movement.setQuantityChanged(0);
+        }
+        
         movement.setFromLocation(fromLocation);
         movement.setToLocation(toLocation);
         movement.setReason(reason);
 
-        // Set user information from security context
-        // POPRAWKA: Obsługa Optional<String>
         String currentUser = SecurityUtils.getCurrentUsername().orElse("system");
         movement.setUserId(currentUser);
         movement.setUserName(currentUser);
 
-        // Determine if approval is required
         movement.setApproved(!movement.requiresApproval());
         movement.setSystemGenerated(false);
 
         return movementHistoryRepository.save(movement);
     }
 
-    /**
-     * Create a system-generated movement history record
-     */
     public MovementHistory createSystemMovement(Long inventoryItemId, MovementType movementType,
                                                 Integer quantityBefore, Integer quantityAfter,
                                                 Location fromLocation, Location toLocation,
@@ -81,54 +83,36 @@ public class MovementHistoryService {
                 fromLocation, toLocation, reason);
         movement.setSystemGenerated(true);
         movement.setReferenceNumber(referenceNumber);
-        movement.setApproved(true); // System movements are auto-approved
+        movement.setApproved(true);
 
         return movementHistoryRepository.save(movement);
     }
 
-    /**
-     * Get movement history by inventory item ID
-     */
     @Transactional(readOnly = true)
     public List<MovementHistory> getMovementHistoryByItemId(Long itemId) {
         return movementHistoryRepository.findByInventoryItemId(itemId);
     }
 
-    /**
-     * Get movement history by product ID
-     */
     @Transactional(readOnly = true)
     public List<MovementHistory> getMovementHistoryByProductId(Long productId) {
         return movementHistoryRepository.findByProductId(productId);
     }
 
-    /**
-     * Get movement history by location ID
-     */
     @Transactional(readOnly = true)
     public List<MovementHistory> getMovementHistoryByLocationId(Long locationId) {
         return movementHistoryRepository.findByLocationId(locationId);
     }
 
-    /**
-     * Get movement history by movement type
-     */
     @Transactional(readOnly = true)
     public List<MovementHistory> getMovementHistoryByType(MovementType movementType) {
         return movementHistoryRepository.findByMovementTypeOrderByMovementDateDesc(movementType);
     }
 
-    /**
-     * Get movement history by date range
-     */
     @Transactional(readOnly = true)
     public List<MovementHistory> getMovementHistoryByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
         return movementHistoryRepository.findByMovementDateBetween(startDate, endDate);
     }
 
-    /**
-     * Get recent movements with limit
-     */
     @Transactional(readOnly = true)
     public List<MovementHistory> getRecentMovements(int limit) {
         Pageable pageable = PageRequest.of(0, limit);
@@ -137,41 +121,26 @@ public class MovementHistoryService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Get pending approval movements
-     */
     @Transactional(readOnly = true)
     public List<MovementHistory> getPendingApprovalMovements() {
         return movementHistoryRepository.findPendingApprovalMovements();
     }
 
-    /**
-     * Get inbound movements
-     */
     @Transactional(readOnly = true)
     public List<MovementHistory> getInboundMovements() {
         return movementHistoryRepository.findInboundMovements();
     }
 
-    /**
-     * Get outbound movements
-     */
     @Transactional(readOnly = true)
     public List<MovementHistory> getOutboundMovements() {
         return movementHistoryRepository.findOutboundMovements();
     }
 
-    /**
-     * Get adjustment movements
-     */
     @Transactional(readOnly = true)
     public List<MovementHistory> getAdjustmentMovements() {
         return movementHistoryRepository.findAdjustmentMovements();
     }
 
-    /**
-     * Search movements by reason or notes
-     */
     @Transactional(readOnly = true)
     public List<MovementHistory> searchMovements(String keyword, String searchIn) {
         switch (searchIn.toLowerCase()) {
@@ -190,9 +159,6 @@ public class MovementHistoryService {
         }
     }
 
-    /**
-     * Approve a movement
-     */
     public MovementHistory approveMovement(Long movementId, String approverComment) {
         MovementHistory movement = movementHistoryRepository.findById(movementId)
                 .orElseThrow(() -> new ResourceNotFoundException("Movement not found with id: " + movementId));
@@ -201,7 +167,6 @@ public class MovementHistoryService {
             throw new IllegalStateException("Movement is already approved");
         }
 
-        // POPRAWKA: Obsługa Optional<String>
         String currentUser = SecurityUtils.getCurrentUsername().orElse("system");
         movement.approve(currentUser, currentUser);
 
@@ -214,42 +179,27 @@ public class MovementHistoryService {
         return movementHistoryRepository.save(movement);
     }
 
-    /**
-     * Get movement by ID
-     */
     @Transactional(readOnly = true)
     public MovementHistory getMovementById(Long movementId) {
         return movementHistoryRepository.findById(movementId)
                 .orElseThrow(() -> new ResourceNotFoundException("Movement not found with id: " + movementId));
     }
 
-    /**
-     * Get movements requiring attention
-     */
     @Transactional(readOnly = true)
     public List<MovementHistory> getMovementsRequiringAttention() {
         return movementHistoryRepository.getMovementsRequiringAttention();
     }
 
-    /**
-     * Get audit trail for compliance
-     */
     @Transactional(readOnly = true)
     public List<MovementHistory> getAuditTrail(LocalDateTime startDate, LocalDateTime endDate) {
         return movementHistoryRepository.getAuditTrail(startDate, endDate);
     }
 
-    /**
-     * Get movement velocity (movements per hour)
-     */
     @Transactional(readOnly = true)
     public Double getMovementVelocity(LocalDateTime startDate, LocalDateTime endDate) {
         return movementHistoryRepository.getMovementVelocity(startDate, endDate);
     }
 
-    /**
-     * Get movement statistics by type
-     */
     @Transactional(readOnly = true)
     public Map<String, Object> getMovementStatsByType() {
         List<Object[]> stats = movementHistoryRepository.getMovementStatsByType();
@@ -263,9 +213,6 @@ public class MovementHistoryService {
                 ));
     }
 
-    /**
-     * Get movement statistics by date
-     */
     @Transactional(readOnly = true)
     public Map<String, Object> getMovementStatsByDate(LocalDateTime startDate, LocalDateTime endDate) {
         List<Object[]> stats = movementHistoryRepository.getMovementStatsByDate(startDate, endDate);
@@ -279,33 +226,21 @@ public class MovementHistoryService {
                 ));
     }
 
-    /**
-     * Get movements with environmental data
-     */
     @Transactional(readOnly = true)
     public List<MovementHistory> getMovementsWithEnvironmentalData() {
         return movementHistoryRepository.findMovementsWithEnvironmentalData();
     }
 
-    /**
-     * Get movements by batch ID
-     */
     @Transactional(readOnly = true)
     public List<MovementHistory> getMovementsByBatchId(String batchId) {
         return movementHistoryRepository.findByBatchIdOrderByMovementDateDesc(batchId);
     }
 
-    /**
-     * Get movements by reference number
-     */
     @Transactional(readOnly = true)
     public List<MovementHistory> getMovementsByReferenceNumber(String referenceNumber) {
         return movementHistoryRepository.findByReferenceNumberOrderByMovementDateDesc(referenceNumber);
     }
 
-    /**
-     * Get movement count for dashboard
-     */
     @Transactional(readOnly = true)
     public Map<String, Long> getMovementCountSummary() {
         return Map.of(

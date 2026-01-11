@@ -1,4 +1,7 @@
-@startuml Use Case - Modul Administratora
+@startuml Use Case - Modul Administratora - Pionowy
+
+' Ustawienie domyslne (gora-dol), ale wymusimy kolejnosc
+top to bottom direction
 
 skinparam actorStyle awesome
 skinparam usecase {
@@ -10,36 +13,36 @@ skinparam rectangle {
     BorderColor DarkBlue
 }
 
-title Diagram Przypadkow Uzycia\nModul Administratora
+title Diagram Przypadków Użycia\nModuł Administratora
 
 actor "Administrator" as Admin #LightBlue
 
-rectangle "System QRWare - Modul Administratora" {
+rectangle "System QRWare - Moduł Administratora" {
     
-    package "Zarzadzanie Produktami" {
-        usecase "UC-A01: Zarzadzanie\nproduktami (CRUD)" as UC_A01
-        usecase "UC-A02: Zarzadzanie\nkategoriami" as UC_A02
+    package "1. Zarządzanie Produktami" {
+        usecase "UC-A01: Zarządzanie\nproduktami" as UC_A01
+        usecase "UC-A02: Zarządzanie\nkategoriami" as UC_A02
     }
     
-    package "Zarzadzanie Magazynem" {
+    package "2. Zarządzanie Magazynem" {
         usecase "UC-A03: Definiowanie\nstref magazynowych" as UC_A03
         usecase "UC-A04: Definiowanie\nlokalizacji" as UC_A04
     }
     
-    package "Monitoring" {
-        usecase "UC-A05: Podglad historii\noperacji magazynowych" as UC_A05
+    package "3. Monitoring" {
+        usecase "UC-A05: Podgląd historii\noperacji magazynowych" as UC_A05
     }
     
-    package "Zarzadzanie Uprawnieniami" {
-        usecase "UC-A06: Zarzadzanie\nrolami systemowymi" as UC_A06
-        usecase "UC-A07: Zarzadzanie\nuzytkownikami" as UC_A07
+    package "4. Zarządzanie Uprawnieniami" {
+        usecase "UC-A06: Zarządzanie\nrolami systemowymi" as UC_A06
+        usecase "UC-A07: Zarządzanie\nużytkownikami" as UC_A07
     }
     
     usecase "Logowanie" as Login
     usecase "Wylogowanie" as Logout
 }
 
-' Relacje aktora
+' Relacje aktora (zwykłe)
 Admin --> UC_A01
 Admin --> UC_A02
 Admin --> UC_A03
@@ -50,42 +53,12 @@ Admin --> UC_A07
 Admin --> Login
 Admin --> Logout
 
-' Relacje miedzy UC
-UC_A04 ..> UC_A03 : <<include>>\nwymaga istnienia strefy
-UC_A01 ..> UC_A02 : <<include>>\nwymaga kategorii
-UC_A07 ..> UC_A06 : <<include>>\nwymaga istnienia roli
-
-note right of UC_A01
-  **Operacje CRUD:**
-  - Tworzenie produktu
-  - Odczyt danych
-  - Aktualizacja
-  - Usuwanie
-  --
-  **Atrybuty:**
-  nazwa, SKU, jednostka,
-  wilgotnosc, min/max stan
-end note
-
-note right of UC_A03
-  **Typy stref:**
-  - RECEIVING (przyjecia)
-  - STORAGE (magazyn)
-  - COLD_STORAGE (chlodnia)
-  - SHIPPING (wysylka)
-  - QUARANTINE (kwarantanna)
-end note
-
-note bottom of UC_A06
-  **Przykladowe role:**
-  - Administrator
-  - Menadzer
-  - Magazynier
-  --
-  **Uprawnienia:**
-  products:create
-  inventory:read
-  orders:update
-end note
+' === SEKCJA LAYOUT (Wymuszanie pionu) ===
+' Te linie sa niewidoczne, ale ustawiaja pakiety jeden pod drugim
+UC_A01 -[hidden]-> UC_A03
+UC_A03 -[hidden]-> UC_A05
+UC_A05 -[hidden]-> UC_A06
+' Odsuniecie logowania na bok lub dol
+UC_A07 -[hidden]-> Login
 
 @enduml
