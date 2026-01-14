@@ -221,6 +221,7 @@ public class InventoryController {
         item.setManufactureDate(request.getManufactureDate());
         item.setUnitCost(request.getUnitCost());
         item.setSupplierReference(request.getSupplierReference());
+        item.setManufacturer(request.getManufacturer());
         item.setPurchaseOrderNumber(request.getPurchaseOrderNumber());
         item.setNotes(request.getNotes());
         item.setTemperature(request.getTemperature());
@@ -263,6 +264,7 @@ public class InventoryController {
         if (request.getManufactureDate() != null) item.setManufactureDate(request.getManufactureDate());
         if (request.getUnitCost() != null) item.setUnitCost(request.getUnitCost());
         if (request.getSupplierReference() != null) item.setSupplierReference(request.getSupplierReference());
+        if (request.getManufacturer() != null) item.setManufacturer(request.getManufacturer());
         if (request.getPurchaseOrderNumber() != null) item.setPurchaseOrderNumber(request.getPurchaseOrderNumber());
         if (request.getNotes() != null) item.setNotes(request.getNotes());
         if (request.getTemperature() != null) item.setTemperature(request.getTemperature());
@@ -408,6 +410,7 @@ public class InventoryController {
         private java.time.LocalDate manufactureDate;
         private BigDecimal unitCost;
         private String supplierReference;
+        private String manufacturer;
         private String purchaseOrderNumber;
         private String notes;
         private Integer temperature;
@@ -447,6 +450,8 @@ public class InventoryController {
         public void setUnitCost(BigDecimal unitCost) { this.unitCost = unitCost; }
         public String getSupplierReference() { return supplierReference; }
         public void setSupplierReference(String supplierReference) { this.supplierReference = supplierReference; }
+        public String getManufacturer() { return manufacturer; }
+        public void setManufacturer(String manufacturer) { this.manufacturer = manufacturer; }
         public String getPurchaseOrderNumber() { return purchaseOrderNumber; }
         public void setPurchaseOrderNumber(String purchaseOrderNumber) { this.purchaseOrderNumber = purchaseOrderNumber; }
         public String getNotes() { return notes; }
@@ -480,6 +485,7 @@ public class InventoryController {
         private java.time.LocalDate manufactureDate;
         private BigDecimal unitCost;
         private String supplierReference;
+        private String manufacturer;
         private String purchaseOrderNumber;
         private String notes;
         private Integer temperature;
@@ -515,6 +521,8 @@ public class InventoryController {
         public void setUnitCost(BigDecimal unitCost) { this.unitCost = unitCost; }
         public String getSupplierReference() { return supplierReference; }
         public void setSupplierReference(String supplierReference) { this.supplierReference = supplierReference; }
+        public String getManufacturer() { return manufacturer; }
+        public void setManufacturer(String manufacturer) { this.manufacturer = manufacturer; }
         public String getPurchaseOrderNumber() { return purchaseOrderNumber; }
         public void setPurchaseOrderNumber(String purchaseOrderNumber) { this.purchaseOrderNumber = purchaseOrderNumber; }
         public String getNotes() { return notes; }

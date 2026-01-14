@@ -18,6 +18,7 @@ public class LocationDTO {
     private BigDecimal capacityVolume;
     private BigDecimal capacityWeight;
     private Integer capacityItems;
+    private Integer currentItems; // Added currentItems field
     private Boolean temperatureControlled;
     private Integer temperatureMin;
     private Integer temperatureMax;
@@ -84,6 +85,9 @@ public class LocationDTO {
     
     public Integer getCapacityItems() { return capacityItems; }
     public void setCapacityItems(Integer capacityItems) { this.capacityItems = capacityItems; }
+    
+    public Integer getCurrentItems() { return currentItems; }
+    public void setCurrentItems(Integer currentItems) { this.currentItems = currentItems; }
     
     public Boolean getTemperatureControlled() { return temperatureControlled; }
     public void setTemperatureControlled(Boolean temperatureControlled) { this.temperatureControlled = temperatureControlled; }

@@ -43,10 +43,37 @@ def apply_modern_style(app: QApplication, dark: bool = False) -> None:
         border-radius: 8px;
         padding: 6px 8px;
         background: #FFFFFF;
+        color: #000000;
+        selection-background-color: #2F80ED;
+        selection-color: #FFFFFF;
     }
     QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QTextEdit:focus {
         border: 1px solid #2F80ED;
         outline: none;
+    }
+
+    /* Stylizacja listy rozwijanej QComboBox */
+    QComboBox QAbstractItemView {
+        border: 1px solid #D0D7DE;
+        background-color: #FFFFFF;
+        selection-background-color: #2F80ED;
+        selection-color: #FFFFFF;
+        outline: none;
+    }
+
+    QComboBox QAbstractItemView::item {
+        padding: 4px 8px;
+        color: #000000;
+    }
+
+    QComboBox QAbstractItemView::item:hover {
+        background-color: #E8F0FE;
+        color: #000000;
+    }
+
+    QComboBox QAbstractItemView::item:selected {
+        background-color: #2F80ED;
+        color: #FFFFFF;
     }
 
     QTableWidget {

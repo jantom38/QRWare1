@@ -16,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -226,6 +227,50 @@ fun LocationCard(
                             text = it,
                             style = MaterialTheme.typography.bodySmall,
                             maxLines = 2
+                        )
+                    }
+                    
+                    val current = location.currentItems ?: 0
+                    val capacity = location.capacityItems
+                    
+                    if (capacity != null && capacity > 0) {
+                        val progress = (current.toFloat() / capacity.toFloat()).coerceIn(0f, 1f)
+                        val progressColor = when {
+                            progress > 0.9f -> Color.Red
+                            progress > 0.7f -> Color(0xFFFFC107)
+                            else -> Color(0xFF4CAF50)
+                        }
+                        
+                        Column(modifier = Modifier.padding(top = 4.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "Zajętość:",
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                                Text(
+                                    text = "$current / $capacity (${(progress * 100).toInt()}%)",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            LinearProgressIndicator(
+                                progress = { progress },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(8.dp)
+                                    .padding(top = 2.dp),
+                                color = progressColor,
+                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            )
+                        }
+                    } else {
+                        Text(
+                            text = "Zajętość: $current (Brak limitu)",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.secondary
                         )
                     }
                 }

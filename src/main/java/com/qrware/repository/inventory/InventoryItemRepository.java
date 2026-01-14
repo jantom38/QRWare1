@@ -194,6 +194,12 @@ public interface InventoryItemRepository extends BaseRepository<InventoryItem> {
     @Query("SELECT i FROM InventoryItem i WHERE i.createdBy = :username")
     List<InventoryItem> findCreatedBy(@Param("username") String username);
 
+    @Query("SELECT DISTINCT i FROM InventoryItem i " +
+            "JOIN FETCH i.product p " +
+            "JOIN FETCH i.location l " +
+            "JOIN FETCH l.zone z")
+    List<InventoryItem> findAllWithProductAndLocationZone();
+
     @Query("SELECT i FROM InventoryItem i ORDER BY i.receivedDate DESC, i.createdAt DESC")
     List<InventoryItem> findMostRecentlyReceived();
 

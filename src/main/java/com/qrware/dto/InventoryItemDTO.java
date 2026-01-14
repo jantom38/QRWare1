@@ -24,6 +24,7 @@ public class InventoryItemDTO {
     private BigDecimal unitCost;
     private BigDecimal totalCost;
     private String supplierReference;
+    private String manufacturer;
     private String purchaseOrderNumber;
     private String notes;
     private Integer temperature;
@@ -92,6 +93,9 @@ public class InventoryItemDTO {
     
     public String getSupplierReference() { return supplierReference; }
     public void setSupplierReference(String supplierReference) { this.supplierReference = supplierReference; }
+    
+    public String getManufacturer() { return manufacturer; }
+    public void setManufacturer(String manufacturer) { this.manufacturer = manufacturer; }
     
     public String getPurchaseOrderNumber() { return purchaseOrderNumber; }
     public void setPurchaseOrderNumber(String purchaseOrderNumber) { this.purchaseOrderNumber = purchaseOrderNumber; }

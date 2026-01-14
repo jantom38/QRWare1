@@ -17,6 +17,7 @@ data class LocationDTO(
     val capacityVolume: BigDecimal?,
     val capacityWeight: BigDecimal?,
     val capacityItems: Int?,
+    val currentItems: Int?,
     val temperatureControlled: Boolean,
     val temperatureMin: Int?,
     val temperatureMax: Int?,

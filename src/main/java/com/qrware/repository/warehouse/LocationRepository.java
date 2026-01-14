@@ -213,6 +213,9 @@ public interface LocationRepository extends BaseRepository<Location> {
            "FROM Location l GROUP BY l.type ORDER BY l.type")
     List<Object[]> getLocationStatsByType();
 
+    @Query("SELECT DISTINCT l FROM Location l JOIN FETCH l.zone")
+    List<Location> findAllWithZone();
+
     @Query("SELECT l FROM Location l WHERE l.createdBy = :username")
     List<Location> findCreatedBy(@Param("username") String username);
 

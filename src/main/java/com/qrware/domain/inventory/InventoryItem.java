@@ -49,8 +49,7 @@ public class InventoryItem extends BaseEntity {
     @Column(name = "status", nullable = false, length = 20)
     private InventoryStatus status = InventoryStatus.AVAILABLE;
 
-    @Column(name = "qr_code", unique = true, nullable = false, length = 100)
-    @NotBlank(message = "QR code is required")
+    @Column(name = "qr_code", unique = true, nullable = true, length = 100)
     @Size(max = 100, message = "QR code must not exceed 100 characters")
     private String qrCode;
 
@@ -93,6 +92,10 @@ public class InventoryItem extends BaseEntity {
     @Column(name = "supplier_reference", length = 100)
     @Size(max = 100, message = "Supplier reference must not exceed 100 characters")
     private String supplierReference;
+
+    @Column(name = "manufacturer", length = 100)
+    @Size(max = 100, message = "Manufacturer must not exceed 100 characters")
+    private String manufacturer;
 
     @Column(name = "purchase_order_number", length = 50)
     @Size(max = 50, message = "Purchase order number must not exceed 50 characters")
@@ -284,6 +287,8 @@ public class InventoryItem extends BaseEntity {
     public void setTotalCost(BigDecimal totalCost) { this.totalCost = totalCost; }
     public String getSupplierReference() { return supplierReference; }
     public void setSupplierReference(String supplierReference) { this.supplierReference = supplierReference; }
+    public String getManufacturer() { return manufacturer; }
+    public void setManufacturer(String manufacturer) { this.manufacturer = manufacturer; }
     public String getPurchaseOrderNumber() { return purchaseOrderNumber; }
     public void setPurchaseOrderNumber(String purchaseOrderNumber) { this.purchaseOrderNumber = purchaseOrderNumber; }
     public String getNotes() { return notes; }

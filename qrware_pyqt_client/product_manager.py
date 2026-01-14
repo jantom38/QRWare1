@@ -6,24 +6,38 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLineEdit, QPushButton, QLabel, QComboBox, QTableWidget, QTableWidgetItem,
-    QSpinBox, QMessageBox, QDialog, QFormLayout, QCheckBox, QMenu
+    QSpinBox, QMessageBox, QDialog, QFormLayout, QCheckBox, QMenu, QFrame, QGridLayout, QSplitter
 )
 
 from config import ConfigManager
 from products_api import ProductsApi
 from categories_api import CategoriesApi
+from validators import RequiredField, validate_required
 
 
 class ProductFormDialog(QDialog):
     def __init__(self, categories: List[Dict[str, Any]], product: Optional[Dict[str, Any]] = None, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Produkt")
-        self.resize(520, 520)
+        self.resize(800, 600) # Zwiększono szerokość
         self.categories = categories
         self.product = product or {}
 
-        form = QFormLayout(self)
+        # Główny layout
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(15)
 
+        # Tytuł formularza
+        lbl_title = QLabel("Edycja Produktu" if product else "Nowy Produkt")
+        lbl_title.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;")
+        layout.addWidget(lbl_title)
+
+        # Formularz w układzie siatki (2 kolumny)
+        grid = QGridLayout()
+        grid.setSpacing(10)
+
+        # Inicjalizacja kontrolek
         self.edt_sku = QLineEdit(self.product.get("sku", ""))
         self.edt_name = QLineEdit(self.product.get("name", ""))
         self.edt_desc = QLineEdit(self.product.get("description", ""))
@@ -43,14 +57,16 @@ class ProductFormDialog(QDialog):
         self.spn_reorder = QSpinBox();
         self.spn_reorder.setMaximum(10 ** 9);
         self.spn_reorder.setValue(int(self.product.get("reorderPoint") or 0))
-        self.chk_active = QCheckBox();
+
+        self.chk_active = QCheckBox("Aktywny");
         self.chk_active.setChecked(bool(self.product.get("active", True)))
-        self.chk_perishable = QCheckBox();
+        self.chk_perishable = QCheckBox("Szybko psujący");
         self.chk_perishable.setChecked(bool(self.product.get("perishable", False)))
-        self.chk_hazardous = QCheckBox();
+        self.chk_hazardous = QCheckBox("Niebezpieczny");
         self.chk_hazardous.setChecked(bool(self.product.get("hazardous", False)))
-        self.chk_fragile = QCheckBox();
+        self.chk_fragile = QCheckBox("Kruchy");
         self.chk_fragile.setChecked(bool(self.product.get("fragile", False)))
+
         self.edt_manufacturer = QLineEdit(self.product.get("manufacturer", ""))
         self.edt_supplier = QLineEdit(self.product.get("supplier", ""))
         self.edt_storage = QLineEdit(self.product.get("storageConditions", ""))
@@ -66,38 +82,56 @@ class ProductFormDialog(QDialog):
             if idx >= 0:
                 self.cmb_category.setCurrentIndex(idx)
 
-        form.addRow("SKU:", self.edt_sku)
-        form.addRow("Nazwa:", self.edt_name)
-        form.addRow("Opis:", self.edt_desc)
-        form.addRow("Cena:", self.edt_price)
-        form.addRow("Koszt:", self.edt_cost)
-        form.addRow("Jednostka:", self.edt_unit)
-        form.addRow("Waga:", self.edt_weight)
-        form.addRow("Długość:", self.edt_len)
-        form.addRow("Szerokość:", self.edt_wid)
-        form.addRow("Wysokość:", self.edt_hei)
-        form.addRow("Min. stan:", self.spn_min)
-        form.addRow("Max. stan:", self.spn_max)
-        form.addRow("Punkt zam.:", self.spn_reorder)
-        form.addRow("Aktywny:", self.chk_active)
-        form.addRow("Szybko psujący:", self.chk_perishable)
-        form.addRow("Niebezpieczny:", self.chk_hazardous)
-        form.addRow("Kruchy:", self.chk_fragile)
-        form.addRow("Producent:", self.edt_manufacturer)
-        form.addRow("Dostawca:", self.edt_supplier)
-        form.addRow("Warunki skł.:", self.edt_storage)
-        form.addRow("Kod kreskowy:", self.edt_barcode)
-        form.addRow("Kategoria:", self.cmb_category)
+        # Układanie w siatce
+        # Kolumna 1
+        grid.addWidget(QLabel("SKU:"), 0, 0); grid.addWidget(self.edt_sku, 0, 1)
+        grid.addWidget(QLabel("Nazwa:"), 1, 0); grid.addWidget(self.edt_name, 1, 1)
+        grid.addWidget(QLabel("Opis:"), 2, 0); grid.addWidget(self.edt_desc, 2, 1)
+        grid.addWidget(QLabel("Kategoria:"), 3, 0); grid.addWidget(self.cmb_category, 3, 1)
+        grid.addWidget(QLabel("Cena:"), 4, 0); grid.addWidget(self.edt_price, 4, 1)
+        grid.addWidget(QLabel("Koszt:"), 5, 0); grid.addWidget(self.edt_cost, 5, 1)
+        grid.addWidget(QLabel("Jednostka:"), 6, 0); grid.addWidget(self.edt_unit, 6, 1)
+        grid.addWidget(QLabel("Kod kreskowy:"), 7, 0); grid.addWidget(self.edt_barcode, 7, 1)
+        grid.addWidget(QLabel("Producent:"), 8, 0); grid.addWidget(self.edt_manufacturer, 8, 1)
+        grid.addWidget(QLabel("Dostawca:"), 9, 0); grid.addWidget(self.edt_supplier, 9, 1)
 
+        # Kolumna 2
+        grid.addWidget(QLabel("Waga:"), 0, 2); grid.addWidget(self.edt_weight, 0, 3)
+        grid.addWidget(QLabel("Długość:"), 1, 2); grid.addWidget(self.edt_len, 1, 3)
+        grid.addWidget(QLabel("Szerokość:"), 2, 2); grid.addWidget(self.edt_wid, 2, 3)
+        grid.addWidget(QLabel("Wysokość:"), 3, 2); grid.addWidget(self.edt_hei, 3, 3)
+        grid.addWidget(QLabel("Min. stan:"), 4, 2); grid.addWidget(self.spn_min, 4, 3)
+        grid.addWidget(QLabel("Max. stan:"), 5, 2); grid.addWidget(self.spn_max, 5, 3)
+        grid.addWidget(QLabel("Punkt zam.:"), 6, 2); grid.addWidget(self.spn_reorder, 6, 3)
+        grid.addWidget(QLabel("Warunki skł.:"), 7, 2); grid.addWidget(self.edt_storage, 7, 3)
+
+        # Checkboxy w siatce
+        chk_layout = QVBoxLayout()
+        chk_layout.addWidget(self.chk_active)
+        chk_layout.addWidget(self.chk_perishable)
+        chk_layout.addWidget(self.chk_hazardous)
+        chk_layout.addWidget(self.chk_fragile)
+
+        grid.addLayout(chk_layout, 8, 2, 2, 2) # Span 2 rows, 2 cols
+
+        layout.addLayout(grid)
+        layout.addStretch()
+
+        # Przyciski akcji
         btns = QHBoxLayout()
-        self.btn_ok = QPushButton("Zapisz")
+        btns.addStretch()
+        
         self.btn_cancel = QPushButton("Anuluj")
-        btns.addWidget(self.btn_ok)
-        btns.addWidget(self.btn_cancel)
-        form.addRow(btns)
-
-        self.btn_ok.clicked.connect(self.accept)
+        self.btn_cancel.setStyleSheet("background-color: #95a5a6; color: white;")
         self.btn_cancel.clicked.connect(self.reject)
+        btns.addWidget(self.btn_cancel)
+
+        self.btn_ok = QPushButton("Zapisz")
+        self.btn_ok.setStyleSheet("background-color: #2ecc71; color: white; font-weight: bold;")
+        self.btn_ok.clicked.connect(self.accept)
+        btns.addWidget(self.btn_ok)
+        
+        layout.addLayout(btns)
 
     def build_create_payload(self) -> Dict[str, Any]:
         payload: Dict[str, Any] = {
@@ -159,6 +193,30 @@ class ProductFormDialog(QDialog):
             payload["categoryId"] = int(cat_id)
         return payload
 
+    def accept(self):
+        # Required fields
+        def valid_price() -> tuple[bool, str]:
+            if (self.edt_price.text() or "").strip() == "":
+                return False, "pole wymagane"
+            if self._num(self.edt_price.text()) is None:
+                return False, "musi być liczbą"
+            return True, ""
+
+        ok = validate_required(
+            self,
+            [
+                RequiredField("SKU", self.edt_sku),
+                RequiredField("Nazwa", self.edt_name),
+                RequiredField("Kategoria", self.cmb_category),
+                RequiredField("Cena", self.edt_price, validator=valid_price),
+            ],
+            title="Brak wymaganych danych produktu",
+        )
+        if not ok:
+            return
+
+        super().accept()
+
     @staticmethod
     def _num(text: str) -> Optional[float]:
         t = (text or "").replace(",", ".").strip()
@@ -174,7 +232,7 @@ class ProductManagerWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("QRWare - Produkty")
-        self.resize(1000, 640)
+        self.resize(1100, 700)
         self.cfg = ConfigManager()
         self.products_api = ProductsApi(self.cfg)
         self.categories_api = CategoriesApi(self.cfg)
@@ -183,35 +241,68 @@ class ProductManagerWindow(QMainWindow):
         self.setCentralWidget(central)
         root = QVBoxLayout();
         central.setLayout(root)
-        root.setContentsMargins(16, 16, 16, 16)
-        root.setSpacing(12)
+        root.setContentsMargins(20, 20, 20, 20)
+        root.setSpacing(15)
 
-        top = QHBoxLayout()
-        self.edt_server = QLineEdit(self.cfg.base_url);
-        self.edt_server.setPlaceholderText("http://localhost:8080")
-        btn_save_server = QPushButton("Zapisz serwer")
-        btn_save_server.clicked.connect(self._save_server)
+        # --- HEADER ---
+        header = QHBoxLayout()
+        
+        title_layout = QVBoxLayout()
+        lbl_title = QLabel("Zarządzanie Produktami")
+        lbl_title.setStyleSheet("font-size: 24px; font-weight: bold; color: #2c3e50;")
+        lbl_subtitle = QLabel("Przeglądaj, dodawaj i edytuj asortyment")
+        lbl_subtitle.setStyleSheet("font-size: 14px; color: #7f8c8d;")
+        title_layout.addWidget(lbl_title)
+        title_layout.addWidget(lbl_subtitle)
+        header.addLayout(title_layout)
+        
+        header.addStretch()
+        
+        # Usunięto panel serwera
+        
+        root.addLayout(header)
+
+        # --- TOOLBAR ---
+        toolbar = QHBoxLayout()
+        toolbar.setSpacing(10)
+        
         self.edt_search = QLineEdit();
-        self.edt_search.setPlaceholderText("Szukaj po nazwie…")
+        self.edt_search.setPlaceholderText("Szukaj po nazwie, SKU…")
+        self.edt_search.setMinimumWidth(250)
+        toolbar.addWidget(self.edt_search)
+        
         btn_search = QPushButton("Szukaj");
         btn_search.clicked.connect(self._do_search)
-        self.cmb_filter = QComboBox();
-        self.cmb_filter.addItems(["Wszystkie", "Aktywne", "Nieaktywne"])
-        btn_refresh = QPushButton("Odśwież");
-        btn_refresh.clicked.connect(self._load_products)
-        btn_load_cats = QPushButton("Załaduj kategorie");
+        toolbar.addWidget(btn_search)
+        
+        # Zmiana: Checkbox zamiast ComboBox
+        self.chk_only_active = QCheckBox("Tylko aktywne")
+        self.chk_only_active.setChecked(True)
+        self.chk_only_active.stateChanged.connect(self._load_products)
+        toolbar.addWidget(self.chk_only_active)
+        
+        toolbar.addStretch()
+        
+        btn_load_cats = QPushButton("Odśwież kategorie");
         btn_load_cats.clicked.connect(self._load_categories)
+        toolbar.addWidget(btn_load_cats)
+        
+        btn_refresh = QPushButton("Odśwież listę");
+        btn_refresh.clicked.connect(self._load_products)
+        toolbar.addWidget(btn_refresh)
+        
+        root.addLayout(toolbar)
 
-        top.addWidget(QLabel("Serwer:"));
-        top.addWidget(self.edt_server, 2)
-        top.addWidget(btn_save_server)
-        top.addWidget(self.cmb_filter)
-        top.addWidget(self.edt_search, 1)
-        top.addWidget(btn_search)
-        top.addWidget(btn_load_cats)
-        top.addWidget(btn_refresh)
-        root.addLayout(top)
+        # --- MAIN SPLIT (TABLE + DETAILS) ---
+        self.splitter = QSplitter(Qt.Orientation.Horizontal)
+        root.addWidget(self.splitter, 1)
 
+        left = QWidget()
+        left_layout = QVBoxLayout(left)
+        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.setSpacing(10)
+
+        # --- TABLE ---
         self.tbl = QTableWidget(0, 8)
         self.tbl.setHorizontalHeaderLabels(
             ["ID", "SKU", "Nazwa", "Cena", "Aktywny", "Kategoria", "Producent", "Kod kreskowy"])
@@ -219,28 +310,155 @@ class ProductManagerWindow(QMainWindow):
         self.tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.tbl.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
         self.tbl.horizontalHeader().setStretchLastSection(True)
+        self.tbl.setAlternatingRowColors(True)
+        self.tbl.setStyleSheet("QTableWidget { border: 1px solid #dcdcdc; }")
 
         self.tbl.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.tbl.customContextMenuRequested.connect(self._show_context_menu)
 
-        root.addWidget(self.tbl, 1)
+        self.tbl.itemSelectionChanged.connect(self._on_row_selected)
 
+        left_layout.addWidget(self.tbl, 1)
+
+        # --- ACTIONS ---
         actions = QHBoxLayout()
-        btn_add = QPushButton("Dodaj…");
+        
+        btn_add = QPushButton("Dodaj Produkt");
+        btn_add.setStyleSheet("background-color: #2ecc71; color: white; font-weight: bold; padding: 8px 16px;")
         btn_add.clicked.connect(self._add_product)
-        btn_edit = QPushButton("Edytuj…");
+        actions.addWidget(btn_add)
+        
+        btn_edit = QPushButton("Edytuj");
         btn_edit.clicked.connect(self._edit_product)
+        actions.addWidget(btn_edit)
+        
         btn_toggle = QPushButton("Aktywuj/Dezaktywuj");
         btn_toggle.clicked.connect(self._toggle_active)
-        btn_delete = QPushButton("Usuń (soft)");
+        actions.addWidget(btn_toggle)
+        
+        actions.addStretch()
+        
+        btn_delete = QPushButton("Usuń");
+        btn_delete.setStyleSheet("background-color: #e74c3c; color: white;")
         btn_delete.clicked.connect(self._delete_product)
-        actions.addWidget(btn_add);
-        actions.addWidget(btn_edit);
-        actions.addWidget(btn_toggle);
         actions.addWidget(btn_delete)
-        root.addLayout(actions)
+        
+        left_layout.addLayout(actions)
+
+        # Right: details panel (styl jak w managerze zamówień)
+        right = QWidget()
+        right_layout = QVBoxLayout(right)
+        # trochę więcej oddechu z góry, mniej z lewej
+        right_layout.setContentsMargins(6, 0, 0, 0)
+        right_layout.setSpacing(6)
+
+        # Nagłówek bliżej karty
+        lbl_details_title = QLabel("Szczegóły produktu")
+        lbl_details_title.setStyleSheet("font-size: 16px; font-weight: bold; color: #2c3e50; margin: 0px;")
+        right_layout.addWidget(lbl_details_title)
+
+        # Linia pod nagłówkiem
+        sep = QFrame()
+        sep.setFrameShape(QFrame.Shape.HLine)
+        sep.setStyleSheet("color: #d0d0d0;")
+        right_layout.addWidget(sep)
+
+        self.details_group = QFrame()
+        self.details_group.setStyleSheet("background: transparent;")
+        details_outer = QVBoxLayout(self.details_group)
+        details_outer.setSpacing(8)
+        details_outer.setContentsMargins(0, 0, 0, 0)
+
+        header_widget = QWidget()
+        header_widget.setStyleSheet(
+            "background-color: #f8f9fa;"
+            "border-radius: 6px;"
+            "padding: 10px;"
+            "border: 1px solid #e1e4e8;"
+        )
+        header_grid = QGridLayout(header_widget)
+        header_grid.setSpacing(6)
+
+        # Wspólny styl czcionki dla całej karty
+        base_font_css = "font-size: 12px; font-family: Segoe UI, Arial; color: #2c3e50;"
+        label_css = base_font_css + "font-weight: 600; color: #495057;"
+        value_css = base_font_css + "padding: 2px 0px; border-bottom: 1px solid #e8eaed;"
+
+        def mk_value(text: str = "-") -> QLabel:
+            # Jedna komórka: "Etykieta: wartość"
+            v = QLabel(text)
+            v.setStyleSheet(value_css)
+            v.setWordWrap(True)
+            v.setTextFormat(Qt.TextFormat.RichText)
+            return v
+
+        def fmt_row(key: str, value: str) -> str:
+            value = value if value not in [None, ""] else "-"
+            return f"<b style='color:#495057'>{key}:</b> {value}"
+
+        # zapamiętaj formatter dla metod poza __init__
+        self._fmt_row = fmt_row
+
+        self.txt_name = mk_value("-")
+        # Nazwa trochę większa, ale ta sama rodzina czcionki
+        self.txt_name.setStyleSheet("font-size: 16px; font-family: Segoe UI, Arial; font-weight: 700; color: #3498db; border-bottom: 1px solid #e8eaed;")
+        header_grid.addWidget(QLabel("Nazwa:"), 0, 0)
+        header_grid.addWidget(self.txt_name, 0, 1)
+
+        self.txt_active = mk_value("-")
+        self.txt_active.setStyleSheet("font-size: 12px; font-family: Segoe UI, Arial; font-weight: 700; border-bottom: 1px solid #e8eaed;")
+        header_grid.addWidget(QLabel("Aktywny:"), 0, 2)
+        header_grid.addWidget(self.txt_active, 0, 3)
+
+        # Pojedyncze komórki "klucz: wartość" (bez osobnej kolumny etykiet)
+        self.txt_id = mk_value()
+        self.txt_sku = mk_value()
+        self.txt_category = mk_value()
+        self.txt_price = mk_value()
+        self.txt_cost = mk_value()
+        self.txt_unit = mk_value()
+        self.txt_barcode = mk_value()
+        self.txt_manufacturer = mk_value()
+        self.txt_supplier = mk_value()
+        self.txt_storage = mk_value()
+        self.txt_desc = mk_value()
+
+        header_grid.addWidget(self.txt_id, 1, 0, 1, 2)
+        header_grid.addWidget(self.txt_sku, 1, 2, 1, 2)
+
+        header_grid.addWidget(self.txt_category, 2, 0, 1, 2)
+        header_grid.addWidget(self.txt_unit, 2, 2, 1, 2)
+
+        header_grid.addWidget(self.txt_price, 3, 0, 1, 2)
+        header_grid.addWidget(self.txt_cost, 3, 2, 1, 2)
+
+        header_grid.addWidget(self.txt_barcode, 4, 0, 1, 2)
+        header_grid.addWidget(self.txt_manufacturer, 4, 2, 1, 2)
+
+        header_grid.addWidget(self.txt_supplier, 5, 0, 1, 2)
+        header_grid.addWidget(self.txt_storage, 5, 2, 1, 2)
+
+        header_grid.addWidget(self.txt_desc, 6, 0, 1, 4)
+
+        details_outer.addWidget(header_widget)
+
+        # Dodatkowa linia na dole karty
+        sep2 = QFrame()
+        sep2.setFrameShape(QFrame.Shape.HLine)
+        sep2.setStyleSheet("color: #e0e0e0;")
+        details_outer.addWidget(sep2)
+
+        right_layout.addWidget(self.details_group, 1)
+        # "docisk" do góry, żeby nie wyglądało jakby karta była nisko
+        right_layout.addStretch(0)
+
+        self.splitter.addWidget(left)
+        self.splitter.addWidget(right)
+        self.splitter.setStretchFactor(0, 3)
+        self.splitter.setStretchFactor(1, 2)
 
         self._categories: List[Dict[str, Any]] = []
+        self._current_items: List[Dict[str, Any]] = []
         self._page: int = 0
         self._size: int = 100
         self._last_search: Optional[str] = None
@@ -248,17 +466,21 @@ class ProductManagerWindow(QMainWindow):
         self._load_categories()
         self._load_products()
 
-    # --- NOWE METODY DO OBSŁUGI QR ---
+    # --- NOWE METODY DO OBSŁUGI QR I INVENTORY ---
     def _show_context_menu(self, pos):
         if not self.tbl.selectionModel().selectedRows():
             return
 
         menu = QMenu()
         gen_qr_action = menu.addAction("Generuj kod QR")
+        create_inv_action = menu.addAction("Utwórz pozycję magazynową")
+
         action = menu.exec(self.tbl.mapToGlobal(pos))
 
         if action == gen_qr_action:
             self._open_qr_generator()
+        elif action == create_inv_action:
+            self._create_inventory_from_product()
 
     def _open_qr_generator(self):
         row = self.tbl.currentRow()
@@ -292,6 +514,82 @@ class ProductManagerWindow(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Błąd", f"Nie udało się otworzyć generatora QR: {str(e)}")
 
+    def _create_inventory_from_product(self):
+        row = self.tbl.currentRow()
+        if row < 0:
+            return
+
+        pid_item = self.tbl.item(row, 0)
+        if not pid_item:
+            return
+
+        try:
+            pid = int(pid_item.text())
+
+            # Pobierz pełne dane produktu (opcjonalnie, jeśli potrzebne)
+            # Ale mamy ID, to wystarczy do formularza
+
+            # Import dynamiczny
+            from inventory_manager import InventoryFormDialog, InventoryManagerWindow
+            from locations_api import LocationsApi
+
+            # Potrzebujemy listy lokalizacji do formularza
+            loc_api = LocationsApi(self.cfg)
+            ok, msg, locations = loc_api.list_active()
+            if not ok:
+                QMessageBox.warning(self, "Błąd", f"Nie udało się pobrać lokalizacji: {msg}")
+                return
+
+            # Przygotuj dane produktu w formacie oczekiwanym przez InventoryFormDialog
+            # Formularz oczekuje listy produktów, więc musimy ją dostarczyć lub pobrać
+            # Użyjemy self._categories jako placeholder lub pobierzemy listę produktów
+            # Lepiej pobrać listę produktów, bo formularz tego wymaga
+
+            # Ale InventoryFormDialog przyjmuje listę produktów w konstruktorze.
+            # Możemy przekazać listę zawierającą tylko ten jeden produkt, aby uprościć
+            # Lub pobrać wszystkie aktywne produkty
+
+            ok_prod, msg_prod, products = self.products_api.get_active()
+            if not ok_prod:
+                QMessageBox.warning(self, "Błąd", f"Nie udało się pobrać produktów: {msg_prod}")
+                return
+
+            # Znajdź ten produkt na liście
+            target_product = next((p for p in products if p['id'] == pid), None)
+
+            # Przygotuj wstępne dane dla nowej pozycji
+            initial_data = {
+                "product": target_product,
+                "quantity": 0,
+                "status": "AVAILABLE"
+            }
+
+            dlg = InventoryFormDialog(products, locations, item=initial_data, parent=self)
+
+            # Ustaw produkt w comboboxie
+            idx = dlg.cmb_product.findData(pid)
+            if idx >= 0:
+                dlg.cmb_product.setCurrentIndex(idx)
+                dlg.cmb_product.setEnabled(False) # Zablokuj zmianę produktu
+
+            if dlg.exec() == QDialog.DialogCode.Accepted:
+                from inventory_api import InventoryApi
+                inv_api = InventoryApi(self.cfg)
+
+                payload = dlg.build_create_payload()
+                if not payload.get("productId") or not payload.get("locationId"):
+                    QMessageBox.warning(self, "Walidacja", "Wybierz lokalizację.")
+                    return
+
+                ok_create, msg_create, _ = inv_api.create(payload)
+                if ok_create:
+                    QMessageBox.information(self, "Sukces", "Utworzono nową pozycję magazynową.")
+                else:
+                    QMessageBox.critical(self, "Błąd", f"Nie udało się utworzyć pozycji: {msg_create}")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Błąd", f"Wystąpił błąd: {str(e)}")
+
     # ---------------------------------
 
     def _save_server(self):
@@ -306,13 +604,36 @@ class ProductManagerWindow(QMainWindow):
         else:
             self._categories = cats
 
+    def _on_row_selected(self):
+        row = self.tbl.currentRow()
+        if row < 0 or row >= len(self._current_items):
+            for lbl in [self.txt_id, self.txt_sku, self.txt_name, self.txt_desc, self.txt_category, self.txt_price,
+                        self.txt_cost, self.txt_unit, self.txt_active, self.txt_barcode, self.txt_manufacturer,
+                        self.txt_supplier, self.txt_storage]:
+                lbl.setText("-")
+            return
+
+        p = self._current_items[row]
+        cat = p.get('category') or {}
+
+        self.txt_name.setText(p.get('name') or "")
+        self.txt_active.setText("TAK" if p.get('active') else "NIE")
+
+        self.txt_id.setText(self._fmt_row("ID", str(p.get('id', ''))))
+        self.txt_sku.setText(self._fmt_row("SKU", p.get('sku') or ""))
+        self.txt_category.setText(self._fmt_row("Kategoria", cat.get('name') or ""))
+        self.txt_unit.setText(self._fmt_row("Jednostka", p.get('unitOfMeasure') or p.get('unit') or ""))
+        self.txt_price.setText(self._fmt_row("Cena", str(p.get('price') or "")))
+        self.txt_cost.setText(self._fmt_row("Koszt", str(p.get('cost') or "")))
+        self.txt_barcode.setText(self._fmt_row("Kod kreskowy", p.get('barcode') or ""))
+        self.txt_manufacturer.setText(self._fmt_row("Producent", p.get('manufacturer') or ""))
+        self.txt_supplier.setText(self._fmt_row("Dostawca", p.get('supplier') or ""))
+        self.txt_storage.setText(self._fmt_row("Warunki skł.", p.get('storageConditions') or ""))
+        self.txt_desc.setText(self._fmt_row("Opis", p.get('description') or ""))
+
     def _load_products(self):
-        filter_idx = self.cmb_filter.currentIndex()
-        active: Optional[bool] = None
-        if filter_idx == 1:
-            active = True
-        elif filter_idx == 2:
-            active = False
+        # Zmiana: użycie checkboxa
+        active = True if self.chk_only_active.isChecked() else None
 
         if self._last_search:
             ok, msg, items = self.products_api.search(self._last_search)
@@ -324,6 +645,7 @@ class ProductManagerWindow(QMainWindow):
         self._populate_table(items)
 
     def _populate_table(self, items: List[Dict[str, Any]]):
+        self._current_items = items or []
         self.tbl.setRowCount(len(items))
         for r, p in enumerate(items):
             def setc(c: int, text: str):
@@ -339,6 +661,7 @@ class ProductManagerWindow(QMainWindow):
             setc(6, p.get("manufacturer") or "")
             setc(7, p.get("barcode") or "")
         self.tbl.resizeColumnsToContents()
+        self._on_row_selected()
 
     def _selected_product_id(self) -> Optional[int]:
         rows = self.tbl.selectionModel().selectedRows()

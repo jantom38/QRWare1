@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QLineEdit, QListWidget, QListWidgetItem,
     QTableWidget, QTableWidgetItem, QDialog, QFormLayout, QMessageBox,
-    QCheckBox, QTabWidget, QGroupBox, QHeaderView
+    QCheckBox, QTabWidget, QGroupBox, QHeaderView, QLabel
 )
 
 from config import ConfigManager
@@ -21,13 +21,21 @@ class UserFormDialog(QDialog):
         self.user = user or {}
 
         main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(20, 20, 20, 20)
+        main_layout.setSpacing(15)
+
+        lbl_title = QLabel("Edycja Użytkownika" if user else "Nowy Użytkownik")
+        lbl_title.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;")
+        main_layout.addWidget(lbl_title)
 
         top_container = QWidget()
         top_layout = QHBoxLayout(top_container)
         top_layout.setContentsMargins(0, 0, 0, 0)
+        top_layout.setSpacing(20)
 
         grp_account = QGroupBox("Dane Konta")
         lay_account = QFormLayout()
+        lay_account.setSpacing(10)
 
         self.edt_username = QLineEdit(self.user.get("username", ""))
         self.edt_email = QLineEdit(self.user.get("email", ""))
@@ -42,6 +50,7 @@ class UserFormDialog(QDialog):
 
         grp_personal = QGroupBox("Dane Osobowe i Status")
         lay_personal = QFormLayout()
+        lay_personal.setSpacing(10)
 
         self.edt_first = QLineEdit(self.user.get("firstName", ""))
         self.edt_last = QLineEdit(self.user.get("lastName", ""))
@@ -90,16 +99,16 @@ class UserFormDialog(QDialog):
         btn_layout = QHBoxLayout()
         btn_layout.addStretch()
         self.btn_cancel = QPushButton("Anuluj")
+        self.btn_cancel.setStyleSheet("background-color: #95a5a6; color: white;")
+        self.btn_cancel.clicked.connect(self.reject)
+        
         self.btn_ok = QPushButton("Zapisz")
-        self.btn_ok.setDefault(True)
-        self.btn_ok.setStyleSheet("font-weight: bold; padding: 5px 15px;")
+        self.btn_ok.setStyleSheet("background-color: #2ecc71; color: white; font-weight: bold;")
+        self.btn_ok.clicked.connect(self.validate_and_save)
 
         btn_layout.addWidget(self.btn_cancel)
         btn_layout.addWidget(self.btn_ok)
         main_layout.addLayout(btn_layout)
-
-        self.btn_ok.clicked.connect(self.validate_and_save)
-        self.btn_cancel.clicked.connect(self.reject)
 
     def validate_and_save(self):
         username = self.edt_username.text().strip()
@@ -161,9 +170,16 @@ class RoleFormDialog(QDialog):
         self.role = role or {}
 
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(15)
+
+        lbl_title = QLabel("Edycja Roli" if role else "Nowa Rola")
+        lbl_title.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;")
+        layout.addWidget(lbl_title)
 
         grp_info = QGroupBox("Informacje podstawowe")
         form = QFormLayout()
+        form.setSpacing(10)
         self.edt_name = QLineEdit(self.role.get("name", ""))
         self.edt_desc = QLineEdit(self.role.get("description", ""))
         self.chk_active = QCheckBox("Rola aktywna")
@@ -197,14 +213,16 @@ class RoleFormDialog(QDialog):
         btns = QHBoxLayout()
         btns.addStretch()
         self.btn_cancel = QPushButton("Anuluj")
+        self.btn_cancel.setStyleSheet("background-color: #95a5a6; color: white;")
+        self.btn_cancel.clicked.connect(self.reject)
+        
         self.btn_ok = QPushButton("Zapisz")
-        self.btn_ok.setDefault(True)
+        self.btn_ok.setStyleSheet("background-color: #2ecc71; color: white; font-weight: bold;")
+        self.btn_ok.clicked.connect(self.accept)
+        
         btns.addWidget(self.btn_cancel)
         btns.addWidget(self.btn_ok)
         layout.addLayout(btns)
-
-        self.btn_ok.clicked.connect(self.accept)
-        self.btn_cancel.clicked.connect(self.reject)
 
     def get_selected_permissions(self) -> List[str]:
         selected = []
@@ -227,12 +245,20 @@ class PermissionFormDialog(QDialog):
     def __init__(self, perm: Optional[Dict[str, Any]] = None, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Edycja Uprawnienia" if perm else "Nowe Uprawnienie")
-        self.resize(450, 350)
+        self.resize(450, 400)
         self.perm = perm or {}
 
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(15)
+
+        lbl_title = QLabel("Edycja Uprawnienia" if perm else "Nowe Uprawnienie")
+        lbl_title.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;")
+        layout.addWidget(lbl_title)
+
         grp = QGroupBox("Szczegóły")
         form = QFormLayout()
+        form.setSpacing(10)
 
         self.edt_name = QLineEdit(self.perm.get("name", ""))
         self.edt_desc = QLineEdit(self.perm.get("description", ""))
@@ -254,14 +280,16 @@ class PermissionFormDialog(QDialog):
         btns = QHBoxLayout()
         btns.addStretch()
         self.btn_cancel = QPushButton("Anuluj")
+        self.btn_cancel.setStyleSheet("background-color: #95a5a6; color: white;")
+        self.btn_cancel.clicked.connect(self.reject)
+        
         self.btn_ok = QPushButton("Zapisz")
-        self.btn_ok.setDefault(True)
+        self.btn_ok.setStyleSheet("background-color: #2ecc71; color: white; font-weight: bold;")
+        self.btn_ok.clicked.connect(self.accept)
+        
         btns.addWidget(self.btn_cancel)
         btns.addWidget(self.btn_ok)
         layout.addLayout(btns)
-
-        self.btn_ok.clicked.connect(self.accept)
-        self.btn_cancel.clicked.connect(self.reject)
 
     def build_payload(self) -> Dict[str, Any]:
         return {
@@ -284,10 +312,26 @@ class UserManagementWindow(QMainWindow):
         central = QWidget()
         self.setCentralWidget(central)
         root = QVBoxLayout(central)
-        root.setContentsMargins(15, 15, 15, 15)
+        root.setContentsMargins(20, 20, 20, 20)
+        root.setSpacing(15)
+
+        # --- HEADER ---
+        header = QHBoxLayout()
+        title_layout = QVBoxLayout()
+        lbl_title = QLabel("Panel Administratora")
+        lbl_title.setStyleSheet("font-size: 24px; font-weight: bold; color: #2c3e50;")
+        lbl_subtitle = QLabel("Zarządzanie użytkownikami, rolami i uprawnieniami")
+        lbl_subtitle.setStyleSheet("font-size: 14px; color: #7f8c8d;")
+        title_layout.addWidget(lbl_title)
+        title_layout.addWidget(lbl_subtitle)
+        header.addLayout(title_layout)
+        header.addStretch()
+
+
+        root.addLayout(header)
 
         self.tabs = QTabWidget()
-        self.tabs.setStyleSheet("QTabBar::tab { height: 30px; width: 120px; }")
+        self.tabs.setStyleSheet("QTabBar::tab { height: 35px; width: 150px; font-weight: bold; }")
         root.addWidget(self.tabs)
 
         self._init_users_tab()
@@ -302,6 +346,7 @@ class UserManagementWindow(QMainWindow):
         tab = QWidget()
         layout = QVBoxLayout(tab)
         layout.setSpacing(10)
+        layout.setContentsMargins(10, 10, 10, 10)
 
         toolbar = QHBoxLayout()
 
@@ -312,11 +357,18 @@ class UserManagementWindow(QMainWindow):
         btn_search = QPushButton("Szukaj")
         btn_search.clicked.connect(self._users_search)
 
+        # Zmiana: Checkbox
+        self.chk_users_active = QCheckBox("Tylko aktywni")
+        self.chk_users_active.setChecked(True)
+        self.chk_users_active.stateChanged.connect(self._users_load)
+
         btn_load = QPushButton("Odśwież")
         btn_load.clicked.connect(self._users_load)
 
         btn_add = QPushButton(" + Nowy")
+        btn_add.setStyleSheet("background-color: #2ecc71; color: white; font-weight: bold;")
         btn_add.clicked.connect(self._users_add)
+        
         btn_edit = QPushButton("Edytuj")
         btn_edit.clicked.connect(self._users_edit)
 
@@ -330,6 +382,7 @@ class UserManagementWindow(QMainWindow):
 
         toolbar.addWidget(self.edt_us_search)
         toolbar.addWidget(btn_search)
+        toolbar.addWidget(self.chk_users_active)
         toolbar.addWidget(btn_load)
         toolbar.addStretch()
         toolbar.addWidget(btn_add)
@@ -352,6 +405,7 @@ class UserManagementWindow(QMainWindow):
         self.tbl_users.setColumnWidth(0, 50)
         self.tbl_users.setColumnWidth(5, 70)
         self.tbl_users.setColumnWidth(6, 90)
+        self.tbl_users.setStyleSheet("QTableWidget { border: 1px solid #dcdcdc; }")
 
         layout.addWidget(self.tbl_users)
         self.tabs.addTab(tab, "Użytkownicy")
@@ -360,19 +414,29 @@ class UserManagementWindow(QMainWindow):
         tab = QWidget()
         layout = QVBoxLayout(tab)
         layout.setSpacing(10)
+        layout.setContentsMargins(10, 10, 10, 10)
 
         toolbar = QHBoxLayout()
+
+        # Zmiana: Checkbox
+        self.chk_roles_active = QCheckBox("Tylko aktywne")
+        self.chk_roles_active.setChecked(True)
+        self.chk_roles_active.stateChanged.connect(self._roles_load)
+
         btn_load = QPushButton("Odśwież")
         btn_load.clicked.connect(self._roles_load)
 
         btn_add = QPushButton(" + Nowa Rola")
+        btn_add.setStyleSheet("background-color: #2ecc71; color: white; font-weight: bold;")
         btn_add.clicked.connect(self._roles_add)
+        
         btn_edit = QPushButton("Edytuj")
         btn_edit.clicked.connect(self._roles_edit)
         btn_del = QPushButton("Usuń")
         btn_del.setStyleSheet("color: red;")
         btn_del.clicked.connect(self._roles_del)
 
+        toolbar.addWidget(self.chk_roles_active)
         toolbar.addWidget(btn_load)
         toolbar.addStretch()
         toolbar.addWidget(btn_add)
@@ -390,6 +454,7 @@ class UserManagementWindow(QMainWindow):
         self.tbl_roles.horizontalHeader().setStretchLastSection(True)
         self.tbl_roles.setColumnWidth(0, 50)
         self.tbl_roles.setColumnWidth(3, 70)
+        self.tbl_roles.setStyleSheet("QTableWidget { border: 1px solid #dcdcdc; }")
 
         layout.addWidget(self.tbl_roles)
         self.tabs.addTab(tab, "Role")
@@ -398,19 +463,29 @@ class UserManagementWindow(QMainWindow):
         tab = QWidget()
         layout = QVBoxLayout(tab)
         layout.setSpacing(10)
+        layout.setContentsMargins(10, 10, 10, 10)
 
         toolbar = QHBoxLayout()
+
+        # Zmiana: Checkbox
+        self.chk_perms_active = QCheckBox("Tylko aktywne")
+        self.chk_perms_active.setChecked(True)
+        self.chk_perms_active.stateChanged.connect(self._perms_load)
+
         btn_load = QPushButton("Odśwież")
         btn_load.clicked.connect(self._perms_load)
 
         btn_add = QPushButton(" + Nowe Uprawnienie")
+        btn_add.setStyleSheet("background-color: #2ecc71; color: white; font-weight: bold;")
         btn_add.clicked.connect(self._perms_add)
+        
         btn_edit = QPushButton("Edytuj")
         btn_edit.clicked.connect(self._perms_edit)
         btn_del = QPushButton("Usuń")
         btn_del.setStyleSheet("color: red;")
         btn_del.clicked.connect(self._perms_del)
 
+        toolbar.addWidget(self.chk_perms_active)
         toolbar.addWidget(btn_load)
         toolbar.addStretch()
         toolbar.addWidget(btn_add)
@@ -428,6 +503,7 @@ class UserManagementWindow(QMainWindow):
         self.tbl_perms.horizontalHeader().setStretchLastSection(True)
         self.tbl_perms.setColumnWidth(0, 50)
         self.tbl_perms.setColumnWidth(5, 70)
+        self.tbl_perms.setStyleSheet("QTableWidget { border: 1px solid #dcdcdc; }")
 
         layout.addWidget(self.tbl_perms)
         self.tabs.addTab(tab, "Uprawnienia")
@@ -444,17 +520,33 @@ class UserManagementWindow(QMainWindow):
     def _users_load(self):
         ok, msg, page = self.api.list_users()
         if not ok:
-            QMessageBox.warning(self, "Błąd", msg)
+            # Ulepszone info diagnostyczne
+            from pathlib import Path
+            log_path = Path(__file__).parent / "client_debug.log"
+            QMessageBox.warning(
+                self,
+                "Błąd",
+                f"{msg}\n\nSzczegóły zapisano w pliku:\n{log_path}"
+            )
             self.tbl_users.setRowCount(0) # Wyczyść tabelę w razie błędu
             return
         
-        # Zabezpieczenie przed None
-        content = page.get("content") if isinstance(page, dict) else []
+        # Backend zwraca GlobalApiResponse { success, message, data }
+        data_node = page.get("data") if isinstance(page, dict) else None
+        content = data_node.get("content") if isinstance(data_node, dict) else []
         if content is None:
             content = []
-            
-        self.tbl_users.setRowCount(len(content))
-        for r, u in enumerate(content):
+
+        # Client-side filtering
+        only_active = self.chk_users_active.isChecked()
+        filtered_content = []
+        for u in content:
+            if only_active and not u.get("active"):
+                continue
+            filtered_content.append(u)
+
+        self.tbl_users.setRowCount(len(filtered_content))
+        for r, u in enumerate(filtered_content):
             def setc(c: int, t: str):
                 self.tbl_users.setItem(r, c, QTableWidgetItem(t))
 
@@ -481,9 +573,17 @@ class UserManagementWindow(QMainWindow):
         content = page.get("content") if isinstance(page, dict) else []
         if content is None:
             content = []
-            
-        self.tbl_users.setRowCount(len(content))
-        for r, u in enumerate(content):
+
+        # Client-side filtering
+        only_active = self.chk_users_active.isChecked()
+        filtered_content = []
+        for u in content:
+            if only_active and not u.get("active"):
+                continue
+            filtered_content.append(u)
+
+        self.tbl_users.setRowCount(len(filtered_content))
+        for r, u in enumerate(filtered_content):
             def setc(c: int, t: str):
                 self.tbl_users.setItem(r, c, QTableWidgetItem(t))
 
@@ -565,8 +665,17 @@ class UserManagementWindow(QMainWindow):
         if not ok:
             QMessageBox.warning(self, "Błąd", msg)
             return
-        self.tbl_roles.setRowCount(len(roles))
-        for r, role in enumerate(roles):
+
+        # Client-side filtering
+        only_active = self.chk_roles_active.isChecked()
+        filtered_roles = []
+        for r in roles:
+            if only_active and not r.get("active"):
+                continue
+            filtered_roles.append(r)
+
+        self.tbl_roles.setRowCount(len(filtered_roles))
+        for r, role in enumerate(filtered_roles):
             def setc(c: int, t: str):
                 self.tbl_roles.setItem(r, c, QTableWidgetItem(t))
 
@@ -634,8 +743,17 @@ class UserManagementWindow(QMainWindow):
         if not ok:
             QMessageBox.warning(self, "Błąd", msg)
             return
-        self.tbl_perms.setRowCount(len(perms))
-        for r, p in enumerate(perms):
+
+        # Client-side filtering
+        only_active = self.chk_perms_active.isChecked()
+        filtered_perms = []
+        for p in perms:
+            if only_active and not p.get("active"):
+                continue
+            filtered_perms.append(p)
+
+        self.tbl_perms.setRowCount(len(filtered_perms))
+        for r, p in enumerate(filtered_perms):
             def setc(c: int, t: str):
                 self.tbl_perms.setItem(r, c, QTableWidgetItem(t))
 

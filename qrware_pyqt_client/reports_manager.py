@@ -6,7 +6,7 @@ from datetime import datetime
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QComboBox, QDateEdit, QGroupBox, QFormLayout,
-    QMessageBox, QFileDialog, QCheckBox
+    QMessageBox, QFileDialog, QCheckBox, QTableWidget, QTableWidgetItem, QHeaderView, QSplitter
 )
 from PyQt6.QtCore import Qt, QDate
 
@@ -26,23 +26,33 @@ from zones_api import ZonesApi
 class ReportsManagerWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("QRWare - Raporty")
-        self.resize(600, 500)
+        self.setWindowTitle("QRWare - Raporty i Analizy")
+        self.resize(1100, 750)
 
         self.cfg = ConfigManager()
         self.inventory_api = InventoryApi(self.cfg)
         self.movement_api = MovementHistoryApi(self.cfg)
         self.categories_api = CategoriesApi(self.cfg)
         self.zones_api = ZonesApi(self.cfg)
+        
+        self.current_data = []
 
         central = QWidget()
         self.setCentralWidget(central)
-        layout = QVBoxLayout(central)
+        main_layout = QHBoxLayout(central)
+        main_layout.setContentsMargins(20, 20, 20, 20)
+        main_layout.setSpacing(20)
 
-        # --- Sekcja wyboru typu raportu ---
-        type_group = QGroupBox("Typ raportu")
+        # --- LEWA STRONA (Konfiguracja) ---
+        left_layout = QVBoxLayout()
+        
+        lbl_config = QLabel("Konfiguracja Raportu")
+        lbl_config.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50;")
+        left_layout.addWidget(lbl_config)
+
+        # Typ raportu
+        type_group = QGroupBox("Rodzaj analizy")
         type_layout = QVBoxLayout()
-
         self.combo_report_type = QComboBox()
         self.combo_report_type.addItems([
             "Pozycje magazynowe (Wszystkie)",
@@ -52,14 +62,14 @@ class ReportsManagerWindow(QMainWindow):
             "Produkty przeterminowane"
         ])
         self.combo_report_type.currentIndexChanged.connect(self._on_type_changed)
-
         type_layout.addWidget(self.combo_report_type)
         type_group.setLayout(type_layout)
-        layout.addWidget(type_group)
+        left_layout.addWidget(type_group)
 
-        # --- Sekcja parametrów ---
-        self.params_group = QGroupBox("Parametry")
+        # Parametry
+        self.params_group = QGroupBox("Filtry i Zakres")
         params_layout = QFormLayout()
+        params_layout.setSpacing(10)
 
         self.date_start = QDateEdit()
         self.date_start.setCalendarPopup(True)
@@ -83,23 +93,48 @@ class ReportsManagerWindow(QMainWindow):
         params_layout.addRow("Strefa:", self.combo_zone)
 
         self.params_group.setLayout(params_layout)
-        layout.addWidget(self.params_group)
+        left_layout.addWidget(self.params_group)
 
-        # --- Przyciski ---
-        btn_layout = QHBoxLayout()
+        # Przyciski akcji
+        btn_layout = QVBoxLayout()
+        btn_layout.setSpacing(10)
 
-        self.btn_generate = QPushButton("Generuj Raport PDF")
-        self.btn_generate.setStyleSheet("font-weight: bold; padding: 10px; background-color: #007bff; color: white;")
+        self.btn_preview = QPushButton("Podgląd Danych")
+        self.btn_preview.setStyleSheet("background-color: #3498db; color: white; font-weight: bold; padding: 10px;")
+        self.btn_preview.clicked.connect(self.load_preview)
+        
+        self.btn_generate = QPushButton("Eksportuj do PDF")
+        self.btn_generate.setStyleSheet("background-color: #2ecc71; color: white; font-weight: bold; padding: 10px;")
         self.btn_generate.clicked.connect(self.generate_report)
 
-        btn_layout.addStretch()
+        btn_layout.addWidget(self.btn_preview)
         btn_layout.addWidget(self.btn_generate)
-        btn_layout.addStretch()
+        left_layout.addLayout(btn_layout)
+        
+        left_layout.addStretch()
+        main_layout.addLayout(left_layout, 30)
 
-        layout.addLayout(btn_layout)
-        layout.addStretch()
+        # --- PRAWA STRONA (Podgląd) ---
+        right_layout = QVBoxLayout()
+        
+        lbl_preview = QLabel("Podgląd Wyników")
+        lbl_preview.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50;")
+        right_layout.addWidget(lbl_preview)
 
-        self._on_type_changed() # Inicjalizacja widoczności pól
+        self.table_preview = QTableWidget()
+        self.table_preview.setAlternatingRowColors(True)
+        self.table_preview.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.table_preview.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.table_preview.setStyleSheet("QTableWidget { border: 1px solid #dcdcdc; }")
+        right_layout.addWidget(self.table_preview)
+        
+        self.lbl_summary = QLabel("Liczba rekordów: 0")
+        self.lbl_summary.setStyleSheet("font-weight: bold; color: #555;")
+        right_layout.addWidget(self.lbl_summary)
+
+        main_layout.addLayout(right_layout, 70)
+
+        self._on_type_changed()
 
     def _load_categories(self):
         ok, msg, cats = self.categories_api.list(only_active=True)
@@ -115,20 +150,132 @@ class ReportsManagerWindow(QMainWindow):
 
     def _on_type_changed(self):
         report_type = self.combo_report_type.currentText()
-
-        # Pokaż/ukryj daty w zależności od typu raportu
         is_movement = "Przepływy" in report_type
         self.date_start.setEnabled(is_movement)
         self.date_end.setEnabled(is_movement)
-
-        # Kategorie i strefy mogą być używane do filtrowania w większości raportów
-        # (choć w obecnej implementacji API może nie wspierać wszystkiego,
-        #  zrobimy filtrowanie po stronie klienta jeśli trzeba)
         self.combo_category.setEnabled(True)
         self.combo_zone.setEnabled(True)
+        
+        # Wyczyść podgląd przy zmianie typu
+        self.table_preview.setRowCount(0)
+        self.table_preview.setColumnCount(0)
+        self.lbl_summary.setText("Liczba rekordów: 0")
+        self.current_data = []
+
+    def load_preview(self):
+        report_type = self.combo_report_type.currentText()
+        self.setCursor(Qt.CursorShape.WaitCursor)
+        try:
+            data = self._fetch_data(report_type)
+            self.current_data = data
+            self._populate_table(report_type, data)
+            
+            summary_text = f"Liczba rekordów: {len(data)}"
+            if report_type == "Wartość zapasów":
+                total_val = self._calculate_total_value(data)
+                summary_text += f" | Całkowita wartość: {total_val:.2f} PLN"
+                
+            self.lbl_summary.setText(summary_text)
+        except Exception as e:
+            QMessageBox.critical(self, "Błąd", f"Nie udało się pobrać danych: {str(e)}")
+        finally:
+            self.setCursor(Qt.CursorShape.ArrowCursor)
+
+    def _populate_table(self, report_type, data):
+        self.table_preview.setRowCount(0)
+        
+        if "Przepływy" in report_type:
+            headers = ["Data", "Typ", "Produkt", "Ilość", "Użytkownik", "Od", "Do"]
+            self.table_preview.setColumnCount(len(headers))
+            self.table_preview.setHorizontalHeaderLabels(headers)
+            self.table_preview.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+            
+            for i, item in enumerate(data):
+                self.table_preview.insertRow(i)
+                date_str = item.get("movementDate", "")[:16].replace("T", " ")
+                mtype = self._translate_movement_type(item.get("movementType", ""))
+                
+                prod_name = ""
+                if "inventoryItem" in item:
+                     prod = item["inventoryItem"].get("product", {})
+                     prod_name = prod.get("name", "")
+                
+                self.table_preview.setItem(i, 0, QTableWidgetItem(date_str))
+                self.table_preview.setItem(i, 1, QTableWidgetItem(mtype))
+                self.table_preview.setItem(i, 2, QTableWidgetItem(prod_name))
+                self.table_preview.setItem(i, 3, QTableWidgetItem(str(item.get("quantityChanged", ""))))
+                self.table_preview.setItem(i, 4, QTableWidgetItem(item.get("userName", "")))
+                
+                fl = item.get("fromLocation") or {}
+                tl = item.get("toLocation") or {}
+                self.table_preview.setItem(i, 5, QTableWidgetItem(fl.get("code") or ""))
+                self.table_preview.setItem(i, 6, QTableWidgetItem(tl.get("code") or ""))
+
+        elif "Wartość" in report_type:
+            headers = ["Produkt", "SKU", "Ilość", "Cena jedn.", "Wartość"]
+            self.table_preview.setColumnCount(len(headers))
+            self.table_preview.setHorizontalHeaderLabels(headers)
+            self.table_preview.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+            
+            for i, item in enumerate(data):
+                self.table_preview.insertRow(i)
+                prod = item.get("product", {})
+                name = prod.get("name", "")
+                sku = prod.get("sku", "")
+                qty = item.get("quantity", 0)
+                cost = self._get_cost(item)
+                val = qty * cost
+                
+                self.table_preview.setItem(i, 0, QTableWidgetItem(name))
+                self.table_preview.setItem(i, 1, QTableWidgetItem(sku))
+                self.table_preview.setItem(i, 2, QTableWidgetItem(str(qty)))
+                self.table_preview.setItem(i, 3, QTableWidgetItem(f"{cost:.2f}"))
+                self.table_preview.setItem(i, 4, QTableWidgetItem(f"{val:.2f}"))
+
+        elif "przeterminowane" in report_type:
+            headers = ["Produkt", "SKU", "Wiadomość", "Waga"]
+            self.table_preview.setColumnCount(len(headers))
+            self.table_preview.setHorizontalHeaderLabels(headers)
+            self.table_preview.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+            
+            for i, item in enumerate(data):
+                self.table_preview.insertRow(i)
+                self.table_preview.setItem(i, 0, QTableWidgetItem(str(item.get("productName", ""))))
+                self.table_preview.setItem(i, 1, QTableWidgetItem(str(item.get("sku", ""))))
+                self.table_preview.setItem(i, 2, QTableWidgetItem(str(item.get("message", ""))))
+                self.table_preview.setItem(i, 3, QTableWidgetItem(str(item.get("severity", ""))))
+
+        else: # Domyślny (Inventory)
+            headers = ["ID", "Produkt", "Lokalizacja", "Ilość", "Status"]
+            self.table_preview.setColumnCount(len(headers))
+            self.table_preview.setHorizontalHeaderLabels(headers)
+            self.table_preview.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+            
+            for i, item in enumerate(data):
+                self.table_preview.insertRow(i)
+                prod = item.get("product") or {}
+                loc = item.get("location") or {}
+                
+                self.table_preview.setItem(i, 0, QTableWidgetItem(str(item.get("id"))))
+                self.table_preview.setItem(i, 1, QTableWidgetItem(prod.get("name") or prod.get("sku") or ""))
+                self.table_preview.setItem(i, 2, QTableWidgetItem(loc.get("name") or loc.get("code") or ""))
+                self.table_preview.setItem(i, 3, QTableWidgetItem(str(item.get("quantity"))))
+                self.table_preview.setItem(i, 4, QTableWidgetItem(item.get("status") or ""))
 
     def generate_report(self):
         report_type = self.combo_report_type.currentText()
+        
+        # Jeśli dane nie były załadowane, pobierz je teraz
+        if not self.current_data:
+            try:
+                self.current_data = self._fetch_data(report_type)
+            except Exception as e:
+                QMessageBox.critical(self, "Błąd", f"Błąd pobierania danych: {str(e)}")
+                return
+
+        if not self.current_data:
+            QMessageBox.information(self, "Info", "Brak danych do wygenerowania raportu.")
+            return
 
         file_path, _ = QFileDialog.getSaveFileName(
             self, "Zapisz raport PDF",
@@ -140,18 +287,16 @@ class ReportsManagerWindow(QMainWindow):
             return
 
         try:
-            data = self._fetch_data(report_type)
-            self._create_pdf(file_path, report_type, data)
+            self._create_pdf(file_path, report_type, self.current_data)
             QMessageBox.information(self, "Sukces", f"Raport zapisany w: {file_path}")
         except Exception as e:
-            QMessageBox.critical(self, "Błąd", f"Błąd generowania raportu: {str(e)}")
+            QMessageBox.critical(self, "Błąd", f"Błąd generowania PDF: {str(e)}")
 
     def _fetch_data(self, report_type: str) -> List[Dict[str, Any]]:
-        # Pobieranie danych w zależności od typu
         data = []
 
         if report_type == "Pozycje magazynowe (Wszystkie)":
-            ok, msg, items, _ = self.inventory_api.page(0, 1000) # Pobierz dużo
+            ok, msg, items, _ = self.inventory_api.page(0, 1000)
             if ok: data = items
 
         elif report_type == "Niski stan magazynowy":
@@ -169,51 +314,30 @@ class ReportsManagerWindow(QMainWindow):
             if ok: data = items
 
         elif report_type == "Produkty przeterminowane":
-            # Pobieramy alerty, tam są przeterminowane
             ok, msg, alerts = self.inventory_api.get_alerts()
             if ok:
-                # Filtrujemy tylko EXPIRED
                 data = [a for a in alerts if a.get("type") == "EXPIRED"]
 
-        # Filtrowanie po stronie klienta (Kategoria, Strefa)
-        # Uwaga: Struktura danych różni się dla InventoryItem, MovementHistory, Alert
+        # Filtrowanie po stronie klienta
         filtered_data = []
         cat_id = self.combo_category.currentData()
         zone_id = self.combo_zone.currentData()
 
         for item in data:
             match = True
-
-            # Logika wyciągania kategorii i strefy z obiektu
-            item_cat_id = None
             item_zone_id = None
 
-            # Dla InventoryItem
-            if "product" in item and isinstance(item["product"], dict):
-                # Zakładamy, że product ma categoryId lub category object
-                # W InventoryItemDTO product to ProductDTO
-                # Sprawdźmy strukturę ProductDTO w API...
-                # Przyjmijmy uproszczenie: jeśli nie ma wprost, pomijamy filtr kategorii
-                pass
-
             if "location" in item and isinstance(item["location"], dict):
-                # LocationDTO ma zoneId
                 loc = item["location"]
                 if "zoneId" in loc:
                     item_zone_id = loc["zoneId"]
                 elif "zone" in loc and isinstance(loc["zone"], dict):
                      item_zone_id = loc["zone"].get("id")
 
-            # Dla MovementHistory
-            # Ma toLocation i fromLocation
-
-            # Filtrowanie Strefy
             if zone_id is not None:
                 if item_zone_id != zone_id:
-                    # Jeśli to inventory item i ma lokalizację
                     if "location" in item:
                          match = False
-                    # Jeśli to movement history, sprawdzamy czy dotyczy strefy (to lub from)
                     elif "toLocation" in item or "fromLocation" in item:
                         to_z = self._get_zone_id_from_loc(item.get("toLocation"))
                         from_z = self._get_zone_id_from_loc(item.get("fromLocation"))
@@ -230,43 +354,52 @@ class ReportsManagerWindow(QMainWindow):
         if "zoneId" in loc: return loc["zoneId"]
         if "zone" in loc and isinstance(loc["zone"], dict): return loc["zone"].get("id")
         return None
+        
+    def _get_cost(self, item):
+        cost = item.get("unitCost")
+        if cost is None and "product" in item:
+            cost = item["product"].get("price")
+        try:
+            return float(cost) if cost is not None else 0.0
+        except ValueError:
+            return 0.0
+            
+    def _calculate_total_value(self, data):
+        total = 0.0
+        for item in data:
+            qty = item.get("quantity", 0)
+            cost = self._get_cost(item)
+            total += (qty * cost)
+        return total
 
     def _create_pdf(self, path, title, data):
         c = canvas.Canvas(path, pagesize=A4)
         width, height = A4
 
-        # Rejestracja czcionki z polskimi znakami (Arial lub inna systemowa)
-        # Spróbujmy znaleźć standardową czcionkę Windows
         font_path = "C:\\Windows\\Fonts\\arial.ttf"
         font_name = "Arial"
         try:
             pdfmetrics.registerFont(TTFont(font_name, font_path))
             c.setFont(font_name, 10)
         except:
-            # Fallback
             font_name = "Helvetica"
             c.setFont("Helvetica", 10)
 
-        # Nagłówek
         c.setFont(font_name, 16)
         c.drawString(20 * mm, height - 20 * mm, f"Raport: {title}")
 
         c.setFont(font_name, 10)
         c.drawString(20 * mm, height - 30 * mm, f"Data wygenerowania: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
 
-        # Parametry
         y = height - 40 * mm
         c.drawString(20 * mm, y, f"Zakres dat: {self.date_start.text()} - {self.date_end.text()}")
         c.drawString(100 * mm, y, f"Kategoria: {self.combo_category.currentText()}")
         c.drawString(150 * mm, y, f"Strefa: {self.combo_zone.currentText()}")
 
-        # Tabela
         y -= 15 * mm
         self._draw_table_header(c, y, title, font_name)
         y -= 5 * mm
         c.line(20 * mm, y + 2 * mm, 190 * mm, y + 2 * mm)
-
-        # Dodatkowy odstęp po nagłówku
         y -= 5 * mm
 
         total_value = 0.0
@@ -277,30 +410,17 @@ class ReportsManagerWindow(QMainWindow):
                 y = height - 20 * mm
                 c.setFont(font_name, 10)
                 self._draw_table_header(c, y, title, font_name)
-                y -= 10 * mm # Większy odstęp po nagłówku na nowej stronie
+                y -= 10 * mm
 
             self._draw_row(c, y, title, item, font_name)
 
-            # Sumowanie wartości
             if title == "Wartość zapasów":
                 qty = item.get("quantity", 0)
-                # Sprawdzamy czy unitCost jest dostępny wprost, czy w produkcie
-                cost = item.get("unitCost")
-                if cost is None and "product" in item:
-                    # Czasem cena jest w produkcie
-                    cost = item["product"].get("price")
-
-                # Konwersja na float, jeśli to string lub None
-                try:
-                    cost = float(cost) if cost is not None else 0.0
-                except ValueError:
-                    cost = 0.0
-
+                cost = self._get_cost(item)
                 total_value += (qty * cost)
 
             y -= 5 * mm
 
-        # Podsumowanie dla wartości
         if title == "Wartość zapasów":
             y -= 5 * mm
             c.setFont(font_name, 12)
@@ -408,17 +528,7 @@ class ReportsManagerWindow(QMainWindow):
             c.drawString(20 * mm, y, name[:35])
 
             qty = item.get("quantity", 0)
-
-            # Pobieranie kosztu z obsługą różnych lokalizacji i typów
-            cost = item.get("unitCost")
-            if cost is None and "product" in item:
-                cost = item["product"].get("price")
-
-            try:
-                cost = float(cost) if cost is not None else 0.0
-            except ValueError:
-                cost = 0.0
-
+            cost = self._get_cost(item)
             val = qty * cost
 
             c.drawString(80 * mm, y, str(qty))

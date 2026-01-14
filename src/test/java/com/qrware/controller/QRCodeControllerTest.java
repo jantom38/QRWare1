@@ -68,7 +68,7 @@ class QRCodeControllerTest {
         QRCodeDTO dto = new QRCodeDTO();
         dto.setId(1L);
         
-        when(qrCodeRepository.findAll(any(Pageable.class))).thenReturn(page);
+        when(qrCodeRepository.findByActiveTrue(any(Pageable.class))).thenReturn(page);
         when(dtoMapper.toDTO(any(QRCodeData.class))).thenReturn(dto);
 
         ResponseEntity<Page<QRCodeDTO>> response = qrCodeController.getAllQRCodes(Pageable.unpaged());
@@ -234,8 +234,11 @@ class QRCodeControllerTest {
         dto.setId(1L);
         dto.setCode("AUTO-GEN-001");
         
-        when(qrCodeGenerationService.generateQRCodeSync(anyString(), any(), anyString(), any(), anyString(), any()))
-            .thenReturn(generatedQR);
+        // ZMIANA: Dodano argumenty do mocka, aby pasowały do wywołania w kontrolerze
+        when(qrCodeGenerationService.generateQRCodeSync(
+            anyString(), any(), anyString(), any(), anyString(), any(), any()
+        )).thenReturn(generatedQR);
+        
         when(inventoryItemRepository.findById(1L)).thenReturn(Optional.of(inventoryItem));
         when(dtoMapper.toDTO(generatedQR)).thenReturn(dto);
 
@@ -281,8 +284,10 @@ class QRCodeControllerTest {
         request.setEntityType("inventory_item");
         request.setEntityId(1L);
         
-        when(qrCodeGenerationService.generateQRCodeSync(anyString(), any(), anyString(), any(), anyString(), any()))
-            .thenReturn(null);
+        // ZMIANA: Dodano argumenty do mocka, aby pasowały do wywołania w kontrolerze
+        when(qrCodeGenerationService.generateQRCodeSync(
+            anyString(), any(), anyString(), any(), anyString(), any(), any()
+        )).thenReturn(null);
 
         ResponseEntity<?> response = qrCodeController.generateQRCode(request);
 
@@ -326,23 +331,21 @@ class QRCodeControllerTest {
         assertThrows(ResourceNotFoundException.class, () -> qrCodeController.updateQRCode(id, request));
     }
 
-    // ==================== DELETE QR CODE (SOFT DELETE) ====================
+    // ==================== DELETE QR CODE (HARD DELETE) ====================
 
     @Test
-    void deleteQRCode_ShouldDeactivate_WhenFound() {
+    void deleteQRCode_ShouldDelete_WhenFound() {
         Long id = 1L;
         QRCodeData qrCode = new QRCodeData();
         qrCode.setId(id);
-        qrCode.setActive(true);
         
         when(qrCodeRepository.findById(id)).thenReturn(Optional.of(qrCode));
-        when(qrCodeRepository.save(any(QRCodeData.class))).thenReturn(qrCode);
+        doNothing().when(qrCodeRepository).delete(qrCode);
 
         ResponseEntity<Void> response = qrCodeController.deleteQRCode(id);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        assertFalse(qrCode.getActive());
-        verify(qrCodeRepository).save(qrCode);
+        verify(qrCodeRepository).delete(qrCode);
     }
 
     @Test

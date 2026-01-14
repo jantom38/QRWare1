@@ -5,7 +5,7 @@ from PyQt6.QtCore import Qt, QDateTime
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QLineEdit, QComboBox, QTableWidget, QTableWidgetItem,
-    QDialog, QFormLayout, QMessageBox, QDateTimeEdit
+    QDialog, QFormLayout, QMessageBox, QDateTimeEdit, QHeaderView
 )
 
 from config import ConfigManager
@@ -16,46 +16,84 @@ class MovementHistoryWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("QRWare - Historia ruchów")
-        self.resize(1200, 700)
+        self.resize(1200, 750)
         self.cfg = ConfigManager()
         self.api = MovementHistoryApi(self.cfg)
 
         central = QWidget(); self.setCentralWidget(central)
         root = QVBoxLayout(); central.setLayout(root)
-        root.setContentsMargins(16, 16, 16, 16)
-        root.setSpacing(12)
+        root.setContentsMargins(20, 20, 20, 20)
+        root.setSpacing(15)
 
-        # Pasek narzędzi
-        top = QHBoxLayout()
-        self.edt_server = QLineEdit(self.cfg.base_url)
-        btn_save_server = QPushButton("Zapisz serwer"); btn_save_server.clicked.connect(self._save_server)
-        self.edt_keyword = QLineEdit(); self.edt_keyword.setPlaceholderText("Szukaj po reason/notes…")
-        self.cmb_search_in = QComboBox(); self.cmb_search_in.addItems(["reason", "notes", "both"])
-        self.cmb_type = QComboBox(); self.cmb_type.addItems([
+        # --- HEADER ---
+        header = QHBoxLayout()
+        
+        title_layout = QVBoxLayout()
+        lbl_title = QLabel("Historia Ruchów Magazynowych")
+        lbl_title.setStyleSheet("font-size: 24px; font-weight: bold; color: #2c3e50;")
+        lbl_subtitle = QLabel("Śledź operacje, przesunięcia i zmiany stanów")
+        lbl_subtitle.setStyleSheet("font-size: 14px; color: #7f8c8d;")
+        title_layout.addWidget(lbl_title)
+        title_layout.addWidget(lbl_subtitle)
+        header.addLayout(title_layout)
+        
+        header.addStretch()
+        
+        # Usunięto panel serwera
+        
+        root.addLayout(header)
+
+        # --- TOOLBAR ---
+        toolbar = QHBoxLayout()
+        toolbar.setSpacing(10)
+
+        self.edt_keyword = QLineEdit(); 
+        self.edt_keyword.setPlaceholderText("Szukaj po reason/notes…")
+        self.edt_keyword.setMinimumWidth(200)
+        toolbar.addWidget(self.edt_keyword)
+        
+        self.cmb_search_in = QComboBox(); 
+        self.cmb_search_in.addItems(["reason", "notes", "both"])
+        toolbar.addWidget(self.cmb_search_in)
+        
+        self.cmb_type = QComboBox(); 
+        self.cmb_type.setPlaceholderText("Typ operacji")
+        self.cmb_type.addItems([
             "", "RECEIPT","ISSUE","TRANSFER","MOVE","ADJUSTMENT","CYCLE_COUNT","PHYSICAL_COUNT",
             "RESERVE","UNRESERVE","PICK","PACK","SHIP","RETURN","PUTAWAY","REPLENISHMENT","ALLOCATION","DEALLOCATION",
             "QUARANTINE","RELEASE","HOLD","UNHOLD","DAMAGE","DISPOSAL","LOSS","FOUND","EXPIRY","RECALL","STAGING","CROSSDOCK",
             "CONSOLIDATION","SPLIT","MERGE","CONVERSION","PRODUCTION","CONSUMPTION","SCRAP","REWORK","SAMPLE","LOAN","LOAN_RETURN",
             "ORDER_RECEIPT","ORDER_ISSUE","ORDER_PICK","ORDER_PACK","ORDER_CANCEL","ORDER_RETURN","ORDER_ADJUSTMENT"
         ])
-        self.dt_start = QDateTimeEdit(QDateTime.currentDateTime().addDays(-7)); self.dt_start.setCalendarPopup(True)
-        self.dt_end = QDateTimeEdit(QDateTime.currentDateTime()); self.dt_end.setCalendarPopup(True)
-        btn_filter = QPushButton("Filtruj"); btn_filter.clicked.connect(self._apply_filters)
-        btn_recent = QPushButton("Ostatnie"); btn_recent.clicked.connect(self._load_recent)
-        btn_pending = QPushButton("Oczekujące"); btn_pending.clicked.connect(self._load_pending)
-        top.addWidget(QLabel("Serwer:")); top.addWidget(self.edt_server, 2)
-        top.addWidget(btn_save_server)
-        top.addWidget(QLabel("Szukaj:")); top.addWidget(self.edt_keyword, 1)
-        top.addWidget(self.cmb_search_in)
-        top.addWidget(QLabel("Typ:")); top.addWidget(self.cmb_type)
-        top.addWidget(QLabel("Od:")); top.addWidget(self.dt_start)
-        top.addWidget(QLabel("Do:")); top.addWidget(self.dt_end)
-        top.addWidget(btn_filter)
-        top.addWidget(btn_recent)
-        top.addWidget(btn_pending)
-        root.addLayout(top)
+        toolbar.addWidget(self.cmb_type)
+        
+        toolbar.addWidget(QLabel("Od:"))
+        self.dt_start = QDateTimeEdit(QDateTime.currentDateTime().addDays(-7)); 
+        self.dt_start.setCalendarPopup(True)
+        toolbar.addWidget(self.dt_start)
+        
+        toolbar.addWidget(QLabel("Do:"))
+        self.dt_end = QDateTimeEdit(QDateTime.currentDateTime()); 
+        self.dt_end.setCalendarPopup(True)
+        toolbar.addWidget(self.dt_end)
+        
+        btn_filter = QPushButton("Filtruj"); 
+        btn_filter.clicked.connect(self._apply_filters)
+        toolbar.addWidget(btn_filter)
+        
+        toolbar.addStretch()
+        
+        btn_recent = QPushButton("Ostatnie"); 
+        btn_recent.clicked.connect(self._load_recent)
+        toolbar.addWidget(btn_recent)
+        
+        btn_pending = QPushButton("Oczekujące"); 
+        btn_pending.clicked.connect(self._load_pending)
+        toolbar.addWidget(btn_pending)
+        
+        root.addLayout(toolbar)
 
-        # Tabela
+        # --- TABLE ---
         self.tbl = QTableWidget(0, 10)
         self.tbl.setHorizontalHeaderLabels([
             "ID","Data","Typ","Item","From","To","Qty Δ","Użytkownik","Approved","Ref"
@@ -64,12 +102,19 @@ class MovementHistoryWindow(QMainWindow):
         self.tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.tbl.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
         self.tbl.horizontalHeader().setStretchLastSection(True)
+        self.tbl.setAlternatingRowColors(True)
+        self.tbl.setStyleSheet("QTableWidget { border: 1px solid #dcdcdc; }")
         root.addWidget(self.tbl, 1)
 
-        # Akcje
+        # --- ACTIONS ---
         actions = QHBoxLayout()
-        btn_approve = QPushButton("Zatwierdź…"); btn_approve.clicked.connect(self._approve)
+        actions.addStretch()
+        
+        btn_approve = QPushButton("Zatwierdź Wybrane"); 
+        btn_approve.setStyleSheet("background-color: #2ecc71; color: white; font-weight: bold; padding: 8px 16px;")
+        btn_approve.clicked.connect(self._approve)
         actions.addWidget(btn_approve)
+        
         root.addLayout(actions)
 
         self._load_recent()

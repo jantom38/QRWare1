@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (
     QMessageBox, QGroupBox, QDialog, QFormLayout,
     QComboBox, QLineEdit, QTextEdit, QInputDialog,
     QTabWidget, QDateEdit, QSpinBox, QDoubleSpinBox, QGridLayout,
-    QCompleter, QCheckBox, QListWidget, QListWidgetItem
+    QCompleter, QCheckBox, QListWidget, QListWidgetItem, QFrame, QMenu
 )
 from PyQt6.QtCore import Qt, QDate, QDateTime
 from datetime import datetime
@@ -21,9 +21,13 @@ PL_MAP = {
     "CRITICAL": "KRYTYCZNY",
     "LOW": "NISKI",
     "CREATED": "UTWORZONE",
+    "ASSIGNED": "PRZYPISANE",
     "IN_PROGRESS": "W TOKU",
+    "ON_HOLD": "WSTRZYMANE",
+    "PARTIALLY_COMPLETED": "CZĘŚCIOWO ZREALIZOWANE",
     "COMPLETED": "ZAKOŃCZONE",
     "CANCELLED": "ANULOWANE",
+    "FAILED": "NIEUDANE",
     "PENDING": "OCZEKUJE",
     "PICKED": "SKOMPLETOWANE",
     "PACKED": "SPAKOWANE",
@@ -64,14 +68,18 @@ class InventorySelectionDialog(QDialog):
         self.fixed_destination_location_id = fixed_destination_location_id
 
         self.setWindowTitle("Dodaj pozycję do zamówienia")
-        self.resize(900, 560)
+        self.resize(900, 600)
 
         self._result_item = None
 
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(15)
 
         # === KROK 1: wybór produktu (czytelna lista + wyszukiwarka) ===
-        layout.addWidget(QLabel("Produkt:"))
+        lbl_prod = QLabel("1. Wybierz Produkt")
+        lbl_prod.setStyleSheet("font-weight: bold; font-size: 14px; color: #2c3e50;")
+        layout.addWidget(lbl_prod)
 
         self.product_search = QLineEdit()
         self.product_search.setPlaceholderText("Wpisz nazwę lub SKU, aby wyszukać...")
@@ -94,6 +102,10 @@ class InventorySelectionDialog(QDialog):
         layout.addLayout(qty_row)
 
         # === KROK 2: przełącznik „dokładna lokalizacja” ===
+        lbl_loc = QLabel("2. Opcje Lokalizacji")
+        lbl_loc.setStyleSheet("font-weight: bold; font-size: 14px; color: #2c3e50; margin-top: 10px;")
+        layout.addWidget(lbl_loc)
+
         self.exact_checkbox = QCheckBox("Wymagaj dokładnej lokalizacji (pobierz z konkretnego miejsca)")
         self.exact_checkbox.setChecked(True)
         self.exact_checkbox.setEnabled(False)  # aktywuje się po wyborze produktu
@@ -116,6 +128,7 @@ class InventorySelectionDialog(QDialog):
         self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
         self.table.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.Stretch)
         self.table.setVisible(False)
+        self.table.setStyleSheet("QTableWidget { border: 1px solid #dcdcdc; }")
         layout.addWidget(self.table)
 
         btns = QHBoxLayout()
@@ -124,10 +137,11 @@ class InventorySelectionDialog(QDialog):
         self.btn_refresh.setEnabled(False)
 
         self.btn_cancel = QPushButton("Anuluj")
+        self.btn_cancel.setStyleSheet("background-color: #95a5a6; color: white;")
         self.btn_cancel.clicked.connect(self.reject)
 
         self.btn_select = QPushButton("Dodaj pozycję")
-        self.btn_select.setStyleSheet("background-color: #28a745; color: white; font-weight: bold;")
+        self.btn_select.setStyleSheet("background-color: #2ecc71; color: white; font-weight: bold;")
         self.btn_select.clicked.connect(self.accept_selection)
         self.btn_select.setEnabled(False)
 
@@ -324,11 +338,17 @@ class CreateOrderDialog(QDialog):
         self.inventory_api = InventoryApi()
 
         self.setWindowTitle("Kreator Nowego Zamówienia")
-        self.resize(700, 550)
+        self.resize(750, 600)
 
         self.added_items = []
 
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(15)
+
+        lbl_title = QLabel("Nowe Zamówienie")
+        lbl_title.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;")
+        layout.addWidget(lbl_title)
 
         self.tabs = QTabWidget()
         layout.addWidget(self.tabs)
@@ -347,10 +367,11 @@ class CreateOrderDialog(QDialog):
 
         btn_box = QHBoxLayout()
         self.btn_save = QPushButton("Utwórz Zamówienie")
-        self.btn_save.setStyleSheet("background-color: #28a745; color: white; font-weight: bold; padding: 8px;")
+        self.btn_save.setStyleSheet("background-color: #2ecc71; color: white; font-weight: bold; padding: 8px;")
         self.btn_save.clicked.connect(self.accept)
 
         self.btn_cancel = QPushButton("Anuluj")
+        self.btn_cancel.setStyleSheet("background-color: #95a5a6; color: white;")
         self.btn_cancel.clicked.connect(self.reject)
 
         btn_box.addStretch()
@@ -362,6 +383,7 @@ class CreateOrderDialog(QDialog):
 
     def init_tab_general(self):
         layout = QFormLayout(self.tab_general)
+        layout.setSpacing(10)
 
         self.input_type = QComboBox()
         self.input_type.addItem("Przyjęcie (INBOUND)", "INBOUND")
@@ -394,6 +416,7 @@ class CreateOrderDialog(QDialog):
 
     def init_tab_logistics(self):
         layout = QFormLayout(self.tab_logistics)
+        layout.setSpacing(10)
 
         self.combo_source = QComboBox()
         self.combo_dest = QComboBox()
@@ -430,7 +453,7 @@ class CreateOrderDialog(QDialog):
         info.setStyleSheet("color: gray; font-style: italic; font-size: 11px;")
 
         btn_add_item = QPushButton("Wybierz stan magazynowy...")
-        btn_add_item.setStyleSheet("background-color: #007bff; color: white; font-weight: bold; padding: 6px;")
+        btn_add_item.setStyleSheet("background-color: #3498db; color: white; font-weight: bold; padding: 6px;")
         btn_add_item.clicked.connect(self.add_item_to_list)
 
         form_layout.addWidget(info, 1)
@@ -444,9 +467,11 @@ class CreateOrderDialog(QDialog):
         self.items_table.setHorizontalHeaderLabels(["Inv ID", "Produkt", "Ilość", "Źródło", "Akcja"])
         self.items_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
         self.items_table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.Stretch)
+        self.items_table.setStyleSheet("QTableWidget { border: 1px solid #dcdcdc; }")
         layout.addWidget(self.items_table)
 
         btn_remove = QPushButton("Usuń zaznaczone")
+        btn_remove.setStyleSheet("color: red;")
         btn_remove.clicked.connect(self.remove_selected_item)
         layout.addWidget(btn_remove)
 
@@ -577,9 +602,15 @@ class EditOrderDialog(QDialog):
         self.order = order or {}
 
         self.setWindowTitle("Edycja zamówienia")
-        self.resize(520, 420)
+        self.resize(550, 450)
 
         layout = QFormLayout(self)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(10)
+
+        lbl_title = QLabel("Edycja Zamówienia")
+        lbl_title.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;")
+        layout.addRow(lbl_title)
 
         # Priorytet
         self.input_priority = QComboBox()
@@ -661,10 +692,13 @@ class EditOrderDialog(QDialog):
 
         btn_row = QHBoxLayout()
         self.btn_cancel = QPushButton("Anuluj")
+        self.btn_cancel.setStyleSheet("background-color: #95a5a6; color: white;")
         self.btn_cancel.clicked.connect(self.reject)
+        
         self.btn_save = QPushButton("Zapisz")
-        self.btn_save.setStyleSheet("background-color: #007bff; color: white; font-weight: bold; padding: 6px;")
+        self.btn_save.setStyleSheet("background-color: #2ecc71; color: white; font-weight: bold;")
         self.btn_save.clicked.connect(self.accept)
+        
         btn_row.addStretch()
         btn_row.addWidget(self.btn_cancel)
         btn_row.addWidget(self.btn_save)
@@ -698,11 +732,18 @@ class OrderManagerWindow(QMainWindow):
         central = QWidget()
         self.setCentralWidget(central)
         main_layout = QHBoxLayout(central)
+        main_layout.setContentsMargins(20, 20, 20, 20)
+        main_layout.setSpacing(20)
 
+        # --- LEWA STRONA (Lista) ---
         left_layout = QVBoxLayout()
+        
+        lbl_list = QLabel("Lista Zamówień")
+        lbl_list.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50;")
+        left_layout.addWidget(lbl_list)
 
         self.lbl_stats = QLabel("Ładowanie statystyk...")
-        self.lbl_stats.setStyleSheet("font-weight: bold; color: #555; margin-bottom: 5px;")
+        self.lbl_stats.setStyleSheet("font-weight: bold; color: #7f8c8d; margin-bottom: 10px;")
         left_layout.addWidget(self.lbl_stats)
 
         self.table_orders = QTableWidget()
@@ -711,37 +752,71 @@ class OrderManagerWindow(QMainWindow):
         self.table_orders.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.table_orders.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table_orders.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
+        self.table_orders.setAlternatingRowColors(True)
+        self.table_orders.setStyleSheet("QTableWidget { border: 1px solid #dcdcdc; }")
         self.table_orders.itemClicked.connect(self.on_order_selected)
+        
+        # Context menu for orders table
+        self.table_orders.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.table_orders.customContextMenuRequested.connect(self._show_order_context_menu)
+        
         left_layout.addWidget(self.table_orders)
 
+        btn_row = QHBoxLayout()
         btn_refresh = QPushButton("Odśwież Listę")
         btn_refresh.clicked.connect(self.load_orders)
 
-        btn_create = QPushButton("+ Nowe Zamówienie (Kreator)")
-        btn_create.setStyleSheet("background-color: #28a745; color: white; font-weight: bold; height: 30px;")
+        # Zmiana: ComboBox do filtrowania statusów
+        self.combo_status_filter = QComboBox()
+        self.combo_status_filter.addItem("Wszystkie", "ALL")
+        self.combo_status_filter.addItem("Aktywne", "ACTIVE")
+        self.combo_status_filter.addItem("Utworzone", "CREATED")
+        self.combo_status_filter.addItem("Przypisane", "ASSIGNED")
+        self.combo_status_filter.addItem("W toku", "IN_PROGRESS")
+        self.combo_status_filter.addItem("Wstrzymane", "ON_HOLD")
+        self.combo_status_filter.addItem("Częściowo", "PARTIALLY_COMPLETED")
+        self.combo_status_filter.addItem("Zakończone", "COMPLETED")
+        self.combo_status_filter.addItem("Anulowane", "CANCELLED")
+        self.combo_status_filter.addItem("Nieudane", "FAILED")
+
+        # Domyślnie "Aktywne"
+        self.combo_status_filter.setCurrentIndex(1)
+        self.combo_status_filter.currentIndexChanged.connect(self.load_orders)
+
+        btn_create = QPushButton("+ Nowe Zamówienie")
+        btn_create.setStyleSheet("background-color: #2ecc71; color: white; font-weight: bold; padding: 8px 16px;")
         btn_create.clicked.connect(self.open_create_dialog)
 
-        left_layout.addWidget(btn_refresh)
-        left_layout.addWidget(btn_create)
+        btn_row.addWidget(btn_refresh)
+        btn_row.addWidget(self.combo_status_filter)
+        btn_row.addStretch()
+        btn_row.addWidget(btn_create)
+        left_layout.addLayout(btn_row)
 
         main_layout.addLayout(left_layout, 40)
 
+        # --- PRAWA STRONA (Szczegóły) ---
         right_layout = QVBoxLayout()
         self.details_group = QGroupBox("Szczegóły Zamówienia")
         self.details_group.setVisible(False)
+        self.details_group.setStyleSheet("QGroupBox { font-weight: bold; font-size: 14px; }")
 
         details_inner_layout = QVBoxLayout()
+        details_inner_layout.setSpacing(15)
 
+        # Header szczegółów
         header_widget = QWidget()
+        header_widget.setStyleSheet("background-color: #f8f9fa; border-radius: 6px; padding: 10px;")
         header_grid = QGridLayout(header_widget)
+        header_grid.setSpacing(10)
 
         self.txt_order_num = QLabel()
-        self.txt_order_num.setStyleSheet("font-size: 18px; font-weight: bold; color: #007bff;")
+        self.txt_order_num.setStyleSheet("font-size: 18px; font-weight: bold; color: #3498db;")
         header_grid.addWidget(QLabel("Numer:"), 0, 0)
         header_grid.addWidget(self.txt_order_num, 0, 1)
 
         self.txt_status = QLabel()
-        self.txt_status.setStyleSheet("font-weight: bold;")
+        self.txt_status.setStyleSheet("font-weight: bold; font-size: 14px;")
         header_grid.addWidget(QLabel("Status:"), 0, 2)
         header_grid.addWidget(self.txt_status, 0, 3)
 
@@ -774,28 +849,34 @@ class OrderManagerWindow(QMainWindow):
         header_grid.addWidget(self.txt_desc, 4, 1, 1, 3)
 
         details_inner_layout.addWidget(header_widget)
-        details_inner_layout.addWidget(QLabel("<b>Pozycje zamówienia:</b>"))
+        
+        lbl_items = QLabel("Pozycje zamówienia")
+        lbl_items.setStyleSheet("font-weight: bold; margin-top: 10px;")
+        details_inner_layout.addWidget(lbl_items)
 
         self.table_items = QTableWidget()
         self.table_items.setColumnCount(5)
         self.table_items.setHorizontalHeaderLabels(["Produkt", "Kod", "Ilość (Plan/Zreal)", "Status", "Lok. Źródłowa"])
         self.table_items.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.table_items.setStyleSheet("QTableWidget { border: 1px solid #dcdcdc; }")
         details_inner_layout.addWidget(self.table_items)
 
         actions_layout = QHBoxLayout()
 
         self.btn_edit = QPushButton("Edytuj")
-        self.btn_edit.setStyleSheet("background-color: #ffc107; font-weight: bold;")
+        self.btn_edit.setStyleSheet("background-color: #f39c12; color: white; font-weight: bold;")
         self.btn_edit.clicked.connect(self.open_edit_dialog)
 
         self.btn_start = QPushButton("Start")
+        self.btn_start.setStyleSheet("background-color: #3498db; color: white; font-weight: bold;")
         self.btn_start.clicked.connect(lambda: self.change_status('start'))
 
         self.btn_complete = QPushButton("Zakończ")
+        self.btn_complete.setStyleSheet("background-color: #2ecc71; color: white; font-weight: bold;")
         self.btn_complete.clicked.connect(lambda: self.change_status('complete'))
 
         self.btn_cancel = QPushButton("Anuluj")
-        self.btn_cancel.setStyleSheet("color: red;")
+        self.btn_cancel.setStyleSheet("background-color: #e74c3c; color: white; font-weight: bold;")
         self.btn_cancel.clicked.connect(lambda: self.change_status('cancel'))
 
         actions_layout.addWidget(self.btn_edit)
@@ -812,14 +893,75 @@ class OrderManagerWindow(QMainWindow):
         self.load_orders()
         self.load_stats()
 
+    def _show_order_context_menu(self, pos):
+        if not self.table_orders.selectionModel().selectedRows():
+            return
+
+        menu = QMenu()
+        gen_qr_action = menu.addAction("Generuj kod QR")
+        action = menu.exec(self.table_orders.mapToGlobal(pos))
+
+        if action == gen_qr_action:
+            self._open_qr_generator()
+
+    def _open_qr_generator(self):
+        row = self.table_orders.currentRow()
+        if row < 0:
+            return
+
+        # Pobieranie danych z wiersza
+        id_item = self.table_orders.item(row, 0)
+        num_item = self.table_orders.item(row, 1)
+
+        if not id_item or not num_item:
+            return
+
+        try:
+            order_id = int(id_item.text())
+            order_num = num_item.text()
+
+            from qr_manager import QRManagerWindow
+
+            self.qr_window = QRManagerWindow()
+            # Ustawiamy dane: data=order_num, type=CUSTOM (lub inny jeśli dodasz ORDER), entity_type=order, entity_id=order_id
+            # Ponieważ w QRManagerWindow nie ma typu ORDER w combo_type, użyjemy CUSTOM i dodamy klucz
+            self.qr_window.set_form_data(
+                data=order_num,
+                qr_type="CUSTOM",
+                entity_type="order",
+                entity_id=order_id
+            )
+            self.qr_window.show()
+
+        except Exception as e:
+            QMessageBox.critical(self, "Błąd", f"Nie udało się otworzyć generatora QR: {str(e)}")
+
     def load_orders(self):
         success, data = self.api.get_all_orders()
         if not success:
             QMessageBox.warning(self, "Błąd", f"Nie udało się pobrać zamówień:\n{data}")
             return
 
+        # Client-side filtering
+        filter_val = self.combo_status_filter.currentData()
+
+        filtered_data = []
+        for order in data:
+            status = order.get('status')
+
+            if filter_val == "ALL":
+                filtered_data.append(order)
+            elif filter_val == "ACTIVE":
+                # Active = not final
+                if status not in ['COMPLETED', 'CANCELLED', 'FAILED']:
+                    filtered_data.append(order)
+            else:
+                # Exact match
+                if status == filter_val:
+                    filtered_data.append(order)
+
         self.table_orders.setRowCount(0)
-        for i, order in enumerate(data):
+        for i, order in enumerate(filtered_data):
             self.table_orders.insertRow(i)
 
             raw_date = order.get('createdAt')

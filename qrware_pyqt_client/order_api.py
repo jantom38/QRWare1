@@ -1,6 +1,7 @@
 import requests
 import json
 from config import ConfigManager
+from debug_log import log, log_exception
 
 
 class OrderService:
@@ -177,22 +178,72 @@ class OrderService:
             return []
 
     def get_simple_users(self):
+        """Pobiera listę użytkowników w formacie podobnym do aplikacji Android.
+
+        UWAGA: Endpoint /api/users jest chroniony ADMIN_FULL.
+
+        Zwraca listę krotek: (id, username, fullName)
+        """
         url = f"{self.cfg.base_url}/api/users"
+        params = {"page": 0, "size": 500, "sort": "id,asc"}
+
         try:
-            response = requests.get(url, headers=self._get_headers())
-            if response.status_code == 200:
-                items = self._extract_list(response, "UŻYTKOWNICY")
-                result = []
-                for u in items:
-                    uid = u.get('id')
-                    username = u.get('username', '')
-                    fullname = u.get('fullName', '')
-                    if uid:
-                        result.append((uid, username, fullname))
-                return result
-            else:
-                print(f"DEBUG: Użytkownicy błąd HTTP {response.status_code}")
+            response = requests.get(url, headers=self._get_headers(), params=params)
+            log(f"USERS: GET {url} params={params} -> {response.status_code}")
+
+            # Zawsze zapisuj fragment odpowiedzi (ułatwia diagnozę "błąd 200")
+            body_preview = (response.text or "")[:400]
+            log(f"USERS: body preview: {body_preview}")
+
+            if response.status_code != 200:
+                log(f"USERS: HTTP error {response.status_code}")
                 return []
+
+            try:
+                raw = response.json()
+            except Exception as e:
+                log_exception("USERS: JSON parse error", e)
+                return []
+
+            # Możliwe formaty:
+            # 1) GlobalApiResponse { success, message, data }
+            # 2) ApiResponse { success, message, data }
+            # 3) Bez opakowania: Page { content: [...] }
+            if isinstance(raw, dict) and raw.get('success') is False:
+                log(f"USERS: success=false message={raw.get('message')}")
+                return []
+
+            # Spróbuj wyciągnąć listę z data.content
+            items = None
+            if isinstance(raw, dict):
+                data_node = raw.get('data')
+                if isinstance(data_node, dict) and isinstance(data_node.get('content'), list):
+                    items = data_node.get('content')
+                    log(f"USERS: parsed items from data.content count={len(items)}")
+
+            # Spróbuj wyciągnąć listę z content
+            if items is None and isinstance(raw, dict) and isinstance(raw.get('content'), list):
+                items = raw.get('content')
+                log(f"USERS: parsed items from content count={len(items)}")
+
+            # Fallback: stary parser (czasem response.json() ma inne pole)
+            if items is None:
+                items = self._extract_list(response, "UŻYTKOWNICY")
+                log(f"USERS: parsed items via _extract_list count={len(items)}")
+
+            result = []
+            for u in items or []:
+                uid = u.get('id')
+                username = u.get('username', '')
+                first = u.get('firstName') or ''
+                last = u.get('lastName') or ''
+                fullname = (first + ' ' + last).strip()
+                if uid:
+                    result.append((uid, username, fullname))
+
+            log(f"USERS: returning {len(result)} users")
+            return result
+
         except Exception as e:
-            print(f"DEBUG: Wyjątek pobierania użytkowników: {e}")
+            log_exception("USERS: exception", e)
             return []

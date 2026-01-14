@@ -2,14 +2,14 @@ import sys
 import os
 from typing import Any, Dict, List, Optional
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QLineEdit, QComboBox, QTableWidget, QTableWidgetItem,
-    QSpinBox, QDialog, QFormLayout, QMessageBox, QCheckBox, QDateEdit, QMenu, QFileDialog
+    QSpinBox, QDialog, QFormLayout, QMessageBox, QCheckBox, QDateEdit, QMenu, QFileDialog, QFrame,
+    QSplitter, QGridLayout, QScrollArea
 )
 from PyQt6.QtGui import QColor, QBrush
-from PyQt6.QtCore import QDate
 
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
@@ -19,6 +19,7 @@ from config import ConfigManager
 from inventory_api import InventoryApi
 from products_api import ProductsApi
 from locations_api import LocationsApi
+from validators import RequiredField, validate_required
 
 
 class InventoryFormDialog(QDialog):
@@ -26,25 +27,43 @@ class InventoryFormDialog(QDialog):
                  item: Optional[Dict[str, Any]] = None, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Pozycja magazynu")
-        self.resize(560, 600)
+        self.resize(900, 650)  # Zwiększona szerokość dla dwóch kolumn
         self.products = products
         self.locations = locations
         self.item = item or {}
 
-        form = QFormLayout(self)
+        # Główny layout
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(15)
 
-        self.cmb_product = QComboBox();
+        lbl_title = QLabel("Edycja Pozycji" if item else "Nowa Pozycja Magazynowa")
+        lbl_title.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;")
+        layout.addWidget(lbl_title)
+
+        # Grid layout dla formularza (2 kolumny)
+        grid = QGridLayout()
+        grid.setSpacing(10)
+        grid.setColumnStretch(1, 1)
+        grid.setColumnStretch(3, 1)
+
+        # --- Inicjalizacja kontrolek ---
+
+        # Lewa kolumna (Podstawowe + Identyfikatory)
+        self.cmb_product = QComboBox()
         self._fill_products()
-        self.cmb_location = QComboBox();
+        self.cmb_location = QComboBox()
         self._fill_locations()
 
-        self.spn_qty = QSpinBox();
-        self.spn_qty.setMaximum(10 ** 9);
+        self.spn_qty = QSpinBox()
+        self.spn_qty.setMaximum(10 ** 9)
         self.spn_qty.setValue(int(self.item.get("quantity") or 0))
-        self.spn_res = QSpinBox();
-        self.spn_res.setMaximum(10 ** 9);
+        
+        self.spn_res = QSpinBox()
+        self.spn_res.setMaximum(10 ** 9)
         self.spn_res.setValue(int(self.item.get("reservedQuantity") or 0))
-        self.cmb_status = QComboBox();
+        
+        self.cmb_status = QComboBox()
         self.cmb_status.addItems([
             "AVAILABLE", "RESERVED", "ON_HOLD", "QUARANTINE", "DAMAGED", "EXPIRED", "RECALLED", "IN_TRANSIT", "PICKED",
             "SHIPPED", "RETURNED", "DISPOSED", "LOST", "COUNTED", "ALLOCATED", "BACKORDERED", "RECEIVING", "INSPECTING",
@@ -60,11 +79,12 @@ class InventoryFormDialog(QDialog):
         self.edt_batch = QLineEdit(self.item.get("batchNumber", ""))
         self.edt_serial = QLineEdit(self.item.get("serialNumber", ""))
 
-        self.dt_received = QDateEdit();
+        # Prawa kolumna (Daty, Finanse, Warunki, Flagi)
+        self.dt_received = QDateEdit()
         self.dt_received.setCalendarPopup(True)
-        self.dt_expiry = QDateEdit();
+        self.dt_expiry = QDateEdit()
         self.dt_expiry.setCalendarPopup(True)
-        self.dt_manu = QDateEdit();
+        self.dt_manu = QDateEdit()
         self.dt_manu.setCalendarPopup(True)
         self._set_date(self.dt_received, self.item.get("receivedDate"))
         self._set_date(self.dt_expiry, self.item.get("expiryDate"))
@@ -72,58 +92,126 @@ class InventoryFormDialog(QDialog):
 
         self.edt_unit_cost = QLineEdit(str(self.item.get("unitCost", "") or ""))
         self.edt_supplier = QLineEdit(self.item.get("supplierReference", ""))
+        self.edt_manufacturer = QLineEdit(self.item.get("manufacturer", ""))
         self.edt_po = QLineEdit(self.item.get("purchaseOrderNumber", ""))
         self.edt_notes = QLineEdit(self.item.get("notes", ""))
 
-        self.spn_temp = QSpinBox();
-        self.spn_temp.setRange(-100, 200);
+        self.spn_temp = QSpinBox()
+        self.spn_temp.setRange(-100, 200)
         self.spn_temp.setValue(int(self.item.get("temperature") or 0))
-        self.spn_hum = QSpinBox();
-        self.spn_hum.setRange(0, 100);
+        self.spn_temp.setSuffix(" °C")
+        
+        self.spn_hum = QSpinBox()
+        self.spn_hum.setRange(0, 100)
         self.spn_hum.setValue(int(self.item.get("humidity") or 0))
-        self.spn_cond = QSpinBox();
-        self.spn_cond.setRange(0, 100);
+        self.spn_hum.setSuffix(" %")
+        
+        self.spn_cond = QSpinBox()
+        self.spn_cond.setRange(0, 100)
         self.spn_cond.setValue(int(self.item.get("conditionRating") or 10))
-        self.chk_quar = QCheckBox();
+
+        # Checkboxy i powody
+        self.chk_quar = QCheckBox("Kwarantanna")
         self.chk_quar.setChecked(bool(self.item.get("quarantine", False)))
         self.edt_quar_reason = QLineEdit(self.item.get("quarantineReason", ""))
-        self.chk_hold = QCheckBox();
+        self.edt_quar_reason.setPlaceholderText("Powód kwarantanny")
+        
+        self.chk_hold = QCheckBox("Wstrzymany (Hold)")
         self.chk_hold.setChecked(bool(self.item.get("hold", False)))
         self.edt_hold_reason = QLineEdit(self.item.get("holdReason", ""))
+        self.edt_hold_reason.setPlaceholderText("Powód wstrzymania")
 
-        form.addRow("Produkt:", self.cmb_product)
-        form.addRow("Lokalizacja:", self.cmb_location)
-        form.addRow("Ilość:", self.spn_qty)
-        form.addRow("Zarezerwowane:", self.spn_res)
-        form.addRow("Status:", self.cmb_status)
-        form.addRow("QR:", self.edt_qr)
-        form.addRow("Partia (lot):", self.edt_lot)
-        form.addRow("Batch:", self.edt_batch)
-        form.addRow("Serial:", self.edt_serial)
-        form.addRow("Przyjęto:", self.dt_received)
-        form.addRow("Wygasa:", self.dt_expiry)
-        form.addRow("Wyprodukowano:", self.dt_manu)
-        form.addRow("Koszt jednostkowy:", self.edt_unit_cost)
-        form.addRow("Ref. dostawcy:", self.edt_supplier)
-        form.addRow("Nr zamówienia:", self.edt_po)
-        form.addRow("Notatki:", self.edt_notes)
-        form.addRow("Temp [C]:", self.spn_temp)
-        form.addRow("Wilgotność [%]:", self.spn_hum)
-        form.addRow("Ocena stanu:", self.spn_cond)
-        form.addRow("Kwarantanna:", self.chk_quar)
-        form.addRow("Powód kwarantanny:", self.edt_quar_reason)
-        form.addRow("Wstrzymany:", self.chk_hold)
-        form.addRow("Powód wstrzymania:", self.edt_hold_reason)
+        # --- Układanie w siatce ---
+        
+        # Kolumna 1 (Etykiety) i 2 (Wartości) - Lewa strona
+        grid.addWidget(QLabel("Produkt:"), 0, 0)
+        grid.addWidget(self.cmb_product, 0, 1)
+        
+        grid.addWidget(QLabel("Lokalizacja:"), 1, 0)
+        grid.addWidget(self.cmb_location, 1, 1)
+        
+        grid.addWidget(QLabel("Ilość:"), 2, 0)
+        grid.addWidget(self.spn_qty, 2, 1)
+        
+        grid.addWidget(QLabel("Zarezerwowane:"), 3, 0)
+        grid.addWidget(self.spn_res, 3, 1)
+        
+        grid.addWidget(QLabel("Status:"), 4, 0)
+        grid.addWidget(self.cmb_status, 4, 1)
+        
+        grid.addWidget(QLabel("Kod QR:"), 5, 0)
+        grid.addWidget(self.edt_qr, 5, 1)
+        
+        grid.addWidget(QLabel("Partia (Lot):"), 6, 0)
+        grid.addWidget(self.edt_lot, 6, 1)
+        
+        grid.addWidget(QLabel("Batch:"), 7, 0)
+        grid.addWidget(self.edt_batch, 7, 1)
+        
+        grid.addWidget(QLabel("Serial No:"), 8, 0)
+        grid.addWidget(self.edt_serial, 8, 1)
 
+        # Kolumna 3 (Etykiety) i 4 (Wartości) - Prawa strona
+        grid.addWidget(QLabel("Data przyjęcia:"), 0, 2)
+        grid.addWidget(self.dt_received, 0, 3)
+        
+        grid.addWidget(QLabel("Data ważności:"), 1, 2)
+        grid.addWidget(self.dt_expiry, 1, 3)
+        
+        grid.addWidget(QLabel("Data produkcji:"), 2, 2)
+        grid.addWidget(self.dt_manu, 2, 3)
+        
+        grid.addWidget(QLabel("Koszt jedn.:"), 3, 2)
+        grid.addWidget(self.edt_unit_cost, 3, 3)
+        
+        grid.addWidget(QLabel("Ref. dostawcy:"), 4, 2)
+        grid.addWidget(self.edt_supplier, 4, 3)
+
+        grid.addWidget(QLabel("Producent:"), 5, 2)
+        grid.addWidget(self.edt_manufacturer, 5, 3)
+
+        grid.addWidget(QLabel("Nr zamówienia (PO):"), 6, 2)
+        grid.addWidget(self.edt_po, 6, 3)
+        
+        grid.addWidget(QLabel("Temperatura:"), 7, 2)
+        grid.addWidget(self.spn_temp, 7, 3)
+        
+        grid.addWidget(QLabel("Wilgotność:"), 8, 2)
+        grid.addWidget(self.spn_hum, 8, 3)
+        
+        grid.addWidget(QLabel("Ocena stanu (0-10):"), 9, 2)
+        grid.addWidget(self.spn_cond, 9, 3)
+
+        # Notatki na całą szerokość (pod głównymi polami)
+        grid.addWidget(QLabel("Notatki:"), 10, 0)
+        grid.addWidget(self.edt_notes, 10, 1, 1, 3)
+
+        # Sekcja flag (Kwarantanna / Hold) - na dole
+        flags_layout = QGridLayout()
+        flags_layout.addWidget(self.chk_quar, 0, 0)
+        flags_layout.addWidget(self.edt_quar_reason, 0, 1)
+        flags_layout.addWidget(self.chk_hold, 1, 0)
+        flags_layout.addWidget(self.edt_hold_reason, 1, 1)
+        
+        grid.addLayout(flags_layout, 11, 0, 1, 4)
+
+        layout.addLayout(grid)
+        layout.addStretch()
+
+        # Przyciski
         btns = QHBoxLayout()
-        self.btn_ok = QPushButton("Zapisz")
+        btns.addStretch()
         self.btn_cancel = QPushButton("Anuluj")
-        btns.addWidget(self.btn_ok)
-        btns.addWidget(self.btn_cancel)
-        form.addRow(btns)
-
-        self.btn_ok.clicked.connect(self.accept)
+        self.btn_cancel.setStyleSheet("background-color: #95a5a6; color: white;")
         self.btn_cancel.clicked.connect(self.reject)
+        btns.addWidget(self.btn_cancel)
+
+        self.btn_ok = QPushButton("Zapisz")
+        self.btn_ok.setStyleSheet("background-color: #2ecc71; color: white; font-weight: bold;")
+        self.btn_ok.clicked.connect(self.accept)
+        btns.addWidget(self.btn_ok)
+        
+        layout.addLayout(btns)
 
     def _fill_products(self):
         self.cmb_product.addItem("-- wybierz --", None)
@@ -156,6 +244,27 @@ class InventoryFormDialog(QDialog):
         except Exception:
             ctrl.setDate(QDate.currentDate())
 
+    def accept(self):
+        def qty_ok() -> tuple[bool, str]:
+            if int(self.spn_qty.value()) <= 0:
+                return False, "musi być > 0"
+            return True, ""
+
+        ok = validate_required(
+            self,
+            [
+                RequiredField("Produkt", self.cmb_product),
+                RequiredField("Lokalizacja", self.cmb_location),
+                RequiredField("Ilość", self.spn_qty, validator=qty_ok),
+                # backend ma NOT NULL na inventory_items.qr_code
+                RequiredField("Kod QR", self.edt_qr),
+            ],
+            title="Brak wymaganych danych pozycji magazynowej",
+        )
+        if not ok:
+            return
+        super().accept()
+
     def build_create_payload(self) -> Dict[str, Any]:
         payload: Dict[str, Any] = {
             "productId": self.cmb_product.currentData(),
@@ -172,6 +281,7 @@ class InventoryFormDialog(QDialog):
             "manufactureDate": self.dt_manu.date().toString("yyyy-MM-dd"),
             "unitCost": float(self.edt_unit_cost.text()) if self.edt_unit_cost.text().strip() else None,
             "supplierReference": self.edt_supplier.text().strip(),
+            "manufacturer": self.edt_manufacturer.text().strip(),
             "purchaseOrderNumber": self.edt_po.text().strip(),
             "notes": self.edt_notes.text().strip(),
             "temperature": int(self.spn_temp.value()),
@@ -197,6 +307,7 @@ class InventoryFormDialog(QDialog):
             "manufactureDate": self.dt_manu.date().toString("yyyy-MM-dd"),
             "unitCost": float(self.edt_unit_cost.text()) if self.edt_unit_cost.text().strip() else None,
             "supplierReference": self.edt_supplier.text().strip(),
+            "manufacturer": self.edt_manufacturer.text().strip(),
             "purchaseOrderNumber": self.edt_po.text().strip(),
             "notes": self.edt_notes.text().strip(),
             "temperature": int(self.spn_temp.value()),
@@ -216,7 +327,7 @@ class InventoryFormDialog(QDialog):
 class AlertsDialog(QDialog):
     def __init__(self, alerts: List[Dict[str, Any]], parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Alerty magazynowe")
+        self.setWindowTitle("Alarmy magazynowe")
         self.resize(800, 400)
         layout = QVBoxLayout(self)
 
@@ -263,7 +374,7 @@ class InventoryManagerWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("QRWare - Inventory")
-        self.resize(1100, 680)
+        self.resize(1200, 750)
         self.cfg = ConfigManager()
         self.api = InventoryApi(self.cfg)
         self.products_api = ProductsApi(self.cfg)
@@ -273,35 +384,73 @@ class InventoryManagerWindow(QMainWindow):
         self.setCentralWidget(central)
         root = QVBoxLayout();
         central.setLayout(root)
-        root.setContentsMargins(16, 16, 16, 16)
-        root.setSpacing(12)
+        root.setContentsMargins(20, 20, 20, 20)
+        root.setSpacing(15)
 
-        top = QHBoxLayout()
-        self.edt_server = QLineEdit(self.cfg.base_url)
-        btn_save_server = QPushButton("Zapisz serwer");
-        btn_save_server.clicked.connect(self._save_server)
+        # --- HEADER ---
+        header = QHBoxLayout()
+        
+        title_layout = QVBoxLayout()
+        lbl_title = QLabel("Zarządzanie Magazynem")
+        lbl_title.setStyleSheet("font-size: 24px; font-weight: bold; color: #2c3e50;")
+        lbl_subtitle = QLabel("Monitoruj stany, przyjmuj i wydawaj towary")
+        lbl_subtitle.setStyleSheet("font-size: 14px; color: #7f8c8d;")
+        title_layout.addWidget(lbl_title)
+        title_layout.addWidget(lbl_subtitle)
+        header.addLayout(title_layout)
+        
+        header.addStretch()
+        
+        # Usunięto panel serwera
+        
+        root.addLayout(header)
+
+        # --- TOOLBAR ---
+        toolbar = QHBoxLayout()
+        toolbar.setSpacing(10)
+        
         self.edt_search = QLineEdit();
         self.edt_search.setPlaceholderText("Szukaj (produkt/QR/serial/lot)…")
+        self.edt_search.setMinimumWidth(250)
+        toolbar.addWidget(self.edt_search)
+        
         btn_search = QPushButton("Szukaj");
         btn_search.clicked.connect(self._do_search)
-        btn_refresh = QPushButton("Odśwież");
-        btn_refresh.clicked.connect(self._load_page)
-        btn_alerts = QPushButton("Alerty");
+        toolbar.addWidget(btn_search)
+
+        # Zmiana: Checkbox
+        self.chk_hide_zero = QCheckBox("Ukryj zerowe stany")
+        self.chk_hide_zero.setChecked(True)
+        self.chk_hide_zero.stateChanged.connect(self._load_page)
+        toolbar.addWidget(self.chk_hide_zero)
+
+        toolbar.addStretch()
+        
+        btn_alerts = QPushButton("Alarmy");
+        btn_alerts.setStyleSheet("background-color: #e67e22; color: white;")
         btn_alerts.clicked.connect(self._show_alerts)
+        toolbar.addWidget(btn_alerts)
+        
         btn_report = QPushButton("Raport PDF");
         btn_report.clicked.connect(self._generate_report)
+        toolbar.addWidget(btn_report)
+        
+        btn_refresh = QPushButton("Odśwież");
+        btn_refresh.clicked.connect(self._load_page)
+        toolbar.addWidget(btn_refresh)
+        
+        root.addLayout(toolbar)
 
-        top.addWidget(QLabel("Serwer:"));
-        top.addWidget(self.edt_server, 2)
-        top.addWidget(btn_save_server)
-        top.addStretch(1)
-        top.addWidget(self.edt_search, 2)
-        top.addWidget(btn_search)
-        top.addWidget(btn_refresh)
-        top.addWidget(btn_alerts)
-        top.addWidget(btn_report)
-        root.addLayout(top)
+        # --- MAIN SPLIT (TABLE + DETAILS) ---
+        self.splitter = QSplitter(Qt.Orientation.Horizontal)
+        root.addWidget(self.splitter, 1)
 
+        left = QWidget()
+        left_layout = QVBoxLayout(left)
+        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.setSpacing(10)
+
+        # --- TABLE ---
         self.tbl = QTableWidget(0, 10)
         self.tbl.setHorizontalHeaderLabels([
             "ID", "Produkt", "Lokalizacja", "Ilość", "Zarezerw.", "Dostępne", "Status", "QR", "Lot", "Serial"
@@ -310,30 +459,184 @@ class InventoryManagerWindow(QMainWindow):
         self.tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.tbl.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
         self.tbl.horizontalHeader().setStretchLastSection(True)
+        self.tbl.setAlternatingRowColors(True)
+        self.tbl.setStyleSheet("QTableWidget { border: 1px solid #dcdcdc; }")
 
         # Konfiguracja menu kontekstowego
         self.tbl.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.tbl.customContextMenuRequested.connect(self._show_context_menu)
+        self.tbl.itemSelectionChanged.connect(self._on_row_selected)
 
-        root.addWidget(self.tbl, 1)
+        left_layout.addWidget(self.tbl, 1)
 
+        # --- ACTIONS ---
         actions = QHBoxLayout()
-        btn_add = QPushButton("Dodaj…");
+        
+        btn_add = QPushButton("Dodaj Pozycję");
+        btn_add.setStyleSheet("background-color: #2ecc71; color: white; font-weight: bold; padding: 8px 16px;")
         btn_add.clicked.connect(self._add)
-        btn_edit = QPushButton("Edytuj…");
+        actions.addWidget(btn_add)
+        
+        btn_edit = QPushButton("Edytuj");
         btn_edit.clicked.connect(self._edit)
-        btn_receive = QPushButton("Przyjęcie…");
+        actions.addWidget(btn_edit)
+        
+        actions.addSpacing(20)
+        
+        btn_receive = QPushButton("Przyjęcie");
+        btn_receive.setStyleSheet("background-color: #3498db; color: white;")
         btn_receive.clicked.connect(self._receive)
-        btn_issue = QPushButton("Wydanie…");
+        actions.addWidget(btn_receive)
+        
+        btn_issue = QPushButton("Wydanie");
+        btn_issue.setStyleSheet("background-color: #9b59b6; color: white;")
         btn_issue.clicked.connect(self._issue)
+        actions.addWidget(btn_issue)
+        
+        actions.addStretch()
+        
         btn_delete = QPushButton("Usuń");
+        btn_delete.setStyleSheet("background-color: #e74c3c; color: white;")
         btn_delete.clicked.connect(self._delete)
-        actions.addWidget(btn_add);
-        actions.addWidget(btn_edit);
-        actions.addWidget(btn_receive);
-        actions.addWidget(btn_issue);
         actions.addWidget(btn_delete)
-        root.addLayout(actions)
+        
+        left_layout.addLayout(actions)
+
+        # Right: details panel
+        right = QWidget()
+        right_layout = QVBoxLayout(right)
+        right_layout.setContentsMargins(6, 0, 0, 0)
+        right_layout.setSpacing(6)
+
+        lbl_details_title = QLabel("Szczegóły pozycji")
+        lbl_details_title.setStyleSheet("font-size: 16px; font-weight: bold; color: #2c3e50; margin: 0px;")
+        right_layout.addWidget(lbl_details_title)
+
+        sep = QFrame()
+        sep.setFrameShape(QFrame.Shape.HLine)
+        sep.setStyleSheet("color: #d0d0d0;")
+        right_layout.addWidget(sep)
+
+        # Scroll area dla szczegółów, bo może być ich dużo
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        scroll.setStyleSheet("background: transparent;")
+        
+        self.details_group = QWidget()
+        self.details_group.setStyleSheet("background: transparent;")
+        scroll.setWidget(self.details_group)
+        
+        details_outer = QVBoxLayout(self.details_group)
+        details_outer.setSpacing(8)
+        details_outer.setContentsMargins(0, 0, 0, 0)
+
+        header_widget = QWidget()
+        header_widget.setStyleSheet(
+            "background-color: #f8f9fa;"
+            "border-radius: 6px;"
+            "padding: 10px;"
+            "border: 1px solid #e1e4e8;"
+        )
+        header_grid = QGridLayout(header_widget)
+        header_grid.setSpacing(6)
+
+        base_font_css = "font-size: 12px; font-family: Segoe UI, Arial; color: #2c3e50;"
+        value_css = base_font_css + "padding: 2px 0px; border-bottom: 1px solid #e8eaed;"
+
+        def mk_value(text: str = "-") -> QLabel:
+            v = QLabel(text)
+            v.setStyleSheet(value_css)
+            v.setWordWrap(True)
+            v.setTextFormat(Qt.TextFormat.RichText)
+            return v
+
+        def fmt_row(key: str, value: str) -> str:
+            value = value if value not in [None, ""] else "-"
+            return f"<b style='color:#495057'>{key}:</b> {value}"
+
+        self._fmt_row = fmt_row
+
+        self.txt_prod_name = mk_value("-")
+        self.txt_prod_name.setStyleSheet("font-size: 16px; font-family: Segoe UI, Arial; font-weight: 700; color: #3498db; border-bottom: 1px solid #e8eaed;")
+        header_grid.addWidget(QLabel("Produkt:"), 0, 0)
+        header_grid.addWidget(self.txt_prod_name, 0, 1)
+
+        self.txt_status = mk_value("-")
+        self.txt_status.setStyleSheet("font-size: 12px; font-family: Segoe UI, Arial; font-weight: 700; border-bottom: 1px solid #e8eaed;")
+        header_grid.addWidget(QLabel("Status:"), 0, 2)
+        header_grid.addWidget(self.txt_status, 0, 3)
+
+        # Inicjalizacja etykiet szczegółów
+        self.txt_id = mk_value()
+        self.txt_sku = mk_value()
+        self.txt_location = mk_value()
+        self.txt_qty = mk_value()
+        self.txt_reserved = mk_value()
+        self.txt_available = mk_value()
+        self.txt_qr = mk_value()
+        self.txt_lot = mk_value()
+        self.txt_batch = mk_value()
+        self.txt_serial = mk_value()
+        self.txt_received = mk_value()
+        self.txt_expiry = mk_value()
+        self.txt_manu = mk_value()
+        self.txt_unit_cost = mk_value()
+        self.txt_supplier = mk_value()
+        self.txt_po = mk_value()
+        self.txt_notes = mk_value()
+        self.txt_temp_hum = mk_value()
+        self.txt_condition = mk_value()
+        self.txt_quarantine = mk_value()
+        self.txt_hold = mk_value()
+
+        # Układanie w siatce szczegółów
+        header_grid.addWidget(self.txt_id, 1, 0, 1, 2)
+        header_grid.addWidget(self.txt_sku, 1, 2, 1, 2)
+
+        header_grid.addWidget(self.txt_location, 2, 0, 1, 4)
+
+        header_grid.addWidget(self.txt_qty, 3, 0, 1, 2)
+        header_grid.addWidget(self.txt_reserved, 3, 2, 1, 2)
+        
+        header_grid.addWidget(self.txt_available, 4, 0, 1, 2)
+        header_grid.addWidget(self.txt_qr, 4, 2, 1, 2)
+
+        header_grid.addWidget(self.txt_lot, 5, 0, 1, 2)
+        header_grid.addWidget(self.txt_batch, 5, 2, 1, 2)
+
+        header_grid.addWidget(self.txt_serial, 6, 0, 1, 2)
+        header_grid.addWidget(self.txt_received, 6, 2, 1, 2)
+        
+        header_grid.addWidget(self.txt_expiry, 7, 0, 1, 2)
+        header_grid.addWidget(self.txt_manu, 7, 2, 1, 2)
+
+        header_grid.addWidget(self.txt_unit_cost, 8, 0, 1, 2)
+        header_grid.addWidget(self.txt_po, 8, 2, 1, 2)
+
+        header_grid.addWidget(self.txt_supplier, 9, 0, 1, 4)
+        
+        header_grid.addWidget(self.txt_temp_hum, 10, 0, 1, 2)
+        header_grid.addWidget(self.txt_condition, 10, 2, 1, 2)
+
+        header_grid.addWidget(self.txt_quarantine, 11, 0, 1, 4)
+        header_grid.addWidget(self.txt_hold, 12, 0, 1, 4)
+        
+        header_grid.addWidget(self.txt_notes, 13, 0, 1, 4)
+
+        details_outer.addWidget(header_widget)
+        
+        sep2 = QFrame()
+        sep2.setFrameShape(QFrame.Shape.HLine)
+        sep2.setStyleSheet("color: #e0e0e0;")
+        details_outer.addWidget(sep2)
+
+        right_layout.addWidget(scroll, 1)
+        
+        self.splitter.addWidget(left)
+        self.splitter.addWidget(right)
+        self.splitter.setStretchFactor(0, 3)
+        self.splitter.setStretchFactor(1, 2)
 
         self._page = 0
         self._size = 100
@@ -419,8 +722,69 @@ class InventoryManagerWindow(QMainWindow):
         if not ok:
             QMessageBox.warning(self, "Inventory", msg)
             return
+
+        # Client-side filtering for zero stock
+        if self.chk_hide_zero.isChecked():
+            items = [i for i in items if (i.get("quantity") or 0) > 0]
+
         self._current_items = items
         self._populate(items)
+
+    def _on_row_selected(self):
+        row = self.tbl.currentRow()
+        if row < 0 or row >= len(self._current_items):
+            for lbl in [self.txt_id, self.txt_sku, self.txt_prod_name, self.txt_status, self.txt_location,
+                        self.txt_qty, self.txt_reserved, self.txt_available, self.txt_qr, self.txt_lot,
+                        self.txt_batch, self.txt_serial, self.txt_received, self.txt_expiry, self.txt_manu,
+                        self.txt_unit_cost, self.txt_supplier, self.txt_po, self.txt_notes, self.txt_temp_hum,
+                        self.txt_condition, self.txt_quarantine, self.txt_hold]:
+                lbl.setText("-")
+            return
+
+        item = self._current_items[row]
+        prod = item.get('product') or {}
+        loc = item.get('location') or {}
+
+        self.txt_prod_name.setText(prod.get('name') or prod.get('sku') or "")
+        self.txt_status.setText(item.get('status') or "")
+
+        self.txt_id.setText(self._fmt_row("ID", str(item.get('id', ''))))
+        self.txt_sku.setText(self._fmt_row("SKU", prod.get('sku') or ""))
+        self.txt_location.setText(self._fmt_row("Lokalizacja", loc.get('name') or loc.get('code') or ""))
+        
+        self.txt_qty.setText(self._fmt_row("Ilość", str(item.get('quantity') or 0)))
+        self.txt_reserved.setText(self._fmt_row("Zarezerw.", str(item.get('reservedQuantity') or 0)))
+        self.txt_available.setText(self._fmt_row("Dostępne", str(item.get('availableQuantity') or 0)))
+        
+        self.txt_qr.setText(self._fmt_row("QR", item.get('qrCode') or ""))
+        self.txt_lot.setText(self._fmt_row("Lot", item.get('lotNumber') or ""))
+        self.txt_batch.setText(self._fmt_row("Batch", item.get('batchNumber') or ""))
+        self.txt_serial.setText(self._fmt_row("Serial", item.get('serialNumber') or ""))
+        
+        self.txt_received.setText(self._fmt_row("Przyjęto", item.get('receivedDate') or ""))
+        self.txt_expiry.setText(self._fmt_row("Przydat.", item.get('expiryDate') or ""))
+        self.txt_manu.setText(self._fmt_row("Prod.", item.get('manufactureDate') or ""))
+        
+        cost = item.get('unitCost')
+        self.txt_unit_cost.setText(self._fmt_row("Koszt", f"{cost:.2f}" if cost is not None else ""))
+        self.txt_supplier.setText(self._fmt_row("Dostawca", item.get('supplierReference') or ""))
+        self.txt_po.setText(self._fmt_row("PO", item.get('purchaseOrderNumber') or ""))
+        
+        temp = item.get('temperature')
+        hum = item.get('humidity')
+        env_str = f"{temp}°C / {hum}%" if temp is not None else ""
+        self.txt_temp_hum.setText(self._fmt_row("Warunki", env_str))
+        self.txt_condition.setText(self._fmt_row("Stan", str(item.get('conditionRating') or "")))
+        
+        quar = item.get('quarantine')
+        quar_reason = item.get('quarantineReason') or ""
+        self.txt_quarantine.setText(self._fmt_row("Kwarantanna", f"TAK ({quar_reason})" if quar else "NIE"))
+        
+        hold = item.get('hold')
+        hold_reason = item.get('holdReason') or ""
+        self.txt_hold.setText(self._fmt_row("Wstrzymany", f"TAK ({hold_reason})" if hold else "NIE"))
+        
+        self.txt_notes.setText(self._fmt_row("Notatki", item.get('notes') or ""))
 
     def _populate(self, items: List[Dict[str, Any]]):
         self.tbl.setRowCount(len(items))
@@ -441,6 +805,7 @@ class InventoryManagerWindow(QMainWindow):
             setc(8, it.get("lotNumber") or "")
             setc(9, it.get("serialNumber") or "")
         self.tbl.resizeColumnsToContents()
+        self._on_row_selected()
 
     def _selected_id(self) -> Optional[int]:
         rows = self.tbl.selectionModel().selectedRows()
@@ -456,6 +821,14 @@ class InventoryManagerWindow(QMainWindow):
         if rid is None:
             return None
         row = self.tbl.currentRow()
+        # Find item in _current_items by ID to be safe, or just use index if sorted
+        # Using index is safer if table matches _current_items
+        if row < len(self._current_items):
+             item = self._current_items[row]
+             if item.get('id') == rid:
+                 return item
+        
+        # Fallback
         return {
             "id": rid,
             "quantity": self.tbl.item(row, 3).text(),

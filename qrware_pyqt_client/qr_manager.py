@@ -3,7 +3,7 @@ import os
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QTableWidget,
     QTableWidgetItem, QPushButton, QLineEdit, QComboBox,
-    QMessageBox, QHeaderView, QFormLayout, QGroupBox, QLabel, QScrollArea, QFileDialog
+    QMessageBox, QHeaderView, QFormLayout, QGroupBox, QLabel, QScrollArea, QFileDialog, QFrame, QCheckBox
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
@@ -17,17 +17,25 @@ class QRManagerWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("QRWare - Menedżer QR")
-        self.resize(1100, 750)
+        self.resize(1200, 750)
 
         self.api_service = QRService()
+        self.all_data = []  # Store all loaded data for filtering
 
         self.custom_field_widgets = []
 
         central = QWidget()
         self.setCentralWidget(central)
         main_layout = QHBoxLayout(central)
+        main_layout.setContentsMargins(20, 20, 20, 20)
+        main_layout.setSpacing(20)
 
+        # --- LEWA STRONA (Lista) ---
         left_layout = QVBoxLayout()
+        
+        lbl_list = QLabel("Lista Kodów QR")
+        lbl_list.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50;")
+        left_layout.addWidget(lbl_list)
 
         self.table = QTableWidget()
         self.table.setColumnCount(7)
@@ -35,40 +43,61 @@ class QRManagerWindow(QMainWindow):
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
+        self.table.setAlternatingRowColors(True)
+        self.table.setStyleSheet("QTableWidget { border: 1px solid #dcdcdc; }")
         left_layout.addWidget(self.table)
 
         btn_layout = QHBoxLayout()
         self.btn_refresh = QPushButton("Odśwież")
         self.btn_refresh.clicked.connect(self.load_data)
 
+        # Zmiana: Checkbox
+        self.chk_only_active = QCheckBox("Tylko aktywne")
+        self.chk_only_active.setChecked(True)
+        self.chk_only_active.stateChanged.connect(self.filter_and_populate)
+
         self.btn_toggle = QPushButton("Zmień status")
         self.btn_toggle.clicked.connect(self.toggle_active)
 
         self.btn_delete = QPushButton("Usuń")
+        self.btn_delete.setStyleSheet("color: red;")
         self.btn_delete.clicked.connect(self.delete_qr)
 
         self.btn_print_label = QPushButton("Drukuj etykietę")
+        self.btn_print_label.setStyleSheet("background-color: #3498db; color: white; font-weight: bold;")
         self.btn_print_label.clicked.connect(self.print_label)
 
         btn_layout.addWidget(self.btn_refresh)
+        btn_layout.addWidget(self.chk_only_active)
         btn_layout.addWidget(self.btn_toggle)
         btn_layout.addWidget(self.btn_delete)
+        btn_layout.addStretch()
         btn_layout.addWidget(self.btn_print_label)
         left_layout.addLayout(btn_layout)
 
         main_layout.addLayout(left_layout, 60)
 
+        # --- PRAWA STRONA (Generator) ---
         right_layout = QVBoxLayout()
+        
+        lbl_gen = QLabel("Generator Kodów")
+        lbl_gen.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50;")
+        right_layout.addWidget(lbl_gen)
 
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
+        scroll_area.setFrameShape(QFrame.Shape.NoFrame)
         scroll_content = QWidget()
         scroll_layout = QVBoxLayout(scroll_content)
+        scroll_layout.setContentsMargins(0, 0, 0, 0)
+        scroll_layout.setSpacing(15)
 
-        group_box = QGroupBox("Generuj nowy kod QR")
+        group_box = QGroupBox("Parametry podstawowe")
         form_layout = QFormLayout()
+        form_layout.setSpacing(10)
 
         self.input_data = QLineEdit()
+        self.input_data.setPlaceholderText("Wpisz treść kodu...")
 
         self.combo_type = QComboBox()
         self.combo_type.addItems(["INVENTORY_ITEM", "PRODUCT", "CUSTOM", "LOCATION", "ASSET"])
@@ -108,7 +137,7 @@ class QRManagerWindow(QMainWindow):
         scroll_layout.addWidget(custom_group)
 
         self.btn_generate = QPushButton("Generuj kod QR")
-        self.btn_generate.setStyleSheet("font-weight: bold; padding: 10px; background-color: #007bff; color: white;")
+        self.btn_generate.setStyleSheet("font-weight: bold; padding: 10px; background-color: #2ecc71; color: white;")
         self.btn_generate.clicked.connect(self.generate_qr)
 
         scroll_layout.addWidget(self.btn_generate)
@@ -174,9 +203,19 @@ class QRManagerWindow(QMainWindow):
         success, result = self.api_service.get_all_qr_codes()
 
         if success:
-            self.populate_table(result)
+            self.all_data = result
+            self.filter_and_populate()
         else:
             QMessageBox.warning(self, "Błąd", f"Nie udało się pobrać danych:\n{result}")
+
+    def filter_and_populate(self):
+        only_active = self.chk_only_active.isChecked()
+        filtered_data = []
+        for item in self.all_data:
+            if only_active and not item.get('active'):
+                continue
+            filtered_data.append(item)
+        self.populate_table(filtered_data)
 
     def populate_table(self, data):
         self.table.setRowCount(0)

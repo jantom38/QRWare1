@@ -2,6 +2,7 @@ import requests
 from typing import Any, Dict, List, Optional, Tuple
 
 from config import ConfigManager
+from debug_log import log, log_exception
 
 
 def _auth_headers(cfg: ConfigManager) -> Dict[str, str]:
@@ -24,11 +25,18 @@ class UserManagementApi:
         url = f"{base}/api/users"
         try:
             r = requests.get(url, params={"page": page, "size": size}, headers=_auth_headers(self.cfg), timeout=self.timeout)
+            log(f"UM: GET {url} page={page} size={size} -> {r.status_code}")
+            log(f"UM: Authorization header present: {'Authorization' in _auth_headers(self.cfg)}")
+            log(f"UM: body preview: {(r.text or '')[:400]}")
             data = r.json()
         except Exception as e:
+            log_exception("UM: list_users exception", e)
             return False, f"Błąd pobierania użytkowników: {e}", {}
         if r.status_code != 200:
             return False, f"Błąd {r.status_code}", {}
+        # Backend zwraca GlobalApiResponse { success, message, data, timestamp }
+        if isinstance(data, dict) and data.get("success") is False:
+            return False, data.get("message") or "Błąd pobierania użytkowników", {}
         return True, "OK", data
 
     def search_users(self, query: str) -> Tuple[bool, str, Dict[str, Any]]:
@@ -41,6 +49,8 @@ class UserManagementApi:
             return False, f"Błąd wyszukiwania: {e}", {}
         if r.status_code != 200:
             return False, f"Błąd {r.status_code}", {}
+        if isinstance(data, dict) and data.get("success") is False:
+            return False, data.get("message") or "Błąd wyszukiwania użytkowników", {}
         return True, "OK", data
 
     def create_user(self, payload: Dict[str, Any]) -> Tuple[bool, str, Optional[Dict[str, Any]]]:
@@ -96,12 +106,27 @@ class UserManagementApi:
         url = f"{base}/api/roles"
         try:
             r = requests.get(url, headers=_auth_headers(self.cfg), timeout=self.timeout)
+            log(f"UM: GET {url} -> {r.status_code}")
+            log(f"UM: body preview: {(r.text or '')[:400]}")
             data = r.json()
         except Exception as e:
+            log_exception("UM: list_roles exception", e)
             return False, f"Błąd ról: {e}", []
-        if r.status_code != 200 or not isinstance(data, list):
+
+        if r.status_code != 200:
             return False, f"Błąd {r.status_code}", []
-        return True, "OK", data
+
+        # obsługa GlobalApiResponse
+        if isinstance(data, dict) and data.get("success") is False:
+            return False, data.get("message") or "Błąd pobierania ról", []
+
+        # role mogą być w data (list)
+        roles = data.get("data") if isinstance(data, dict) else None
+        if not isinstance(roles, list):
+            # fallback: jeżeli backend zwrócił bez opakowania
+            roles = data if isinstance(data, list) else []
+
+        return True, "OK", roles
 
     def create_role(self, payload: Dict[str, Any]) -> Tuple[bool, str, Optional[Dict[str, Any]]]:
         base = self.cfg.base_url.rstrip('/')
@@ -144,12 +169,25 @@ class UserManagementApi:
         url = f"{base}/api/permissions"
         try:
             r = requests.get(url, headers=_auth_headers(self.cfg), timeout=self.timeout)
+            log(f"UM: GET {url} -> {r.status_code}")
+            log(f"UM: body preview: {(r.text or '')[:400]}")
             data = r.json()
         except Exception as e:
+            log_exception("UM: list_permissions exception", e)
             return False, f"Błąd uprawnień: {e}", []
-        if r.status_code != 200 or not isinstance(data, list):
+
+        if r.status_code != 200:
             return False, f"Błąd {r.status_code}", []
-        return True, "OK", data
+
+        # obsługa GlobalApiResponse
+        if isinstance(data, dict) and data.get("success") is False:
+            return False, data.get("message") or "Błąd pobierania uprawnień", []
+
+        perms = data.get("data") if isinstance(data, dict) else None
+        if not isinstance(perms, list):
+            perms = data if isinstance(data, list) else []
+
+        return True, "OK", perms
 
     def create_permission(self, payload: Dict[str, Any]) -> Tuple[bool, str, Optional[Dict[str, Any]]]:
         base = self.cfg.base_url.rstrip('/')

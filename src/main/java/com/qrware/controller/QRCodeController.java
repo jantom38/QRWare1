@@ -40,6 +40,33 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "*")
 public class QRCodeController {
 
+    private static String normalizeEntityType(String entityType) {
+        if (entityType == null) return "";
+        return entityType.trim().toLowerCase().replace("-", "_");
+    }
+
+    private void linkQrToEntity(QRCodeData savedQRCode, String entityTypeRaw, Long entityId) {
+        if (savedQRCode == null || entityId == null) return;
+
+        String entityType = normalizeEntityType(entityTypeRaw);
+
+        if ("inventory_item".equals(entityType)) {
+            InventoryItem item = inventoryItemRepository.findById(entityId)
+                    .orElseThrow(() -> new ResourceNotFoundException("InventoryItem", "id", entityId));
+            item.setQrCode(savedQRCode.getCode());
+            inventoryItemRepository.save(item);
+            return;
+        }
+
+        if ("order_item".equals(entityType)) {
+            OrderItem item = orderItemRepository.findById(entityId)
+                    .orElseThrow(() -> new ResourceNotFoundException("OrderItem", "id", entityId));
+            item.setQrCodeData(savedQRCode.getCode());
+            orderItemRepository.save(item);
+        }
+    }
+
+
     private static final Logger logger = LoggerFactory.getLogger(QRCodeController.class);
 
     @Autowired
@@ -174,15 +201,7 @@ public class QRCodeController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
 
-            if ("inventory_item".equalsIgnoreCase(request.getEntityType())) {
-                InventoryItem item = inventoryItemRepository.findById(request.getEntityId()).orElseThrow(() -> new ResourceNotFoundException("InventoryItem", "id", request.getEntityId()));
-                item.setQrCode(savedQRCode.getCode());
-                inventoryItemRepository.save(item);
-            } else if ("order_item".equalsIgnoreCase(request.getEntityType())) {
-                OrderItem item = orderItemRepository.findById(request.getEntityId()).orElseThrow(() -> new ResourceNotFoundException("OrderItem", "id", request.getEntityId()));
-                item.setQrCodeData(savedQRCode.getCode());
-                orderItemRepository.save(item);
-            }
+            linkQrToEntity(savedQRCode, request.getEntityType(), request.getEntityId());
 
             logger.info("QR Code generated successfully with ID: {}", savedQRCode.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(dtoMapper.toDTO(savedQRCode));
@@ -337,11 +356,14 @@ public class QRCodeController {
                     .body(Map.of("error", "Failed to generate QR code"));
             }
 
-            QRCodeDTO dto = dtoMapper.toDTO(qrCode);
-dto.setImagePath(fileStorageService.getFileUrl(qrCode.getImagePath()));
+            // Link generated QR to entity fields (e.g. inventory_items.qr_code)
+           linkQrToEntity(qrCode, request.getEntityType(), request.getEntityId());
 
-            logger.info("QR Code generated successfully. Image path: {}", qrCode.getImagePath());
-            return ResponseEntity.ok(dto);
+           QRCodeDTO dto = dtoMapper.toDTO(qrCode);
+           dto.setImagePath(fileStorageService.getFileUrl(qrCode.getImagePath()));
+
+           logger.info("QR Code generated successfully. Image path: {}", qrCode.getImagePath());
+           return ResponseEntity.ok(dto);
 
         } catch (Exception e) {
             logger.error("FAILED to generate QR with image: ", e);

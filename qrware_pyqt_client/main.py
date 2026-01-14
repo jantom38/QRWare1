@@ -8,8 +8,9 @@ try:
     from PyQt6 import QtWidgets, QtCore
     from PyQt6.QtWidgets import (
         QApplication, QMainWindow, QWidget, QVBoxLayout,
-        QFormLayout, QLineEdit, QPushButton, QLabel, QMessageBox
+        QFormLayout, QLineEdit, QPushButton, QLabel, QMessageBox, QFrame
     )
+    from PyQt6.QtCore import Qt
 except ImportError as e:
     print("===============================================================")
     print(f"BŁĄD KRYTYCZNY: {e}")
@@ -52,7 +53,7 @@ class LoginWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("QRWare - Logowanie")
-        self.resize(420, 240)
+        self.resize(450, 350)
 
         self.config = ConfigManager()
 
@@ -60,39 +61,77 @@ class LoginWindow(QMainWindow):
         self.setCentralWidget(central)
 
         layout = QVBoxLayout()
-        form = QFormLayout()
+        layout.setContentsMargins(40, 40, 40, 40)
+        layout.setSpacing(20)
+        
+        # Tytuł
+        lbl_title = QLabel("QRWare")
+        lbl_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        lbl_title.setStyleSheet("font-size: 32px; font-weight: bold; color: #2c3e50;")
+        layout.addWidget(lbl_title)
+        
+        lbl_subtitle = QLabel("System Zarządzania Magazynem")
+        lbl_subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        lbl_subtitle.setStyleSheet("font-size: 14px; color: #7f8c8d; margin-bottom: 20px;")
+        layout.addWidget(lbl_subtitle)
+
+        # Formularz
+        form_container = QWidget()
+        form_layout = QVBoxLayout(form_container)
+        form_layout.setContentsMargins(0, 0, 0, 0)
+        form_layout.setSpacing(15)
 
         self.edt_server = QLineEdit(self.config.base_url)
-        self.edt_server.setPlaceholderText("http://localhost:8080")
-
+        self.edt_server.setPlaceholderText("Adres serwera (np. http://localhost:8080)")
+        
         self.edt_username = QLineEdit()
-        self.edt_username.setPlaceholderText("nazwa użytkownika lub e-mail")
+        self.edt_username.setPlaceholderText("Nazwa użytkownika lub e-mail")
 
         self.edt_password = QLineEdit()
         self.edt_password.setEchoMode(QLineEdit.EchoMode.Password)
-        self.edt_password.setPlaceholderText("hasło")
+        self.edt_password.setPlaceholderText("Hasło")
 
-        form.addRow("Adres serwera:", self.edt_server)
-        form.addRow("Login/E-mail:", self.edt_username)
-        form.addRow("Hasło:", self.edt_password)
+        form_layout.addWidget(QLabel("Serwer:"))
+        form_layout.addWidget(self.edt_server)
+        form_layout.addWidget(QLabel("Login:"))
+        form_layout.addWidget(self.edt_username)
+        form_layout.addWidget(QLabel("Hasło:"))
+        form_layout.addWidget(self.edt_password)
+        
+        layout.addWidget(form_container)
 
-        layout.addLayout(form)
-
-        self.lbl_status = QLabel()
-        self.lbl_status.setStyleSheet("color: gray;")
+        self.lbl_status = QLabel("")
+        self.lbl_status.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lbl_status.setStyleSheet("color: gray; font-size: 12px;")
         layout.addWidget(self.lbl_status)
 
-        self.btn_login = QPushButton("Zaloguj")
+        self.btn_login = QPushButton("Zaloguj się")
+        self.btn_login.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_login.setStyleSheet("""
+            QPushButton {
+                background-color: #3498db; 
+                color: white; 
+                font-weight: bold; 
+                padding: 12px; 
+                border-radius: 6px;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background-color: #2980b9;
+            }
+        """)
         self.btn_login.clicked.connect(self.on_login)
         layout.addWidget(self.btn_login)
+        
+        layout.addStretch()
 
         central.setLayout(layout)
 
-        self._set_status("Gotowy")
+        self._set_status("Gotowy do logowania")
 
     def _set_status(self, text: str, error: bool = False):
         self.lbl_status.setText(text)
-        self.lbl_status.setStyleSheet("color: red;" if error else "color: gray;")
+        self.lbl_status.setStyleSheet("color: #e74c3c;" if error else "color: #7f8c8d;")
 
     def on_login(self):
         base_url = self.edt_server.text().strip()
@@ -100,14 +139,15 @@ class LoginWindow(QMainWindow):
         password = self.edt_password.text()
 
         if not base_url:
-            QMessageBox.warning(self, "Błąd", "Podaj adres serwera.")
+            self._set_status("Podaj adres serwera", error=True)
             return
         if not username or not password:
-            QMessageBox.warning(self, "Błąd", "Podaj login/e-mail i hasło.")
+            self._set_status("Podaj login i hasło", error=True)
             return
 
         self.btn_login.setEnabled(False)
-        self._set_status("Logowanie…")
+        self.btn_login.setText("Logowanie...")
+        self._set_status("Nawiązywanie połączenia...")
         QApplication.processEvents()
 
         self.config.base_url = base_url
@@ -116,9 +156,11 @@ class LoginWindow(QMainWindow):
         ok, message, auth = client.login(username, password)
 
         self.btn_login.setEnabled(True)
+        self.btn_login.setText("Zaloguj się")
+        
         if not ok:
             self._set_status(message or "Logowanie nieudane", error=True)
-            QMessageBox.critical(self, "Logowanie nieudane", message or "Błąd")
+            QMessageBox.critical(self, "Błąd logowania", message or "Nieznany błąd")
             return
 
         self.config.save_tokens(auth.accessToken, auth.refreshToken)

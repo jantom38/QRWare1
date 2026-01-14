@@ -32,9 +32,22 @@ public class DTOMapper {
         dto.setSerialNumber(item.getSerialNumber());
         dto.setReceivedDate(item.getReceivedDate());
         dto.setExpiryDate(item.getExpiryDate());
+        dto.setManufactureDate(item.getManufactureDate());
+        dto.setLastCountedDate(item.getLastCountedDate());
+        dto.setLastMovedDate(item.getLastMovedDate());
         dto.setUnitCost(item.getUnitCost());
         dto.setTotalCost(item.getTotalCost());
+        dto.setSupplierReference(item.getSupplierReference());
+        dto.setManufacturer(item.getManufacturer());
+        dto.setPurchaseOrderNumber(item.getPurchaseOrderNumber());
         dto.setNotes(item.getNotes());
+        dto.setTemperature(item.getTemperature());
+        dto.setHumidity(item.getHumidity());
+        dto.setConditionRating(item.getConditionRating());
+        dto.setQuarantine(item.getQuarantine());
+        dto.setQuarantineReason(item.getQuarantineReason());
+        dto.setHold(item.getHold());
+        dto.setHoldReason(item.getHoldReason());
 
         dto.setProduct(toDTO(item.getProduct()));
         dto.setLocation(toDTO(item.getLocation()));
@@ -116,6 +129,16 @@ public class DTOMapper {
         dto.setCapacityVolume(location.getCapacityVolume());
         dto.setCapacityWeight(location.getCapacityWeight());
         dto.setCapacityItems(location.getCapacityItems());
+        
+        // Obliczanie aktualnej liczby przedmiotów
+        if (location.getInventoryItems() != null) {
+            int currentItems = location.getInventoryItems().stream()
+                    .mapToInt(InventoryItem::getQuantity)
+                    .sum();
+            dto.setCurrentItems(currentItems);
+        } else {
+            dto.setCurrentItems(0);
+        }
         
         dto.setTemperatureControlled(location.getTemperatureControlled());
         dto.setTemperatureMin(location.getTemperatureMin());
