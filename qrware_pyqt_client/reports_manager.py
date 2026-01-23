@@ -494,13 +494,13 @@ class ReportsManagerWindow(QMainWindow):
             "SAMPLE": "Próbka",
             "LOAN": "Wypożyczenie",
             "LOAN_RETURN": "Zwrot wypożyczenia",
-            "ORDER_RECEIPT": "Przyjęcie zamówienia",
-            "ORDER_ISSUE": "Wydanie zamówienia",
-            "ORDER_PICK": "Kompletacja zamówienia",
-            "ORDER_PACK": "Pakowanie zamówienia",
-            "ORDER_CANCEL": "Anulowanie zamówienia",
-            "ORDER_RETURN": "Zwrot zamówienia",
-            "ORDER_ADJUSTMENT": "Korekta zamówienia"
+            "ORDER_RECEIPT": "Przyjęcie zlecenia",
+            "ORDER_ISSUE": "Wydanie zlecenia",
+            "ORDER_PICK": "Kompletacja zlecenia",
+            "ORDER_PACK": "Pakowanie zlecenia",
+            "ORDER_CANCEL": "Anulowanie zlecenia",
+            "ORDER_RETURN": "Zwrot zlecenia",
+            "ORDER_ADJUSTMENT": "Korekta zlecenia"
         }
         return translations.get(mtype, mtype)
 

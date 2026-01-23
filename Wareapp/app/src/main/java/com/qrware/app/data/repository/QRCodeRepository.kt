@@ -162,7 +162,28 @@ fun LocationDTO.toDomain(): Location {
         code = this.code ?: "LOC-???",
         name = this.name ?: "Nieznana lokalizacja",
         description = this.description,
-        zone = this.zone.toDomain()
+        zone = this.zone.toDomain(),
+        capacityVolume = this.capacityVolume,
+        capacityWeight = this.capacityWeight,
+        capacityItems = this.capacityItems,
+        currentItems = this.currentItems,
+        temperatureControlled = this.temperatureControlled,
+        temperatureMin = this.temperatureMin,
+        temperatureMax = this.temperatureMax,
+        humidityControlled = this.humidityControlled,
+        humidityMin = this.humidityMin,
+        humidityMax = this.humidityMax,
+        hazardousMaterials = this.hazardousMaterials,
+        fragileItems = this.fragileItems,
+        securityLevel = this.securityLevel,
+        active = this.active,
+        pickable = this.pickable,
+        receivable = this.receivable,
+        qrCode = this.qrCode,
+        barcode = this.barcode,
+        xCoordinate = this.xCoordinate,
+        yCoordinate = this.yCoordinate,
+        zCoordinate = this.zCoordinate
     )
 }
 

@@ -41,7 +41,7 @@ fun OrderTypeDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Wybierz typ zamówienia") },
+        title = { Text("Wybierz typ zlecenia") },
         text = {
             Box(modifier = Modifier.heightIn(max = 400.dp)) {
                 LazyColumn {
@@ -294,7 +294,7 @@ fun AddOrderItemDialog(
                     .imePadding()
             ) {
                 Text(
-                    text = "Dodaj pozycję zamówienia",
+                    text = "Dodaj pozycję zlecenia",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -422,7 +422,7 @@ fun AddOrderItemDialog(
                     }
 
                     item {
-                        Divider()
+                        HorizontalDivider()
                     }
 
                     // Quantity Input
@@ -823,7 +823,7 @@ fun getOrderTypeDescription(type: OrderType): String {
         OrderType.INBOUND -> "Przyjęcie towaru do magazynu"
         OrderType.OUTBOUND -> "Wydanie towaru z magazynu"
         OrderType.TRANSFER -> "Przeniesienie między lokalizacjami"
-        OrderType.PICK -> "Kompletacja zamówienia"
+        OrderType.PICK -> "Kompletacja zlecenia"
         OrderType.PUTAWAY -> "Odkładanie towaru na miejsce"
         OrderType.CYCLE_COUNT -> "Inwentaryzacja ciągła"
         OrderType.REPLENISHMENT -> "Uzupełnienie zapasów"

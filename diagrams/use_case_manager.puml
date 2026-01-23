@@ -24,12 +24,15 @@ rectangle "System QRWare - Moduł Menadżera" {
     }
     
     package "2. Zarządzanie Stanami" {
-        usecase "UC-M02: Tworzenie stanów\nmagazynowych" as UC_M02
+        ' ZMIANA TUTAJ: Zamiast "Tworzenie" jest "Zarządzanie" (obejmuje edycję/usuwanie)
+        usecase "UC-M02: Zarządzanie pozycjami\nmagazynowymi" as UC_M02
         usecase "UC-M05: Generowanie\nkodów QR" as UC_M05
     }
     
     package "3. Zarządzanie Zleceniami" {
-        usecase "UC-M03: Tworzenie zleceń\nmagazynowych" as UC_M03
+        ' SUGESTIA: Tu też warto zmienić na "Zarządzanie", chyba że Menadżer tylko tworzy, a nie może edytować?
+        ' Jeśli może edytować/anulować, zostaw "Zarządzanie".
+        usecase "UC-M03: Zarządzanie zleceniami\nmagazynowymi" as UC_M03
         usecase "UC-M04: Monitorowanie\nstatusu zleceń" as UC_M04
     }
     

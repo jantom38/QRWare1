@@ -177,7 +177,7 @@ fun QRGeneratorScreen(
                                 readOnly = true,
                                 label = { Text("Typ obiektu") },
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                                modifier = Modifier.menuAnchor().fillMaxWidth()
+                                modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true).fillMaxWidth()
                             )
                             ExposedDropdownMenu(
                                 expanded = expanded,
@@ -203,7 +203,7 @@ fun QRGeneratorScreen(
                             modifier = Modifier.fillMaxWidth()
                         )
 
-                        Divider(modifier = Modifier.padding(vertical = 8.dp))
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                         Text(
                             "Dodatkowe dane (w kodzie QR)",
@@ -259,7 +259,7 @@ fun QRGeneratorScreen(
                             Text("Dodaj pole")
                         }
 
-                        Divider(modifier = Modifier.padding(vertical = 8.dp))
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             OutlinedTextField(

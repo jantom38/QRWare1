@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -83,10 +84,10 @@ fun CreateOrderScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Utwórz Zamówienie") },
+                title = { Text("Utwórz Zlecenie") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Wróć")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Wróć")
                     }
                 },
                 actions = {
@@ -125,7 +126,7 @@ fun CreateOrderScreen(
                                                         navController.popBackStack()
                                                     }
                                                 } catch (e: Exception) {
-                                                    errorMessage = "Zamówienie ${createdOrder.orderNumber} zostało utworzone, ale wystąpił błąd podczas dodawania pozycji: ${e.message}"
+                                                    errorMessage = "Zlecenie ${createdOrder.orderNumber} zostało utworzone, ale wystąpił błąd podczas dodawania pozycji: ${e.message}"
                                                     isLoading = false
                                                     android.util.Log.e("CreateOrderScreen", "Error adding order items", e)
                                                 }
@@ -135,7 +136,7 @@ fun CreateOrderScreen(
                                             }
                                         }
                                         .onFailure { 
-                                            errorMessage = "Błąd podczas tworzenia zamówienia: ${it.message}"
+                                            errorMessage = "Błąd podczas tworzenia zlecenia: ${it.message}"
                                             isLoading = false
                                             android.util.Log.e("CreateOrderScreen", "Failed to create order", it)
                                         }
@@ -191,7 +192,7 @@ fun CreateOrderScreen(
                 OutlinedTextField(
                     value = orderNumber,
                     onValueChange = { orderNumber = it },
-                    label = { Text("Numer zamówienia (opcjonalnie)") },
+                    label = { Text("Numer zlecenia (opcjonalnie)") },
                     modifier = Modifier.fillMaxWidth(),
                     supportingText = { Text("Zostanie wygenerowany automatycznie jeśli pusty") }
                 )
@@ -201,7 +202,7 @@ fun CreateOrderScreen(
                 OutlinedTextField(
                     value = selectedOrderType?.let { getOrderTypeDisplayName(it) } ?: "",
                     onValueChange = { },
-                    label = { Text("Typ zamówienia *") },
+                    label = { Text("Typ zlecenia *") },
                     modifier = Modifier.fillMaxWidth(),
                     readOnly = true,
                     trailingIcon = {
@@ -370,7 +371,7 @@ fun CreateOrderScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Pozycje zamówienia (${orderItems.size})",
+                        text = "Pozycje zlecenia (${orderItems.size})",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -407,7 +408,7 @@ fun CreateOrderScreen(
                         )
                     ) {
                         Text(
-                            text = "Brak pozycji zamówienia\nMożesz dodać je teraz lub później",
+                            text = "Brak pozycji zlecenia\nMożesz dodać je teraz lub później",
                             modifier = Modifier.padding(16.dp),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant

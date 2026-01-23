@@ -105,7 +105,7 @@ fun EditOrderScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Edytuj Zamówienie #${uiState.order?.orderNumber ?: ""}") },
+                title = { Text("Edytuj Zlecenie #${uiState.order?.orderNumber ?: ""}") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Wróć")
@@ -158,7 +158,7 @@ fun EditOrderScreen(
                 ) {
                     item {
                         Text(
-                            text = "Szczegóły zamówienia",
+                            text = "Szczegóły zlecenia",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
@@ -228,7 +228,7 @@ fun EditOrderScreen(
 
                     item {
                         Text(
-                            text = "Pozycje zamówienia",
+                            text = "Pozycje zlecenia",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(top = 16.dp)

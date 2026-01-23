@@ -109,7 +109,7 @@ fun StatusCard(title: String, content: @Composable ColumnScope.() -> Unit) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             content()
         }
     }

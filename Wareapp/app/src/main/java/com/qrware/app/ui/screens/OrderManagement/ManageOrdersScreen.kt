@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -47,10 +49,10 @@ fun ManageOrdersScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text("Zarządzanie Zamówieniami") },
+                title = { Text("Zarządzanie Zleceniami") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Wróć")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Wróć")
                     }
                 },
                 actions = {
@@ -73,7 +75,7 @@ fun ManageOrdersScreen(
                     navController.navigate("create_order")
                 }
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Dodaj zamówienie")
+                Icon(Icons.Default.Add, contentDescription = "Dodaj zlecenie")
             }
         }
     ) { paddingValues ->
@@ -117,14 +119,14 @@ fun ManageOrdersScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
-                            Icons.Default.Assignment,
-                            contentDescription = "Brak zamówień",
+                            Icons.AutoMirrored.Filled.Assignment,
+                            contentDescription = "Brak zleceń",
                             modifier = Modifier.size(64.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = if (uiState.selectedFilter != null) "Brak zamówień dla wybranego filtra" else "Brak zamówień",
+                            text = if (uiState.selectedFilter != null) "Brak zleceń dla wybranego filtra" else "Brak zleceń",
                             style = MaterialTheme.typography.bodyLarge
                         )
                         Spacer(modifier = Modifier.height(16.dp))
@@ -138,7 +140,7 @@ fun ManageOrdersScreen(
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Utwórz pierwsze zamówienie")
+                                Text("Utwórz pierwsze zlecenie")
                             }
                         } else {
                             TextButton(onClick = { viewModel.setFilter(null) }) {
@@ -378,7 +380,7 @@ fun ManageOrderCard(
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 LinearProgressIndicator(
-                    progress = progress,
+                    progress = { progress },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -437,7 +439,7 @@ fun FilterOrdersDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Filtruj zamówienia") },
+        title = { Text("Filtruj zlecenia") },
         text = {
             LazyColumn {
                 item {

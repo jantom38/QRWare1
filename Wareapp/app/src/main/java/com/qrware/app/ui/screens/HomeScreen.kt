@@ -101,14 +101,14 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
 
                     if (hasPermission("ORDER_READ")) {
                         MenuButton(
-                            text = "Moje Zamówienia",
+                            text = "Moje Zlecenia",
                             onClick = { navController.navigate("my_orders") }
                         )
                     }
 
                     if (hasPermission("ORDER_WRITE") || hasRole("ADMIN")) {
                         MenuButton(
-                            text = "Zarządzanie Zamówieniami",
+                            text = "Zarządzanie Zleceniami",
                             onClick = { navController.navigate("manage_orders") }
                         )
                     }

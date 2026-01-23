@@ -111,7 +111,7 @@ private fun AddUserForm(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
 
-        Divider(modifier = Modifier.padding(vertical = 8.dp))
+        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
         OutlinedTextField(
             value = formState.firstName,

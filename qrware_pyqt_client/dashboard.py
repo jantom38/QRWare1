@@ -163,7 +163,7 @@ class DashboardWindow(QMainWindow):
         grid2 = QGridLayout()
         grid2.setSpacing(20)
         
-        btn_orders = DashboardButton("Zamówienia", "Zarządzanie zamówieniami klientów i dostawców", color="#e67e22")
+        btn_orders = DashboardButton("Zlecenia", "Zarządzanie zleceniami klientów i dostawców", color="#e67e22")
         btn_orders.clicked.connect(self.open_orders)
         grid2.addWidget(btn_orders, 0, 0)
         

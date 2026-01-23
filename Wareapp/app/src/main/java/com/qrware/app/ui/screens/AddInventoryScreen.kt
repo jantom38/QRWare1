@@ -181,7 +181,7 @@ fun AddInventoryScreen(
                                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                             }
                         },
-                        modifier = Modifier.menuAnchor().fillMaxWidth(),
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = !uiState.locationsLoading).fillMaxWidth(),
                         enabled = !uiState.locationsLoading,
                         placeholder = { Text("Wybierz lokalizację...") }
                     )
@@ -273,7 +273,7 @@ fun AddInventoryScreen(
                         readOnly = true,
                         label = { Text("Status") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                        modifier = Modifier.menuAnchor().fillMaxWidth()
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true).fillMaxWidth()
                     )
                     ExposedDropdownMenu(
                         expanded = expanded,
@@ -397,7 +397,7 @@ fun AddInventoryScreen(
                 OutlinedTextField(
                     value = purchaseOrderNumber,
                     onValueChange = { purchaseOrderNumber = it },
-                    label = { Text("Numer zamówienia") },
+                    label = { Text("Numer zlecenia") },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                 )

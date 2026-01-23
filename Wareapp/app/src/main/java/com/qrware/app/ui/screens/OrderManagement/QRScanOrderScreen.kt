@@ -14,6 +14,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,7 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -92,7 +94,7 @@ fun QRScanOrderScreen(
                 title = { Text("Skanowanie - ${orderHeader?.orderNumber ?: "..."}") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Wróć")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Wróć")
                     }
                 },
                 actions = {
@@ -347,7 +349,7 @@ fun QRScanResultCard(
                         onClick = { onPickItem(orderItem) },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Icon(Icons.Default.Assignment, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.Assignment, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Pobierz")
                     }
@@ -413,7 +415,7 @@ fun InventoryItemResultCard(inventoryItem: InventoryItemDTO) {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Ten przedmiot nie jest częścią bieżącego zamówienia.",
+                text = "Ten przedmiot nie jest częścią bieżącego zlecenia.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onTertiaryContainer
             )

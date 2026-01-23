@@ -34,3 +34,5 @@ Thumbs.db
 *.trace.db
 *.mv.db
 /target
+/diagrams
+/diagrams

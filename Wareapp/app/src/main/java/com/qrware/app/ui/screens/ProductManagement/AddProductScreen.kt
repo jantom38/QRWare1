@@ -224,7 +224,7 @@ fun AddProductScreen(
                 OutlinedTextField(
                     value = reorderPoint,
                     onValueChange = { reorderPoint = it },
-                    label = { Text("Punkt zamówienia") },
+                    label = { Text("Punkt zlecenia") },
                     modifier = Modifier.weight(1f),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
@@ -299,7 +299,7 @@ fun AddProductScreen(
                     placeholder = { Text("Brak kategorii") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .menuAnchor(),
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true),
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = categoryDropdownExpanded) }
                 )
 

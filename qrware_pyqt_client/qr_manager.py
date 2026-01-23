@@ -393,22 +393,33 @@ class QRManagerWindow(QMainWindow):
         text_start_y = (label_height + qr_size) / 2 - 2 * mm
 
         c.setFont("Helvetica-Bold", 8)
-        # Removed ID line as requested
+
+        # Helper to remove Polish chars
+        def sanitize_text(text):
+            if not text: return ""
+            replacements = {
+                'ą': 'a', 'ć': 'c', 'ę': 'e', 'ł': 'l', 'ń': 'n', 'ó': 'o', 'ś': 's', 'ź': 'z', 'ż': 'z',
+                'Ą': 'A', 'Ć': 'C', 'Ę': 'E', 'Ł': 'L', 'Ń': 'N', 'Ó': 'O', 'Ś': 'S', 'Ź': 'Z', 'Ż': 'Z'
+            }
+            for k, v in replacements.items():
+                text = text.replace(k, v)
+            return text
 
         # Code
         c.setFont("Helvetica", 6)
-        code = item_data.get('code', '')
+        code = sanitize_text(item_data.get('code', ''))
         if len(code) > 15:
             code = code[:12] + "..."
         c.drawString(text_x, text_start_y, f"Kod: {code}")
 
         # Type
         text_y = text_start_y - 4 * mm
-        c.drawString(text_x, text_y, f"Typ: {item_data.get('type')}")
+        type_str = sanitize_text(item_data.get('type', ''))
+        c.drawString(text_x, text_y, f"Typ: {type_str}")
 
         # Data
         text_y -= 4 * mm
-        data_str = item_data.get('data', '')
+        data_str = sanitize_text(item_data.get('data', ''))
         if len(data_str) > 15:
             data_str = data_str[:12] + "..."
         c.drawString(text_x, text_y, f"Dane: {data_str}")

@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -54,11 +55,11 @@ fun OrderDetailsScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(uiState.order?.orderNumber ?: "Zamówienie #$orderId")
+                    Text(uiState.order?.orderNumber ?: "Zlecenie #$orderId")
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Wróć")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Wróć")
                     }
                 },
                 actions = {
@@ -148,7 +149,7 @@ fun OrderDetailsScreen(
 
                         item {
                             Text(
-                                text = "Pozycje zamówienia",
+                                text = "Pozycje zlecenia",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
@@ -245,7 +246,7 @@ fun OrderProgressCard(order: OrderDTO) {
                 Text(text = "${(order.completionPercentage ?: 0.0).toInt()}%", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
             }
             Spacer(modifier = Modifier.height(8.dp))
-            LinearProgressIndicator(progress = progress, modifier = Modifier.fillMaxWidth())
+            LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth())
         }
     }
 }

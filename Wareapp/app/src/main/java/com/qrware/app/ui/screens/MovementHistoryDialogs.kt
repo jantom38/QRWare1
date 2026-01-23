@@ -76,7 +76,7 @@ fun FiltersDialog(
                     "Wydania" to MovementType.getOutboundTypes(),
                     "Ruchy" to MovementType.getMovementTypes(),
                     "Korekty" to MovementType.getAdjustmentTypes(),
-                    "Zamówienia" to MovementType.getOrderRelatedTypes(),
+                    "Zlecenia" to MovementType.getOrderRelatedTypes(),
                     "Jakość" to MovementType.getQualityRelatedTypes()
                 )
 

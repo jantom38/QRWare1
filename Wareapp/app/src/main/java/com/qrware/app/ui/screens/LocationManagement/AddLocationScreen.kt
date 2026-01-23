@@ -171,7 +171,7 @@ fun LocationForm(
                     readOnly = true,
                     label = { Text("Strefa*") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = zoneExpanded) },
-                    modifier = Modifier.fillMaxWidth().menuAnchor(),
+                    modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true),
                     isError = uiState.zoneId == null
                 )
                 ExposedDropdownMenu(
@@ -202,7 +202,7 @@ fun LocationForm(
                     readOnly = true,
                     label = { Text("Typ Lokalizacji*") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = typeExpanded) },
-                    modifier = Modifier.fillMaxWidth().menuAnchor()
+                    modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
                 )
                 ExposedDropdownMenu(
                     expanded = typeExpanded,

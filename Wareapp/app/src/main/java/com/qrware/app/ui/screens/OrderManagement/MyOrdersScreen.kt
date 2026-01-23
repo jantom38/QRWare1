@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -34,10 +36,10 @@ fun MyOrdersScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Moje Zamówienia") },
+                title = { Text("Moje Zlecenia") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Wróć")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Wróć")
                     }
                 },
                 actions = {
@@ -88,14 +90,14 @@ fun MyOrdersScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
-                            Icons.Default.Assignment,
-                            contentDescription = "Brak zamówień",
+                            Icons.AutoMirrored.Filled.Assignment,
+                            contentDescription = "Brak zleceń",
                             modifier = Modifier.size(64.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "Nie masz przypisanych zamówień",
+                            text = "Nie masz przypisanych zleceń",
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }
@@ -195,7 +197,7 @@ fun OrderCard(
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 LinearProgressIndicator(
-                    progress = progress,
+                    progress = { progress },
                     modifier = Modifier.fillMaxWidth()
                 )
             }

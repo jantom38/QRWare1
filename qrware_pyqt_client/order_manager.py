@@ -41,14 +41,14 @@ def tr(key):
 
 
 class InventorySelectionDialog(QDialog):
-    """Bardziej logiczny dialog wyboru pozycji do zamówienia:
+    """Bardziej logiczny dialog wyboru pozycji do zlecenia:
 
     1) Użytkownik najpierw wybiera produkt.
     2) Następnie wybiera, czy wymagana jest dokładna lokalizacja (requiresExactInventory).
        - Jeśli TAK: użytkownik wybiera konkretny stan magazynowy (inventory item) z listy (z lokalizacjami).
        - Jeśli NIE: system może dobrać źródło, a my nie wysyłamy sourceLocationId.
 
-    Zwraca słownik gotowy do dodania do `added_items` w kreatorze zamówienia.
+    Zwraca słownik gotowy do dodania do `added_items` w kreatorze zlecenia.
     """
 
     def __init__(
@@ -67,7 +67,7 @@ class InventorySelectionDialog(QDialog):
         self.fixed_source_location_id = fixed_source_location_id
         self.fixed_destination_location_id = fixed_destination_location_id
 
-        self.setWindowTitle("Dodaj pozycję do zamówienia")
+        self.setWindowTitle("Dodaj pozycję do zlecenia")
         self.resize(900, 600)
 
         self._result_item = None
@@ -212,7 +212,7 @@ class InventorySelectionDialog(QDialog):
         else:
             self.hint_label.setText(
                 "Źródło nie jest wymagane – system może dobrać lokalizację automatycznie. "
-                "(Do zamówienia zostanie dodany tylko produkt i ilość.)"
+                "(Do zlecenia zostanie dodany tylko produkt i ilość.)"
             )
             self.table.setVisible(False)
             self.table.setRowCount(0)
@@ -226,7 +226,7 @@ class InventorySelectionDialog(QDialog):
         if not prod_id:
             return
 
-        # Jeśli zamówienie ma ustawioną lokalizację źródłową (np. OUTBOUND/TRANSFER),
+        # Jeśli zlecenie ma ustawioną lokalizację źródłową (np. OUTBOUND/TRANSFER),
         # to w trybie exact ograniczamy wybór do tej lokalizacji.
         items = []
         if self.fixed_source_location_id and self.order_type in ["OUTBOUND", "TRANSFER"]:
@@ -242,7 +242,7 @@ class InventorySelectionDialog(QDialog):
 
         # Gdy mamy fixed_source_location_id, informujemy użytkownika i nie pokazujemy innych lokalizacji
         if self.fixed_source_location_id and self.order_type in ["OUTBOUND", "TRANSFER"]:
-            self.fixed_loc_label.setText(f"Źródło zamówienia: {self.fixed_source_location_id} (lista ograniczona do tej lokalizacji)")
+            self.fixed_loc_label.setText(f"Źródło zlecenia: {self.fixed_source_location_id} (lista ograniczona do tej lokalizacji)")
         else:
             self.fixed_loc_label.setText("")
 
@@ -337,7 +337,7 @@ class CreateOrderDialog(QDialog):
         self.api = api_service
         self.inventory_api = InventoryApi()
 
-        self.setWindowTitle("Kreator Nowego Zamówienia")
+        self.setWindowTitle("Kreator Nowego Zlecenia")
         self.resize(750, 600)
 
         self.added_items = []
@@ -346,7 +346,7 @@ class CreateOrderDialog(QDialog):
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(15)
 
-        lbl_title = QLabel("Nowe Zamówienie")
+        lbl_title = QLabel("Nowe Zlecenie")
         lbl_title.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;")
         layout.addWidget(lbl_title)
 
@@ -366,7 +366,7 @@ class CreateOrderDialog(QDialog):
         self.tabs.addTab(self.tab_items, "3. Produkty")
 
         btn_box = QHBoxLayout()
-        self.btn_save = QPushButton("Utwórz Zamówienie")
+        self.btn_save = QPushButton("Utwórz Zlecenie")
         self.btn_save.setStyleSheet("background-color: #2ecc71; color: white; font-weight: bold; padding: 8px;")
         self.btn_save.clicked.connect(self.accept)
 
@@ -401,16 +401,16 @@ class CreateOrderDialog(QDialog):
         self.input_order_number.setPlaceholderText("Auto-generowany (pozostaw puste)")
 
         self.input_desc = QTextEdit()
-        self.input_desc.setPlaceholderText("Dodatkowy opis zamówienia...")
+        self.input_desc.setPlaceholderText("Dodatkowy opis zlecenia...")
         self.input_desc.setMaximumHeight(100)
 
         self.input_expected_date = QDateEdit()
         self.input_expected_date.setCalendarPopup(True)
         self.input_expected_date.setDate(QDate.currentDate().addDays(1))
 
-        layout.addRow("Typ zamówienia:", self.input_type)
+        layout.addRow("Typ zlecenia:", self.input_type)
         layout.addRow("Priorytet:", self.input_priority)
-        layout.addRow("Numer Zamówienia:", self.input_order_number)
+        layout.addRow("Numer Zlecenia:", self.input_order_number)
         layout.addRow("Oczekiwana data:", self.input_expected_date)
         layout.addRow("Opis:", self.input_desc)
 
@@ -439,7 +439,7 @@ class CreateOrderDialog(QDialog):
         layout.addRow("Lokalizacja Docelowa:", self.combo_dest)
         layout.addRow("Przypisz do użytkownika:", self.combo_assignee)
 
-        info_label = QLabel("Wskazówka: Dla zamówień typu PRZYJĘCIE wypełnij cel, dla WYDANIE źródło.")
+        info_label = QLabel("Wskazówka: Dla zleceń typu PRZYJĘCIE wypełnij cel, dla WYDANIE źródło.")
         info_label.setStyleSheet("color: gray; font-style: italic; font-size: 11px;")
         layout.addRow(info_label)
 
@@ -515,7 +515,7 @@ class CreateOrderDialog(QDialog):
         if not selected:
             return
 
-        # Walidacja + autofill: jeśli requiresExactInventory=True, wykorzystujemy pola Source/Destination zamówienia
+        # Walidacja + autofill: jeśli requiresExactInventory=True, wykorzystujemy pola Source/Destination zlecenia
         # 1) jeśli order ma już źródło i jest exact -> dialog ogranicza listę do tej lokalizacji
         # 2) jeśli order nie ma źródła, a użytkownik wybrał inventory item -> ustawimy source automatycznie
         order_type = self.input_type.currentData()
@@ -523,7 +523,7 @@ class CreateOrderDialog(QDialog):
             QMessageBox.warning(self, "Błąd walidacji", "Nie wybrano lokalizacji źródłowej (wymagane przy trybie dokładnym).")
             return
 
-        # Auto-uzupełnianie pól zamówienia: jeśli exact i brak ustawionej lokalizacji na zamówieniu,
+        # Auto-uzupełnianie pól zlecenia: jeśli exact i brak ustawionej lokalizacji na zleceniu,
         # ustaw źródło/cel na podstawie wybranego inventory item.
         if bool(selected.get('requiresExactInventory', True)):
             src_id = selected.get('sourceLocationId')
@@ -601,14 +601,14 @@ class EditOrderDialog(QDialog):
         self.api = api
         self.order = order or {}
 
-        self.setWindowTitle("Edycja zamówienia")
+        self.setWindowTitle("Edycja zlecenia")
         self.resize(550, 450)
 
         layout = QFormLayout(self)
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(10)
 
-        lbl_title = QLabel("Edycja Zamówienia")
+        lbl_title = QLabel("Edycja Zlecenia")
         lbl_title.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;")
         layout.addRow(lbl_title)
 
@@ -722,7 +722,7 @@ class EditOrderDialog(QDialog):
 class OrderManagerWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("QRWare - Zarządzanie Zamówieniami")
+        self.setWindowTitle("QRWare - Zarządzanie Zleceniami")
         self.resize(1300, 850)
 
         self.api = OrderService()
@@ -738,7 +738,7 @@ class OrderManagerWindow(QMainWindow):
         # --- LEWA STRONA (Lista) ---
         left_layout = QVBoxLayout()
         
-        lbl_list = QLabel("Lista Zamówień")
+        lbl_list = QLabel("Lista Zleceń")
         lbl_list.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50;")
         left_layout.addWidget(lbl_list)
 
@@ -783,7 +783,7 @@ class OrderManagerWindow(QMainWindow):
         self.combo_status_filter.setCurrentIndex(1)
         self.combo_status_filter.currentIndexChanged.connect(self.load_orders)
 
-        btn_create = QPushButton("+ Nowe Zamówienie")
+        btn_create = QPushButton("+ Nowe Zlecenie")
         btn_create.setStyleSheet("background-color: #2ecc71; color: white; font-weight: bold; padding: 8px 16px;")
         btn_create.clicked.connect(self.open_create_dialog)
 
@@ -797,7 +797,7 @@ class OrderManagerWindow(QMainWindow):
 
         # --- PRAWA STRONA (Szczegóły) ---
         right_layout = QVBoxLayout()
-        self.details_group = QGroupBox("Szczegóły Zamówienia")
+        self.details_group = QGroupBox("Szczegóły Zlecenia")
         self.details_group.setVisible(False)
         self.details_group.setStyleSheet("QGroupBox { font-weight: bold; font-size: 14px; }")
 
@@ -850,7 +850,7 @@ class OrderManagerWindow(QMainWindow):
 
         details_inner_layout.addWidget(header_widget)
         
-        lbl_items = QLabel("Pozycje zamówienia")
+        lbl_items = QLabel("Pozycje zlecenia")
         lbl_items.setStyleSheet("font-weight: bold; margin-top: 10px;")
         details_inner_layout.addWidget(lbl_items)
 
@@ -939,7 +939,7 @@ class OrderManagerWindow(QMainWindow):
     def load_orders(self):
         success, data = self.api.get_all_orders()
         if not success:
-            QMessageBox.warning(self, "Błąd", f"Nie udało się pobrać zamówień:\n{data}")
+            QMessageBox.warning(self, "Błąd", f"Nie udało się pobrać zleceń:\n{data}")
             return
 
         # Client-side filtering
@@ -1086,7 +1086,7 @@ class OrderManagerWindow(QMainWindow):
             ok, res = self.api.update_order(self.current_order_id, payload)
             self.setCursor(Qt.CursorShape.ArrowCursor)
             if ok:
-                QMessageBox.information(self, "Sukces", "Zamówienie zaktualizowane.")
+                QMessageBox.information(self, "Sukces", "Zlecenie zaktualizowane.")
                 self.load_orders()
                 self.on_order_selected()
                 self.load_stats()
@@ -1099,7 +1099,7 @@ class OrderManagerWindow(QMainWindow):
 
         reason = None
         if action == 'cancel':
-            text, ok = QInputDialog.getText(self, "Anuluj Zamówienie", "Podaj powód anulowania:")
+            text, ok = QInputDialog.getText(self, "Anuluj Zlecenie", "Podaj powód anulowania:")
             if ok and text:
                 reason = text
             else:
@@ -1158,14 +1158,14 @@ class OrderManagerWindow(QMainWindow):
 
                 if not errors:
                     QMessageBox.information(self, "Sukces",
-                                            f"Utworzono zamówienie {order_number} z {len(items_data)} pozycjami.")
+                                            f"Utworzono zlecenie {order_number} z {len(items_data)} pozycjami.")
                 else:
                     QMessageBox.warning(self, "Częściowy Sukces",
-                                        f"Zamówienie {order_number} utworzone, ale wystąpiły błędy przy dodawaniu produktów:\n" + "\n".join(
+                                        f"Zlecenie {order_number} utworzone, ale wystąpiły błędy przy dodawaniu produktów:\n" + "\n".join(
                                             errors))
 
                 self.load_orders()
                 self.load_stats()
             else:
                 self.setCursor(Qt.CursorShape.ArrowCursor)
-                QMessageBox.warning(self, "Błąd", f"Tworzenie zamówienia nieudane:\n{result_order}")
+                QMessageBox.warning(self, "Błąd", f"Tworzenie zlecenia nieudane:\n{result_order}")

@@ -66,7 +66,7 @@ class QRScanOrderViewModel(
                     it.copy(
                         isLoading = false,
                         scannedItem = localMatch,
-                        successMessage = "Znaleziono w zamówieniu: ${localMatch.productName}"
+                        successMessage = "Znaleziono w zleceniu: ${localMatch.productName}"
                     )
                 }
             } else {

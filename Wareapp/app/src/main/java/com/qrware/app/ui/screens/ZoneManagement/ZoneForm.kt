@@ -88,7 +88,7 @@ fun ZoneForm(
                     readOnly = true,
                     label = { Text("Typ Strefy*") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = typeExpanded) },
-                    modifier = Modifier.fillMaxWidth().menuAnchor()
+                    modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
                 )
                 ExposedDropdownMenu(
                     expanded = typeExpanded,
