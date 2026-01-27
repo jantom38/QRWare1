@@ -77,14 +77,14 @@ class AuthControllerTest {
         request.setPassword("password");
 
         AuthenticationResponse authResponse = new AuthenticationResponse(
-            "token",           // accessToken
-            "refresh",         // refreshToken
-            3600L,             // expiresIn
-            1L,                // userId
-            "newuser",         // username
-            "new@example.com", // email
-            "New User",        // fullName
-            Collections.singletonList("USER") // roles
+            "token",
+            "refresh",
+            3600L,
+            1L,
+            "newuser",
+            "new@example.com",
+            "New User",
+            Collections.singletonList("USER")
         );
 
         when(authenticationService.register(any(RegisterRequest.class))).thenReturn(authResponse);
@@ -126,8 +126,6 @@ class AuthControllerTest {
         assertFalse(body.isSuccess());
         assertEquals("Login failed: Invalid credentials", body.getMessage());
     }
-
-    // ==================== REFRESH TOKEN TESTS ====================
 
     @Test
     void refreshToken_ShouldReturnOk_WhenTokenValid() {
@@ -184,8 +182,6 @@ class AuthControllerTest {
         assertFalse(body.isSuccess());
         assertEquals("Token refresh failed", body.getMessage());
     }
-
-    // ==================== REGISTER EDGE CASES ====================
 
     @Test
     void register_ShouldReturnBadRequest_WhenServiceReturnsNull() {

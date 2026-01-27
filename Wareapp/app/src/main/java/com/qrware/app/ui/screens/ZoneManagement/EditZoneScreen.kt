@@ -18,7 +18,6 @@ fun EditZoneScreen(
     appContainer: AppContainer,
     zoneId: Long
 ) {
-    // Zakładam, że w AppContainer masz funkcję: createEditZoneViewModelFactory(id)
     val viewModel: EditZoneViewModel = viewModel(
         factory = appContainer.createEditZoneViewModelFactory(zoneId)
     )

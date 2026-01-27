@@ -127,7 +127,6 @@ class MovementHistoryRepository(
         return handleResponse(response)
     }
 
-    // Helper
     private fun handleResponse(response: retrofit2.Response<List<MovementHistoryDTO>>): List<MovementHistoryDTO> {
         if (response.isSuccessful) {
             return response.body() ?: emptyList()

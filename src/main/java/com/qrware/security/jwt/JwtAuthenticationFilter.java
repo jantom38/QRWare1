@@ -21,9 +21,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * JWT Authentication Filter that processes JWT tokens from HTTP requests
- */
+
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -39,7 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String BEARER_PREFIX = "Bearer ";
     private static final String X_AUTH_TOKEN_HEADER = "X-Auth-Token";
 
-    // Public endpoints that don't require authentication
+
     private static final List<String> PUBLIC_ENDPOINTS = Arrays.asList(
         "/api/auth/login",
         "/api/auth/register",
@@ -60,29 +58,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        // Add security headers to all responses
         addSecurityHeaders(response);
 
         try {
-            // Skip authentication for public endpoints
             if (isPublicEndpoint(request)) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            // Extract JWT token from request
             String jwt = getJwtFromRequest(request);
 
-            // Process token if present and valid
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
                 processAuthentication(request, jwt);
             } else if (StringUtils.hasText(jwt)) {
-                // Token is present but invalid
                 logger.warn("Invalid JWT token in request to: {}", request.getRequestURI());
                 handleInvalidToken(response);
                 return;
             }
-            // If no token and not public endpoint, Spring Security will handle unauthorized access
 
         } catch (Exception ex) {
             logger.error("Cannot set user authentication: {}", ex.getMessage(), ex);
@@ -93,42 +85,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    /**
-     * Process JWT authentication
-     */
+
     private void processAuthentication(HttpServletRequest request, String jwt) {
         try {
-            // Verify token type (should be ACCESS token)
             JwtTokenProvider.TokenType tokenType = tokenProvider.getTokenTypeFromToken(jwt);
             if (tokenType != JwtTokenProvider.TokenType.ACCESS) {
                 logger.warn("Invalid token type for authentication: {}", tokenType);
                 return;
             }
 
-            // Get username from token
             String username = tokenProvider.getUsernameFromToken(jwt);
 
-            // Load user details
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
-            // Verify user is still active and not locked
             if (!userDetails.isEnabled() || !userDetails.isAccountNonLocked()) {
                 logger.warn("User account is disabled or locked: {}", username);
                 return;
             }
 
-            // Create authentication token
-            UsernamePasswordAuthenticationToken authentication = 
+            UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             logger.info("Setting SecurityContext for user: '{}'. Authorities: {}",
                     username, userDetails.getAuthorities());
-            // Set authentication in security context
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // Log successful authentication for audit
-            logger.debug("Successfully authenticated user: {} for request: {}", 
+            logger.debug("Successfully authenticated user: {} for request: {}",
                 username, request.getRequestURI());
 
         } catch (Exception ex) {
@@ -137,23 +120,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
-    /**
-     * Extract JWT token from HTTP request
-     */
+
     private String getJwtFromRequest(HttpServletRequest request) {
-        // Try Authorization header first (standard approach)
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
             return bearerToken.substring(BEARER_PREFIX.length());
         }
 
-        // Try custom X-Auth-Token header (alternative approach)
         String authToken = request.getHeader(X_AUTH_TOKEN_HEADER);
         if (StringUtils.hasText(authToken)) {
             return authToken;
         }
 
-        // Try query parameter (for special cases like WebSocket or file downloads)
         String queryToken = request.getParameter("token");
         if (StringUtils.hasText(queryToken)) {
             return queryToken;
@@ -162,9 +140,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return null;
     }
 
-    /**
-     * Check if the request is for a public endpoint
-     */
+
     private boolean isPublicEndpoint(HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         
@@ -172,9 +148,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             .anyMatch(endpoint -> requestURI.startsWith(endpoint) || requestURI.contains(endpoint));
     }
 
-    /**
-     * Handle invalid token response
-     */
+
     private void handleInvalidToken(HttpServletResponse response) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
@@ -188,9 +162,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             """.formatted(java.time.Instant.now()));
     }
 
-    /**
-     * Handle authentication exception response
-     */
+
     private void handleAuthenticationException(HttpServletResponse response, Exception ex) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
@@ -204,16 +176,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             """.formatted(ex.getMessage(), java.time.Instant.now()));
     }
 
-    /**
-     * Determine if filter should be applied to this request
-     */
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        // Apply filter to all requests except static resources
         String path = request.getRequestURI();
         
-        // ZMIANA: Usunięto .png, .jpg, .jpeg z listy wykluczeń, aby filtr JWT działał dla obrazków QR
-        return path.endsWith(".css") || 
+        return path.endsWith(".css") ||
                path.endsWith(".js") || 
 
                path.endsWith(".gif") || 
@@ -223,25 +191,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
 
-    /**
-     * Add security headers to response
-     */
+
     private void addSecurityHeaders(HttpServletResponse response) {
-        // Prevent caching of sensitive responses
         response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
         response.setHeader("Pragma", "no-cache");
         response.setHeader("Expires", "0");
         
-        // Security headers
         response.setHeader("X-Content-Type-Options", "nosniff");
         response.setHeader("X-Frame-Options", "DENY");
         response.setHeader("X-XSS-Protection", "1; mode=block");
         response.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
     }
 
-    /**
-     * Extract additional token information for logging/audit
-     */
+
     private void logTokenInfo(String jwt, HttpServletRequest request) {
         try {
             JwtTokenProvider.TokenInfo tokenInfo = tokenProvider.getTokenInfo(jwt);
@@ -257,13 +219,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
-    /**
-     * Check if token is about to expire and log warning
-     */
+
     private void checkTokenExpiration(String jwt) {
         try {
             long remainingSeconds = tokenProvider.getRemainingValidityInSeconds(jwt);
-            if (remainingSeconds < 300) { // Less than 5 minutes
+            if (remainingSeconds < 300) {
                 logger.warn("JWT token expiring soon: {} seconds remaining", remainingSeconds);
             }
         } catch (Exception ex) {

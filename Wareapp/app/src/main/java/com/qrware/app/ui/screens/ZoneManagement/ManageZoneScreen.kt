@@ -29,13 +29,11 @@ fun ManageZonesScreen(
     navController: NavController,
     appContainer: AppContainer
 ) {
-    // This line corresponds to your error. 'manageZonesViewModelFactory' must exist in AppContainer
     val viewModel: ManageZonesViewModel = viewModel(
         factory = appContainer.manageZonesViewModelFactory
     )
     val uiState by viewModel.uiState.collectAsState()
 
-    // Obsługa komunikatów (znikają po 3 sek)
     LaunchedEffect(uiState.error, uiState.successMessage) {
         if (uiState.error != null || uiState.successMessage != null) {
             delay(3000)
@@ -71,7 +69,6 @@ fun ManageZonesScreen(
             }
 
             Column(modifier = Modifier.padding(16.dp)) {
-                // Komunikaty błędów/sukcesu
                 uiState.error?.let {
                     Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(bottom = 8.dp))
                 }
@@ -145,7 +142,6 @@ fun ZoneCard(
             }
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Statystyki (jeśli są dostępne)
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text("Lokalizacje: ${zone.locationCount}", style = MaterialTheme.typography.bodySmall)
                 Text("Zajętość: ${(zone.occupancyRate * 100).toInt()}%", style = MaterialTheme.typography.bodySmall)

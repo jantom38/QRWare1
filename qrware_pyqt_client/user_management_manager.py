@@ -315,7 +315,6 @@ class UserManagementWindow(QMainWindow):
         root.setContentsMargins(20, 20, 20, 20)
         root.setSpacing(15)
 
-        # --- HEADER ---
         header = QHBoxLayout()
         title_layout = QVBoxLayout()
         lbl_title = QLabel("Panel Administratora")
@@ -357,7 +356,6 @@ class UserManagementWindow(QMainWindow):
         btn_search = QPushButton("Szukaj")
         btn_search.clicked.connect(self._users_search)
 
-        # Zmiana: Checkbox
         self.chk_users_active = QCheckBox("Tylko aktywni")
         self.chk_users_active.setChecked(True)
         self.chk_users_active.stateChanged.connect(self._users_load)
@@ -418,7 +416,6 @@ class UserManagementWindow(QMainWindow):
 
         toolbar = QHBoxLayout()
 
-        # Zmiana: Checkbox
         self.chk_roles_active = QCheckBox("Tylko aktywne")
         self.chk_roles_active.setChecked(True)
         self.chk_roles_active.stateChanged.connect(self._roles_load)
@@ -467,7 +464,6 @@ class UserManagementWindow(QMainWindow):
 
         toolbar = QHBoxLayout()
 
-        # Zmiana: Checkbox
         self.chk_perms_active = QCheckBox("Tylko aktywne")
         self.chk_perms_active.setChecked(True)
         self.chk_perms_active.stateChanged.connect(self._perms_load)
@@ -520,7 +516,6 @@ class UserManagementWindow(QMainWindow):
     def _users_load(self):
         ok, msg, page = self.api.list_users()
         if not ok:
-            # Ulepszone info diagnostyczne
             from pathlib import Path
             log_path = Path(__file__).parent / "client_debug.log"
             QMessageBox.warning(
@@ -528,16 +523,14 @@ class UserManagementWindow(QMainWindow):
                 "Błąd",
                 f"{msg}\n\nSzczegóły zapisano w pliku:\n{log_path}"
             )
-            self.tbl_users.setRowCount(0) # Wyczyść tabelę w razie błędu
+            self.tbl_users.setRowCount(0)
             return
         
-        # Backend zwraca GlobalApiResponse { success, message, data }
         data_node = page.get("data") if isinstance(page, dict) else None
         content = data_node.get("content") if isinstance(data_node, dict) else []
         if content is None:
             content = []
 
-        # Client-side filtering
         only_active = self.chk_users_active.isChecked()
         filtered_content = []
         for u in content:
@@ -574,7 +567,6 @@ class UserManagementWindow(QMainWindow):
         if content is None:
             content = []
 
-        # Client-side filtering
         only_active = self.chk_users_active.isChecked()
         filtered_content = []
         for u in content:
@@ -666,7 +658,6 @@ class UserManagementWindow(QMainWindow):
             QMessageBox.warning(self, "Błąd", msg)
             return
 
-        # Client-side filtering
         only_active = self.chk_roles_active.isChecked()
         filtered_roles = []
         for r in roles:
@@ -744,7 +735,6 @@ class UserManagementWindow(QMainWindow):
             QMessageBox.warning(self, "Błąd", msg)
             return
 
-        # Client-side filtering
         only_active = self.chk_perms_active.isChecked()
         filtered_perms = []
         for p in perms:

@@ -1,6 +1,6 @@
 package com.qrware.app.ui.viewmodel.ProductsManagement
 
-import android.util.Log // <-- DODAJ TEN IMPORT
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qrware.app.data.dto.ProductDTO
@@ -14,11 +14,10 @@ import kotlinx.coroutines.launch
 
 data class EditProductUiState(
     val isLoading: Boolean = true,
-    val product: ProductDTO? = null, // Oryginalny produkt do porównania
+    val product: ProductDTO? = null,
     val error: String? = null,
     val updateSuccess: Boolean = false,
 
-    // Pola formularza
     val name: String = "",
     val sku: String = "",
     val description: String = "",
@@ -61,15 +60,12 @@ class EditProductViewModel(
             try {
                 val product = productRepository.getProductById(productId)
 
-                // --- DODANY LOG DIAGNOSTYCZNY ---
                 Log.d("EditProductVM", "Produkt załadowany. ID: ${product.id}, Nazwa: ${product.name}, Otrzymano Active: ${product.active}")
-                // --- KONIEC LOGU ---
 
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        product = product, // Zapisujemy oryginał
-                        // Wypełniamy formularz
+                        product = product,
                         name = product.name,
                         sku = product.sku,
                         description = product.description ?: "",
@@ -95,9 +91,7 @@ class EditProductViewModel(
                     )
                 }
             } catch (e: Exception) {
-                // --- DODANY LOG BŁĘDU ---
                 Log.e("EditProductVM", "Błąd ładowania produktu", e)
-                // --- KONIEC LOGU ---
                 _uiState.update {
                     it.copy(
                         isLoading = false,
@@ -108,7 +102,6 @@ class EditProductViewModel(
         }
     }
 
-    // Funkcje do aktualizacji pól formularza
     fun onNameChange(newName: String) {
         _uiState.update { it.copy(name = newName) }
     }
@@ -191,7 +184,6 @@ class EditProductViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
 
-            // Przygotowujemy wartości
             val priceDecimal = currentState.price.toBigDecimalOrNull()
             val costDecimal = currentState.cost.toBigDecimalOrNull()
             val weightDecimal = currentState.weight.toBigDecimalOrNull()
@@ -202,7 +194,6 @@ class EditProductViewModel(
             val maxStockInt = currentState.maximumStock.toIntOrNull()
             val reorderPointInt = currentState.reorderPoint.toIntOrNull()
 
-            // Budujemy żądanie tylko ze zmienionymi polami
             val request = UpdateProductRequest(
                 name = currentState.name.takeIf { it != originalProduct.name },
                 description = currentState.description.takeIf { it != (originalProduct.description ?: "") },
@@ -227,8 +218,7 @@ class EditProductViewModel(
                 fragile = currentState.fragile.takeIf { it != (originalProduct.fragile ?: false) }
             )
 
-            // Sprawdź, czy cokolwiek się zmieniło
-            if (request.name == null && request.description == null && request.price == null && 
+            if (request.name == null && request.description == null && request.price == null &&
                 request.cost == null && request.unit == null && request.weight == null &&
                 request.length == null && request.width == null && request.height == null &&
                 request.minimumStock == null && request.maximumStock == null && 
@@ -246,7 +236,6 @@ class EditProductViewModel(
             }
 
             try {
-                // Zakładamy, że repozytorium przyjmuje UpdateProductRequest z pakietu .model
                 productRepository.updateProduct(productId, request)
                 _uiState.update { it.copy(isLoading = false, updateSuccess = true) }
             } catch (e: Exception) {

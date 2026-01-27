@@ -56,8 +56,6 @@ class QRCodeControllerTest {
     @InjectMocks
     private QRCodeController qrCodeController;
 
-    // ==================== GET ALL QR CODES ====================
-
     @Test
     void getAllQRCodes_ShouldReturnPagedResults() {
         QRCodeData qrCode = new QRCodeData();
@@ -77,8 +75,6 @@ class QRCodeControllerTest {
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().getTotalElements());
     }
-
-    // ==================== GET BY ID ====================
 
     @Test
     void getQRCodeById_ShouldReturnQRCode_WhenFound() {
@@ -107,8 +103,6 @@ class QRCodeControllerTest {
         assertThrows(ResourceNotFoundException.class, () -> qrCodeController.getQRCodeById(id));
     }
 
-    // ==================== GET BY CODE (SCAN) ====================
-
     @Test
     void getQRCodeByCode_ShouldReturnQRCodeAndIncrementScanCount() {
         String code = "QR-001";
@@ -127,7 +121,7 @@ class QRCodeControllerTest {
         ResponseEntity<QRCodeDTO> response = qrCodeController.getQRCodeByCode(code);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(6L, qrCode.getScanCount()); // Should be incremented
+        assertEquals(6L, qrCode.getScanCount()); 
         verify(qrCodeRepository).save(qrCode);
     }
 
@@ -138,8 +132,6 @@ class QRCodeControllerTest {
 
         assertThrows(ResourceNotFoundException.class, () -> qrCodeController.getQRCodeByCode(code));
     }
-
-    // ==================== GET BY ENTITY ====================
 
     @Test
     void getQRCodeByEntity_ShouldReturnQRCode_WhenFound() {
@@ -170,8 +162,6 @@ class QRCodeControllerTest {
             () -> qrCodeController.getQRCodeByEntity("unknown", 999L));
     }
 
-    // ==================== GET ACTIVE QR CODES ====================
-
     @Test
     void getActiveQRCodes_ShouldReturnOnlyActiveCodes() {
         QRCodeData qrCode1 = new QRCodeData();
@@ -189,8 +179,6 @@ class QRCodeControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, response.getBody().size());
     }
-
-    // ==================== GET BY TYPE ====================
 
     @Test
     void getQRCodesByType_ShouldReturnFilteredList() {
@@ -210,8 +198,6 @@ class QRCodeControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, response.getBody().size());
     }
-
-    // ==================== GENERATE QR CODE ====================
 
     @Test
     void generateQRCode_ShouldGenerateAndReturnQRCode_WhenAutoGenerate() {
@@ -234,7 +220,6 @@ class QRCodeControllerTest {
         dto.setId(1L);
         dto.setCode("AUTO-GEN-001");
         
-        // ZMIANA: Dodano argumenty do mocka, aby pasowały do wywołania w kontrolerze
         when(qrCodeGenerationService.generateQRCodeSync(
             anyString(), any(), anyString(), any(), anyString(), any(), any()
         )).thenReturn(generatedQR);
@@ -284,7 +269,6 @@ class QRCodeControllerTest {
         request.setEntityType("inventory_item");
         request.setEntityId(1L);
         
-        // ZMIANA: Dodano argumenty do mocka, aby pasowały do wywołania w kontrolerze
         when(qrCodeGenerationService.generateQRCodeSync(
             anyString(), any(), anyString(), any(), anyString(), any(), any()
         )).thenReturn(null);
@@ -331,8 +315,6 @@ class QRCodeControllerTest {
         assertThrows(ResourceNotFoundException.class, () -> qrCodeController.updateQRCode(id, request));
     }
 
-    // ==================== DELETE QR CODE (HARD DELETE) ====================
-
     @Test
     void deleteQRCode_ShouldDelete_WhenFound() {
         Long id = 1L;
@@ -355,8 +337,6 @@ class QRCodeControllerTest {
 
         assertThrows(ResourceNotFoundException.class, () -> qrCodeController.deleteQRCode(id));
     }
-
-    // ==================== TOGGLE ACTIVE ====================
 
     @Test
     void toggleQRCodeActive_ShouldToggleFromTrueToFalse() {
@@ -397,8 +377,6 @@ class QRCodeControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(qrCode.getActive());
     }
-
-    // ==================== STATS ====================
 
     @Test
     void getQRStats_ShouldReturnStatistics() {

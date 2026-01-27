@@ -253,10 +253,8 @@ public class QRCodeController {
             throw new ResourceNotFoundException("QR Code", "id", id);
         }
 
-        // ZMIANA: Fizyczne usunięcie kodu QR
         QRCodeData qrCode = existingQRCode.get();
         
-        // Jeśli kod ma powiązany plik obrazu, usuń go
         if (qrCode.getImagePath() != null) {
             try {
                 fileStorageService.deleteQRCodeImage(qrCode.getImagePath());
@@ -356,7 +354,6 @@ public class QRCodeController {
                     .body(Map.of("error", "Failed to generate QR code"));
             }
 
-            // Link generated QR to entity fields (e.g. inventory_items.qr_code)
            linkQrToEntity(qrCode, request.getEntityType(), request.getEntityId());
 
            QRCodeDTO dto = dtoMapper.toDTO(qrCode);

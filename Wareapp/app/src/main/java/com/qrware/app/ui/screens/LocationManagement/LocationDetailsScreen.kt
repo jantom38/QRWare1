@@ -87,7 +87,6 @@ fun LocationDetailsScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Podstawowe informacje
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -126,7 +125,6 @@ fun LocationDetailsScreen(
                     }
                 }
 
-                // Położenie
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -169,7 +167,6 @@ fun LocationDetailsScreen(
                     }
                 }
 
-                // Pojemność
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -194,7 +191,6 @@ fun LocationDetailsScreen(
                     }
                 }
 
-                // Warunki środowiskowe
                 if (location.temperatureControlled || location.humidityControlled) {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -234,7 +230,6 @@ fun LocationDetailsScreen(
                     }
                 }
 
-                // Właściwości i Bezpieczeństwo
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)

@@ -1,4 +1,3 @@
-// Ścieżka: app/src/main/java/com/qrware/app/ui/viewmodel/ManagePermissionsViewModel.kt
 package com.qrware.app.ui.viewmodel.UserManagament
 
 import androidx.lifecycle.ViewModel
@@ -6,8 +5,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.qrware.app.data.model.PermissionRequest
 import com.qrware.app.data.model.PermissionResponse
-// BŁĄD: Ta klasa nie istnieje w Twoim projekcie (repozytorium zwraca 'Result')
-// import com.qrware.app.data.remote.Resource
 import com.qrware.app.data.repository.UserManagementRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -100,7 +97,7 @@ class ManagePermissionsViewModel(private val repository: UserManagementRepositor
 
     fun savePermission(request: PermissionRequest, permissionId: Long? = null) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) } // Zaktualizuj błąd na null
+            _uiState.update { it.copy(isLoading = true, error = null) }
 
             val result = if (permissionId == null) {
                 repository.createPermission(request)
@@ -108,13 +105,11 @@ class ManagePermissionsViewModel(private val repository: UserManagementRepositor
                 repository.updatePermission(permissionId, request)
             }
 
-            // POPRAWKA: Używamy .onSuccess i .onFailure
             result.onSuccess {
-                _uiState.update { it.copy(showDialog = PermissionDialogState.None, isLoading = false) } // Wyłącz ładowanie
-                loadPermissions() // Odśwież listę
+                _uiState.update { it.copy(showDialog = PermissionDialogState.None, isLoading = false) }
+                loadPermissions()
             }.onFailure { exception ->
                 _uiState.update {
-                    // Pozostaw okno otwarte, aby użytkownik widział błąd
                     it.copy(isLoading = false, error = exception.message ?: "Błąd zapisu")
                 }
             }
@@ -123,17 +118,15 @@ class ManagePermissionsViewModel(private val repository: UserManagementRepositor
 
     fun deletePermission(permission: PermissionResponse) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) } // Nie musimy resetować błędu tutaj
+            _uiState.update { it.copy(isLoading = true) }
 
-            // POPRAWKA: Używamy .onSuccess i .onFailure
             repository.deletePermission(permission.id)
                 .onSuccess {
-                    _uiState.update { it.copy(showDialog = PermissionDialogState.None, isLoading = false) } // Wyłącz ładowanie
-                    loadPermissions() // Odśwież listę
+                    _uiState.update { it.copy(showDialog = PermissionDialogState.None, isLoading = false) }
+                    loadPermissions()
                 }
                 .onFailure { exception ->
                     _uiState.update {
-                        // Pozostaw okno otwarte, aby użytkownik widział błąd
                         it.copy(isLoading = false, error = exception.message ?: "Błąd usuwania")
                     }
                 }
@@ -141,7 +134,6 @@ class ManagePermissionsViewModel(private val repository: UserManagementRepositor
     }
 }
 
-// Fabryka (bez zmian)
 class ManagePermissionsViewModelFactory(
     private val repository: UserManagementRepository
 ) : ViewModelProvider.Factory {

@@ -129,17 +129,14 @@ public class WarehouseStructureIntegrationTest {
     @Test
     @WithMockUser(username = "warehouse_mgr", authorities = {"ZONE_DELETE", "ZONE_READ", "LOCATION_WRITE", "LOCATION_READ"})
     void deleteZone_ShouldReturnConflict_WhenZoneHasLocations() throws Exception {
-        // Prepare zone + location directly via repositories
         Zone zone = new Zone();
         zone.setName("Zone With Loc");
-        // code max length = 20
         String zoneCode = "ZW" + (System.currentTimeMillis() % 1_000_000_000L);
         zone.setCode(zoneCode);
         zone.setType(ZoneType.STORAGE);
         zone = zoneRepository.save(zone);
 
         Location loc = new Location();
-        // keep location code reasonably short
         String locCode = "LZ" + (System.currentTimeMillis() % 1_000_000_000L);
         loc.setCode(locCode);
         loc.setName("Loc in Zone");
@@ -147,7 +144,6 @@ public class WarehouseStructureIntegrationTest {
         loc.setType(LocationType.SHELF);
         loc = locationRepository.save(loc);
 
-        // Ensure the zone has locations associated in the context
         zone.getLocations().add(loc);
         zoneRepository.save(zone);
 
@@ -160,14 +156,12 @@ public class WarehouseStructureIntegrationTest {
     void deleteLocation_ShouldDeactivate_WhenNoInventory() throws Exception {
         Zone zone = new Zone();
         zone.setName("Zone");
-        // code max length = 20
         String zoneCode = "ZD" + (System.currentTimeMillis() % 1_000_000_000L);
         zone.setCode(zoneCode);
         zone.setType(ZoneType.STORAGE);
         zone = zoneRepository.save(zone);
 
         Location loc = new Location();
-        // keep location code reasonably short
         String locCode = "LD" + (System.currentTimeMillis() % 1_000_000_000L);
         loc.setCode(locCode);
         loc.setName("Loc");
@@ -179,7 +173,6 @@ public class WarehouseStructureIntegrationTest {
             .andExpect(status().isNoContent());
 
         Location updated = locationRepository.findById(loc.getId()).orElseThrow();
-        // soft delete -> active should be false
         assertFalse(updated.getActive() != null && updated.getActive());
     }
 

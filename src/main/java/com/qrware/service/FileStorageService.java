@@ -34,20 +34,14 @@ public class FileStorageService {
         }
     }
 
-    /**
-     * Zapisuje obraz QR code do pliku
-     */
     public String storeQRCodeImage(byte[] imageData, String originalFileName) {
         try {
-            // Generuj unikalną nazwę pliku
             String fileName = generateUniqueFileName(originalFileName);
             
-            // Sprawdź czy nazwa jest bezpieczna
             if (fileName.contains("..")) {
                 throw new RuntimeException("Sorry! Filename contains invalid path sequence " + fileName);
             }
 
-            // Zapisz plik
             Path targetLocation = this.qrCodeStorageLocation.resolve(fileName);
             Files.write(targetLocation, imageData, StandardOpenOption.CREATE);
 
@@ -57,9 +51,6 @@ public class FileStorageService {
         }
     }
 
-    /**
-     * Pobiera obraz QR code jako Resource
-     */
     public Resource loadQRCodeAsResource(String fileName) {
         try {
             Path filePath = this.qrCodeStorageLocation.resolve(fileName).normalize();
@@ -75,31 +66,21 @@ public class FileStorageService {
         }
     }
 
-    /**
-     * Usuwa plik QR code
-     */
     public boolean deleteQRCodeImage(String fileName) {
         try {
             Path filePath = this.qrCodeStorageLocation.resolve(fileName).normalize();
             return Files.deleteIfExists(filePath);
         } catch (IOException ex) {
-            // Log the exception or handle it appropriately
             System.err.println("Could not delete file: " + fileName + ". Error: " + ex.getMessage());
             return false;
         }
     }
 
-    /**
-     * Sprawdza czy plik istnieje
-     */
     public boolean fileExists(String fileName) {
         Path filePath = this.qrCodeStorageLocation.resolve(fileName).normalize();
         return Files.exists(filePath);
     }
 
-    /**
-     * Pobiera rozmiar pliku w bajtach
-     */
     public long getFileSize(String fileName) {
         try {
             Path filePath = this.qrCodeStorageLocation.resolve(fileName).normalize();
@@ -109,9 +90,6 @@ public class FileStorageService {
         }
     }
 
-    /**
-     * Generuje unikalną nazwę pliku
-     */
     private String generateUniqueFileName(String originalFileName) {
         String extension = getFileExtension(originalFileName);
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
@@ -120,9 +98,6 @@ public class FileStorageService {
         return String.format("qr_%s_%s.%s", timestamp, uuid, extension);
     }
 
-    /**
-     * Pobiera rozszerzenie pliku
-     */
     private String getFileExtension(String fileName) {
         if (StringUtils.hasText(fileName)) {
             int dotIndex = fileName.lastIndexOf('.');
@@ -130,20 +105,14 @@ public class FileStorageService {
                 return fileName.substring(dotIndex + 1).toLowerCase();
             }
         }
-        return "png"; // domyślne rozszerzenie
+        return "png";
     }
 
-    /**
-     * Pobiera pełną ścieżkę do pliku
-     */
     public String getFilePath(String fileName) {
         return this.qrCodeStorageLocation.resolve(fileName).toString();
     }
 
-    /**
-     * Pobiera URL do pliku (dla API)
-     */
     public String getFileUrl(String fileName) {
-        return "/api/qr-codes/image/" + fileName; // ZMIANA: Poprawiona ścieżka URL
+        return "/api/qr-codes/image/" + fileName;
     }
 }

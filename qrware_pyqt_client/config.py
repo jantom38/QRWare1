@@ -41,7 +41,6 @@ class ConfigManager:
     @property
     def refresh_token(self) -> str:
         return str(self._data.get("refresh_token", ""))
-    # ------------------------------
 
     def save_tokens(self, access_token: str, refresh_token: str) -> None:
         self._data["access_token"] = access_token

@@ -205,8 +205,6 @@ class CategoriesManagerWindow(QMainWindow):
         header.addLayout(title_layout)
         header.addStretch()
 
-        # Usunięto panel serwera
-
         root.addLayout(header)
 
         toolbar = QHBoxLayout()
@@ -221,7 +219,6 @@ class CategoriesManagerWindow(QMainWindow):
         btn_search.clicked.connect(self._search)
         toolbar.addWidget(btn_search)
 
-        # Zmiana: Checkbox
         self.chk_only_active = QCheckBox("Tylko aktywne")
         self.chk_only_active.setChecked(True)
         self.chk_only_active.stateChanged.connect(self._load)
@@ -254,13 +251,11 @@ class CategoriesManagerWindow(QMainWindow):
         tree_layout.addWidget(self.tree)
         splitter.addWidget(tree_container)
 
-        # Right side: Table + Details
         right_container = QWidget()
         right_layout = QVBoxLayout(right_container)
         right_layout.setContentsMargins(0, 0, 0, 0)
         right_layout.setSpacing(10)
 
-        # Table
         tbl_lbl = QLabel("Lista Kategorii")
         tbl_lbl.setStyleSheet("font-weight: bold; color: #555; margin-bottom: 5px;")
         right_layout.addWidget(tbl_lbl)
@@ -276,7 +271,6 @@ class CategoriesManagerWindow(QMainWindow):
         self.tbl.itemSelectionChanged.connect(self._on_table_selected)
         right_layout.addWidget(self.tbl, 1)
 
-        # Details Panel
         lbl_details_title = QLabel("Szczegóły kategorii")
         lbl_details_title.setStyleSheet("font-size: 16px; font-weight: bold; color: #2c3e50; margin: 0px;")
         right_layout.addWidget(lbl_details_title)
@@ -395,7 +389,6 @@ class CategoriesManagerWindow(QMainWindow):
         QMessageBox.information(self, "Zapisano", "Adres serwera zapisany.")
 
     def _load(self):
-        # Zmiana: użycie checkboxa
         only_active = self.chk_only_active.isChecked()
         ok, msg, cats = self.api.list(only_active=only_active)
         if not ok:

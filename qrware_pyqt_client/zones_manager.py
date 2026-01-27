@@ -72,7 +72,6 @@ class ZoneFormDialog(QDialog):
         layout.addLayout(btns)
 
     def _fill_zone_types(self):
-        # Lista zgodna z ZoneType.java
         types = [
             "STORAGE","RECEIVING","SHIPPING","PICKING","PACKING","STAGING","CROSSDOCK","QUARANTINE",
             "COLD_STORAGE","FREEZER","HAZMAT","HIGH_SECURITY","BULK","FAST_MOVING","SLOW_MOVING",
@@ -134,7 +133,6 @@ class ZoneFormDialog(QDialog):
 
 class ZonesManagerWindow(QMainWindow):
     def _fill_zone_types(self):
-        # Lista zgodna z ZoneType.java
         types = [
             "STORAGE","RECEIVING","SHIPPING","PICKING","PACKING","STAGING","CROSSDOCK","QUARANTINE",
             "COLD_STORAGE","FREEZER","HAZMAT","HIGH_SECURITY","BULK","FAST_MOVING","SLOW_MOVING",
@@ -160,7 +158,6 @@ class ZonesManagerWindow(QMainWindow):
         root.setContentsMargins(20, 20, 20, 20)
         root.setSpacing(15)
 
-        # --- HEADER ---
         header = QHBoxLayout()
         
         title_layout = QVBoxLayout()
@@ -174,11 +171,8 @@ class ZonesManagerWindow(QMainWindow):
         
         header.addStretch()
         
-        # Usunięto panel serwera
-        
         root.addLayout(header)
 
-        # --- TOOLBAR ---
         toolbar = QHBoxLayout()
         toolbar.setSpacing(10)
         
@@ -191,7 +185,6 @@ class ZonesManagerWindow(QMainWindow):
         btn_search.clicked.connect(self._do_search)
         toolbar.addWidget(btn_search)
 
-        # Zmiana: Checkbox
         self.chk_only_active = QCheckBox("Tylko aktywne")
         self.chk_only_active.setChecked(True)
         self.chk_only_active.stateChanged.connect(self._load_page)
@@ -205,7 +198,6 @@ class ZonesManagerWindow(QMainWindow):
         
         root.addLayout(toolbar)
 
-        # --- MAIN SPLIT (TABLE + DETAILS) ---
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
         root.addWidget(self.splitter, 1)
 
@@ -214,7 +206,6 @@ class ZonesManagerWindow(QMainWindow):
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_layout.setSpacing(10)
 
-        # --- TABLE ---
         self.tbl = QTableWidget(0, 8)
         self.tbl.setHorizontalHeaderLabels(["ID","Kod","Nazwa","Typ","Aktywna","Poziom bezp.","Priorytet","Manager"])
         self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
@@ -226,7 +217,6 @@ class ZonesManagerWindow(QMainWindow):
         self.tbl.itemSelectionChanged.connect(self._on_row_selected)
         left_layout.addWidget(self.tbl, 1)
 
-        # --- ACTIONS ---
         actions = QHBoxLayout()
         
         btn_add = QPushButton("Dodaj Strefę"); 
@@ -251,7 +241,6 @@ class ZonesManagerWindow(QMainWindow):
         
         left_layout.addLayout(actions)
 
-        # Right: details panel
         right = QWidget()
         right_layout = QVBoxLayout(right)
         right_layout.setContentsMargins(6, 0, 0, 0)
@@ -419,13 +408,11 @@ class ZonesManagerWindow(QMainWindow):
         if rid is None:
             return None
         row = self.tbl.currentRow()
-        # Find item in _current_items by ID to be safe
         if row < len(self._current_items):
              item = self._current_items[row]
              if item.get('id') == rid:
                  return item
         
-        # Fallback
         return {
             "id": rid,
             "code": self.tbl.item(row, 1).text(),

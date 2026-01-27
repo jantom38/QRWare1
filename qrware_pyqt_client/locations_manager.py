@@ -26,7 +26,6 @@ class LocationFormDialog(QDialog):
         main_layout.setContentsMargins(20, 20, 20, 20)
         main_layout.setSpacing(15)
 
-        # Nagłówek
         lbl_title = QLabel("Edycja Lokalizacji" if item else "Nowa Lokalizacja")
         lbl_title.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;")
         main_layout.addWidget(lbl_title)
@@ -89,29 +88,24 @@ class LocationFormDialog(QDialog):
         self.chk_pickable = QCheckBox("Pickable"); self.chk_pickable.setChecked(bool(self.item.get("pickable", True)))
         self.chk_receivable = QCheckBox("Receivable"); self.chk_receivable.setChecked(bool(self.item.get("receivable", True)))
 
-        # Sekcja 1: Podstawowe
         grid.addWidget(QLabel("Kod:"), 0, 0); grid.addWidget(self.edt_code, 0, 1)
         grid.addWidget(QLabel("Nazwa:"), 1, 0); grid.addWidget(self.edt_name, 1, 1)
         grid.addWidget(QLabel("Opis:"), 2, 0); grid.addWidget(self.edt_desc, 2, 1)
         grid.addWidget(QLabel("Strefa:"), 3, 0); grid.addWidget(self.cmb_zone, 3, 1)
         grid.addWidget(QLabel("Typ:"), 4, 0); grid.addWidget(self.cmb_type, 4, 1)
 
-        # Sekcja 2: Adresowanie
         grid.addWidget(QLabel("Aisle:"), 5, 0); grid.addWidget(self.edt_aisle, 5, 1)
         grid.addWidget(QLabel("Rack:"), 6, 0); grid.addWidget(self.edt_rack, 6, 1)
         grid.addWidget(QLabel("Shelf:"), 7, 0); grid.addWidget(self.edt_shelf, 7, 1)
         grid.addWidget(QLabel("Bin:"), 8, 0); grid.addWidget(self.edt_bin, 8, 1)
 
-        # Sekcja 3: Kody
         grid.addWidget(QLabel("Barcode:"), 9, 0); grid.addWidget(self.edt_barcode, 9, 1)
         grid.addWidget(QLabel("QR:"), 10, 0); grid.addWidget(self.edt_qr, 10, 1)
 
-        # Sekcja 4: Pojemność
         grid.addWidget(QLabel("Pojemność [szt.]:"), 11, 0); grid.addWidget(self.spn_capacity_items, 11, 1)
         grid.addWidget(QLabel("Poj. obj. [m3]:"), 12, 0); grid.addWidget(self.spn_capacity_vol, 12, 1)
         grid.addWidget(QLabel("Poj. masowa [kg]:"), 13, 0); grid.addWidget(self.spn_capacity_wt, 13, 1)
 
-        # Prawa kolumna - Warunki i współrzędne
         grid.addWidget(QLabel("X:"), 0, 2); grid.addWidget(self.spn_x, 0, 3)
         grid.addWidget(QLabel("Y:"), 1, 2); grid.addWidget(self.spn_y, 1, 3)
         grid.addWidget(QLabel("Z:"), 2, 2); grid.addWidget(self.spn_z, 2, 3)
@@ -275,7 +269,6 @@ class LocationsManagerWindow(QMainWindow):
         root.setContentsMargins(20, 20, 20, 20)
         root.setSpacing(15)
 
-        # --- HEADER ---
         header = QHBoxLayout()
         
         title_layout = QVBoxLayout()
@@ -289,11 +282,8 @@ class LocationsManagerWindow(QMainWindow):
         
         header.addStretch()
         
-        # Usunięto panel serwera
-        
         root.addLayout(header)
 
-        # --- TOOLBAR ---
         toolbar = QHBoxLayout()
         toolbar.setSpacing(10)
         
@@ -306,7 +296,6 @@ class LocationsManagerWindow(QMainWindow):
         btn_search.clicked.connect(self._do_search)
         toolbar.addWidget(btn_search)
         
-        # Zmiana: Checkbox zamiast ComboBox
         self.chk_only_active = QCheckBox("Tylko aktywne")
         self.chk_only_active.setChecked(True)
         self.chk_only_active.stateChanged.connect(self._load_page)
@@ -320,7 +309,6 @@ class LocationsManagerWindow(QMainWindow):
         
         root.addLayout(toolbar)
 
-        # --- TABLE ---
         self.tbl = QTableWidget(0, 12)
         self.tbl.setHorizontalHeaderLabels([
             "ID", "Kod", "Nazwa", "Strefa", "Typ",
@@ -336,7 +324,6 @@ class LocationsManagerWindow(QMainWindow):
         self.tbl.setStyleSheet("QTableWidget { border: 1px solid #dcdcdc; }")
         root.addWidget(self.tbl, 1)
 
-        # --- ACTIONS ---
         actions = QHBoxLayout()
         
         btn_add = QPushButton("Dodaj Lokalizację"); 
@@ -383,7 +370,6 @@ class LocationsManagerWindow(QMainWindow):
             ok, msg, items = self.api.search(self._last_search)
             active = None
         else:
-            # Zmiana: użycie checkboxa
             active = True if self.chk_only_active.isChecked() else None
             ok, msg, items, page_info = self.api.page(self._page, self._size, active=active)
         if not ok:
@@ -403,7 +389,6 @@ class LocationsManagerWindow(QMainWindow):
             setc(3, z.get("name") or z.get("code") or "")
             setc(4, it.get("type") or "")
 
-            # Wyświetlanie pojemności
             cap_items = it.get("capacityItems")
             cap_vol = it.get("capacityVolume")
             cap_wt = it.get("capacityWeight")
@@ -412,7 +397,6 @@ class LocationsManagerWindow(QMainWindow):
             setc(6, f"{cap_vol:.3f}" if cap_vol is not None else "-")
             setc(7, f"{cap_wt:.3f}" if cap_wt is not None else "-")
 
-            # Pasek postępu zajętości
             current_items = it.get("currentItems", 0)
 
             progress = QProgressBar()
@@ -425,7 +409,6 @@ class LocationsManagerWindow(QMainWindow):
                 progress.setValue(min(percent, 100))
                 progress.setFormat(f"{percent}% ({current_items}/{cap_items})")
 
-                # Kolorowanie paska w zależności od zajętości
                 if percent > 90:
                     progress.setStyleSheet("QProgressBar::chunk { background-color: #e74c3c; } QProgressBar { border: 1px solid #bbb; border-radius: 4px; text-align: center; }") # Czerwony
                 elif percent > 70:

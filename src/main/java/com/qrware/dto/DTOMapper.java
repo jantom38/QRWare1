@@ -130,7 +130,6 @@ public class DTOMapper {
         dto.setCapacityWeight(location.getCapacityWeight());
         dto.setCapacityItems(location.getCapacityItems());
         
-        // Obliczanie aktualnej liczby przedmiotów
         if (location.getInventoryItems() != null) {
             int currentItems = location.getInventoryItems().stream()
                     .mapToInt(InventoryItem::getQuantity)

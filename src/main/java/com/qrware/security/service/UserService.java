@@ -101,7 +101,7 @@ public class UserService {
         user.setLastName(userDetails.getLastName());
         user.setPhone(userDetails.getPhone());
         user.setActive(userDetails.getActive());
-        user.setEmailVerified(userDetails.getEmailVerified()); // DODANE
+        user.setEmailVerified(userDetails.getEmailVerified()); 
         user.setRoles(findRolesByName(roleNames));
 
         User updatedUser = userRepository.save(user);
@@ -125,7 +125,7 @@ public class UserService {
 
     public void lockUser(Long id) {
         User user = getUserById(id);
-        user.lockAccount(99999); // Blokada na bardzo długi czas (ręczne odblokowanie)
+        user.lockAccount(99999); 
         userRepository.save(user);
         logger.warn("Ręcznie zablokowano konto użytkownika (przez admina): {}", user.getUsername());
     }
@@ -183,9 +183,9 @@ public class UserService {
             throw new IllegalArgumentException("Rola o nazwie " + roleDetails.getName() + " już istnieje.");
         }
 
-        role.setName(roleDetails.getName()); // Umożliwienie zmiany nazwy
+        role.setName(roleDetails.getName()); 
         role.setDescription(roleDetails.getDescription());
-        role.setActive(roleDetails.getActive()); // DODANE
+        role.setActive(roleDetails.getActive());
         role.setPermissions(findPermissionsByName(permissionNames));
 
         Role updatedRole = roleRepository.save(role);

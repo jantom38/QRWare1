@@ -25,7 +25,6 @@ class MovementHistoryWindow(QMainWindow):
         root.setContentsMargins(20, 20, 20, 20)
         root.setSpacing(15)
 
-        # --- HEADER ---
         header = QHBoxLayout()
         
         title_layout = QVBoxLayout()
@@ -39,11 +38,8 @@ class MovementHistoryWindow(QMainWindow):
         
         header.addStretch()
         
-        # Usunięto panel serwera
-        
         root.addLayout(header)
 
-        # --- TOOLBAR ---
         toolbar = QHBoxLayout()
         toolbar.setSpacing(10)
 
@@ -93,7 +89,6 @@ class MovementHistoryWindow(QMainWindow):
         
         root.addLayout(toolbar)
 
-        # --- TABLE ---
         self.tbl = QTableWidget(0, 10)
         self.tbl.setHorizontalHeaderLabels([
             "ID","Data","Typ","Item","From","To","Qty Δ","Użytkownik","Approved","Ref"
@@ -106,7 +101,6 @@ class MovementHistoryWindow(QMainWindow):
         self.tbl.setStyleSheet("QTableWidget { border: 1px solid #dcdcdc; }")
         root.addWidget(self.tbl, 1)
 
-        # --- ACTIONS ---
         actions = QHBoxLayout()
         actions.addStretch()
         
@@ -124,7 +118,26 @@ class MovementHistoryWindow(QMainWindow):
         QMessageBox.information(self, "Zapisano", "Adres serwera zapisany.")
 
     def _apply_filters(self):
-        # priorytet: data -> typ -> keyword
+        kw = self.edt_keyword.text().strip()
+        mtype = self.cmb_type.currentText().strip()
+        
+        # Jeśli wybrano typ, filtruj po typie
+        if mtype:
+            ok, msg, items = self.api.by_type(mtype)
+            if not ok:
+                QMessageBox.warning(self, "Filtr", msg); return
+            self._populate(items)
+            return
+
+        # Jeśli wpisano słowo kluczowe, szukaj
+        if kw:
+            ok, msg, items = self.api.search(kw, self.cmb_search_in.currentText())
+            if not ok:
+                QMessageBox.warning(self, "Szukaj", msg); return
+            self._populate(items)
+            return
+
+        # Jeśli nic nie wybrano, użyj zakresu dat
         start = self.dt_start.dateTime().toString("yyyy-MM-ddTHH:mm:ss")
         end = self.dt_end.dateTime().toString("yyyy-MM-ddTHH:mm:ss")
         if start and end:
@@ -133,20 +146,7 @@ class MovementHistoryWindow(QMainWindow):
                 QMessageBox.warning(self, "Filtr", msg); return
             self._populate(items)
             return
-        mtype = self.cmb_type.currentText().strip()
-        if mtype:
-            ok, msg, items = self.api.by_type(mtype)
-            if not ok:
-                QMessageBox.warning(self, "Filtr", msg); return
-            self._populate(items)
-            return
-        kw = self.edt_keyword.text().strip()
-        if kw:
-            ok, msg, items = self.api.search(kw, self.cmb_search_in.currentText())
-            if not ok:
-                QMessageBox.warning(self, "Szukaj", msg); return
-            self._populate(items)
-            return
+
         self._load_recent()
 
     def _load_recent(self):

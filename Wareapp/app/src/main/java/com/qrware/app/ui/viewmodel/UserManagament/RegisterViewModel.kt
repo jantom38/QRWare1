@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-// Stan UI dla ekranu rejestracji
 data class RegisterUiState(
     val isLoading: Boolean = false,
     val registrationSuccess: Boolean = false,
@@ -24,22 +23,19 @@ class RegisterViewModel(private val authRepository: AuthRepository) : ViewModel(
         viewModelScope.launch {
             _uiState.value = RegisterUiState(isLoading = true)
 
-            val request = RegisterRequest(username = username, email = email, password = pass, firstName = firstName, // <-- ADD THIS
+            val request = RegisterRequest(username = username, email = email, password = pass, firstName = firstName,
                 lastName = lastName)
             val result = authRepository.register(request)
 
             result.onSuccess {
-                // Sukces! Ustawiamy flagę, na którą UI będzie mógł zareagować.
                 _uiState.value = RegisterUiState(registrationSuccess = true)
             }.onFailure {
-                // Błąd. Przekazujemy komunikat do UI.
                 _uiState.value = RegisterUiState(error = it.message ?: "Wystąpił nieznany błąd")
             }
         }
     }
 }
 
-// Factory do wstrzykiwania AuthRepository do ViewModelu
 class RegisterViewModelFactory(
     private val authRepository: AuthRepository
 ) : ViewModelProvider.Factory {

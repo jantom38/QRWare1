@@ -13,10 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-/**
- * Custom UserDetailsService implementation for Spring Security
- * Loads user-specific data and handles user authentication state
- */
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
@@ -25,46 +21,34 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
-    /**
-     * Load user by username for authentication
-     * Supports both username and email as login identifiers
-     */
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
         logger.debug("Loading user by username/email: {}", usernameOrEmail);
 
         try {
-            // Find user by username or email
             User user = userRepository.findByUsernameOrEmail(usernameOrEmail)
                 .orElseThrow(() -> new UsernameNotFoundException(
                     "User not found with username or email: " + usernameOrEmail));
 
-            // Log user loading for audit (without sensitive information)
             logger.debug("User found: id={}, username={}, active={}, emailVerified={}", 
                 user.getId(), user.getUsername(), user.getActive(), user.getEmailVerified());
 
-            // Check if user account is active
             if (!user.getActive()) {
                 logger.warn("Attempt to authenticate inactive user: {}", user.getUsername());
                 throw new UsernameNotFoundException("User account is inactive: " + usernameOrEmail);
             }
 
-            // Check if user email is verified (if required)
             if (!user.getEmailVerified()) {
                 logger.warn("Attempt to authenticate user with unverified email: {}", user.getUsername());
-                // Note: You might want to allow login but restrict certain operations
-                // For now, we'll allow login but this can be configured
             }
 
-            // Check if user account is locked
             if (!user.isAccountNonLocked()) {
                 logger.warn("Attempt to authenticate locked user: {}, locked until: {}", 
                     user.getUsername(), user.getLockedUntil());
                 throw new UsernameNotFoundException("User account is locked: " + usernameOrEmail);
             }
 
-            // Load user roles and permissions (already done by @ManyToMany with EAGER fetch)
             logger.debug("User {} has {} roles with total permissions", 
                 user.getUsername(), user.getRoles().size());
 
@@ -79,9 +63,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
     }
 
-    /**
-     * Load user by ID (useful for token-based authentication)
-     */
     @Transactional(readOnly = true)
     public UserDetails loadUserById(Long id) throws UsernameNotFoundException {
         logger.debug("Loading user by ID: {}", id);
@@ -90,7 +71,6 @@ public class CustomUserDetailsService implements UserDetailsService {
             User user = userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
 
-            // Same validation as loadUserByUsername
             if (!user.getActive()) {
                 throw new UsernameNotFoundException("User account is inactive: " + id);
             }
@@ -111,9 +91,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
     }
 
-    /**
-     * Update user last login time (called after successful authentication)
-     */
     @Transactional
     public void updateLastLogin(String username) {
         try {
@@ -129,13 +106,9 @@ public class CustomUserDetailsService implements UserDetailsService {
             }
         } catch (Exception ex) {
             logger.error("Error updating last login for user {}: {}", username, ex.getMessage(), ex);
-            // Don't throw exception here as it's not critical for authentication
         }
     }
 
-    /**
-     * Handle failed login attempt
-     */
     @Transactional
     public void handleFailedLogin(String usernameOrEmail) {
         try {
@@ -145,9 +118,8 @@ public class CustomUserDetailsService implements UserDetailsService {
             if (user != null) {
                 user.incrementFailedAttempts();
                 
-                // Lock account after 5 failed attempts
                 if (user.getFailedLoginAttempts() >= 5) {
-                    user.lockAccount(30); // Lock for 30 minutes
+                    user.lockAccount(30); 
                     logger.warn("User account locked due to failed login attempts: {}", user.getUsername());
                 }
                 
@@ -161,9 +133,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
     }
 
-    /**
-     * Check if user exists by username or email
-     */
     @Transactional(readOnly = true)
     public boolean userExists(String usernameOrEmail) {
         try {
@@ -174,27 +143,18 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
     }
 
-    /**
-     * Get user by username (without password for security)
-     */
     @Transactional(readOnly = true)
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
             .orElse(null);
     }
 
-    /**
-     * Get user by email
-     */
     @Transactional(readOnly = true)
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
             .orElse(null);
     }
 
-    /**
-     * Unlock user account manually
-     */
     @Transactional
     public boolean unlockUserAccount(String username) {
         try {
@@ -215,9 +175,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
     }
 
-    /**
-     * Reset failed login attempts for user
-     */
     @Transactional
     public void resetFailedAttempts(String username) {
         try {
@@ -235,9 +192,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
     }
 
-    /**
-     * Check if user has specific role
-     */
     @Transactional(readOnly = true)
     public boolean userHasRole(String username, String roleName) {
         try {
@@ -251,9 +205,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
     }
 
-    /**
-     * Check if user has specific permission
-     */
     @Transactional(readOnly = true)
     public boolean userHasPermission(String username, String permissionName) {
         try {
@@ -267,15 +218,10 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
     }
 
-    /**
-     * Validate user credentials without full authentication
-     */
     @Transactional(readOnly = true)
     public boolean validateUserCredentials(String usernameOrEmail, String rawPassword) {
         try {
             UserDetails userDetails = loadUserByUsername(usernameOrEmail);
-            // Note: This would need a PasswordEncoder to compare properly
-            // For now, we just check if user exists and is valid
             return userDetails.isEnabled() && userDetails.isAccountNonLocked();
         } catch (UsernameNotFoundException ex) {
             return false;
@@ -285,9 +231,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
     }
 
-    /**
-     * Get user authentication statistics
-     */
     @Transactional(readOnly = true)
     public UserAuthStats getUserAuthStats(String username) {
         try {
@@ -313,9 +256,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
     }
 
-    /**
-     * User authentication statistics class
-     */
     public static class UserAuthStats {
         private final String username;
         private final LocalDateTime lastLogin;
@@ -336,7 +276,6 @@ public class CustomUserDetailsService implements UserDetailsService {
             this.emailVerified = emailVerified;
         }
 
-        // Getters
         public String getUsername() { return username; }
         public LocalDateTime getLastLogin() { return lastLogin; }
         public Integer getFailedLoginAttempts() { return failedLoginAttempts; }

@@ -118,7 +118,7 @@ class CategoryViewModel(
         viewModelScope.launch {
             try {
                 val response = categoryRepository.createCategory(request)
-                loadCategories() // Odśwież listę
+                loadCategories()
                 _uiState.value = _uiState.value.copy(
                     successMessage = "Kategoria została utworzona pomyślnie"
                 )
@@ -134,7 +134,7 @@ class CategoryViewModel(
         viewModelScope.launch {
             try {
                 val response = categoryRepository.updateCategory(categoryId, request)
-                loadCategories() // Odśwież listę
+                loadCategories()
                 _uiState.value = _uiState.value.copy(
                     successMessage = "Kategoria została zaktualizowana pomyślnie"
                 )
@@ -150,7 +150,7 @@ class CategoryViewModel(
         viewModelScope.launch {
             try {
                 categoryRepository.deleteCategory(categoryId)
-                loadCategories() // Odśwież listę
+                loadCategories()
                 _uiState.value = _uiState.value.copy(
                     successMessage = "Kategoria została usunięta pomyślnie"
                 )
@@ -166,7 +166,7 @@ class CategoryViewModel(
         viewModelScope.launch {
             try {
                 categoryRepository.toggleCategoryActive(categoryId)
-                loadCategories() // Odśwież listę
+                loadCategories()
                 _uiState.value = _uiState.value.copy(
                     successMessage = "Status kategorii został zmieniony"
                 )

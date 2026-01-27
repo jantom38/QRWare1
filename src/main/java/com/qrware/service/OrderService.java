@@ -196,15 +196,10 @@ public class OrderService {
         }
 
         for (OrderItem item : order.getOrderItems()) {
-            // Reload item to ensure we have the latest relationships (especially inventoryItem)
-            // This is crucial within the same transaction if the item was modified separately.
             OrderItem freshItem = orderItemRepository.findById(item.getId()).orElse(item);
 
             if (freshItem.getInventoryItem() != null && freshItem.isCompleted()) {
                 InventoryItem inventoryItem = freshItem.getInventoryItem();
-                // If item was reserved, we fulfill reservation.
-                // If item was NOT reserved (e.g. flexible pick), we just decrease stock.
-                // TRANSFER / PUTAWAY should MOVE stock between locations, not remove it from inventory.
                 if (order.getType() == OrderType.TRANSFER || order.getType() == OrderType.PUTAWAY) {
                     Location from = freshItem.getSourceLocation() != null ? freshItem.getSourceLocation() : order.getSourceLocation();
                     Location to = freshItem.getDestinationLocation() != null ? freshItem.getDestinationLocation() : order.getDestinationLocation();
@@ -217,19 +212,16 @@ public class OrderService {
                         throw new IllegalStateException("Not enough stock to transfer. inventoryItemId=" + inventoryItem.getId() + ", qty=" + inventoryItem.getQuantity() + ", movedQty=" + movedQty);
                     }
 
-                    // Release reservation without decreasing stock total
                     if (inventoryItem.getReservedQuantity() != null && inventoryItem.getReservedQuantity() >= movedQty) {
                         inventoryItem.setReservedQuantity(inventoryItem.getReservedQuantity() - movedQty);
                     }
 
-                    // If we are moving the whole remaining quantity of this inventory record, just move the record
                     if (inventoryItem.getQuantity() != null && inventoryItem.getQuantity() == movedQty) {
                         Location effectiveFrom = from != null ? from : inventoryItem.getLocation();
 
                         inventoryItem.move(to, "Order relocation: " + order.getOrderNumber());
                         inventoryItemRepository.save(inventoryItem);
 
-                        // Log transfer movement for order types (MOVE would also be created by InventoryItem.move(), but we want TRANSFER for relocation orders)
                         try {
                             movementHistoryService.createSystemMovement(
                                     inventoryItem.getId(),
@@ -245,7 +237,6 @@ public class OrderService {
                             logger.warn("Failed to create movement history for transfer: {}", e.getMessage());
                         }
                     } else {
-                        // Partial move: split stock -> decrease source, increase/create destination
                         inventoryItem.setQuantity(inventoryItem.getQuantity() - movedQty);
                         inventoryItemRepository.save(inventoryItem);
 
@@ -262,8 +253,6 @@ public class OrderService {
                                     ni.setUnitCost(inventoryItem.getUnitCost());
                                     ni.setSupplierReference(inventoryItem.getSupplierReference());
                                     ni.setManufacturer(inventoryItem.getManufacturer());
-                                    // qr_code in inventory_items is NOT NULL in your DB -> placeholder until manual generation
-                                    // qr_code is NOT NULL + UNIQUE in your DB -> use unique placeholder and replace manually later
                                     ni.setQrCode("PENDING:TRF:" + order.getOrderNumber() + ":" + inventoryItem.getId() + ":" + java.util.UUID.randomUUID().toString().substring(0, 8));
                                     ni.setReservedQuantity(0);
                                     ni.setQuantity(0);
@@ -272,7 +261,6 @@ public class OrderService {
                         destItem.setQuantity((destItem.getQuantity() != null ? destItem.getQuantity() : 0) + movedQty);
                         inventoryItemRepository.save(destItem);
 
-                        // Log movement
                         try {
                             movementHistoryService.createSystemMovement(
                                     inventoryItem.getId(),
@@ -289,7 +277,6 @@ public class OrderService {
                         }
                     }
                 } else {
-                    // Default behaviour: decrease stock (outbound)
                     if (freshItem.getRequiresExactInventory()) {
                          inventoryItem.fulfillReservationAndDecreaseStock(freshItem.getCompletedQuantity());
                     } else {
@@ -365,7 +352,6 @@ public class OrderService {
         order.setExpectedDate(expectedDate);
 
         order = orderRepository.save(order);
-        // zapis historii jako „aktualizacja” (bez zmiany statusu)
         createStatusHistory(order, order.getStatus(), order.getStatus(), updatedBy, "Order updated");
 
         return order;
@@ -389,7 +375,6 @@ public class OrderService {
         if (qrCodeData != null) { 
             orderItem.setQrCodeData(qrCodeData);
             
-            // Jeśli nie mamy przypisanego InventoryItem, a podano kod QR, spróbujmy go znaleźć i przypisać
             if (orderItem.getInventoryItem() == null) {
                 Optional<InventoryItem> inventoryItemOpt = inventoryItemRepository.findByQrCode(qrCodeData);
                 if (inventoryItemOpt.isPresent()) {
@@ -408,7 +393,6 @@ public class OrderService {
     private void createStatusHistory(Order order, OrderStatus oldStatus, OrderStatus newStatus, User changedBy, String reason) { statusHistoryRepository.save(new OrderStatusHistory(order, oldStatus, newStatus, changedBy, reason)); }
     private void updateOrderProgress(Order order) { order.updateProgress(); orderRepository.save(order); }
     private void createMovementHistoryForCompletedOrder(Order order) {
-        // For TRANSFER/PUTAWAY we create movement history during the transfer logic (so we can reference from/to correctly and avoid duplicates).
         if (order.getType() == OrderType.TRANSFER || order.getType() == OrderType.PUTAWAY) {
             return;
         }

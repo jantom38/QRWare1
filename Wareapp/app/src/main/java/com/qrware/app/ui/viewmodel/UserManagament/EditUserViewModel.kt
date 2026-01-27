@@ -11,28 +11,22 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/**
- * Stan formularza edycji użytkownika.
- */
 data class EditUserFormState(
     val email: String = "",
     val firstName: String = "",
     val lastName: String = "",
-    val phone: String = "", // Używamy "" dla null
+    val phone: String = "",
     val active: Boolean = true,
     val emailVerified: Boolean = false,
     val roles: Set<String> = emptySet()
 )
 
-/**
- * Stan całego ekranu edycji.
- */
 data class EditUserUiState(
-    val isLoading: Boolean = true, // Zaczynamy od ładowania
+    val isLoading: Boolean = true,
     val isSaving: Boolean = false,
     val error: String? = null,
-    val updateSuccess: Boolean = false, // Flaga do nawigacji wstecz
-    val user: AdminUserResponse? = null, // Przechowuje oryginalne dane
+    val updateSuccess: Boolean = false,
+    val user: AdminUserResponse? = null,
     val formState: EditUserFormState = EditUserFormState()
 )
 
@@ -48,9 +42,6 @@ class EditUserViewModel(
         loadUserDetails()
     }
 
-    /**
-     * Pobiera aktualne dane użytkownika i wypełnia formularz.
-     */
     private fun loadUserDetails() {
         viewModelScope.launch {
             repository.getUserById(userId)
@@ -59,7 +50,6 @@ class EditUserViewModel(
                         it.copy(
                             isLoading = false,
                             user = user,
-                            // Wypełnij stan formularza danymi z serwera
                             formState = EditUserFormState(
                                 email = user.email,
                                 firstName = user.firstName,
@@ -83,21 +73,17 @@ class EditUserViewModel(
         }
     }
 
-    /**
-     * Wysyła zaktualizowane dane do serwera.
-     */
     fun saveUser() {
         if (_uiState.value.isSaving) return
         _uiState.update { it.copy(isSaving = true, error = null) }
 
         val currentForm = _uiState.value.formState
 
-        // Utwórz obiekt żądania
         val request = UpdateUserRequest(
             email = currentForm.email,
             firstName = currentForm.firstName,
             lastName = currentForm.lastName,
-            phone = currentForm.phone.ifEmpty { null }, // Zamień "" z powrotem na null
+            phone = currentForm.phone.ifEmpty { null },
             active = currentForm.active,
             emailVerified = currentForm.emailVerified,
             roles = currentForm.roles
@@ -120,8 +106,6 @@ class EditUserViewModel(
                 }
         }
     }
-
-    // --- Funkcje obsługi zmian w formularzu ---
 
     fun onEmailChange(email: String) {
         _uiState.update { it.copy(formState = it.formState.copy(email = email)) }
@@ -148,26 +132,19 @@ class EditUserViewModel(
     }
 
     fun onRolesChange(rolesText: String) {
-        // Prosta implementacja: role oddzielone przecinkami
         val rolesSet = rolesText
             .split(",")
-            .map { it.trim().uppercase() } // Normalizuj dane
+            .map { it.trim().uppercase() }
             .filter { it.isNotEmpty() }
             .toSet()
         _uiState.update { it.copy(formState = it.formState.copy(roles = rolesSet)) }
     }
 
-    /**
-     * Resetuje flagę sukcesu po nawigacji.
-     */
     fun onUpdateSuccessConsumed() {
         _uiState.update { it.copy(updateSuccess = false) }
     }
 }
 
-/**
- * Factory dla EditUserViewModel, ponieważ potrzebuje userId w konstruktorze.
- */
 class EditUserViewModelFactory(
     private val repository: UserManagementRepository,
     private val userId: Long

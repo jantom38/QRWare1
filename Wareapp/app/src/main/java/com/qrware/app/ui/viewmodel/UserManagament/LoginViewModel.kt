@@ -36,7 +36,6 @@ class LoginViewModel(
     }
 }
 
-// Factory dla ViewModel
 class LoginViewModelFactory(
     private val authRepository: AuthRepository,
     private val tokenManager: TokenManager

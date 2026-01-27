@@ -29,36 +29,35 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ZoneControllerTest {
 
-    // Helper method to create ZoneDTO (record requires all parameters)
     private ZoneDTO createZoneDTO(Long id) {
         return new ZoneDTO(
-            id,                    // id
-            "Test Zone",           // name
-            "ZONE-" + id,          // code
-            "Test Description",    // description
-            ZoneType.STORAGE,      // type
-            true,                  // active
-            false,                 // temperatureControlled
-            null,                  // temperatureMin
-            null,                  // temperatureMax
-            false,                 // humidityControlled
-            null,                  // humidityMin
-            null,                  // humidityMax
-            1,                     // securityLevel
-            false,                 // hazardousMaterials
-            false,                 // fragileItems
-            1,                     // pickingPriority
-            null,                  // manager
-            null,                  // contactInfo
-            null,                  // color
-            null,                  // createdAt
-            null,                  // updatedAt
-            null,                  // createdBy
-            null,                  // updatedBy
-            0,                     // locationCount
-            0L,                    // activeLocationCount
-            0L,                    // occupiedLocationCount
-            0.0                    // occupancyRate
+            id,
+            "Test Zone",
+            "ZONE-" + id,
+            "Test Description",
+            ZoneType.STORAGE,
+            true,
+            false,
+            null,
+            null,
+            false,
+            null,
+            null,
+            1,
+            false,
+            false,
+            1,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            0,
+            0L,
+            0L,
+            0.0
         );
     }
 
@@ -70,8 +69,6 @@ class ZoneControllerTest {
 
     @InjectMocks
     private ZoneController zoneController;
-
-    // ==================== GET ALL ZONES ====================
 
     @Test
     void getAllZones_ShouldReturnPagedResults() {
@@ -109,8 +106,6 @@ class ZoneControllerTest {
         verify(zoneRepository).findByActive(eq(true), any(Pageable.class));
     }
 
-    // ==================== GET BY ID ====================
-
     @Test
     void getZoneById_ShouldReturnZone_WhenFound() {
         Long id = 1L;
@@ -137,8 +132,6 @@ class ZoneControllerTest {
         assertThrows(ResourceNotFoundException.class, () -> zoneController.getZoneById(id));
     }
 
-    // ==================== GET BY CODE ====================
-
     @Test
     void getZoneByCode_ShouldReturnZone_WhenFound() {
         String code = "ZONE-001";
@@ -163,8 +156,6 @@ class ZoneControllerTest {
 
         assertThrows(ResourceNotFoundException.class, () -> zoneController.getZoneByCode(code));
     }
-
-    // ==================== GET BY NAME ====================
 
     @Test
     void getZoneByName_ShouldReturnZone_WhenFound() {
@@ -191,8 +182,6 @@ class ZoneControllerTest {
         assertThrows(ResourceNotFoundException.class, () -> zoneController.getZoneByName(name));
     }
 
-    // ==================== GET BY TYPE ====================
-
     @Test
     void getZonesByType_ShouldReturnFilteredList() {
         ZoneType type = ZoneType.STORAGE;
@@ -210,8 +199,6 @@ class ZoneControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, response.getBody().size());
     }
-
-    // ==================== SEARCH ====================
 
     @Test
     void searchZones_ShouldReturnMatchingZones() {
@@ -231,8 +218,6 @@ class ZoneControllerTest {
         assertEquals(1, response.getBody().size());
     }
 
-    // ==================== GET ACTIVE ====================
-
     @Test
     void getActiveZones_ShouldReturnOnlyActiveZones() {
         Zone zone = new Zone();
@@ -249,8 +234,6 @@ class ZoneControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, response.getBody().size());
     }
-
-    // ==================== CREATE ZONE ====================
 
     @Test
     void createZone_ShouldCreateAndReturn_WhenValidRequest() {
@@ -313,7 +296,6 @@ class ZoneControllerTest {
         request.setCode("ZONE-NEW");
         request.setName("New Zone");
         request.setType(ZoneType.STORAGE);
-        // No active, temperatureControlled, etc. provided
         
         Zone savedZone = new Zone();
         savedZone.setId(1L);
@@ -324,7 +306,6 @@ class ZoneControllerTest {
         when(zoneRepository.existsByName("New Zone")).thenReturn(false);
         when(zoneRepository.save(any(Zone.class))).thenAnswer(invocation -> {
             Zone zone = invocation.getArgument(0);
-            // Verify defaults are set
             assertTrue(zone.getActive());
             assertFalse(zone.getTemperatureControlled());
             assertFalse(zone.getHumidityControlled());
@@ -337,8 +318,6 @@ class ZoneControllerTest {
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
     }
-
-    // ==================== UPDATE ZONE ====================
 
     @Test
     void updateZone_ShouldUpdateAndReturn_WhenFound() {
@@ -415,8 +394,6 @@ class ZoneControllerTest {
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
     }
 
-    // ==================== DELETE ZONE ====================
-
     @Test
     void deleteZone_ShouldDeactivate_WhenZoneCanBeDeleted() {
         Long id = 1L;
@@ -456,8 +433,6 @@ class ZoneControllerTest {
 
         assertThrows(ResourceNotFoundException.class, () -> zoneController.deleteZone(id));
     }
-
-    // ==================== TOGGLE ACTIVE ====================
 
     @Test
     void toggleZoneActive_ShouldToggleFromTrueToFalse() {
@@ -505,8 +480,6 @@ class ZoneControllerTest {
         assertThrows(ResourceNotFoundException.class, () -> zoneController.toggleZoneActive(id));
     }
 
-    // ==================== TEMPERATURE CONTROLLED ZONES ====================
-
     @Test
     void createZone_ShouldSetTemperatureRange_WhenTemperatureControlled() {
         ZoneController.CreateZoneRequest request = new ZoneController.CreateZoneRequest();
@@ -537,8 +510,6 @@ class ZoneControllerTest {
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
     }
-
-    // ==================== HUMIDITY CONTROLLED ZONES ====================
 
     @Test
     void createZone_ShouldSetHumidityRange_WhenHumidityControlled() {

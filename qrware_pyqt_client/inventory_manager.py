@@ -27,12 +27,11 @@ class InventoryFormDialog(QDialog):
                  item: Optional[Dict[str, Any]] = None, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Pozycja magazynu")
-        self.resize(900, 650)  # Zwiększona szerokość dla dwóch kolumn
+        self.resize(900, 650)
         self.products = products
         self.locations = locations
         self.item = item or {}
 
-        # Główny layout
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(15)
@@ -41,15 +40,11 @@ class InventoryFormDialog(QDialog):
         lbl_title.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;")
         layout.addWidget(lbl_title)
 
-        # Grid layout dla formularza (2 kolumny)
         grid = QGridLayout()
         grid.setSpacing(10)
         grid.setColumnStretch(1, 1)
         grid.setColumnStretch(3, 1)
 
-        # --- Inicjalizacja kontrolek ---
-
-        # Lewa kolumna (Podstawowe + Identyfikatory)
         self.cmb_product = QComboBox()
         self._fill_products()
         self.cmb_location = QComboBox()
@@ -79,7 +74,6 @@ class InventoryFormDialog(QDialog):
         self.edt_batch = QLineEdit(self.item.get("batchNumber", ""))
         self.edt_serial = QLineEdit(self.item.get("serialNumber", ""))
 
-        # Prawa kolumna (Daty, Finanse, Warunki, Flagi)
         self.dt_received = QDateEdit()
         self.dt_received.setCalendarPopup(True)
         self.dt_expiry = QDateEdit()
@@ -110,7 +104,6 @@ class InventoryFormDialog(QDialog):
         self.spn_cond.setRange(0, 100)
         self.spn_cond.setValue(int(self.item.get("conditionRating") or 10))
 
-        # Checkboxy i powody
         self.chk_quar = QCheckBox("Kwarantanna")
         self.chk_quar.setChecked(bool(self.item.get("quarantine", False)))
         self.edt_quar_reason = QLineEdit(self.item.get("quarantineReason", ""))
@@ -121,9 +114,6 @@ class InventoryFormDialog(QDialog):
         self.edt_hold_reason = QLineEdit(self.item.get("holdReason", ""))
         self.edt_hold_reason.setPlaceholderText("Powód wstrzymania")
 
-        # --- Układanie w siatce ---
-        
-        # Kolumna 1 (Etykiety) i 2 (Wartości) - Lewa strona
         grid.addWidget(QLabel("Produkt:"), 0, 0)
         grid.addWidget(self.cmb_product, 0, 1)
         
@@ -151,7 +141,6 @@ class InventoryFormDialog(QDialog):
         grid.addWidget(QLabel("Serial No:"), 8, 0)
         grid.addWidget(self.edt_serial, 8, 1)
 
-        # Kolumna 3 (Etykiety) i 4 (Wartości) - Prawa strona
         grid.addWidget(QLabel("Data przyjęcia:"), 0, 2)
         grid.addWidget(self.dt_received, 0, 3)
         
@@ -182,11 +171,9 @@ class InventoryFormDialog(QDialog):
         grid.addWidget(QLabel("Ocena stanu (0-10):"), 9, 2)
         grid.addWidget(self.spn_cond, 9, 3)
 
-        # Notatki na całą szerokość (pod głównymi polami)
         grid.addWidget(QLabel("Notatki:"), 10, 0)
         grid.addWidget(self.edt_notes, 10, 1, 1, 3)
 
-        # Sekcja flag (Kwarantanna / Hold) - na dole
         flags_layout = QGridLayout()
         flags_layout.addWidget(self.chk_quar, 0, 0)
         flags_layout.addWidget(self.edt_quar_reason, 0, 1)
@@ -198,7 +185,6 @@ class InventoryFormDialog(QDialog):
         layout.addLayout(grid)
         layout.addStretch()
 
-        # Przyciski
         btns = QHBoxLayout()
         btns.addStretch()
         self.btn_cancel = QPushButton("Anuluj")
@@ -256,7 +242,6 @@ class InventoryFormDialog(QDialog):
                 RequiredField("Produkt", self.cmb_product),
                 RequiredField("Lokalizacja", self.cmb_location),
                 RequiredField("Ilość", self.spn_qty, validator=qty_ok),
-                # backend ma NOT NULL na inventory_items.qr_code
                 RequiredField("Kod QR", self.edt_qr),
             ],
             title="Brak wymaganych danych pozycji magazynowej",
@@ -351,9 +336,9 @@ class AlertsDialog(QDialog):
             
             bg_color = None
             if severity == "CRITICAL":
-                bg_color = QColor(255, 200, 200)  # Jasny czerwony
+                bg_color = QColor(255, 200, 200)
             elif severity == "WARNING":
-                bg_color = QColor(255, 235, 150)  # Jasny pomarańczowy/żółty
+                bg_color = QColor(255, 235, 150)
 
             def setc(c: int, text: str):
                 item = QTableWidgetItem(text)
@@ -387,7 +372,6 @@ class InventoryManagerWindow(QMainWindow):
         root.setContentsMargins(20, 20, 20, 20)
         root.setSpacing(15)
 
-        # --- HEADER ---
         header = QHBoxLayout()
         
         title_layout = QVBoxLayout()
@@ -401,11 +385,8 @@ class InventoryManagerWindow(QMainWindow):
         
         header.addStretch()
         
-        # Usunięto panel serwera
-        
         root.addLayout(header)
 
-        # --- TOOLBAR ---
         toolbar = QHBoxLayout()
         toolbar.setSpacing(10)
         
@@ -418,7 +399,6 @@ class InventoryManagerWindow(QMainWindow):
         btn_search.clicked.connect(self._do_search)
         toolbar.addWidget(btn_search)
 
-        # Zmiana: Checkbox
         self.chk_hide_zero = QCheckBox("Ukryj zerowe stany")
         self.chk_hide_zero.setChecked(True)
         self.chk_hide_zero.stateChanged.connect(self._load_page)
@@ -441,7 +421,6 @@ class InventoryManagerWindow(QMainWindow):
         
         root.addLayout(toolbar)
 
-        # --- MAIN SPLIT (TABLE + DETAILS) ---
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
         root.addWidget(self.splitter, 1)
 
@@ -450,7 +429,6 @@ class InventoryManagerWindow(QMainWindow):
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_layout.setSpacing(10)
 
-        # --- TABLE ---
         self.tbl = QTableWidget(0, 10)
         self.tbl.setHorizontalHeaderLabels([
             "ID", "Produkt", "Lokalizacja", "Ilość", "Zarezerw.", "Dostępne", "Status", "QR", "Lot", "Serial"
@@ -462,14 +440,12 @@ class InventoryManagerWindow(QMainWindow):
         self.tbl.setAlternatingRowColors(True)
         self.tbl.setStyleSheet("QTableWidget { border: 1px solid #dcdcdc; }")
 
-        # Konfiguracja menu kontekstowego
         self.tbl.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.tbl.customContextMenuRequested.connect(self._show_context_menu)
         self.tbl.itemSelectionChanged.connect(self._on_row_selected)
 
         left_layout.addWidget(self.tbl, 1)
 
-        # --- ACTIONS ---
         actions = QHBoxLayout()
         
         btn_add = QPushButton("Dodaj Pozycję");
@@ -502,7 +478,6 @@ class InventoryManagerWindow(QMainWindow):
         
         left_layout.addLayout(actions)
 
-        # Right: details panel
         right = QWidget()
         right_layout = QVBoxLayout(right)
         right_layout.setContentsMargins(6, 0, 0, 0)
@@ -517,7 +492,6 @@ class InventoryManagerWindow(QMainWindow):
         sep.setStyleSheet("color: #d0d0d0;")
         right_layout.addWidget(sep)
 
-        # Scroll area dla szczegółów, bo może być ich dużo
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
@@ -567,7 +541,6 @@ class InventoryManagerWindow(QMainWindow):
         header_grid.addWidget(QLabel("Status:"), 0, 2)
         header_grid.addWidget(self.txt_status, 0, 3)
 
-        # Inicjalizacja etykiet szczegółów
         self.txt_id = mk_value()
         self.txt_sku = mk_value()
         self.txt_location = mk_value()
@@ -590,7 +563,6 @@ class InventoryManagerWindow(QMainWindow):
         self.txt_quarantine = mk_value()
         self.txt_hold = mk_value()
 
-        # Układanie w siatce szczegółów
         header_grid.addWidget(self.txt_id, 1, 0, 1, 2)
         header_grid.addWidget(self.txt_sku, 1, 2, 1, 2)
 
@@ -648,7 +620,6 @@ class InventoryManagerWindow(QMainWindow):
         self._load_refs()
         self._load_page()
 
-    # --- NOWE METODY QR ---
     def _show_context_menu(self, pos):
         if not self.tbl.selectionModel().selectedRows():
             return
@@ -665,9 +636,8 @@ class InventoryManagerWindow(QMainWindow):
         if row < 0:
             return
 
-        # Pobieranie danych z wiersza
         id_item = self.tbl.item(row, 0)
-        qr_item = self.tbl.item(row, 7)  # Kolumna QR
+        qr_item = self.tbl.item(row, 7)
 
         if not id_item:
             return
@@ -676,13 +646,11 @@ class InventoryManagerWindow(QMainWindow):
             inv_id = int(id_item.text())
             current_qr = qr_item.text() if qr_item else ""
 
-            # Jeśli item nie ma jeszcze kodu QR, proponujemy "INV-{id}" lub coś podobnego
             qr_data = current_qr if current_qr else f"INV-{inv_id}"
 
             from qr_manager import QRManagerWindow
 
             self.qr_window = QRManagerWindow()
-            # Ustawiamy dane: data=qr_data, type=INVENTORY, entity_type=inventory_item, entity_id=inv_id
             self.qr_window.set_form_data(
                 data=qr_data,
                 qr_type="INVENTORY",
@@ -693,8 +661,6 @@ class InventoryManagerWindow(QMainWindow):
 
         except Exception as e:
             QMessageBox.critical(self, "Błąd", f"Nie udało się otworzyć generatora QR: {str(e)}")
-
-    # ----------------------
 
     def _save_server(self):
         self.cfg.base_url = self.edt_server.text().strip()
@@ -723,7 +689,6 @@ class InventoryManagerWindow(QMainWindow):
             QMessageBox.warning(self, "Inventory", msg)
             return
 
-        # Client-side filtering for zero stock
         if self.chk_hide_zero.isChecked():
             items = [i for i in items if (i.get("quantity") or 0) > 0]
 
@@ -821,14 +786,11 @@ class InventoryManagerWindow(QMainWindow):
         if rid is None:
             return None
         row = self.tbl.currentRow()
-        # Find item in _current_items by ID to be safe, or just use index if sorted
-        # Using index is safer if table matches _current_items
         if row < len(self._current_items):
              item = self._current_items[row]
              if item.get('id') == rid:
                  return item
         
-        # Fallback
         return {
             "id": rid,
             "quantity": self.tbl.item(row, 3).text(),
@@ -948,14 +910,12 @@ class InventoryManagerWindow(QMainWindow):
         c = canvas.Canvas(path, pagesize=A4)
         width, height = A4
 
-        # Title
         c.setFont("Helvetica-Bold", 16)
         c.drawString(20 * mm, height - 20 * mm, "Raport Stanów Magazynowych")
 
         c.setFont("Helvetica", 10)
         c.drawString(20 * mm, height - 30 * mm, f"Data wygenerowania: {QDate.currentDate().toString('yyyy-MM-dd')}")
 
-        # Headers
         y = height - 50 * mm
         c.setFont("Helvetica-Bold", 10)
         c.drawString(20 * mm, y, "ID")

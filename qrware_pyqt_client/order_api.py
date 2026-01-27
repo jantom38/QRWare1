@@ -178,12 +178,6 @@ class OrderService:
             return []
 
     def get_simple_users(self):
-        """Pobiera listę użytkowników w formacie podobnym do aplikacji Android.
-
-        UWAGA: Endpoint /api/users jest chroniony ADMIN_FULL.
-
-        Zwraca listę krotek: (id, username, fullName)
-        """
         url = f"{self.cfg.base_url}/api/users"
         params = {"page": 0, "size": 500, "sort": "id,asc"}
 
@@ -191,7 +185,6 @@ class OrderService:
             response = requests.get(url, headers=self._get_headers(), params=params)
             log(f"USERS: GET {url} params={params} -> {response.status_code}")
 
-            # Zawsze zapisuj fragment odpowiedzi (ułatwia diagnozę "błąd 200")
             body_preview = (response.text or "")[:400]
             log(f"USERS: body preview: {body_preview}")
 
@@ -205,15 +198,10 @@ class OrderService:
                 log_exception("USERS: JSON parse error", e)
                 return []
 
-            # Możliwe formaty:
-            # 1) GlobalApiResponse { success, message, data }
-            # 2) ApiResponse { success, message, data }
-            # 3) Bez opakowania: Page { content: [...] }
             if isinstance(raw, dict) and raw.get('success') is False:
                 log(f"USERS: success=false message={raw.get('message')}")
                 return []
 
-            # Spróbuj wyciągnąć listę z data.content
             items = None
             if isinstance(raw, dict):
                 data_node = raw.get('data')
@@ -221,12 +209,10 @@ class OrderService:
                     items = data_node.get('content')
                     log(f"USERS: parsed items from data.content count={len(items)}")
 
-            # Spróbuj wyciągnąć listę z content
             if items is None and isinstance(raw, dict) and isinstance(raw.get('content'), list):
                 items = raw.get('content')
                 log(f"USERS: parsed items from content count={len(items)}")
 
-            # Fallback: stary parser (czasem response.json() ma inne pole)
             if items is None:
                 items = self._extract_list(response, "UŻYTKOWNICY")
                 log(f"USERS: parsed items via _extract_list count={len(items)}")

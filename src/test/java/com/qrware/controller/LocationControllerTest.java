@@ -20,13 +20,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,8 +42,6 @@ class LocationControllerTest {
 
     @InjectMocks
     private LocationController locationController;
-
-    // ==================== GET ALL LOCATIONS ====================
 
     @Test
     void getAllLocations_ShouldReturnPagedResults() {
@@ -84,8 +81,6 @@ class LocationControllerTest {
         verify(locationRepository).findByActive(eq(true), any(Pageable.class));
     }
 
-    // ==================== GET BY ID ====================
-
     @Test
     void getLocationById_ShouldReturnLocation_WhenFound() {
         Long id = 1L;
@@ -113,8 +108,6 @@ class LocationControllerTest {
         assertThrows(ResourceNotFoundException.class, () -> locationController.getLocationById(id));
     }
 
-    // ==================== GET BY CODE ====================
-
     @Test
     void getLocationByCode_ShouldReturnLocation_WhenFound() {
         String code = "LOC-001";
@@ -140,8 +133,6 @@ class LocationControllerTest {
 
         assertThrows(ResourceNotFoundException.class, () -> locationController.getLocationByCode(code));
     }
-
-    // ==================== GET BY QR CODE ====================
 
     @Test
     void getLocationByQrCode_ShouldReturnLocation_WhenFound() {
@@ -169,8 +160,6 @@ class LocationControllerTest {
         assertThrows(ResourceNotFoundException.class, () -> locationController.getLocationByQrCode(qrCode));
     }
 
-    // ==================== GET BY ZONE ====================
-
     @Test
     void getLocationsByZone_ShouldReturnList() {
         Long zoneId = 1L;
@@ -188,8 +177,6 @@ class LocationControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, response.getBody().size());
     }
-
-    // ==================== SEARCH ====================
 
     @Test
     void searchLocations_ShouldReturnMatchingLocations() {
@@ -210,8 +197,6 @@ class LocationControllerTest {
         assertEquals(1, response.getBody().size());
     }
 
-    // ==================== GET ACTIVE ====================
-
     @Test
     void getActiveLocations_ShouldReturnOnlyActiveLocations() {
         Location location = new Location();
@@ -229,8 +214,6 @@ class LocationControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, response.getBody().size());
     }
-
-    // ==================== CREATE LOCATION ====================
 
     @Test
     void createLocation_ShouldCreateAndReturn_WhenValidRequest() {
@@ -308,8 +291,6 @@ class LocationControllerTest {
         assertThrows(ResourceNotFoundException.class, () -> locationController.createLocation(request));
     }
 
-    // ==================== UPDATE LOCATION ====================
-
     @Test
     void updateLocation_ShouldUpdateAndReturn_WhenFound() {
         Long id = 1L;
@@ -364,8 +345,6 @@ class LocationControllerTest {
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
     }
 
-    // ==================== DELETE LOCATION ====================
-
     @Test
     void deleteLocation_ShouldDeactivate_WhenEmptyLocation() {
         Long id = 1L;
@@ -404,8 +383,6 @@ class LocationControllerTest {
 
         assertThrows(ResourceNotFoundException.class, () -> locationController.deleteLocation(id));
     }
-
-    // ==================== TOGGLE ACTIVE ====================
 
     @Test
     void toggleLocationActive_ShouldToggleStatus() {

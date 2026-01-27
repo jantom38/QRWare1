@@ -38,17 +38,19 @@ class QRWareApiClient:
 
         try:
             resp = requests.post(url, json=payload, headers=headers, timeout=self.timeout)
+        except requests.exceptions.ConnectionError:
+            return False, "Nie można połączyć się z serwerem. Sprawdź adres i połączenie.", None
+        except requests.exceptions.Timeout:
+            return False, "Przekroczono limit czasu połączenia z serwerem.", None
         except requests.RequestException as e:
-            return False, f"Błąd połączenia: {e}", None
+            return False, f"Błąd połączenia: {str(e)[:100]}...", None
 
-        # Backend zwraca ApiResponse { success, message, data }
         try:
             resp_json = resp.json()
         except ValueError:
-            return False, f"Niepoprawna odpowiedź serwera: {resp.text[:200]}", None
+            return False, f"Niepoprawna odpowiedź serwera: {resp.text[:100]}...", None
 
         if resp.status_code != 200:
-            # Może być 401 albo 400 itp., ale i tak spróbujmy odczytać 'message'
             msg = resp_json.get("message") or f"Błąd {resp.status_code}"
             return False, msg, None
 
@@ -75,6 +77,6 @@ class QRWareApiClient:
                 roles=list(data.get("roles") or []),
             )
         except Exception as e:
-            return False, f"Błąd parsowania odpowiedzi: {e}", None
+            return False, f"Błąd parsowania odpowiedzi: {str(e)[:100]}...", None
 
         return True, message or "Zalogowano", auth

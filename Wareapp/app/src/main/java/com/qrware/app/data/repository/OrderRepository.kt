@@ -8,8 +8,6 @@ import kotlinx.coroutines.withContext
 
 class OrderRepository(private val apiService: OrderApiService) {
 
-    // === ORDER OPERATIONS ===
-
     suspend fun getAllOrders(page: Int = 0, size: Int = 20): Result<PagedResponse<OrderDTO>> {
         return withContext(Dispatchers.IO) {
             try {

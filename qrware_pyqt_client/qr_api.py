@@ -75,15 +75,7 @@ class QRService:
             else:
                 url = image_url
 
-            # Dodanie tokenu do zapytania, jeśli endpoint wymaga autoryzacji
-            # Endpoint /api/qr-codes/image/{fileName} w QRCodeController nie ma adnotacji @PreAuthorize,
-            # ale jeśli SecurityConfig wymaga autoryzacji dla /api/**, to token jest potrzebny.
-            # Błąd 401 sugeruje, że token jest wymagany lub jest nieprawidłowy.
-
-            # Spróbujmy dodać nagłówek autoryzacji, nawet jeśli to GET na zasób statyczny (jeśli jest chroniony)
             headers = self._get_headers()
-            # Dla pobierania obrazka Content-Type: application/json może być mylące, ale Authorization jest kluczowe.
-            # Requests nadpisze Content-Type jeśli nie wysyłamy body, ale Authorization zostanie.
 
             response = requests.get(url, headers=headers)
 

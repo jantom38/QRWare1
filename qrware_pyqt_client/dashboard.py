@@ -18,12 +18,10 @@ class DashboardButton(QPushButton):
         self.setMinimumSize(220, 140)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         
-        # Przechowujemy dane
         self.title_text = title
         self.subtitle_text = subtitle
         self.base_color = color
         
-        # Stylizacja
         self.setStyleSheet(f"""
             QPushButton {{
                 background-color: white;
@@ -42,16 +40,13 @@ class DashboardButton(QPushButton):
             }}
         """)
         
-        # Layout wewnętrzny
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 10, 10, 10)
         
-        # Tytuł
         lbl_title = QLabel(title)
         lbl_title.setStyleSheet(f"font-size: 18px; font-weight: bold; color: #333; border: none; background: transparent;")
         layout.addWidget(lbl_title)
         
-        # Podtytuł
         lbl_subtitle = QLabel(subtitle)
         lbl_subtitle.setStyleSheet("font-size: 13px; color: #777; border: none; background: transparent;")
         lbl_subtitle.setWordWrap(True)
@@ -59,7 +54,6 @@ class DashboardButton(QPushButton):
         
         layout.addStretch()
         
-        # Pasek dolny (ozdobny)
         lbl_action = QLabel("Otwórz →")
         lbl_action.setStyleSheet(f"font-size: 12px; font-weight: bold; color: {color}; border: none; background: transparent;")
         lbl_action.setAlignment(Qt.AlignmentFlag.AlignRight)
@@ -73,7 +67,6 @@ class DashboardWindow(QMainWindow):
         self.resize(1200, 800)
         self.cfg = ConfigManager()
 
-        # Główny widget z tłem
         central = QWidget()
         central.setStyleSheet("background-color: #f4f6f9;")
         self.setCentralWidget(central)
@@ -82,7 +75,6 @@ class DashboardWindow(QMainWindow):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-        # --- HEADER ---
         header = QWidget()
         header.setStyleSheet("background-color: white; border-bottom: 1px solid #ddd;")
         header.setFixedHeight(80)
@@ -123,7 +115,6 @@ class DashboardWindow(QMainWindow):
         
         main_layout.addWidget(header)
 
-        # --- CONTENT AREA (Scrollable) ---
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
@@ -135,7 +126,6 @@ class DashboardWindow(QMainWindow):
         content_layout.setContentsMargins(40, 40, 40, 40)
         content_layout.setSpacing(30)
         
-        # Sekcja 1: Zarządzanie Magazynem
         self.add_section_header(content_layout, "Magazyn i Produkty")
         grid1 = QGridLayout()
         grid1.setSpacing(20)
@@ -158,7 +148,6 @@ class DashboardWindow(QMainWindow):
         
         content_layout.addLayout(grid1)
         
-        # Sekcja 2: Logistyka i Zamówienia
         self.add_section_header(content_layout, "Logistyka i Operacje")
         grid2 = QGridLayout()
         grid2.setSpacing(20)
@@ -181,7 +170,6 @@ class DashboardWindow(QMainWindow):
         
         content_layout.addLayout(grid2)
         
-        # Sekcja 3: Administracja
         self.add_section_header(content_layout, "Administracja i Raporty")
         grid3 = QGridLayout()
         grid3.setSpacing(20)
@@ -194,7 +182,6 @@ class DashboardWindow(QMainWindow):
         btn_reports.clicked.connect(self.open_reports)
         grid3.addWidget(btn_reports, 0, 1)
         
-        # Puste widgety dla wyrównania siatki
         grid3.addWidget(QWidget(), 0, 2)
         grid3.addWidget(QWidget(), 0, 3)
         

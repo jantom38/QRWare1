@@ -19,7 +19,6 @@ class UserManagementApi:
         self.cfg = cfg or ConfigManager()
         self.timeout = timeout
 
-    # --- USERS ---
     def list_users(self, page: int = 0, size: int = 50) -> Tuple[bool, str, Dict[str, Any]]:
         base = self.cfg.base_url.rstrip('/')
         url = f"{base}/api/users"
@@ -34,7 +33,6 @@ class UserManagementApi:
             return False, f"Błąd pobierania użytkowników: {e}", {}
         if r.status_code != 200:
             return False, f"Błąd {r.status_code}", {}
-        # Backend zwraca GlobalApiResponse { success, message, data, timestamp }
         if isinstance(data, dict) and data.get("success") is False:
             return False, data.get("message") or "Błąd pobierania użytkowników", {}
         return True, "OK", data
@@ -100,7 +98,6 @@ class UserManagementApi:
             return False, f"Błąd {r.status_code}"
         return True, "Zmieniono status blokady"
 
-    # --- ROLES ---
     def list_roles(self) -> Tuple[bool, str, List[Dict[str, Any]]]:
         base = self.cfg.base_url.rstrip('/')
         url = f"{base}/api/roles"
@@ -116,14 +113,11 @@ class UserManagementApi:
         if r.status_code != 200:
             return False, f"Błąd {r.status_code}", []
 
-        # obsługa GlobalApiResponse
         if isinstance(data, dict) and data.get("success") is False:
             return False, data.get("message") or "Błąd pobierania ról", []
 
-        # role mogą być w data (list)
         roles = data.get("data") if isinstance(data, dict) else None
         if not isinstance(roles, list):
-            # fallback: jeżeli backend zwrócił bez opakowania
             roles = data if isinstance(data, list) else []
 
         return True, "OK", roles
@@ -163,7 +157,6 @@ class UserManagementApi:
             return False, f"Błąd {r.status_code}"
         return True, "Usunięto"
 
-    # --- PERMISSIONS ---
     def list_permissions(self) -> Tuple[bool, str, List[Dict[str, Any]]]:
         base = self.cfg.base_url.rstrip('/')
         url = f"{base}/api/permissions"
@@ -179,7 +172,6 @@ class UserManagementApi:
         if r.status_code != 200:
             return False, f"Błąd {r.status_code}", []
 
-        # obsługa GlobalApiResponse
         if isinstance(data, dict) and data.get("success") is False:
             return False, data.get("message") or "Błąd pobierania uprawnień", []
 

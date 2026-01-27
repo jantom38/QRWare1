@@ -84,10 +84,7 @@ class ManageLocationsViewModel(private val repository: LocationRepository) : Vie
             try {
                 repository.deleteLocation(id)
                 _uiState.update { it.copy(successMessage = "Lokalizacja usunięta (dezaktywowana)") }
-                // Reload list if we are in list view
                 loadLocations()
-                // If we are in details view, we might want to update selectedLocation or navigate back.
-                // For now, just reloading list is enough for ManageLocationsScreen.
             } catch (e: Exception) {
                 _uiState.update { it.copy(isLoading = false, error = "Błąd usuwania: ${e.message}") }
             }

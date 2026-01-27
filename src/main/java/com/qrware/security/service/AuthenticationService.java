@@ -26,9 +26,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-/**
- * Authentication Service for handling login, registration, and token management
- */
 @Service
 @Transactional
 public class AuthenticationService {
@@ -58,7 +55,6 @@ public class AuthenticationService {
         logger.info("Attempting login for user: {}", loginRequest.getUsernameOrEmail());
 
         try {
-            // Validate input
             if (loginRequest.getUsernameOrEmail() == null || loginRequest.getUsernameOrEmail().trim().isEmpty()) {
                 throw new BadCredentialsException("Username or email is required");
             }
@@ -66,22 +62,18 @@ public class AuthenticationService {
                 throw new BadCredentialsException("Password is required");
             }
 
-            // Find user first to check account status
             User user = userRepository.findByUsernameOrEmail(loginRequest.getUsernameOrEmail())
                 .orElseThrow(() -> new BadCredentialsException("Invalid username/email or password"));
 
-            // Check if user account is setActive
             if (!user.getActive()) {
                 userDetailsService.handleFailedLogin(loginRequest.getUsernameOrEmail());
                 throw new DisabledException("User account is disabled");
             }
 
-            // Check if user account is locked
             if (!user.isAccountNonLocked()) {
                 throw new LockedException("User account is locked until: " + user.getLockedUntil());
             }
 
-            // Authenticate with Spring Security
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                     loginRequest.getUsernameOrEmail(),
@@ -89,14 +81,11 @@ public class AuthenticationService {
                 )
             );
 
-            // Generate tokens
             String accessToken = tokenProvider.generateToken(authentication);
             String refreshToken = tokenProvider.generateRefreshToken(user);
 
-            // Update user login information
             userDetailsService.updateLastLogin(user.getUsername());
 
-            // Set security context
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             logger.info("Successful login for user: {}", user.getUsername());
@@ -126,27 +115,20 @@ public class AuthenticationService {
         }
     }
 
-    /**
-     * Register new user
-     */
     public AuthenticationResponse register(RegisterRequest registerRequest) {
         logger.info("Attempting registration for user: {}", registerRequest.getUsername());
 
         try {
-            // Validate input
             validateRegisterRequest(registerRequest);
 
-            // Check if username already exists
             if (userRepository.existsByUsername(registerRequest.getUsername())) {
                 throw new IllegalArgumentException("Username is already taken");
             }
 
-            // Check if email already exists
             if (userRepository.existsByEmail(registerRequest.getEmail())) {
                 throw new IllegalArgumentException("Email is already registered");
             }
 
-            // Create new user
             User user = new User();
             user.setUsername(registerRequest.getUsername());
             user.setEmail(registerRequest.getEmail());
@@ -155,9 +137,8 @@ public class AuthenticationService {
             user.setLastName(registerRequest.getLastName());
             user.setPhone(registerRequest.getPhone());
             user.setActive(true);
-            user.setEmailVerified(true); // Auto-verify for dev
+            user.setEmailVerified(true); 
 
-            // Assign default role
             Role defaultRole = roleRepository.findByName("USER")
                 .orElseThrow(() -> new RuntimeException("Default USER role not found"));
             
@@ -165,12 +146,10 @@ public class AuthenticationService {
             roles.add(defaultRole);
             user.setRoles(roles);
 
-            // Save user
             User savedUser = userRepository.save(user);
 
             logger.info("User registered successfully: {}", savedUser.getUsername());
 
-            // Auto-login after registration
             LoginRequest loginRequest = new LoginRequest();
             loginRequest.setUsernameOrEmail(registerRequest.getUsername());
             loginRequest.setPassword(registerRequest.getPassword());
@@ -186,36 +165,28 @@ public class AuthenticationService {
         }
     }
 
-    /**
-     * Refresh JWT token
-     */
     public AuthenticationResponse refreshToken(RefreshTokenRequest refreshRequest) {
         logger.debug("Attempting token refresh");
 
         try {
             String refreshToken = refreshRequest.getRefreshToken();
 
-            // Validate refresh token
             if (!tokenProvider.validateToken(refreshToken)) {
                 throw new BadCredentialsException("Invalid refresh token");
             }
 
-            // Check if it's actually a refresh token
             if (tokenProvider.getTokenTypeFromToken(refreshToken) != JwtTokenProvider.TokenType.REFRESH) {
                 throw new BadCredentialsException("Invalid token type for refresh");
             }
 
-            // Get user from token
             String username = tokenProvider.getUsernameFromToken(refreshToken);
             User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BadCredentialsException("User not found"));
 
-            // Check if user is still active
             if (!user.getActive() || !user.isAccountNonLocked()) {
                 throw new DisabledException("User account is disabled or locked");
             }
 
-            // Generate new tokens
             String newAccessToken = tokenProvider.generateTokenFromUser(user);
             String newRefreshToken = tokenProvider.generateRefreshToken(user);
 
@@ -238,21 +209,11 @@ public class AuthenticationService {
         }
     }
 
-    /**
-     * Logout user (invalidate token on client side)
-     */
     public void logout() {
-        // Clear security context
         SecurityContextHolder.clearContext();
         logger.debug("User logged out successfully");
-        
-        // Note: For complete logout, you might want to maintain a blacklist of tokens
-        // or use a token store like Redis to track valid tokens
     }
 
-    /**
-     * Change user password
-     */
     public void changePassword(ChangePasswordRequest changePasswordRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -262,15 +223,12 @@ public class AuthenticationService {
         User user = (User) authentication.getPrincipal();
         
         try {
-            // Verify current password
             if (!passwordEncoder.matches(changePasswordRequest.getCurrentPassword(), user.getPassword())) {
                 throw new BadCredentialsException("Current password is incorrect");
             }
 
-            // Validate new password
             validatePassword(changePasswordRequest.getNewPassword());
 
-            // Update password
             user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
             userRepository.save(user);
 
@@ -282,29 +240,19 @@ public class AuthenticationService {
         }
     }
 
-    /**
-     * Request password reset
-     */
     public void requestPasswordReset(String email) {
         logger.info("Password reset requested for email: {}", email);
 
         try {
             Optional<User> userOpt = userRepository.findByEmail(email);
             if (userOpt.isEmpty()) {
-                // Don't reveal if email exists or not
                 logger.warn("Password reset requested for non-existent email: {}", email);
                 return;
             }
 
             User user = userOpt.get();
             
-            // Generate reset token (in real implementation, store this and send via email)
             String resetToken = UUID.randomUUID().toString();
-            
-            // Here you would:
-            // 1. Store the reset token with expiration
-            // 2. Send email with reset link
-            // For now, just log it
             
             logger.info("Password reset token generated for user {}: {}", user.getUsername(), resetToken);
 
@@ -313,9 +261,6 @@ public class AuthenticationService {
         }
     }
 
-    /**
-     * Get current authenticated user
-     */
     @Transactional(readOnly = true)
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -330,9 +275,6 @@ public class AuthenticationService {
         return null;
     }
 
-    /**
-     * Validate registration request
-     */
     private void validateRegisterRequest(RegisterRequest request) {
         if (request.getUsername() == null || request.getUsername().trim().length() < 3) {
             throw new IllegalArgumentException("Username must be at least 3 characters long");
@@ -349,9 +291,6 @@ public class AuthenticationService {
         validatePassword(request.getPassword());
     }
 
-    /**
-     * Validate password strength
-     */
     private void validatePassword(String password) {
         if (password == null || password.length() < 8) {
             throw new IllegalArgumentException("Password must be at least 8 characters long");
@@ -370,23 +309,16 @@ public class AuthenticationService {
         }
     }
 
-    /**
-     * Login request DTO
-     */
     public static class LoginRequest {
         private String usernameOrEmail;
         private String password;
 
-        // Getters and setters
         public String getUsernameOrEmail() { return usernameOrEmail; }
         public void setUsernameOrEmail(String usernameOrEmail) { this.usernameOrEmail = usernameOrEmail; }
         public String getPassword() { return password; }
         public void setPassword(String password) { this.password = password; }
     }
 
-    /**
-     * Registration request DTO
-     */
     public static class RegisterRequest {
         private String username;
         private String email;
@@ -395,7 +327,6 @@ public class AuthenticationService {
         private String lastName;
         private String phone;
 
-        // Getters and setters
         public String getUsername() { return username; }
         public void setUsername(String username) { this.username = username; }
         public String getEmail() { return email; }
@@ -410,9 +341,6 @@ public class AuthenticationService {
         public void setPhone(String phone) { this.phone = phone; }
     }
 
-    /**
-     * Refresh token request DTO
-     */
     public static class RefreshTokenRequest {
         private String refreshToken;
 
@@ -420,9 +348,6 @@ public class AuthenticationService {
         public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
     }
 
-    /**
-     * Change password request DTO
-     */
     public static class ChangePasswordRequest {
         private String currentPassword;
         private String newPassword;
@@ -433,9 +358,6 @@ public class AuthenticationService {
         public void setNewPassword(String newPassword) { this.newPassword = newPassword; }
     }
 
-    /**
-     * Authentication response DTO
-     */
     public static class AuthenticationResponse {
         private String accessToken;
         private String refreshToken;
@@ -460,7 +382,6 @@ public class AuthenticationService {
             this.roles = roles;
         }
 
-        // Getters
         public String getAccessToken() { return accessToken; }
         public String getRefreshToken() { return refreshToken; }
         public String getTokenType() { return tokenType; }

@@ -14,9 +14,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.stream.Collectors;
 
-/**
- * JWT Token Provider for generating and validating JWT tokens
- */
 @Component
 public class JwtTokenProvider {
 
@@ -38,31 +35,19 @@ public class JwtTokenProvider {
     private static final String FULL_NAME_KEY = "fullName";
     private static final String TOKEN_TYPE_KEY = "tokenType";
 
-    /**
-     * Generate JWT access token from Authentication
-     */
     public String generateToken(Authentication authentication) {
         User userPrincipal = (User) authentication.getPrincipal();
         return generateTokenFromUser(userPrincipal, TokenType.ACCESS);
     }
 
-    /**
-     * Generate JWT access token from User
-     */
     public String generateTokenFromUser(User user) {
         return generateTokenFromUser(user, TokenType.ACCESS);
     }
 
-    /**
-     * Generate refresh token from User
-     */
     public String generateRefreshToken(User user) {
         return generateTokenFromUser(user, TokenType.REFRESH);
     }
 
-    /**
-     * Generate token from User with specified type
-     */
     private String generateTokenFromUser(User user, TokenType tokenType) {
         Date expiryDate = new Date(System.currentTimeMillis() + 
             (tokenType == TokenType.REFRESH ? refreshTokenExpirationInMs : jwtExpirationInMs));
@@ -85,58 +70,37 @@ public class JwtTokenProvider {
             .compact();
     }
 
-    /**
-     * Get username from JWT token
-     */
     public String getUsernameFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
         return claims.getSubject();
     }
 
-    /**
-     * Get user ID from JWT token
-     */
     public Long getUserIdFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
         return claims.get(USER_ID_KEY, Long.class);
     }
 
-    /**
-     * Get authorities from JWT token
-     */
     public String getAuthoritiesFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
         return claims.get(AUTHORITIES_KEY, String.class);
     }
 
-    /**
-     * Get token type from JWT token
-     */
     public TokenType getTokenTypeFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
         String tokenType = claims.get(TOKEN_TYPE_KEY, String.class);
         return TokenType.valueOf(tokenType);
     }
 
-    /**
-     * Get expiration date from JWT token
-     */
     public Date getExpirationDateFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
         return claims.getExpiration();
     }
 
-    /**
-     * Get issued at date from JWT token
-     */
     public Date getIssuedAtDateFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
         return claims.getIssuedAt();
     }
 
-    /**
-     * Validate JWT token
-     */
     public boolean validateToken(String authToken) {
         try {
             getClaimsFromToken(authToken);
@@ -155,9 +119,6 @@ public class JwtTokenProvider {
         return false;
     }
 
-    /**
-     * Check if token is expired
-     */
     public boolean isTokenExpired(String token) {
         try {
             Date expiration = getExpirationDateFromToken(token);
@@ -167,16 +128,10 @@ public class JwtTokenProvider {
         }
     }
 
-    /**
-     * Check if token can be refreshed
-     */
     public boolean canTokenBeRefreshed(String token) {
         return !isTokenExpired(token) && getTokenTypeFromToken(token) == TokenType.REFRESH;
     }
 
-    /**
-     * Get remaining validity in seconds
-     */
     public long getRemainingValidityInSeconds(String token) {
         try {
             Date expiration = getExpirationDateFromToken(token);
@@ -187,9 +142,6 @@ public class JwtTokenProvider {
         }
     }
 
-    /**
-     * Extract claims from JWT token
-     */
     private Claims getClaimsFromToken(String token) {
         return Jwts.parser()
             .setSigningKey(getSecretKey())
@@ -197,14 +149,9 @@ public class JwtTokenProvider {
             .getBody();
     }
 
-    /**
-     * Get secret key for JWT signing
-     */
     private byte[] getSecretKey() {
-        // Ensure the secret is at least 512 bits (64 bytes) for HS512
         byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
         if (keyBytes.length < 64) {
-            // Pad the key if it's too short
             byte[] paddedKey = new byte[64];
             System.arraycopy(keyBytes, 0, paddedKey, 0, Math.min(keyBytes.length, 64));
             keyBytes = paddedKey;
@@ -212,9 +159,6 @@ public class JwtTokenProvider {
         return keyBytes;
     }
 
-    /**
-     * Create new token with extended expiration
-     */
     public String refreshToken(String token, User user) {
         if (!canTokenBeRefreshed(token)) {
             throw new IllegalArgumentException("Token cannot be refreshed");
@@ -222,9 +166,6 @@ public class JwtTokenProvider {
         return generateTokenFromUser(user, TokenType.ACCESS);
     }
 
-    /**
-     * Get token info for debugging/monitoring
-     */
     public TokenInfo getTokenInfo(String token) {
         try {
             Claims claims = getClaimsFromToken(token);
@@ -246,16 +187,10 @@ public class JwtTokenProvider {
         }
     }
 
-    /**
-     * Token type enumeration
-     */
     public enum TokenType {
         ACCESS, REFRESH
     }
 
-    /**
-     * Token information for debugging/monitoring
-     */
     public static class TokenInfo {
         private String username;
         private Long userId;
@@ -268,7 +203,6 @@ public class JwtTokenProvider {
         private boolean isExpired;
         private long remainingValiditySeconds;
 
-        // Builder pattern implementation
         public static TokenInfoBuilder builder() {
             return new TokenInfoBuilder();
         }
@@ -351,7 +285,6 @@ public class JwtTokenProvider {
             }
         }
 
-        // Getters
         public String getUsername() { return username; }
         public Long getUserId() { return userId; }
         public String getEmail() { return email; }

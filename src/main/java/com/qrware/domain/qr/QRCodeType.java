@@ -70,7 +70,7 @@ public enum QRCodeType {
     }
 
     public int getDefaultExpirationHours() {
-        return -1; // No expiration
+        return -1;
     }
 
     public String getUrlPrefix() {

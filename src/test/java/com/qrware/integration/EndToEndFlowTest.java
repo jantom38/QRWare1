@@ -234,7 +234,6 @@ public class EndToEndFlowTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.status").value("COMPLETED"));
 
-            // Flush and clear to ensure we get fresh data from DB
             entityManager.flush();
             entityManager.clear();
 
@@ -259,7 +258,6 @@ public class EndToEndFlowTest {
 
             OrderItem outboundItem = orderService.addOrderItem(outboundOrderId, testProduct.getId(), 30, storageLocation.getId(), shippingLocation.getId(), new BigDecimal("80.00"), "Urgent", true);
 
-            // Flush and clear again to see reservation changes
             entityManager.flush();
             entityManager.clear();
 
@@ -278,7 +276,6 @@ public class EndToEndFlowTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.status").value("COMPLETED"));
 
-            // Final flush and clear
             entityManager.flush();
             entityManager.clear();
 

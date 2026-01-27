@@ -125,7 +125,6 @@ public class QRCodeIntegrationTest {
                 .content(body))
             .andExpect(status().isConflict())
             .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            // Elastycznie: sprawdzamy, czy odpowiedź zawiera informację o konflikcie/duplikacie
             .andExpect(content().string(anyOf(
                 containsStringIgnoringCase("duplicate"),
                 containsStringIgnoringCase("already exists"),

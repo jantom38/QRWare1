@@ -57,7 +57,6 @@ fun EditOrderScreen(
     var showLocationDialog by remember { mutableStateOf(false) }
     var locationDialogType by remember { mutableStateOf<LocationDialogType?>(null) }
     
-    // Local state for editing order details
     var description by remember { mutableStateOf("") }
     var expectedDate by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
@@ -71,7 +70,6 @@ fun EditOrderScreen(
     var dialogInventory by remember { mutableStateOf<List<InventoryItemDTO>>(emptyList()) }
     var isDialogInventoryLoading by remember { mutableStateOf(false) }
 
-    // Initialize local state when order is loaded
     LaunchedEffect(uiState.order) {
         uiState.order?.let { order ->
             description = order.description ?: ""
@@ -82,7 +80,6 @@ fun EditOrderScreen(
         }
     }
 
-    // Load auxiliary data
     LaunchedEffect(Unit) {
         userRepository.getAllUsers(page = 0, size = 100)
             .onSuccess { pagedResponse -> users = pagedResponse.content }
@@ -91,14 +88,12 @@ fun EditOrderScreen(
             val locationsResponse = locationRepository.getLocations(page = 0, size = 100, active = true)
             locations = locationsResponse.content
         } catch (e: Exception) {
-            // Handle error
         }
         
         try {
             val productsResponse = productRepository.getAllProducts(page = 0, size = 100)
             products = productsResponse.content
         } catch (e: Exception) {
-            // Handle error
         }
     }
 
@@ -260,7 +255,6 @@ fun EditOrderScreen(
     }
 
     if (showAddItemDialog) {
-        // Find location objects if IDs are present in the order
         val sourceLoc = uiState.order?.sourceLocationId?.let { id -> locations.find { it.id == id } }
         val destLoc = uiState.order?.destinationLocationId?.let { id -> locations.find { it.id == id } }
 

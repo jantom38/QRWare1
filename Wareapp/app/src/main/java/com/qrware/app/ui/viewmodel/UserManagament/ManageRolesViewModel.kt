@@ -1,4 +1,3 @@
-// Ścieżka: app/src/main/java/com/qrware/app/ui/viewmodel/ManageRolesViewModel.kt
 package com.qrware.app.ui.viewmodel.UserManagament
 
 import androidx.lifecycle.ViewModel
@@ -7,8 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.qrware.app.data.model.PermissionResponse
 import com.qrware.app.data.model.RoleRequest
 import com.qrware.app.data.model.RoleResponse
-// BŁĄD: Ta klasa nie istnieje w Twoim projekcie
-// import com.qrware.app.data.remote.Resource
 import com.qrware.app.data.repository.UserManagementRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +18,7 @@ data class ManageRolesUiState(
     val roles: List<RoleResponse> = emptyList(),
     val allRoles: List<RoleResponse> = emptyList(),
     val searchQuery: String = "",
-    val allPermissions: List<PermissionResponse> = emptyList(), // Potrzebne do okna edycji
+    val allPermissions: List<PermissionResponse> = emptyList(),
     val showDialog: DialogState = DialogState.None
 )
 
@@ -45,11 +42,9 @@ class ManageRolesViewModel(private val repository: UserManagementRepository) : V
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
 
-            // Pobieramy obie listy
             val rolesResult = repository.getAllRoles()
             val permsResult = repository.getAllPermissions()
 
-            // POPRAWKA: Sprawdzamy wyniki za pomocą .fold lub .onSuccess/.onFailure
             var finalRoles: List<RoleResponse> = emptyList()
             var finalPerms: List<PermissionResponse> = emptyList()
             var errorMessage: String? = null
@@ -63,7 +58,6 @@ class ManageRolesViewModel(private val repository: UserManagementRepository) : V
             permsResult.onSuccess {
                 finalPerms = it
             }.onFailure {
-                // Jeśli był już błąd ról, doklejamy ten błąd
                 val permsError = it.message ?: "Błąd pobierania uprawnień"
                 errorMessage = if (errorMessage != null) "$errorMessage; $permsError" else permsError
             }
@@ -118,7 +112,7 @@ class ManageRolesViewModel(private val repository: UserManagementRepository) : V
 
     fun saveRole(request: RoleRequest, roleId: Long? = null) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) } // Resetuj błąd
+            _uiState.update { it.copy(isLoading = true, error = null) }
 
             val result = if (roleId == null) {
                 repository.createRole(request)
@@ -126,10 +120,9 @@ class ManageRolesViewModel(private val repository: UserManagementRepository) : V
                 repository.updateRole(roleId, request)
             }
 
-            // POPRAWKA: Używamy .onSuccess i .onFailure
             result.onSuccess {
-                _uiState.update { it.copy(showDialog = DialogState.None, isLoading = false) } // Wyłącz ładowanie
-                loadData() // Odśwież listę
+                _uiState.update { it.copy(showDialog = DialogState.None, isLoading = false) }
+                loadData()
             }.onFailure { exception ->
                 _uiState.update {
                     it.copy(isLoading = false, error = exception.message ?: "Błąd zapisu")
@@ -142,11 +135,10 @@ class ManageRolesViewModel(private val repository: UserManagementRepository) : V
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            // POPRAWKA: Używamy .onSuccess i .onFailure
             repository.deleteRole(role.id)
                 .onSuccess {
-                    _uiState.update { it.copy(showDialog = DialogState.None, isLoading = false) } // Wyłącz ładowanie
-                    loadData() // Odśwież listę
+                    _uiState.update { it.copy(showDialog = DialogState.None, isLoading = false) }
+                    loadData()
                 }
                 .onFailure { exception ->
                     _uiState.update {
@@ -157,7 +149,6 @@ class ManageRolesViewModel(private val repository: UserManagementRepository) : V
     }
 }
 
-// Fabryka (bez zmian)
 class ManageRolesViewModelFactory(
     private val repository: UserManagementRepository
 ) : ViewModelProvider.Factory {

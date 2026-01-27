@@ -1,7 +1,6 @@
 import sys
 import os
 
-# Dodajemy bieżący katalog do ścieżki systemowej, aby importy działały poprawnie
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 try:
@@ -29,7 +28,6 @@ except ImportError as e:
     print("===============================================================")
     sys.exit(1)
 
-# Importy lokalne - używamy importów bezwzględnych, ponieważ sys.path został zmodyfikowany
 try:
     from api import QRWareApiClient
     from config import ConfigManager
@@ -37,8 +35,6 @@ try:
     from theme import apply_modern_style
 except ImportError as e:
     print(f"Błąd importu modułów lokalnych: {e}")
-    # Fallback dla uruchamiania jako pakiet (python -m qrware_pyqt_client.main)
-    # Ale jeśli to zawiedzie, to już koniec
     try:
         from .api import QRWareApiClient
         from .config import ConfigManager
@@ -64,7 +60,6 @@ class LoginWindow(QMainWindow):
         layout.setContentsMargins(40, 40, 40, 40)
         layout.setSpacing(20)
         
-        # Tytuł
         lbl_title = QLabel("QRWare")
         lbl_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         lbl_title.setStyleSheet("font-size: 32px; font-weight: bold; color: #2c3e50;")
@@ -75,7 +70,6 @@ class LoginWindow(QMainWindow):
         lbl_subtitle.setStyleSheet("font-size: 14px; color: #7f8c8d; margin-bottom: 20px;")
         layout.addWidget(lbl_subtitle)
 
-        # Formularz
         form_container = QWidget()
         form_layout = QVBoxLayout(form_container)
         form_layout.setContentsMargins(0, 0, 0, 0)
@@ -134,41 +128,47 @@ class LoginWindow(QMainWindow):
         self.lbl_status.setStyleSheet("color: #e74c3c;" if error else "color: #7f8c8d;")
 
     def on_login(self):
-        base_url = self.edt_server.text().strip()
-        username = self.edt_username.text().strip()
-        password = self.edt_password.text()
+        try:
+            base_url = self.edt_server.text().strip()
+            username = self.edt_username.text().strip()
+            password = self.edt_password.text()
 
-        if not base_url:
-            self._set_status("Podaj adres serwera", error=True)
-            return
-        if not username or not password:
-            self._set_status("Podaj login i hasło", error=True)
-            return
+            if not base_url:
+                self._set_status("Podaj adres serwera", error=True)
+                return
+            if not username or not password:
+                self._set_status("Podaj login i hasło", error=True)
+                return
 
-        self.btn_login.setEnabled(False)
-        self.btn_login.setText("Logowanie...")
-        self._set_status("Nawiązywanie połączenia...")
-        QApplication.processEvents()
+            self.btn_login.setEnabled(False)
+            self.btn_login.setText("Logowanie...")
+            self._set_status("Nawiązywanie połączenia...")
+            QApplication.processEvents()
 
-        self.config.base_url = base_url
+            self.config.base_url = base_url
 
-        client = QRWareApiClient(base_url)
-        ok, message, auth = client.login(username, password)
+            client = QRWareApiClient(base_url)
+            ok, message, auth = client.login(username, password)
 
-        self.btn_login.setEnabled(True)
-        self.btn_login.setText("Zaloguj się")
-        
-        if not ok:
-            self._set_status(message or "Logowanie nieudane", error=True)
-            QMessageBox.critical(self, "Błąd logowania", message or "Nieznany błąd")
-            return
+            self.btn_login.setEnabled(True)
+            self.btn_login.setText("Zaloguj się")
 
-        self.config.save_tokens(auth.accessToken, auth.refreshToken)
+            if not ok:
+                self._set_status(message or "Logowanie nieudane", error=True)
+                QMessageBox.critical(self, "Błąd logowania", message or "Nieznany błąd")
+                return
 
-        self._set_status("Zalogowano pomyślnie")
-        self.dashboard = DashboardWindow()
-        self.dashboard.show()
-        self.close()
+            self.config.save_tokens(auth.accessToken, auth.refreshToken)
+
+            self._set_status("Zalogowano pomyślnie")
+            self.dashboard = DashboardWindow()
+            self.dashboard.show()
+            self.close()
+        except Exception as e:
+            self.btn_login.setEnabled(True)
+            self.btn_login.setText("Zaloguj się")
+            self._set_status(f"Błąd: {str(e)}", error=True)
+            QMessageBox.critical(self, "Błąd", f"Wystąpił błąd podczas logowania:\n{str(e)}")
 
 
 def main():

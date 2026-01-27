@@ -36,8 +36,6 @@ class OrderTest {
         order.setOrderItems(new ArrayList<>());
     }
 
-    // ==================== STATE MACHINE TESTS ====================
-
     @Test
     @DisplayName("Should allow transition from CREATED to ASSIGNED")
     void canTransitionTo_CreatedToAssigned_ReturnsTrue() {
@@ -80,8 +78,6 @@ class OrderTest {
         assertTrue(OrderStatus.IN_PROGRESS.canTransitionTo(OrderStatus.PARTIALLY_COMPLETED));
     }
 
-    // ==================== PROGRESS TESTS ====================
-
     @Test
     @DisplayName("Should calculate completion percentage correctly")
     void getCompletionPercentage_CalculatesCorrectly() {
@@ -109,7 +105,6 @@ class OrderTest {
     @Test
     @DisplayName("Should update progress based on order items")
     void updateProgress_UpdatesCorrectly() {
-        // Given
         when(mockItem1.getCompletedQuantity()).thenReturn(10);
         when(mockItem1.getTotalValue()).thenReturn(new BigDecimal("100.00"));
         
@@ -119,16 +114,12 @@ class OrderTest {
         order.getOrderItems().add(mockItem1);
         order.getOrderItems().add(mockItem2);
 
-        // When
         order.updateProgress();
 
-        // Then
         assertEquals(2, order.getTotalItems());
-        assertEquals(2, order.getCompletedItems()); // Assuming completedItems counts completed lines, not quantity sum based on implementation
+        assertEquals(2, order.getCompletedItems()); 
         assertEquals(new BigDecimal("150.00"), order.getEstimatedValue());
     }
-
-    // ==================== PERMISSION/ACTION TESTS ====================
 
     @Test
     @DisplayName("Should be startable when status is CREATED")

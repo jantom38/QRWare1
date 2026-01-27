@@ -39,7 +39,6 @@ public class DataInitializer implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
 
-    // deterministic seed so demo dataset is stable
     private static final long DEMO_RANDOM_SEED = 20260113L;
 
     @Autowired private RoleRepository roleRepository;
@@ -76,7 +75,6 @@ public class DataInitializer implements CommandLineRunner {
                 categoryRepository.count(), productRepository.count(), locationRepository.count(),
                 inventoryItemRepository.count(), orderRepository.count());
 
-        // Demo dataset: only if DB not yet seeded (products are our heuristic)
         if (productRepository.count() == 0) {
             try {
                 Random random = new Random(DEMO_RANDOM_SEED);
@@ -216,8 +214,6 @@ public class DataInitializer implements CommandLineRunner {
     private Role getRole(String name) {
         return roleRepository.findByName(name).orElseThrow(() -> new RuntimeException("Role not found: " + name));
     }
-
-    // region Demo seed
 
     private Category upsertCategory(String code, String name, String description, Category parent,
                                    boolean active, Integer sortOrder, String icon, String color,
@@ -387,7 +383,6 @@ public class DataInitializer implements CommandLineRunner {
                 true, false, null, null, false, null, null,
                 3, true, false, 4, "manager", "hazmat@qrware.com", "#F4511E");
 
-        // a few key locations + shelves
         upsertLocation("REC-01", "Dock A", receiving, LocationType.RECEIVING,
                 "R", "01", null, null,
                 new BigDecimal("50.000"), new BigDecimal("5000.000"), 100,
@@ -550,7 +545,6 @@ public class DataInitializer implements CommandLineRunner {
                 Location loc = pickLocationForProduct(locations, p, random);
                 int qty = 5 + random.nextInt(80);
 
-                // Make copies for lambda (Java requires effectively-final captured vars)
                 final Product product = p;
                 final int index = i;
                 final Location location = loc;
@@ -563,7 +557,6 @@ public class DataInitializer implements CommandLineRunner {
                     it.setQuantity(quantity);
                     it.setReservedQuantity(random.nextInt(3));
                     it.setStatus(InventoryStatus.AVAILABLE);
-                    // QR code value is required (NOT NULL in DB). Use placeholder and replace manually later.
                     it.setQrCode("PENDING:" + product.getSku() + ":" + location.getCode() + ":" + (100 + index));
                     it.setReceivedDate(LocalDate.now().minusDays(random.nextInt(30)));
                     it.setLotNumber("LOT-" + LocalDate.now().getYear() + "-" + String.format("%04d", counter.incrementAndGet()));
@@ -709,5 +702,4 @@ public class DataInitializer implements CommandLineRunner {
         addStatusHistoryIfMissing(pick, OrderStatus.ASSIGNED, OrderStatus.IN_PROGRESS, worker, LocalDateTime.now().minusHours(1), "Rozpoczęte");
     }
 
-    // endregion
 }

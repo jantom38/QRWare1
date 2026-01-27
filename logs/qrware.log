@@ -1,50 +1,48 @@
-2026-01-22 14:33:05 [main] INFO  c.q.WarehouseQRSystemApplication - Starting WarehouseQRSystemApplication using Java 24 with PID 11384 (C:\Users\jasie\Documents\GitHub\QRWare\target\classes started by jasie in C:\Users\jasie\Documents\GitHub\QRWare)
-2026-01-22 14:33:05 [main] INFO  c.q.WarehouseQRSystemApplication - The following 1 profile is active: "prod"
-2026-01-22 14:33:10 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-01-22 14:33:10 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 210 ms. Found 13 JPA repository interfaces.
-2026-01-22 14:33:12 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
-2026-01-22 14:33:12 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
-2026-01-22 14:33:12 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.16]
-2026-01-22 14:33:12 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
-2026-01-22 14:33:12 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 6482 ms
-2026-01-22 14:33:12 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-01-22 14:33:13 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.3.1.Final
-2026-01-22 14:33:13 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
-2026-01-22 14:33:13 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-01-22 14:33:13 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
-2026-01-22 14:33:14 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@4d0b276e
-2026-01-22 14:33:14 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
-2026-01-22 14:33:16 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-01-22 14:33:16 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-01-22 14:33:22 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
-2026-01-22 14:33:58 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-01-22 14:33:58 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
-2026-01-22 14:33:59 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
-2026-01-22 14:33:59 [main] INFO  c.q.WarehouseQRSystemApplication - Started WarehouseQRSystemApplication in 54.491 seconds (process running for 72.211)
-2026-01-22 14:33:59 [main] INFO  com.qrware.config.DataInitializer - Initializing default/demo data...
-2026-01-22 14:34:00 [main] INFO  com.qrware.config.DataInitializer - Seed status after security: users=4, roles=4, permissions=23
-2026-01-22 14:34:00 [main] INFO  com.qrware.config.DataInitializer - Seed status before demo: users=4, roles=4, permissions=23, categories=12, products=21, locations=36, inventoryItems=30, orders=3
-2026-01-22 14:34:00 [main] INFO  com.qrware.config.DataInitializer - Products already exist (21). Skipping demo dataset.
-2026-01-22 14:34:00 [main] INFO  com.qrware.config.DataInitializer - Default/demo data initialization completed
-2026-01-22 14:34:12 [http-nio-0.0.0.0-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
-2026-01-22 14:34:12 [http-nio-0.0.0.0-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
-2026-01-22 14:34:12 [http-nio-0.0.0.0-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
-2026-01-22 14:34:13 [http-nio-0.0.0.0-8080-exec-1] WARN  o.s.w.s.h.HandlerMappingIntrospector - Cache miss for REQUEST dispatch to '/api/auth/login' (previous null). Performing MatchableHandlerMapping lookup. This is logged once only at WARN level, and every time at TRACE.
-2026-01-22 14:34:13 [http-nio-0.0.0.0-8080-exec-1] INFO  c.qrware.controller.AuthController - Login attempt for user: admin
-2026-01-22 14:34:13 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.service.AuthenticationService - Attempting login for user: admin
-2026-01-22 14:34:13 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.service.AuthenticationService - Successful login for user: admin
-2026-01-22 14:34:13 [http-nio-0.0.0.0-8080-exec-1] INFO  c.qrware.controller.AuthController - Successful login for user: admin
-2026-01-22 14:34:18 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, ORDER_READ, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, ORDER_WRITE, ORDER_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, MOVEMENT_READ, ORDER_ASSIGN, USER_READ, QR_SCAN, MOVEMENT_WRITE, INVENTORY_UPDATE, PRODUCT_READ]
-2026-01-22 14:34:18 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, ORDER_READ, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, ORDER_WRITE, ORDER_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, MOVEMENT_READ, ORDER_ASSIGN, USER_READ, QR_SCAN, MOVEMENT_WRITE, INVENTORY_UPDATE, PRODUCT_READ]
-2026-01-22 14:34:18 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, ORDER_READ, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, ORDER_WRITE, ORDER_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, MOVEMENT_READ, ORDER_ASSIGN, USER_READ, QR_SCAN, MOVEMENT_WRITE, INVENTORY_UPDATE, PRODUCT_READ]
-2026-01-22 14:35:32 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, ORDER_READ, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, ORDER_WRITE, ORDER_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, MOVEMENT_READ, ORDER_ASSIGN, USER_READ, QR_SCAN, MOVEMENT_WRITE, INVENTORY_UPDATE, PRODUCT_READ]
-2026-01-22 14:35:41 [http-nio-0.0.0.0-8080-exec-10] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, ORDER_READ, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, ORDER_WRITE, ORDER_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, MOVEMENT_READ, ORDER_ASSIGN, USER_READ, QR_SCAN, MOVEMENT_WRITE, INVENTORY_UPDATE, PRODUCT_READ]
-2026-01-22 14:37:44 [http-nio-0.0.0.0-8080-exec-2] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, ORDER_READ, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, ORDER_WRITE, ORDER_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, MOVEMENT_READ, ORDER_ASSIGN, USER_READ, QR_SCAN, MOVEMENT_WRITE, INVENTORY_UPDATE, PRODUCT_READ]
-2026-01-22 14:37:44 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, ORDER_READ, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, ORDER_WRITE, ORDER_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, MOVEMENT_READ, ORDER_ASSIGN, USER_READ, QR_SCAN, MOVEMENT_WRITE, INVENTORY_UPDATE, PRODUCT_READ]
-2026-01-22 14:37:44 [http-nio-0.0.0.0-8080-exec-8] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, ORDER_READ, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, ORDER_WRITE, ORDER_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, MOVEMENT_READ, ORDER_ASSIGN, USER_READ, QR_SCAN, MOVEMENT_WRITE, INVENTORY_UPDATE, PRODUCT_READ]
-2026-01-22 14:51:49 [http-nio-0.0.0.0-8080-exec-9] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, ORDER_READ, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, ORDER_WRITE, ORDER_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, MOVEMENT_READ, ORDER_ASSIGN, USER_READ, QR_SCAN, MOVEMENT_WRITE, INVENTORY_UPDATE, PRODUCT_READ]
-2026-01-22 14:51:49 [http-nio-0.0.0.0-8080-exec-9] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
-2026-01-22 15:02:18 [HikariPool-1 housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=3m4s136ms630µs900ns).
-2026-01-22 15:17:52 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
-2026-01-22 15:17:52 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
-2026-01-22 15:17:52 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-01-27 13:04:22 [main] INFO  c.q.WarehouseQRSystemApplication - Starting WarehouseQRSystemApplication using Java 24 with PID 21068 (C:\Users\jasie\Documents\GitHub\QRWare\target\classes started by jasie in C:\Users\jasie\Documents\GitHub\QRWare)
+2026-01-27 13:04:22 [main] INFO  c.q.WarehouseQRSystemApplication - The following 1 profile is active: "prod"
+2026-01-27 13:04:27 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-01-27 13:04:27 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 168 ms. Found 13 JPA repository interfaces.
+2026-01-27 13:04:29 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-01-27 13:04:29 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-01-27 13:04:29 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.16]
+2026-01-27 13:04:29 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-01-27 13:04:29 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 6675 ms
+2026-01-27 13:04:30 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-01-27 13:04:30 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.3.1.Final
+2026-01-27 13:04:30 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-01-27 13:04:31 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-01-27 13:04:31 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-01-27 13:04:31 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1b7a4930
+2026-01-27 13:04:31 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-01-27 13:04:34 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-01-27 13:04:34 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-01-27 13:04:35 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-01-27 13:04:39 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-01-27 13:04:40 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-01-27 13:04:41 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2026-01-27 13:04:41 [main] INFO  c.q.WarehouseQRSystemApplication - Started WarehouseQRSystemApplication in 19.276 seconds (process running for 21.662)
+2026-01-27 13:04:41 [main] INFO  com.qrware.config.DataInitializer - Initializing default/demo data...
+2026-01-27 13:04:41 [main] INFO  com.qrware.config.DataInitializer - Seed status after security: users=4, roles=4, permissions=23
+2026-01-27 13:04:41 [main] INFO  com.qrware.config.DataInitializer - Seed status before demo: users=4, roles=4, permissions=23, categories=12, products=21, locations=36, inventoryItems=30, orders=3
+2026-01-27 13:04:41 [main] INFO  com.qrware.config.DataInitializer - Products already exist (21). Skipping demo dataset.
+2026-01-27 13:04:41 [main] INFO  com.qrware.config.DataInitializer - Default/demo data initialization completed
+2026-01-27 13:05:59 [http-nio-0.0.0.0-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-01-27 13:05:59 [http-nio-0.0.0.0-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-01-27 13:05:59 [http-nio-0.0.0.0-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-01-27 13:05:59 [http-nio-0.0.0.0-8080-exec-1] WARN  o.s.w.s.h.HandlerMappingIntrospector - Cache miss for REQUEST dispatch to '/api/auth/login' (previous null). Performing MatchableHandlerMapping lookup. This is logged once only at WARN level, and every time at TRACE.
+2026-01-27 13:06:00 [http-nio-0.0.0.0-8080-exec-1] INFO  c.qrware.controller.AuthController - Login attempt for user: admin
+2026-01-27 13:06:00 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.service.AuthenticationService - Attempting login for user: admin
+2026-01-27 13:06:00 [http-nio-0.0.0.0-8080-exec-1] INFO  c.q.s.service.AuthenticationService - Successful login for user: admin
+2026-01-27 13:06:00 [http-nio-0.0.0.0-8080-exec-1] INFO  c.qrware.controller.AuthController - Successful login for user: admin
+2026-01-27 13:06:02 [http-nio-0.0.0.0-8080-exec-3] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, ORDER_READ, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, ORDER_WRITE, ORDER_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, MOVEMENT_READ, ORDER_ASSIGN, USER_READ, QR_SCAN, MOVEMENT_WRITE, INVENTORY_UPDATE, PRODUCT_READ]
+2026-01-27 13:06:02 [http-nio-0.0.0.0-8080-exec-3] INFO  c.qrware.controller.QRCodeController - Fetching all QR codes with pagination
+2026-01-27 13:06:04 [http-nio-0.0.0.0-8080-exec-5] INFO  c.q.s.jwt.JwtAuthenticationFilter - Setting SecurityContext for user: 'admin'. Authorities: [PRODUCT_WRITE, QR_GENERATE, ORDER_READ, USER_UPDATE, LOCATION_READ, ZONE_WRITE, PRODUCT_DELETE, ORDER_WRITE, ORDER_DELETE, PRODUCT_UPDATE, INVENTORY_READ, INVENTORY_WRITE, ADMIN_FULL, LOCATION_WRITE, ZONE_READ, INVENTORY_DELETE, MOVEMENT_READ, ORDER_ASSIGN, USER_READ, QR_SCAN, MOVEMENT_WRITE, INVENTORY_UPDATE, PRODUCT_READ]
+2026-01-27 13:06:04 [http-nio-0.0.0.0-8080-exec-5] INFO  c.qrware.controller.QRCodeController - Requesting image file: qr_20260121_142908_fb18fdea.png
+2026-01-27 13:08:06 [http-nio-0.0.0.0-8080-exec-6] INFO  c.qrware.controller.AuthController - Login attempt for user: admin
+2026-01-27 13:08:06 [http-nio-0.0.0.0-8080-exec-6] INFO  c.q.s.service.AuthenticationService - Attempting login for user: admin
+2026-01-27 13:08:06 [http-nio-0.0.0.0-8080-exec-6] WARN  c.q.s.service.AuthenticationService - Authentication failed for user admin: Bad credentials
+2026-01-27 13:08:06 [http-nio-0.0.0.0-8080-exec-6] WARN  c.qrware.controller.AuthController - Login failed for user admin: Bad credentials
+2026-01-27 13:08:22 [http-nio-0.0.0.0-8080-exec-7] INFO  c.qrware.controller.AuthController - Login attempt for user: admin
+2026-01-27 13:08:22 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.service.AuthenticationService - Attempting login for user: admin
+2026-01-27 13:08:22 [http-nio-0.0.0.0-8080-exec-7] INFO  c.q.s.service.AuthenticationService - Successful login for user: admin
+2026-01-27 13:08:22 [http-nio-0.0.0.0-8080-exec-7] INFO  c.qrware.controller.AuthController - Successful login for user: admin

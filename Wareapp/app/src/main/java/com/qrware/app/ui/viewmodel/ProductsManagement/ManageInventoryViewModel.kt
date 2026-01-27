@@ -48,7 +48,6 @@ class ManageInventoryViewModel(
                 val alerts = inventoryRepository.getInventoryAlerts()
                 _uiState.value = _uiState.value.copy(alerts = alerts)
             } catch (e: Exception) {
-                // Ignorujemy błędy alertów, żeby nie blokować głównego widoku
                 e.printStackTrace()
             }
         }

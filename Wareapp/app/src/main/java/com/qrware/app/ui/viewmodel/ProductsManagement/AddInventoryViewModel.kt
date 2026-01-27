@@ -1,6 +1,6 @@
 package com.qrware.app.ui.viewmodel.ProductsManagement
 
-import android.util.Log // Dodaj ten import
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qrware.app.data.dto.LocationDTO
@@ -59,7 +59,6 @@ class AddInventoryViewModel(
         }
     }
 
-    // --- ZMIANA: Funkcja jest teraz publiczna (usunięto private) ---
     fun loadLocations() {
         viewModelScope.launch {
             Log.d("AddInventoryVM", "Rozpoczynam ładowanie lokalizacji...")
@@ -68,16 +67,11 @@ class AddInventoryViewModel(
                 val paginatedResponse = locationRepository.getLocations(
                     page = 0,
                     size = 1000,
-                    active = true // Pobieramy tylko aktywne
+                    active = true
                 )
 
                 Log.d("AddInventoryVM", "Pobrano z API: ${paginatedResponse.content.size} lokalizacji")
 
-                // --- DIAGNOSTYKA: Zakomentuj filtr, jeśli lista jest pusta ---
-                // Oryginalny filtr:
-                // val locations = paginatedResponse.content.filter { it.receivable }
-
-                // Tymczasowo bierzemy wszystkie aktywne, aby sprawdzić czy API działa:
                 val locations = paginatedResponse.content
 
                 Log.d("AddInventoryVM", "Lokalizacje po filtrowaniu: ${locations.size}")
@@ -144,7 +138,6 @@ class AddInventoryViewModel(
                     batchNumber = batchNumber,
                     serialNumber = serialNumber,
 
-                    // ZMIANA TUTAJ - przekazujemy Stringi bezpośrednio:
                     receivedDate = receivedDate,
                     expiryDate = expiryDate,
                     manufactureDate = manufactureDate,

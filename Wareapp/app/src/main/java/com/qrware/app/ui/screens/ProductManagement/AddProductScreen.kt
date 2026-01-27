@@ -52,7 +52,6 @@ fun AddProductScreen(
     var fragile by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        // Preferuj aktywne kategorie w dropdownie
         categoryViewModel.loadActiveCategories()
     }
 

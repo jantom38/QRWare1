@@ -10,24 +10,18 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Optional;
 
-/**
- * Audit Configuration for automatic tracking of entity creation and modification
- */
+
 @Configuration
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 public class AuditConfig {
 
-    /**
-     * Auditor provider that gets current authenticated user for audit fields
-     */
+
     @Bean
     public AuditorAware<String> auditorProvider() {
         return new SecurityAuditorAware();
     }
 
-    /**
-     * Implementation of AuditorAware that extracts username from Security Context
-     */
+
     public static class SecurityAuditorAware implements AuditorAware<String> {
 
         @Override
@@ -38,18 +32,15 @@ public class AuditConfig {
                 return Optional.of("system");
             }
 
-            // If principal is User object
             if (authentication.getPrincipal() instanceof User) {
                 User user = (User) authentication.getPrincipal();
                 return Optional.of(user.getUsername());
             }
 
-            // If principal is username string
             if (authentication.getPrincipal() instanceof String) {
                 return Optional.of((String) authentication.getPrincipal());
             }
 
-            // If authenticated but principal is not recognized
             String name = authentication.getName();
             if (name != null && !name.equals("anonymousUser")) {
                 return Optional.of(name);

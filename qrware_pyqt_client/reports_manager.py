@@ -43,14 +43,12 @@ class ReportsManagerWindow(QMainWindow):
         main_layout.setContentsMargins(20, 20, 20, 20)
         main_layout.setSpacing(20)
 
-        # --- LEWA STRONA (Konfiguracja) ---
         left_layout = QVBoxLayout()
         
         lbl_config = QLabel("Konfiguracja Raportu")
         lbl_config.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50;")
         left_layout.addWidget(lbl_config)
 
-        # Typ raportu
         type_group = QGroupBox("Rodzaj analizy")
         type_layout = QVBoxLayout()
         self.combo_report_type = QComboBox()
@@ -66,7 +64,6 @@ class ReportsManagerWindow(QMainWindow):
         type_group.setLayout(type_layout)
         left_layout.addWidget(type_group)
 
-        # Parametry
         self.params_group = QGroupBox("Filtry i Zakres")
         params_layout = QFormLayout()
         params_layout.setSpacing(10)
@@ -95,7 +92,6 @@ class ReportsManagerWindow(QMainWindow):
         self.params_group.setLayout(params_layout)
         left_layout.addWidget(self.params_group)
 
-        # Przyciski akcji
         btn_layout = QVBoxLayout()
         btn_layout.setSpacing(10)
 
@@ -114,7 +110,6 @@ class ReportsManagerWindow(QMainWindow):
         left_layout.addStretch()
         main_layout.addLayout(left_layout, 30)
 
-        # --- PRAWA STRONA (Podgląd) ---
         right_layout = QVBoxLayout()
         
         lbl_preview = QLabel("Podgląd Wyników")
@@ -156,7 +151,6 @@ class ReportsManagerWindow(QMainWindow):
         self.combo_category.setEnabled(True)
         self.combo_zone.setEnabled(True)
         
-        # Wyczyść podgląd przy zmianie typu
         self.table_preview.setRowCount(0)
         self.table_preview.setColumnCount(0)
         self.lbl_summary.setText("Liczba rekordów: 0")
@@ -245,7 +239,7 @@ class ReportsManagerWindow(QMainWindow):
                 self.table_preview.setItem(i, 2, QTableWidgetItem(str(item.get("message", ""))))
                 self.table_preview.setItem(i, 3, QTableWidgetItem(str(item.get("severity", ""))))
 
-        else: # Domyślny (Inventory)
+        else:
             headers = ["ID", "Produkt", "Lokalizacja", "Ilość", "Status"]
             self.table_preview.setColumnCount(len(headers))
             self.table_preview.setHorizontalHeaderLabels(headers)
@@ -265,7 +259,6 @@ class ReportsManagerWindow(QMainWindow):
     def generate_report(self):
         report_type = self.combo_report_type.currentText()
         
-        # Jeśli dane nie były załadowane, pobierz je teraz
         if not self.current_data:
             try:
                 self.current_data = self._fetch_data(report_type)
@@ -318,7 +311,6 @@ class ReportsManagerWindow(QMainWindow):
             if ok:
                 data = [a for a in alerts if a.get("type") == "EXPIRED"]
 
-        # Filtrowanie po stronie klienta
         filtered_data = []
         cat_id = self.combo_category.currentData()
         zone_id = self.combo_zone.currentData()

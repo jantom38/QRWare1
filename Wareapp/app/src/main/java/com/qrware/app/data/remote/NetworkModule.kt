@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit
 
 object NetworkModule {
 
-    // DYNAMICZNY BASE_URL - teraz pobierany z ServerConfigManager
     private lateinit var serverConfigManager: ServerConfigManager
 
     fun createClient(tokenManager: TokenManager): OkHttpClient {
@@ -28,21 +27,15 @@ object NetworkModule {
             .build()
     }
 
-    /**
-     * Inicjalizuje NetworkModule z ServerConfigManager
-     */
     fun init(serverConfigManager: ServerConfigManager) {
         this.serverConfigManager = serverConfigManager
     }
     
-    /**
-     * Pobiera aktualny URL serwera
-     */
     fun getBaseUrl(): String {
         return if (::serverConfigManager.isInitialized) {
             serverConfigManager.getServerUrl()
         } else {
-            "http://192.168.0.178:8080" // Fallback
+            "http://192.168.0.178:8080"
         }
     }
 

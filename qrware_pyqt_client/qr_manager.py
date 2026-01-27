@@ -20,7 +20,7 @@ class QRManagerWindow(QMainWindow):
         self.resize(1200, 750)
 
         self.api_service = QRService()
-        self.all_data = []  # Store all loaded data for filtering
+        self.all_data = []
 
         self.custom_field_widgets = []
 
@@ -30,7 +30,6 @@ class QRManagerWindow(QMainWindow):
         main_layout.setContentsMargins(20, 20, 20, 20)
         main_layout.setSpacing(20)
 
-        # --- LEWA STRONA (Lista) ---
         left_layout = QVBoxLayout()
         
         lbl_list = QLabel("Lista Kodów QR")
@@ -51,7 +50,6 @@ class QRManagerWindow(QMainWindow):
         self.btn_refresh = QPushButton("Odśwież")
         self.btn_refresh.clicked.connect(self.load_data)
 
-        # Zmiana: Checkbox
         self.chk_only_active = QCheckBox("Tylko aktywne")
         self.chk_only_active.setChecked(True)
         self.chk_only_active.stateChanged.connect(self.filter_and_populate)
@@ -77,7 +75,6 @@ class QRManagerWindow(QMainWindow):
 
         main_layout.addLayout(left_layout, 60)
 
-        # --- PRAWA STRONA (Generator) ---
         right_layout = QVBoxLayout()
         
         lbl_gen = QLabel("Generator Kodów")
@@ -380,21 +377,16 @@ class QRManagerWindow(QMainWindow):
 
         c = canvas.Canvas(pdf_path, pagesize=(label_width, label_height))
 
-        # QR Code size and position
         qr_size = 20 * mm
         margin = 2 * mm
 
-        # Draw QR Code on the left
         c.drawImage(img_path, margin, (label_height - qr_size) / 2, width=qr_size, height=qr_size)
 
-        # Text position (to the right of QR code)
         text_x = margin + qr_size + 2 * mm
-        # Start text from top, centered vertically relative to QR code
         text_start_y = (label_height + qr_size) / 2 - 2 * mm
 
         c.setFont("Helvetica-Bold", 8)
 
-        # Helper to remove Polish chars
         def sanitize_text(text):
             if not text: return ""
             replacements = {
@@ -405,19 +397,16 @@ class QRManagerWindow(QMainWindow):
                 text = text.replace(k, v)
             return text
 
-        # Code
         c.setFont("Helvetica", 6)
         code = sanitize_text(item_data.get('code', ''))
         if len(code) > 15:
             code = code[:12] + "..."
         c.drawString(text_x, text_start_y, f"Kod: {code}")
 
-        # Type
         text_y = text_start_y - 4 * mm
         type_str = sanitize_text(item_data.get('type', ''))
         c.drawString(text_x, text_y, f"Typ: {type_str}")
 
-        # Data
         text_y -= 4 * mm
         data_str = sanitize_text(item_data.get('data', ''))
         if len(data_str) > 15:

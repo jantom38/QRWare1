@@ -24,7 +24,6 @@ class CategoriesApi:
         except Exception as e:
             return False, f"Błąd formatu odpowiedzi: {e}", None
 
-        # ZMIANA: Akceptujemy kody 200 (OK) i 201 (Created)
         if resp.status_code not in (200, 201):
             return False, f"Błąd {resp.status_code}", None
 
@@ -113,7 +112,6 @@ class CategoriesApi:
             resp = requests.delete(url, headers=_auth_headers(self.cfg), timeout=self.timeout)
         except Exception as e:
             return False, f"Błąd usuwania: {e}"
-        # DELETE zwykle zwraca 200 lub 204
         if resp.status_code not in (200, 204):
             return False, f"Błąd {resp.status_code}"
         return True, "Usunięto"

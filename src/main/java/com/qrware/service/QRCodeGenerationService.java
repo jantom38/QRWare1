@@ -44,7 +44,7 @@ public class QRCodeGenerationService {
             Long entityId,
             String generatedBy,
             String generationReason,
-            Integer size) { // Added size parameter
+            Integer size) {
 
         try {
             String systemId = generateUniqueCode();
@@ -91,7 +91,7 @@ public class QRCodeGenerationService {
             Long entityId,
             String generatedBy,
             String generationReason,
-            Integer size) { // Added size parameter
+            Integer size) {
 
         try {
             String systemId = generateUniqueCode();
@@ -127,7 +127,6 @@ public class QRCodeGenerationService {
         }
     }
     
-    // Overloaded methods for backward compatibility if needed, though controller will be updated
     public QRCodeData generateQRCodeSync(
             String data,
             QRCodeType type,

@@ -11,28 +11,22 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/**
- * Stan formularza dodawania użytkownika.
- */
 data class AddUserFormState(
     val username: String = "",
     val email: String = "",
     val password: String = "",
     val firstName: String = "",
     val lastName: String = "",
-    val phone: String = "", // Używamy "" dla null
-    val roles: Set<String> = setOf("USER"), // Domyślna rola
+    val phone: String = "",
+    val roles: Set<String> = setOf("USER"),
     val active: Boolean = true,
     val emailVerified: Boolean = false
 )
 
-/**
- * Stan całego ekranu dodawania.
- */
 data class AddUserUiState(
     val isSaving: Boolean = false,
     val error: String? = null,
-    val createSuccess: Boolean = false, // Flaga do nawigacji wstecz
+    val createSuccess: Boolean = false,
     val formState: AddUserFormState = AddUserFormState()
 )
 
@@ -43,14 +37,10 @@ class AddUserViewModel(
     private val _uiState = MutableStateFlow(AddUserUiState())
     val uiState = _uiState.asStateFlow()
 
-    /**
-     * Waliduje dane i wysyła żądanie utworzenia użytkownika.
-     */
     fun createUser() {
         if (_uiState.value.isSaving) return
         val form = _uiState.value.formState
 
-        // --- Prosta walidacja ---
         if (form.username.length < 3) {
             _uiState.update { it.copy(error = "Nazwa użytkownika musi mieć co najmniej 3 znaki.") }
             return
@@ -67,11 +57,9 @@ class AddUserViewModel(
             _uiState.update { it.copy(error = "Użytkownik musi mieć co najmniej jedną rolę.") }
             return
         }
-        // --- Koniec walidacji ---
 
         _uiState.update { it.copy(isSaving = true, error = null) }
 
-        // Utwórz obiekt żądania
         val request = AdminCreateUserRequest(
             username = form.username,
             email = form.email,
@@ -101,8 +89,6 @@ class AddUserViewModel(
                 }
         }
     }
-
-    // --- Funkcje obsługi zmian w formularzu ---
 
     fun onUsernameChange(username: String) {
         _uiState.update { it.copy(formState = it.formState.copy(username = username)) }
@@ -145,17 +131,11 @@ class AddUserViewModel(
         _uiState.update { it.copy(formState = it.formState.copy(roles = rolesSet)) }
     }
 
-    /**
-     * Resetuje flagę sukcesu po nawigacji.
-     */
     fun onCreateSuccessConsumed() {
         _uiState.update { it.copy(createSuccess = false) }
     }
 }
 
-/**
- * Factory dla AddUserViewModel.
- */
 class AddUserViewModelFactory(
     private val repository: UserManagementRepository
 ) : ViewModelProvider.Factory {

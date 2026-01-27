@@ -168,8 +168,6 @@ class OrderControllerTest {
         assertEquals("Failed to create order", response.getBody().getMessage());
     }
 
-    // ==================== GET ORDER - EDGE CASES ====================
-
     @Test
     void getOrderById_ShouldReturnUnauthorized_WhenNoCurrentUser() {
         Long id = 1L;
@@ -185,8 +183,6 @@ class OrderControllerTest {
         assertNotNull(response.getBody());
         assertFalse(response.getBody().isSuccess());
     }
-
-    // ==================== CREATE ORDER - DIFFERENT TYPES ====================
 
     @Test
     void createOrder_ShouldCreateOutboundOrder() {
@@ -291,8 +287,6 @@ class OrderControllerTest {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
     }
 
-    // ==================== CREATE ORDER - WITH PRIORITY ====================
-
     @Test
     void createOrder_ShouldCreateOrderWithUrgentPriority() {
         OrderController.CreateOrderRequest request = new OrderController.CreateOrderRequest();
@@ -319,8 +313,6 @@ class OrderControllerTest {
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
     }
-
-    // ==================== CREATE ORDER - WITH ASSIGNED USER ====================
 
     @Test
     void createOrder_ShouldCreateOrderWithAssignedUser() {
@@ -365,8 +357,6 @@ class OrderControllerTest {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
     }
 
-    // ==================== CREATE ORDER - UNAUTHORIZED ====================
-
     @Test
     void createOrder_ShouldReturnUnauthorized_WhenNoCurrentUser() {
         OrderController.CreateOrderRequest request = new OrderController.CreateOrderRequest();
@@ -379,8 +369,6 @@ class OrderControllerTest {
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
         assertFalse(response.getBody().isSuccess());
     }
-
-    // ==================== CREATE ORDER - EXCEPTION HANDLING ====================
 
     @Test
     void createOrder_ShouldReturnError_WhenServiceThrowsException() {

@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
-// Stan UI dla ekranu dodawania produktu
 data class AddProductUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
@@ -89,7 +88,6 @@ class AddProductViewModel(
         }
     }
 
-    // Funkcja do czyszczenia komunikatów po ich wyświetleniu
     fun clearMessages() {
         _uiState.value = _uiState.value.copy(error = null, successMessage = null)
     }

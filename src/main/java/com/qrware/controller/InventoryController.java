@@ -8,13 +8,11 @@ import com.qrware.repository.inventory.MovementHistoryRepository;
 import com.qrware.service.MovementHistoryService;
 import com.qrware.exception.ResourceNotFoundException;
 
-// --- NOWE IMPORTY ---
 import com.qrware.dto.DTOMapper;
 import com.qrware.dto.InventoryItemDTO;
 import com.qrware.dto.InventoryAlertDTO;
 import com.qrware.dto.LowStockReportDTO;
 import java.util.ArrayList;
-// --- ---
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +28,7 @@ import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors; // Import dla stream().map()
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/inventory")
@@ -314,24 +312,21 @@ public class InventoryController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
-        // Create movement history record
         try {
             movementHistoryService.createMovementHistory(
                 item.getId(),
                 MovementType.RECEIPT,
                 previousQuantity,
                 newQuantity,
-                null, // fromLocation
-                item.getLocation(), // toLocation
+                null, 
+                item.getLocation(), 
                 request.getReason() != null ? request.getReason() : "Przyjęcie towaru przez aplikację"
             );
             logger.info("Utworzono wpis w historii ruchów dla przyjęcia towaru. ID pozycji: {}", id);
         } catch (Exception e) {
             logger.error("Błąd podczas tworzenia wpisu w historii ruchów: {}", e.getMessage());
-            // Kontynuuj - nie przerywaj operacji z powodu błędu historii
         }
 
-        // Zwróć DTO
         InventoryItem reloadedItem = inventoryRepository.findById(updatedItem.getId()).orElse(updatedItem);
         return ResponseEntity.ok(dtoMapper.toDTO(reloadedItem));
     }
@@ -361,7 +356,7 @@ public class InventoryController {
 
         if (newQuantity < 0) {
             logger.warn("Próba wydania większej ilości towaru niż dostępna dla ID: {}", id);
-            return ResponseEntity.badRequest().build(); // TODO: Lepsza obsługa błędu
+            return ResponseEntity.badRequest().build(); 
         }
 
         item.setQuantity(newQuantity);
@@ -371,30 +366,26 @@ public class InventoryController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
-        // Create movement history record
         try {
             movementHistoryService.createMovementHistory(
                 item.getId(),
                 MovementType.ISSUE,
                 previousQuantity,
                 newQuantity,
-                item.getLocation(), // fromLocation
-                null, // toLocation
+                item.getLocation(), 
+                null, 
                 request.getReason() != null ? request.getReason() : "Wydanie towaru przez aplikację"
             );
             logger.info("Utworzono wpis w historii ruchów dla wydania towaru. ID pozycji: {}", id);
         } catch (Exception e) {
             logger.error("Błąd podczas tworzenia wpisu w historii ruchów: {}", e.getMessage());
-            // Kontynuuj - nie przerywaj operacji z powodu błędu historii
         }
 
-        // Zwróć DTO
         InventoryItem reloadedItem = inventoryRepository.findById(updatedItem.getId()).orElse(updatedItem);
         return ResponseEntity.ok(dtoMapper.toDTO(reloadedItem));
     }
 
 
-    // --- DTOs (pozostają bez zmian) ---
     public static class CreateInventoryRequest {
         private Long productId;
         private Long locationId;
@@ -421,7 +412,6 @@ public class InventoryController {
         private Boolean hold = false;
         private String holdReason;
 
-        // Gettery i settery
         public Long getProductId() { return productId; }
         public void setProductId(Long productId) { this.productId = productId; }
         public Long getLocationId() { return locationId; }
@@ -496,7 +486,6 @@ public class InventoryController {
         private Boolean hold;
         private String holdReason;
 
-        // Gettery i settery
         public Long getLocationId() { return locationId; }
         public void setLocationId(Long locationId) { this.locationId = locationId; }
         public Integer getQuantity() { return quantity; }

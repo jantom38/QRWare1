@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-// Stan UI: Ładowanie, Produkt lub Błąd
 data class ProductDetailsUiState(
     val isLoading: Boolean = true,
     val product: ProductDTO? = null,

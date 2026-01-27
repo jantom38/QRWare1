@@ -4,7 +4,6 @@ from PyQt6.QtCore import Qt
 
 
 def apply_modern_style(app: QApplication, dark: bool = False) -> None:
-    # Fusion daje nowocześniejszy wygląd bazowy
     app.setStyle("Fusion")
 
     if dark:
@@ -23,7 +22,6 @@ def apply_modern_style(app: QApplication, dark: bool = False) -> None:
         palette.setColor(QPalette.ColorRole.HighlightedText, QColor(255, 255, 255))
         app.setPalette(palette)
 
-    # Nowoczesny QSS: zaokrąglenia, kolory akcentu, delikatne cienie
     qss = """
     QWidget { font-size: 14px; }
 
@@ -52,7 +50,6 @@ def apply_modern_style(app: QApplication, dark: bool = False) -> None:
         outline: none;
     }
 
-    /* Stylizacja listy rozwijanej QComboBox */
     QComboBox QAbstractItemView {
         border: 1px solid #D0D7DE;
         background-color: #FFFFFF;

@@ -27,10 +27,6 @@ class ForgotPasswordViewModel(private val authRepository: AuthRepository) : View
             if (result.isSuccess) {
                 _uiState.update { it.copy(isLoading = false, success = true) }
             } else {
-                // Even if it fails (e.g. email not found), for security reasons we might want to show success or generic message.
-                // But here we follow repository result.
-                // The backend usually returns 200 OK even if email not found to prevent enumeration.
-                // If repository throws exception (network error), we show error.
                 _uiState.update { it.copy(isLoading = false, error = result.exceptionOrNull()?.message ?: "Błąd wysyłania żądania") }
             }
         }

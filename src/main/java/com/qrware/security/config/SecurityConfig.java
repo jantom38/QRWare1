@@ -91,7 +91,7 @@ public class SecurityConfig {
             .requestMatchers("/api/locations/**").authenticated()
             .requestMatchers("/api/zone/**").authenticated()
             .requestMatchers(HttpMethod.GET, "/api/inventory/**").authenticated()
-            .requestMatchers("/api/qr-codes/**").authenticated() // ZMIANA: /api/qr/** -> /api/qr-codes/**
+            .requestMatchers("/api/qr-codes/**").authenticated()
             .requestMatchers(HttpMethod.GET, "/api/movements/**").hasAnyRole("USER", "WAREHOUSE_MANAGER", "ADMIN")
             .requestMatchers("/api/audit/**").hasAnyRole("WAREHOUSE_MANAGER", "ADMIN")
             .requestMatchers("/api/reports/**").hasAnyRole("WAREHOUSE_MANAGER", "ADMIN")

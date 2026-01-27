@@ -464,7 +464,7 @@ public class UserManagementController {
             Role savedRole = userService.createRole(newRole, roleRequest.getPermissions());
             
             if (savedRole == null) {
-                return buildErrorResponse("Nie udało się utworzyć roli", HttpStatus.INTERNAL_SERVER_ERROR);
+                return buildErrorResponse("Nie udało się utworzyć rolę", HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
             return buildSuccessResponse(new RoleResponse(savedRole), "Utworzono rolę", HttpStatus.CREATED);

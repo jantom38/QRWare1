@@ -14,8 +14,6 @@ class OrderItemRepository(
     private val gson: Gson
 ) {
 
-    // === ORDER ITEM OPERATIONS ===
-
     suspend fun getOrderItemById(id: Long): Result<OrderItemDTO> {
         return withContext(Dispatchers.IO) {
             try {
@@ -116,8 +114,6 @@ class OrderItemRepository(
         }
     }
 
-    // === QR CODE OPERATIONS ===
-
     suspend fun scanQRCode(qrCodeData: String, orderId: Long? = null): Result<Any> {
         return withContext(Dispatchers.IO) {
             try {
@@ -189,8 +185,6 @@ class OrderItemRepository(
         }
     }
 
-    // === BATCH AND SERIAL OPERATIONS ===
-
     suspend fun setBatchNumber(id: Long, batchNumber: String): Result<OrderItemDTO> {
         return withContext(Dispatchers.IO) {
             try {
@@ -224,8 +218,6 @@ class OrderItemRepository(
             }
         }
     }
-
-    // === LIST AND SEARCH OPERATIONS ===
 
     suspend fun getActiveOrderItems(): Result<List<OrderItemDTO>> {
         return withContext(Dispatchers.IO) {

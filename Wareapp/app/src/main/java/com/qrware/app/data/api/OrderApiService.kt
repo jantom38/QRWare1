@@ -6,8 +6,6 @@ import retrofit2.http.*
 
 interface OrderApiService {
 
-    // === ORDER ENDPOINTS ===
-
     @GET("api/orders")
     suspend fun getAllOrders(
         @Query("page") page: Int = 0,
@@ -69,8 +67,6 @@ interface OrderApiService {
 
     @GET("api/orders/statistics/status")
     suspend fun getOrderStatistics(): Response<ApiResponse<List<StatusCountDTO>>>
-
-    // === ORDER ITEM ENDPOINTS ===
 
     @GET("api/order-items/{id}")
     suspend fun getOrderItemById(@Path("id") id: Long): Response<ApiResponse<OrderItemDTO>>
@@ -137,7 +133,6 @@ interface OrderApiService {
     suspend fun getOrderItemStatistics(): Response<ApiResponse<List<ItemStatusCountDTO>>>
 }
 
-// Helper data class for paged responses
 data class PagedResponse<T>(
     val content: List<T>,
     val pageable: Pageable,

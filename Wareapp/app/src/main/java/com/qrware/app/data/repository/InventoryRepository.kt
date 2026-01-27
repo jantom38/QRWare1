@@ -23,7 +23,6 @@ class InventoryRepository @Inject constructor(
     suspend fun searchInventory(query: String): List<InventoryItemDTO> {
         return apiService.searchInventory(query)
     }
-    // -------------------------------
 
     suspend fun getInventoryItemById(itemId: Long): InventoryItemDTO {
         return apiService.getInventoryItemById(itemId)

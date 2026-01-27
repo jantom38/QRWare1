@@ -41,16 +41,6 @@ def tr(key):
 
 
 class InventorySelectionDialog(QDialog):
-    """Bardziej logiczny dialog wyboru pozycji do zlecenia:
-
-    1) Użytkownik najpierw wybiera produkt.
-    2) Następnie wybiera, czy wymagana jest dokładna lokalizacja (requiresExactInventory).
-       - Jeśli TAK: użytkownik wybiera konkretny stan magazynowy (inventory item) z listy (z lokalizacjami).
-       - Jeśli NIE: system może dobrać źródło, a my nie wysyłamy sourceLocationId.
-
-    Zwraca słownik gotowy do dodania do `added_items` w kreatorze zlecenia.
-    """
-
     def __init__(
         self,
         api_service: OrderService,
@@ -76,7 +66,6 @@ class InventorySelectionDialog(QDialog):
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(15)
 
-        # === KROK 1: wybór produktu (czytelna lista + wyszukiwarka) ===
         lbl_prod = QLabel("1. Wybierz Produkt")
         lbl_prod.setStyleSheet("font-weight: bold; font-size: 14px; color: #2c3e50;")
         layout.addWidget(lbl_prod)
@@ -101,14 +90,13 @@ class InventorySelectionDialog(QDialog):
         qty_row.addStretch()
         layout.addLayout(qty_row)
 
-        # === KROK 2: przełącznik „dokładna lokalizacja” ===
         lbl_loc = QLabel("2. Opcje Lokalizacji")
         lbl_loc.setStyleSheet("font-weight: bold; font-size: 14px; color: #2c3e50; margin-top: 10px;")
         layout.addWidget(lbl_loc)
 
         self.exact_checkbox = QCheckBox("Wymagaj dokładnej lokalizacji (pobierz z konkretnego miejsca)")
         self.exact_checkbox.setChecked(True)
-        self.exact_checkbox.setEnabled(False)  # aktywuje się po wyborze produktu
+        self.exact_checkbox.setEnabled(False)
         self.exact_checkbox.stateChanged.connect(self.on_exact_changed)
         layout.addWidget(self.exact_checkbox)
 
@@ -119,7 +107,6 @@ class InventorySelectionDialog(QDialog):
         self.hint_label.setStyleSheet("color: gray; font-style: italic; font-size: 11px;")
         layout.addWidget(self.hint_label)
 
-        # === KROK 3 (gdy requiresExactInventory=True): lista stanów magazynowych ===
         self.table = QTableWidget()
         self.table.setColumnCount(6)
         self.table.setHorizontalHeaderLabels([
@@ -175,7 +162,6 @@ class InventorySelectionDialog(QDialog):
             self.product_list.addItem(item)
 
         self.product_list.blockSignals(False)
-        # jeśli jest dokładnie 1 wynik, zaznacz automatycznie
         if self.product_list.count() == 1:
             self.product_list.setCurrentRow(0)
         else:
@@ -196,7 +182,6 @@ class InventorySelectionDialog(QDialog):
             self.table.setRowCount(0)
             return
 
-        # Po wybraniu produktu od razu odśwież listę (jeśli exact)
         self.on_exact_changed()
 
     def on_exact_changed(self):
@@ -226,8 +211,6 @@ class InventorySelectionDialog(QDialog):
         if not prod_id:
             return
 
-        # Jeśli zlecenie ma ustawioną lokalizację źródłową (np. OUTBOUND/TRANSFER),
-        # to w trybie exact ograniczamy wybór do tej lokalizacji.
         items = []
         if self.fixed_source_location_id and self.order_type in ["OUTBOUND", "TRANSFER"]:
             ok, msg, items = self.inv_api.by_location(int(self.fixed_source_location_id))
@@ -240,7 +223,6 @@ class InventorySelectionDialog(QDialog):
             QMessageBox.warning(self, "Błąd", f"Nie udało się pobrać stanów magazynowych: {msg}")
             items = []
 
-        # Gdy mamy fixed_source_location_id, informujemy użytkownika i nie pokazujemy innych lokalizacji
         if self.fixed_source_location_id and self.order_type in ["OUTBOUND", "TRANSFER"]:
             self.fixed_loc_label.setText(f"Źródło zlecenia: {self.fixed_source_location_id} (lista ograniczona do tej lokalizacji)")
         else:
@@ -271,7 +253,6 @@ class InventorySelectionDialog(QDialog):
 
         qty = self.qty_spin.value()
 
-        # Tryb 1: bez dokładnej lokalizacji -> nie wymagamy wyboru w tabeli
         if not self.exact_checkbox.isChecked():
             prod_name = current.data(Qt.ItemDataRole.UserRole + 1) if current else ""
             prod_sku = current.data(Qt.ItemDataRole.UserRole + 2) if current else ""
@@ -288,7 +269,6 @@ class InventorySelectionDialog(QDialog):
             self.accept()
             return
 
-        # Tryb 2: dokładna lokalizacja -> wymagamy wyboru inventory item
         row = self.table.currentRow()
         if row < 0:
             QMessageBox.warning(self, "Brak wyboru", "Wybierz wiersz ze stanem magazynowym.")
@@ -478,7 +458,6 @@ class CreateOrderDialog(QDialog):
     def load_combo_data(self):
         self.combo_source.clear()
         self.combo_dest.clear()
-        # products combo removed from tab 3 - selection happens in InventorySelectionDialog
         self.combo_assignee.clear()
 
         self.combo_source.addItem("--- Brak / Nie dotyczy ---", None)
@@ -515,25 +494,18 @@ class CreateOrderDialog(QDialog):
         if not selected:
             return
 
-        # Walidacja + autofill: jeśli requiresExactInventory=True, wykorzystujemy pola Source/Destination zlecenia
-        # 1) jeśli order ma już źródło i jest exact -> dialog ogranicza listę do tej lokalizacji
-        # 2) jeśli order nie ma źródła, a użytkownik wybrał inventory item -> ustawimy source automatycznie
         order_type = self.input_type.currentData()
         if order_type in ['OUTBOUND', 'TRANSFER'] and bool(selected.get('requiresExactInventory', True)) and not selected.get('sourceLocationId'):
             QMessageBox.warning(self, "Błąd walidacji", "Nie wybrano lokalizacji źródłowej (wymagane przy trybie dokładnym).")
             return
 
-        # Auto-uzupełnianie pól zlecenia: jeśli exact i brak ustawionej lokalizacji na zleceniu,
-        # ustaw źródło/cel na podstawie wybranego inventory item.
         if bool(selected.get('requiresExactInventory', True)):
             src_id = selected.get('sourceLocationId')
             if order_type in ['OUTBOUND', 'TRANSFER'] and not self.combo_source.currentData() and src_id:
-                # ustaw combo_source na src_id
                 idx = self.combo_source.findData(src_id)
                 if idx >= 0:
                     self.combo_source.setCurrentIndex(idx)
             if order_type in ['INBOUND'] and not self.combo_dest.currentData() and src_id:
-                # dla inbound traktujemy wybraną lokalizację jako docelową
                 idx = self.combo_dest.findData(src_id)
                 if idx >= 0:
                     self.combo_dest.setCurrentIndex(idx)
@@ -548,7 +520,6 @@ class CreateOrderDialog(QDialog):
             "sourceLocationId": selected.get('sourceLocationId'),
             "sourceLocationCode": selected.get('sourceLocationCode'),
             "requiresExactInventory": bool(selected.get('requiresExactInventory')),
-            # backend nie ma inventoryItemId w CreateOrderItemRequest -> zapisujemy w notes
             "notes": f"inventoryItemId={inv_id}" if inv_id else ""
         })
 
@@ -612,23 +583,19 @@ class EditOrderDialog(QDialog):
         lbl_title.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;")
         layout.addRow(lbl_title)
 
-        # Priorytet
         self.input_priority = QComboBox()
         self.input_priority.addItem("Normalny", "NORMAL")
         self.input_priority.addItem("Wysoki", "HIGH")
         self.input_priority.addItem("Krytyczny", "CRITICAL")
         self.input_priority.addItem("Niski", "LOW")
 
-        # Oczekiwana data
         self.input_expected_date = QDateEdit()
         self.input_expected_date.setCalendarPopup(True)
         self.input_expected_date.setDate(QDate.currentDate().addDays(1))
 
-        # Opis
         self.input_desc = QTextEdit()
         self.input_desc.setMaximumHeight(100)
 
-        # Lokalizacje
         self.combo_source = QComboBox()
         self.combo_dest = QComboBox()
         self.combo_assignee = QComboBox()
@@ -648,7 +615,6 @@ class EditOrderDialog(QDialog):
             display = f"{fullname} ({username})" if fullname else username
             self.combo_assignee.addItem(display, uid)
 
-        # Wypełnij bieżącymi danymi
         self.input_desc.setText(self.order.get('description') or "")
 
         prio = (self.order.get('priority') or "NORMAL").upper()
@@ -659,7 +625,6 @@ class EditOrderDialog(QDialog):
         exp = self.order.get('expectedDate')
         if exp:
             try:
-                # exp w formacie ISO, bierzemy YYYY-MM-DD
                 y, m, d = int(exp[0:4]), int(exp[5:7]), int(exp[8:10])
                 self.input_expected_date.setDate(QDate(y, m, d))
             except Exception:
@@ -735,7 +700,6 @@ class OrderManagerWindow(QMainWindow):
         main_layout.setContentsMargins(20, 20, 20, 20)
         main_layout.setSpacing(20)
 
-        # --- LEWA STRONA (Lista) ---
         left_layout = QVBoxLayout()
         
         lbl_list = QLabel("Lista Zleceń")
@@ -756,7 +720,6 @@ class OrderManagerWindow(QMainWindow):
         self.table_orders.setStyleSheet("QTableWidget { border: 1px solid #dcdcdc; }")
         self.table_orders.itemClicked.connect(self.on_order_selected)
         
-        # Context menu for orders table
         self.table_orders.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.table_orders.customContextMenuRequested.connect(self._show_order_context_menu)
         
@@ -766,7 +729,6 @@ class OrderManagerWindow(QMainWindow):
         btn_refresh = QPushButton("Odśwież Listę")
         btn_refresh.clicked.connect(self.load_orders)
 
-        # Zmiana: ComboBox do filtrowania statusów
         self.combo_status_filter = QComboBox()
         self.combo_status_filter.addItem("Wszystkie", "ALL")
         self.combo_status_filter.addItem("Aktywne", "ACTIVE")
@@ -779,7 +741,6 @@ class OrderManagerWindow(QMainWindow):
         self.combo_status_filter.addItem("Anulowane", "CANCELLED")
         self.combo_status_filter.addItem("Nieudane", "FAILED")
 
-        # Domyślnie "Aktywne"
         self.combo_status_filter.setCurrentIndex(1)
         self.combo_status_filter.currentIndexChanged.connect(self.load_orders)
 
@@ -795,7 +756,6 @@ class OrderManagerWindow(QMainWindow):
 
         main_layout.addLayout(left_layout, 40)
 
-        # --- PRAWA STRONA (Szczegóły) ---
         right_layout = QVBoxLayout()
         self.details_group = QGroupBox("Szczegóły Zlecenia")
         self.details_group.setVisible(False)
@@ -804,7 +764,6 @@ class OrderManagerWindow(QMainWindow):
         details_inner_layout = QVBoxLayout()
         details_inner_layout.setSpacing(15)
 
-        # Header szczegółów
         header_widget = QWidget()
         header_widget.setStyleSheet("background-color: #f8f9fa; border-radius: 6px; padding: 10px;")
         header_grid = QGridLayout(header_widget)
@@ -909,7 +868,6 @@ class OrderManagerWindow(QMainWindow):
         if row < 0:
             return
 
-        # Pobieranie danych z wiersza
         id_item = self.table_orders.item(row, 0)
         num_item = self.table_orders.item(row, 1)
 
@@ -923,8 +881,6 @@ class OrderManagerWindow(QMainWindow):
             from qr_manager import QRManagerWindow
 
             self.qr_window = QRManagerWindow()
-            # Ustawiamy dane: data=order_num, type=CUSTOM (lub inny jeśli dodasz ORDER), entity_type=order, entity_id=order_id
-            # Ponieważ w QRManagerWindow nie ma typu ORDER w combo_type, użyjemy CUSTOM i dodamy klucz
             self.qr_window.set_form_data(
                 data=order_num,
                 qr_type="CUSTOM",
@@ -942,7 +898,6 @@ class OrderManagerWindow(QMainWindow):
             QMessageBox.warning(self, "Błąd", f"Nie udało się pobrać zleceń:\n{data}")
             return
 
-        # Client-side filtering
         filter_val = self.combo_status_filter.currentData()
 
         filtered_data = []
@@ -952,11 +907,9 @@ class OrderManagerWindow(QMainWindow):
             if filter_val == "ALL":
                 filtered_data.append(order)
             elif filter_val == "ACTIVE":
-                # Active = not final
                 if status not in ['COMPLETED', 'CANCELLED', 'FAILED']:
                     filtered_data.append(order)
             else:
-                # Exact match
                 if status == filter_val:
                     filtered_data.append(order)
 
@@ -1144,7 +1097,6 @@ class OrderManagerWindow(QMainWindow):
                         "requestedQuantity": item['requestedQuantity'],
                         "requiresExactInventory": bool(item.get('requiresExactInventory', True)),
                         "notes": item.get('notes') or "",
-                        # sourceLocationId: tylko gdy wymagamy dokladnego inventory/lokalizacji
                         "sourceLocationId": (item.get('sourceLocationId') or order_data['sourceLocationId'])
                         if bool(item.get('requiresExactInventory', True)) else None,
                         "destinationLocationId": order_data['destinationLocationId']

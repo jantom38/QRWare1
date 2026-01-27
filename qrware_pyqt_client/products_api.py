@@ -33,7 +33,6 @@ class ProductsApi:
         if resp.status_code != 200:
             return False, f"Błąd {resp.status_code}", [], {}
 
-        # Spring Page response: { content: [...], totalElements, totalPages, ... }
         content = data.get("content") if isinstance(data, dict) else None
         if content is None:
             return False, "Nieoczekiwana odpowiedź serwera (brak content)", [], {}

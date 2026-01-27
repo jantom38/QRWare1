@@ -61,7 +61,7 @@ public enum OrderPriority {
                 return priority;
             }
         }
-        return NORMAL; // Default fallback
+        return NORMAL;
     }
 
     @Override

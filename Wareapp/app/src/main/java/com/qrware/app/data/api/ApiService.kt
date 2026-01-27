@@ -197,7 +197,6 @@ interface ApiService {
     suspend fun toggleCategoryActive(@Path("id") categoryId: Long): ApiResponse<CategoryDTO>
 
 
-    // --- QR CODES ---
     @GET("api/qr-codes")
     suspend fun getAllQRCodes(
         @Query("page") page: Int = 0,
