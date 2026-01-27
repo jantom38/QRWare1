@@ -14,7 +14,6 @@ spring:
 
   # Database Configuration
   datasource:
-    # Dodano ?currentSchema=public aby wymusić użycie schematu public
     url: jdbc:postgresql://localhost:5432/qrware_db?currentSchema=public
     username: qrware_user
     password: qrware_password
@@ -28,7 +27,6 @@ spring:
 
   # JPA Configuration
   jpa:
-    # Zmieniono na update - bezpieczniejsze. Jeśli baza jest pusta, update też utworzy tabele.
     hibernate:
       ddl-auto: update
     show-sql: false
@@ -39,7 +37,6 @@ spring:
           batch_size: 20
         order_inserts: true
         order_updates: true
-        # Opcjonalnie można wymusić domyślny schemat tutaj
         default_schema: public
 
   # Flyway Migration
@@ -65,8 +62,8 @@ spring:
 # JWT Configuration
 jwt:
   secret: qrware-super-secret-key-change-in-production-min-512-bits
-  expiration: 86400000 # 24 hours
-  refresh-expiration: 604800000 # 7 days
+  expiration: 86400000
+  refresh-expiration: 604800000
 
 # QR Code Configuration
 qrcode:
@@ -79,7 +76,7 @@ file:
   storage:
     upload-dir: uploads
     qr-code-dir: qr-codes
-    max-file-size: 10485760 # 10MB
+    max-file-size: 10485760
     allowed-extensions:
       - png
       - jpg
@@ -102,7 +99,7 @@ logging:
   level:
     com.qrware: INFO
     org.springframework.security: WARN
-    org.hibernate.SQL: OFF # Wyłączono logowanie SQL
+    org.hibernate.SQL: OFF
     org.hibernate.type.descriptor.sql.BasicBinder: OFF
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
