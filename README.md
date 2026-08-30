@@ -122,10 +122,6 @@ export CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8080
 - Username: `sa`
 - Password: (puste)
 
-### Actuator Endpoints
-- Health: http://localhost:8080/actuator/health
-- Info: http://localhost:8080/actuator/info
-- Metrics: http://localhost:8080/actuator/metrics
 
 ## 🛠️ Development
 
